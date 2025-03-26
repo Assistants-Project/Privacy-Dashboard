@@ -65,8 +65,8 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | :-----: | :------------------------------------------------------------: |
 | **FR1** |                       **Manage Accounts**                       |
 |  FR1.1  | Enable the user to access functionalities of the application based on his role, which is one of the following: Data Subject, Data Controller, Data Protection Officer. |
-|  FR1.2  | Enable the user to create a new account.                        |
-|  FR1.3  | Enable the user to log in and access his personal dashboard.    |
+|  FR1.2  | Enable the Unlogged User to create a new account.                        |
+|  FR1.3  | Enable the Unlogged User to log in and access his personal dashboard.    |
 |  FR1.4  | Enable the user to manage his account, including changing his email and password.    |
 |  FR1.5  | Enable the user to log out.    |
 | **FR2** |                       **Manage Contacts**                       |
@@ -127,16 +127,18 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | :---: | :--------------------------------: | :-------------------------------------------------------------------------------------: |
 | NFR1  |             Efficiency             |                         Response time should be less than 0.5 s                         |
 | NFR2  |            Reliability             |                        No data about users should be lost at all                        |
-| NFR3  |            Reliability             |                       Should be accessible for color-blind people                       |
-| NFR4  |            Portability             |               Website should run without problems on all popular browsers               |
-| NFR5  |            Portability             |                              Website should be responsive                               |
+| NFR3  |            Reliability             |             The web application should be accessible for color-blind people             |
+| NFR4  |            Portability             |       The web application should run without problems on all popular browsers           |
+| NFR5  |            Portability             |                       The web application should be responsive                          |
 | NFR6  |             Usability              | At least 95% of average users (no computer professionals with more than 1 year of experience of using PC) can use the application within 1 hour, with no training |
 | NFR7  |               Safety               |          Data exchange should ensure confidentiality, integrity and availability        |
-| NFR8  |               Privacy              |               The application should be fully compliant with GDPR regulations           |
+| NFR8  |               Privacy              |               The web application should be fully compliant with GDPR regulations           |
 
 ## Use Case Diagram and Use Cases
 
 ### Use Case Diagram
+
+![Use Case Diagram](./../images/UseCaseDiagram.png)
 
 ### Use Cases
 
