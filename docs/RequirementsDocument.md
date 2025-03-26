@@ -15,6 +15,29 @@ A web application for dynamic privacy consent management integrated with a smart
 - [Use Case Diagram and Use Cases](#use-case-diagram-and-use-cases)
   - [Use Case Diagram](#use-case-diagram)
   - [Use Cases](#use-cases)
+    - [Use Case 1, Create a new account (UC1)](#use-case-1-create-a-new-account-uc1)
+      - [Scenario 1.1](#scenario-11)
+      - [Scenario 1.2](#scenario-12)
+      - [Scenario 1.3](#scenario-13)
+      - [Scenario 1.4](#scenario-14)
+    - [Use Case 2, Log in (UC2)](#use-case-2-log-in-uc2)
+      - [Scenario 2.1](#scenario-21)
+      - [Scenario 2.2](#scenario-22)
+      - [Scenario 2.3](#scenario-23)
+      - [Scenario 2.4](#scenario-24)
+    - [Use Case 3, Manage account (UC3)](#use-case-3-manage-account-uc3)
+      - [Scenario 3.1](#scenario-31)
+      - [Scenario 3.2](#scenario-32)
+    - [Use Case 4, Log out (UC4)](#use-case-4-log-out-uc4)
+      - [Scenario 4.1](#scenario-41)
+      - [Scenario 4.2](#scenario-42)
+    - [Use Case 5, Manage messages (UC5)](#use-case-5-manage-messages-uc5)
+      - [Scenario 5.1](#scenario-51)
+      - [Scenario 5.2](#scenario-52)
+    - [Use Case 6, Manage Rights - Data Controller or DPO (UC6)](#use-case-6-manage-rights---data-controller-or-dpo-uc6)
+      - [Scenario 6.1](#scenario-61)
+    - [Use Case 7, Manage Rights - Data Subject (UC7)](#use-case-7-manage-rights---data-subject-uc7)
+      - [Scenario 7.1](#scenario-71)
 - [Glossary](#glossary)
 - [System Design](#deployment-diagram)
 - [Deployment Diagram](#deployment-diagram)
@@ -64,11 +87,10 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |   ID    |                              Name                              |
 | :-----: | :------------------------------------------------------------: |
 | **FR1** |                       **Manage Accounts**                       |
-|  FR1.1  | Enable the user to access functionalities of the application based on his role, which is one of the following: Data Subject, Data Controller, Data Protection Officer. |
-|  FR1.2  | Enable the Unlogged User to create a new account.                        |
-|  FR1.3  | Enable the Unlogged User to log in and access his personal dashboard.    |
-|  FR1.4  | Enable the user to manage his account, including changing his email and password.    |
-|  FR1.5  | Enable the user to log out.    |
+|  FR1.1  | Enable the Unlogged User to create a new account choosing a role which is one of the following: Data Subject, Data Controller, Data Protection Officer. |
+|  FR1.2  | Enable the Unlogged User to log in and access his personal dashboard.    |
+|  FR1.3  | Enable the user to manage his account, including changing his email and password.    |
+|  FR1.4  | Enable the user to log out.    |
 | **FR2** |                       **Manage Contacts**                       |
 |  FR2.1  | Enable the user to see a list of available contacts. |
 |  FR2.1.1  | Enable Data Controller and DPO to view a list of all the Data Subjects with whom they have interacted and send them updates, notices, and other important information. |
@@ -141,6 +163,285 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 ![Use Case Diagram](./../images/UseCaseDiagram.png)
 
 ### Use Cases
+
+#### Use Case 1, Create a new account (UC1)
+
+| Actors Involved  |          Unlogged User           |
+| :--------------: | :------------------------------: |
+|   Precondition   | The user doesn't have an account |
+|  Post condition  |         User registered          |
+| Nominal Scenario |           Scenario 1.1           |
+|     Variants     |               None               |
+|    Exceptions    |        Scenario 1.2, 1.3, 1.4    |
+
+##### Scenario 1.1
+
+|  Scenario 1.1  |                                                    Registration                                                    |
+| :------------: | :----------------------------------------------------------------------------------------------------------------: |
+|  Precondition  |                                          The user doesn't have an account                                          |
+| Post condition |                                                  User registered                                                   |
+|     Step#      |                                                    Description                                                     |
+|       1        |                                               User: Ask to register                                                |
+|       2        |                                System: ask username, name, surname, role, email, password                          |
+|       2        |                               User: Provide username, name, surname, role, email, password                         |
+|       3        |                                System: Read username, name, surname, role, email, password                         |
+|       4        | System: Check that the provided username or email aren't associated with any account yet. The username and email haven't been used yet. |
+|       5        |                               System: Create a new user and store their information                                |
+
+##### Scenario 1.2
+
+|  Scenario 1.2  |                                                          Username or email already in use                                                 |
+| :------------: | :---------------------------------------------------------------------------------------------------------------------------------------: |
+|  Precondition  |                                                          The user has an account                                                          |
+| Post condition |                                                            Registration failed                                                            |
+|     Step#      |                                                                Description                                                                |
+|       1        |                                                           User: Ask to register                                                           |
+|       2        |                                            System: ask username, name, surname, role, email, password                                     |
+|       2        |                                           User: Provide username, name, surname, role, email, password                                    |
+|       3        |                                           System: Read username, name, surname, role, email, password                                     |
+|       4        | System: Check that the provided username or email aren't associated with any account yet. The username or email have been used already. Provide error message |
+
+##### Scenario 1.3
+
+|  Scenario 1.3  |                                    User provides empty parameters                                     |
+| :------------: | :---------------------------------------------------------------------------------------------------: |
+|  Precondition  |                                   The user doesn't have an account                                    |
+| Post condition |                                          Registration failed                                          |
+|     Step#      |                                              Description                                              |
+|       1        |                                         User: Ask to register                                         |
+|       2        |                          System: ask username, name, surname, role, email, password                   |
+|       2        |                         User: Provide username, name, surname, role, email, password                  |
+|       3        |                         System: Read username, name, surname, role, password                          |
+|       4        | System: Check that all parameters are filled. At least one parameter is empty. Provide error message. |
+
+##### Scenario 1.4
+
+|  Scenario 1.4  |                                    Data Protection Officer already exists                             |
+| :------------: | :---------------------------------------------------------------------------------------------------: |
+|  Precondition  |                                   The user doesn't have an account                                    |
+| Post condition |                                          Registration failed                                          |
+|     Step#      |                                              Description                                              |
+|       1        |                                         User: Ask to register                                         |
+|       2        |                          System: ask username, name, surname, role, email, password                   |
+|       2        |                         User: Provide username, name, surname, role = DPO, email, password            |
+|       3        |                         System: Read username, name, surname, role = DPO, password                    |
+|       4        | System: Check that DPO doesn't exist yet. The DPO has been created already. Provide error message.    |
+
+#### Use Case 2, Log in (UC2)
+
+| Actors Involved  |    Unlogged User        |
+| :--------------: | :---------------------: |
+|   Precondition   | User U is not logged in |
+|  Post condition  |     U is logged in      |
+| Nominal Scenario |      Scenario 2.1       |
+|     Variants     |          None           |
+|    Exceptions    | Scenario 2.2, 2.3, 2.4  |
+
+##### Scenario 2.1
+
+|  Scenario 2.1  |                                       Successful Login                                       |
+| :------------: | :------------------------------------------------------------------------------------------: |
+|  Precondition  |                                       U is registered                                        |
+| Post condition |                                        U is logged in                                        |
+|     Step#      |                                         Description                                          |
+|       1        |                              System: Ask for username, password                              |
+|       2        |                              User: Provide username, password.                               |
+|       3        |                               System: Read username, password.                               |
+|       4        |                            System: Given username, find the user.                            |
+|       5        | System: Retrieve password, compare with the one provided. Passwords match, user is auhorized |
+
+##### Scenario 2.2
+
+|  Scenario 2.2  |                                             Wrong password                                              |
+| :------------: | :-----------------------------------------------------------------------------------------------------: |
+|  Precondition  |                                             U is registered                                             |
+| Post condition |                                             U not logged in                                             |
+|     Step#      |                                               Description                                               |
+|       1        |                                     System: Ask username password.                                      |
+|       2        |                                    User: Provide username, password.                                    |
+|       3        |                                    System: Read username, password.                                     |
+|       4        |                                 System: Given username, find the user.                                  |
+|       5        | System: Retrieve password, compare with the one provided. Passwords do not match, user is not auhorized |
+
+##### Scenario 2.3
+
+| Scenario 2.3   |                              User not registered                              |
+| -------------- | :---------------------------------------------------------------------------: |
+| Precondition   |                              U is not registered                              |
+| Post condition |                              User not logged in                               |
+| Step#          |                                  Description                                  |
+| 1              |                        System: Ask username password.                         |
+| 2              |                       User: Provide username, password.                       |
+| 3              |                        System: Read username, password.                       |
+| 4              | System: Given username, find the user. User is not found. User not authorized |
+
+##### Scenario 2.4
+
+| Scenario 2.4   |                     User already logged in                      |
+| -------------- | :-------------------------------------------------------------: |
+| Precondition   |                         U is registered                         |
+| Post condition |                         U is logged in                          |
+| Step#          |                           Description                           |
+| 1              |                 System: Ask username password.                  |
+| 2              |                User: Provide username, password.                |
+| 3              | System: Read username, password. The user is already logged in. |
+| 4              |                 System: Return an error message                 |
+
+#### Use Case 3, Manage account (UC3)
+
+| Actors Involved  |        User             |
+| :--------------: | :---------------------: |
+|   Precondition   | User U is logged in     |
+|  Post condition  |     U changed his account informations |
+| Nominal Scenario |      Scenario 3.1       |
+|     Variants     |          None           |
+|    Exceptions    | Scenario 3.2            |
+
+##### Scenario 3.1
+
+|  Scenario 3.1  |                                           User changes account informations                                        |
+| :------------: | :----------------------------------------------------------------------------------------------------------------: |
+|  Precondition  |                                          User U is logged in                                                       |
+| Post condition |                                          U changed his account informations                                        |
+|     Step#      |                                                    Description                                                     |
+|       1        |                                               User: Ask to change account informations                             |
+|       2        |                                System: ask new username, name, surname, email, password                            |
+|       2        |                               User: Provide username, name, surname, email, password                         |
+|       3        |                                System: Read username, name, surname, email, password                         |
+|       4        | System: Check that the provided username or email aren't associated with any account yet. The username and email haven't been used yet. |
+|       5        |                               System: Update user's informations                               |
+
+##### Scenario 3.2
+
+|  Scenario 3.2  |                                            Username or email already in use                                       |
+| :------------: | :----------------------------------------------------------------------------------------------------------------: |
+|  Precondition  |                                          User U is logged in                                                       |
+| Post condition |                                         Account's informations update failed                                         |
+|     Step#      |                                                    Description                                                     |
+|       1        |                                               User: Ask to change account informations                             |
+|       2        |                                System: ask new username, name, surname, email, password                            |
+|       2        |                               User: Provide username, name, surname, email, password                         |
+|       3        |                                System: Read username, name, surname, email, password                         |
+|       4        | System: Check that the provided username or email aren't associated with any account yet. The username or email have been used already. Provide error message |
+
+#### Use Case 4, Log out (UC4)
+
+| Actors Involved  |        User        |
+| :--------------: | :----------------: |
+|   Precondition   |   User U exists    |
+|  Post condition  | U is not logged in |
+| Nominal Scenario |    Scenario 4.1    |
+|     Variants     |                    |
+|    Exceptions    |    Scenario 4.2    |
+
+##### Scenario 4.1
+
+| Scenario 4.1   |                   Logout                    |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in                |
+| Post condition |               U not logged in               |
+| Step#          |                 Description                 |
+| 1              |             User: Ask to logout             |
+| 2              |      System: Check that U is logged in      |
+| 3              |   System: remove user authorization for U   |
+| 4              | System: Show a logout confirmation message. |
+
+##### Scenario 4.2
+
+| Scenario 4.2   |                   User already logged out                    |
+| -------------- | :----------------------------------------------------------: |
+| Precondition   |                      U is not logged in                      |
+| Post condition |                      U is not logged in                      |
+| Step#          |                         Description                          |
+| 1              |                     User: Ask to logout                      |
+| 2              |              System: Check that U is logged in               |
+| 3              | System: U hasn't performed login yet. Show an error message. |
+
+#### Use Case 5, Manage Messages (UC5)
+
+| Actors Involved  |        User        |
+| :--------------: | :----------------: |
+|   Precondition   |   User U is logged in    |
+|  Post condition  | U exchanged messages with other users |
+| Nominal Scenario |    Scenario 5.1    |
+|     Variants     |    Scenario 5.2    |
+|    Exceptions    |        |
+
+##### Scenario 5.1
+
+| Scenario 5.1   |                   User sends a message                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in                |
+| Post condition |               U exchanged messages with other users               |
+| Step#          |                 Description                 |
+| 1              |             User: Selects a contact to send a message by looking in the list of available contacts or searching for a contact   |
+| 2              |      System: Open messaging interface with the selected contact      |
+| 3              |   User: Send a message to the selected contact with an optional attachment   |
+| 4              |   System: Save the message and the attachment if any and send a notification to the contact     |
+
+##### Scenario 5.2
+
+| Scenario 5.2   |                   User receives a message                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in                |
+| Post condition |               U exchanged messages with other users               |
+| Step#          |                 Description                 |
+| 1              |             User: Sees notification of received message from a contact and opens the messaging interface  |
+| 2              |      System: Open messaging interface with the selected contact with the received message     |
+| 3              |   User: Reads the received message from the selected contact with an optional attachment to be downloaded  |
+| 4              |   System: Prompts the user to download the attachment if any   |
+
+#### Use Case 6, Manage Rights - Data Controller or DPO (UC6)
+
+| Actors Involved  |        Data Controller or DPO       |
+| :--------------: | :----------------: |
+|   Precondition   |   User U is logged in as Data Controller or DPO    |
+|  Post condition  | U has handled a request |
+| Nominal Scenario |    Scenario 6.1    |
+|     Variants     |                    |
+|    Exceptions    |                    |
+
+##### Scenario 6.1
+
+| Scenario 6.1   |                   Data Controller or DPO handles a request                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Controller or DPO                |
+| Post condition |               U has handled a request               |
+| Step#          |                 Description                 |
+| 1              |             Data Controller or DPO: Selects a request to handle in the list of requests or from the received notification   |
+| 2              |      System: Open the details of the selected request      |
+| 3              |   Data Controller or DPO: Write an answer to the request   |
+| 4              |   System: Save the answer and send a notification to the requester     |
+| 5              |   Data Controller or DPO: Change the status of the request to "handled"     |
+| 6              |   System: Save the new status of the request and send a notification to the requester   |
+| 7              |   System: Reconfigure the IoT device to align with the data subject's updated privacy consent   |
+
+#### Use Case 7, Manage Rights - Data Subject (UC7)
+
+| Actors Involved  |        Data Subject       |
+| :--------------: | :----------------: |
+|   Precondition   |   User U is logged in as Data Subject    |
+|  Post condition  | U has sent a request |
+| Nominal Scenario |    Scenario 7.1    |
+|     Variants     |                    |
+|    Exceptions    |                    |
+
+##### Scenario 7.1
+
+| Scenario 7.1   |                   Data Subject sends a request                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Subject                |
+| Post condition |               U has sent a request               |
+| Step#          |                 Description                 |
+| 1              |             Data Subject: Selects a right to exercise in the list of rights and selects and application to exercise the right to  |
+| 2              |      System: Open the details of the selected request      |
+| 3              |   Data Subject: Optionally provide additional information to a predefined message   |
+| 4              |   System: Save the request and send a notification to the related Data Controller or DPO     |
+| 5              |   Data Subject: See the request in the list of pending requests     |
+
+
+
+
 
 ## Glossary
 
