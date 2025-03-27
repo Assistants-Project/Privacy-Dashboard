@@ -38,6 +38,21 @@ A web application for dynamic privacy consent management integrated with a smart
       - [Scenario 6.1](#scenario-61)
     - [Use Case 7, Manage Rights - Data Subject (UC7)](#use-case-7-manage-rights---data-subject-uc7)
       - [Scenario 7.1](#scenario-71)
+    - [Use Case 8, Manage Applications - Data Controller or DPO (UC8)](#use-case-8-manage-applications---data-controller-or-dpo-uc8)
+      - [Scenario 8.1](#scenario-81)
+    - [Use Case 9, Manage Applications - Data Subject (UC9)](#use-case-9-manage-applications---data-subject-uc9)
+      - [Scenario 9.1](#scenario-91)
+      - [Scenario 9.2](#scenario-92)
+    - [Use Case 10, Manage Privacy Notices - Data Controller or DPO (UC10)](#use-case-10-manage-privacy-notices---data-controller-or-dpo-uc10)
+      - [Scenario 10.1](#scenario-101)
+      - [Scenario 10.2](#scenario-102)
+      - [Scenario 10.3](#scenario-103)
+      - [Scenario 10.4](#scenario-104)
+    - [Use Case 11, Manage Privacy Notices - Data Subject (UC11)](#use-case-11-manage-privacy-notices---data-subject-uc11)
+      - [Scenario 11.1](#scenario-111)
+    - [Use Case 12, Manage Questionnaires - Data Controller or DPO (UC12)](#use-case-12-manage-questionnaires---data-controller-or-dpo-uc12)
+      - [Scenario 12.1](#scenario-121)
+      - [Scenario 12.2](#scenario-122)
 - [Glossary](#glossary)
 - [System Design](#deployment-diagram)
 - [Deployment Diagram](#deployment-diagram)
@@ -183,10 +198,10 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |     Step#      |                                                    Description                                                     |
 |       1        |                                               User: Ask to register                                                |
 |       2        |                                System: ask username, name, surname, role, email, password                          |
-|       2        |                               User: Provide username, name, surname, role, email, password                         |
-|       3        |                                System: Read username, name, surname, role, email, password                         |
-|       4        | System: Check that the provided username or email aren't associated with any account yet. The username and email haven't been used yet. |
-|       5        |                               System: Create a new user and store their information                                |
+|       3        |                               User: Provide username, name, surname, role, email, password                         |
+|       4        |                                System: Read username, name, surname, role, email, password                         |
+|       5        | System: Check that the provided username or email aren't associated with any account yet. The username and email haven't been used yet. |
+|       6        |                               System: Create a new user and store their information                                |
 
 ##### Scenario 1.2
 
@@ -197,22 +212,22 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |     Step#      |                                                                Description                                                                |
 |       1        |                                                           User: Ask to register                                                           |
 |       2        |                                            System: ask username, name, surname, role, email, password                                     |
-|       2        |                                           User: Provide username, name, surname, role, email, password                                    |
-|       3        |                                           System: Read username, name, surname, role, email, password                                     |
-|       4        | System: Check that the provided username or email aren't associated with any account yet. The username or email have been used already. Provide error message |
+|       3        |                                           User: Provide username, name, surname, role, email, password                                    |
+|       4        |                                           System: Read username, name, surname, role, email, password                                     |
+|       5        | System: Check that the provided username or email aren't associated with any account yet. The username or email have been used already. Provide error message |
 
 ##### Scenario 1.3
 
-|  Scenario 1.3  |                                    User provides empty parameters                                     |
+|  Scenario 1.3  |                                    User provides empty mandatory parameters                                     |
 | :------------: | :---------------------------------------------------------------------------------------------------: |
 |  Precondition  |                                   The user doesn't have an account                                    |
 | Post condition |                                          Registration failed                                          |
 |     Step#      |                                              Description                                              |
 |       1        |                                         User: Ask to register                                         |
 |       2        |                          System: ask username, name, surname, role, email, password                   |
-|       2        |                         User: Provide username, name, surname, role, email, password                  |
-|       3        |                         System: Read username, name, surname, role, password                          |
-|       4        | System: Check that all parameters are filled. At least one parameter is empty. Provide error message. |
+|       3        |                         User: Provide username, name, surname, role, email, password                  |
+|       4        |                         System: Read username, name, surname, role, password                          |
+|       5        | System: Check that all mandatory parameters are filled. At least one mandatory parameter is empty. Provide error message. |
 
 ##### Scenario 1.4
 
@@ -223,9 +238,9 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |     Step#      |                                              Description                                              |
 |       1        |                                         User: Ask to register                                         |
 |       2        |                          System: ask username, name, surname, role, email, password                   |
-|       2        |                         User: Provide username, name, surname, role = DPO, email, password            |
-|       3        |                         System: Read username, name, surname, role = DPO, password                    |
-|       4        | System: Check that DPO doesn't exist yet. The DPO has been created already. Provide error message.    |
+|       3        |                         User: Provide username, name, surname, role = DPO, email, password            |
+|       4        |                         System: Read username, name, surname, role = DPO, email, password                    |
+|       5        | System: Check that DPO doesn't exist yet. The DPO has been created already. Provide error message.    |
 
 #### Use Case 2, Log in (UC2)
 
@@ -306,10 +321,10 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |     Step#      |                                                    Description                                                     |
 |       1        |                                               User: Ask to change account informations                             |
 |       2        |                                System: ask new username, name, surname, email, password                            |
-|       2        |                               User: Provide username, name, surname, email, password                         |
-|       3        |                                System: Read username, name, surname, email, password                         |
-|       4        | System: Check that the provided username or email aren't associated with any account yet. The username and email haven't been used yet. |
-|       5        |                               System: Update user's informations                               |
+|       3        |                               User: Provide username, name, surname, email, password                         |
+|       4        |                                System: Read username, name, surname, email, password                         |
+|       5        | System: Check that the provided username or email aren't associated with any account yet. The username and email haven't been used yet. |
+|       6        |                               System: Update user's informations                               |
 
 ##### Scenario 3.2
 
@@ -320,15 +335,15 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |     Step#      |                                                    Description                                                     |
 |       1        |                                               User: Ask to change account informations                             |
 |       2        |                                System: ask new username, name, surname, email, password                            |
-|       2        |                               User: Provide username, name, surname, email, password                         |
-|       3        |                                System: Read username, name, surname, email, password                         |
-|       4        | System: Check that the provided username or email aren't associated with any account yet. The username or email have been used already. Provide error message |
+|       3        |                               User: Provide username, name, surname, email, password                         |
+|       4        |                                System: Read username, name, surname, email, password                         |
+|       5        | System: Check that the provided username or email aren't associated with any account yet. The username or email have been used already. Provide error message |
 
 #### Use Case 4, Log out (UC4)
 
 | Actors Involved  |        User        |
 | :--------------: | :----------------: |
-|   Precondition   |   User U exists    |
+|   Precondition   |   User U is logged in    |
 |  Post condition  | U is not logged in |
 | Nominal Scenario |    Scenario 4.1    |
 |     Variants     |                    |
@@ -374,9 +389,9 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Precondition   |               U is logged in                |
 | Post condition |               U exchanged messages with other users               |
 | Step#          |                 Description                 |
-| 1              |             User: Selects a contact to send a message by looking in the list of available contacts or searching for a contact   |
+| 1              |             User: Selects a contact to send a message to by looking in the list of available contacts or searching for a contact   |
 | 2              |      System: Open messaging interface with the selected contact      |
-| 3              |   User: Send a message to the selected contact with an optional attachment   |
+| 3              |   User: Sends a message to the selected contact with an optional attachment   |
 | 4              |   System: Save the message and the attachment if any and send a notification to the contact     |
 
 ##### Scenario 5.2
@@ -439,9 +454,199 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | 4              |   System: Save the request and send a notification to the related Data Controller or DPO     |
 | 5              |   Data Subject: See the request in the list of pending requests     |
 
+#### Use Case 8, Manage Applications - Data Controller or DPO (UC8)
 
+| Actors Involved  |        Data Controller or DPO       |
+| :--------------: | :----------------: |
+|   Precondition   |   User U is logged in as Data Controller or DPO    |
+|  Post condition | U has contacted a Data Subject of a particular application |
+| Nominal Scenario |    Scenario 8.1    |
+|     Variants     |                    |
+|    Exceptions    |                    |
 
+##### Scenario 8.1
 
+| Scenario 8.1   |                   Data Controller or DPO contacts a Data Subject                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Controller or DPO                |
+| Post condition |               U has contacted a Data Subject of a particular application               |
+| Step#          |                 Description                 |
+| 1              |             Data Controller or DPO: Selects a particular application from the list of applications for which he is responsible  |
+| 2              |      System: Opens the details of the selected application      |
+| 3              |   Data Controller or DPO: Selects a Data Subject from the list of Data Subjects who are bound to the application   |
+| 4              |   System: Opens the details of the selected Data Subject     |
+| 5              |   Data Controller or DPO: Sends a message or answer to a pending request of the selected Data Subject    |
+
+#### Use Case 9, Manage Applications - Data Subject (UC9)
+
+| Actors Involved  |        Data Subject       |
+| :--------------: | :----------------: |
+|   Precondition   |   User U is logged in as Data Subject    |
+|  Post condition | U has requested the removal of all their personal data from a specific app |
+| Nominal Scenario |    Scenario 9.1    |
+|     Variants     |    Scenario 9.2    |
+|    Exceptions    |                    |
+
+##### Scenario 9.1
+
+| Scenario 9.1   |                   Data Subject requests the removal of all their personal data from a specific app                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Subject                |
+| Post condition |               U has requested the removal of all their personal data from a specific app               |
+| Step#          |                 Description                 |
+| 1              |             Data Subject: Selects a particular application from the list of applications  which are currently processing their data  |
+| 2              |      System: Opens the details of the selected application      |
+| 3              |   Data Subject: Clicks on the "Request removal of all personal data" button   |
+| 4              |   System: Generates an automatic message to be sent to the relevant data controllers, requesting their data to be erased from the application.     |
+| 5              |   Data Subject: Optionally provides additional information to a predefined message and sends the request     |
+| 6              |   System: Saves the request and sends a notification to the related Data Controller or DPO     |
+| 7              |   Data Subject: Sees the request in the list of pending requests     |
+
+##### Scenario 9.2
+
+| Scenario 9.2   |                   Data Subject downloads the Privacy Notice and the document containing the list of consenses he has provided.                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Subject                |
+| Post condition |               U has downloaded the Privacy Notice and the document containing the list of consenses he has provided               |
+| Step#          |                 Description                 |
+| 1              |             Data Subject: Selects a particular application from the list of applications  which are currently processing their data  |
+| 2              |      System: Opens the details of the selected application      |
+| 3              |   Data Subject: Clicks on the "Download Privacy Notice" button   |
+| 4              |   System: Prompts the Data Subject to download the Privacy Notice of the selected application.       |
+| 5              |   Data Subject: Clicks the button to download the document containing the list of consenses he has provided and chooses the format of the document     |
+| 6              |   System: Prompts the Data Subject to download the document containing the list of consenses he has provided in the selected format.     |
+
+#### Use Case 10, Manage Privacy Notices - Data Controller or DPO (UC10)
+
+| Actors Involved  |        Data Controller or DPO       |
+| :--------------: | :----------------: |
+|   Precondition   |   User U is logged in as Data Controller or DPO    |
+|  Post condition | U has written the Privacy Notice of a particular application |
+| Nominal Scenario |    Scenario 10.1    |
+|     Variants     |    Scenario 10.2, 10.3, 10.4                |
+|    Exceptions    |                    |
+
+##### Scenario 10.1
+
+| Scenario 10.1   |                   Data Controller or DPO writes from scratch the Privacy Notice of a particular application                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Controller or DPO                |
+| Post condition |               U has written the Privacy Notice of a particular application               |
+| Step#          |                 Description                 |
+| 1              |             Data Controller or DPO: Selects a particular application from the list of applications for which he is responsible  |
+| 2              |      System: Opens the details of the selected application with the existing Privacy Notice if any      |
+| 3              |   Data Controller or DPO: Clicks on the "Write Privacy Notice" button   |
+| 4              |   System: Opens the editor for the Privacy Notice of the selected application      |
+| 5              |   Data Controller or DPO: Writes from scratch the Privacy Notice in the editor   |
+| 6              |   System: Saves the Privacy Notice and sends a notification to all the data subjects bound to the application  |
+
+##### Scenario 10.2
+
+| Scenario 10.2   |                   Data Controller or DPO writes from a provided template the Privacy Notice of a particular application                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Controller or DPO                |
+| Post condition |               U has written from a provided template the Privacy Notice of a particular application               |
+| Step#          |                 Description                 |
+| 1              |             Data Controller or DPO: Selects a particular application from the list of applications for which he is responsible  |
+| 2              |      System: Opens the details of the selected application with the existing Privacy Notice if any      |
+| 3              |   Data Controller or DPO: Clicks on the "Write Privacy Notice" button   |
+| 4              |   System: Opens the editor for the Privacy Notice of the selected application      |
+| 5              |   Data Controller or DPO: Selects a Privacy Notice template from the list   |
+| 6              |   System: Opens the selected template in the editor     |
+| 7              |   Data Controller or DPO: Edits the template of the Privacy Notice in the editor   |
+| 8              |   System: Saves the Privacy Notice and sends a notification to all the data subjects bound to the application  |
+
+##### Scenario 10.3
+
+| Scenario 10.3   |                   Data Controller or DPO edits the Privacy Notice of a particular application                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Controller or DPO                |
+| Post condition |               U has edited the Privacy Notice of a particular application               |
+| Step#          |                 Description                 |
+| 1              |             Data Controller or DPO: Selects a particular application from the list of applications for which he is responsible  |
+| 2              |      System: Opens the details of the selected application with the existing Privacy Notice if any      |
+| 3              |   Data Controller or DPO: Clicks on the "Edit Privacy Notice" button   |
+| 4              |   System: Opens the editor for the Privacy Notice of the selected application      |
+| 5              |   Data Controller or DPO: Edits the existing Privacy Notice in the editor   |
+| 6              |   System: Saves the Privacy Notice and sends a notification to all the data subjects bound to the application  |
+
+##### Scenario 10.4
+
+| Scenario 10.4   |                   Data Controller or DPO associates to a particular application an already existing privacy notice                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Controller or DPO                |
+| Post condition |               U has associated to a particular application an already existing privacy notice               |
+| Step#          |                 Description                 |
+| 1              |             Data Controller or DPO: Selects a particular application from the list of applications for which he is responsible  |
+| 2              |      System: Opens the details of the selected application with the existing Privacy Notice if any      |
+| 3              |   Data Controller or DPO: Clicks on the "Associate Privacy Notice" button   |
+| 4              |   System: Opens the list of existing privacy notices      |
+| 5              |   Data Controller or DPO: Selects a privacy notice from the list   |
+| 6              |   System: Associates the selected privacy notice to the selected application and sends a notification to all the data subjects bound to the application  |
+
+#### Use Case 11, Manage Privacy Notices - Data Subject (UC11)
+
+| Actors Involved  |        Data Subject       |
+| :--------------: | :----------------: |
+|   Precondition   |   User U is logged in as Data Subject    |
+|  Post condition | U has downloaded the Privacy Notice of a particular application |
+| Nominal Scenario |    Scenario 11.1    |
+|     Variants     |                     |
+|    Exceptions    |                     |
+
+##### Scenario 11.1
+
+| Scenario 11.1   |                   Data Subject downloads the Privacy Notice of a particular application                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Subject                |
+| Post condition |               U has downloaded the Privacy Notice of a particular application               |
+| Step#          |                 Description                 |
+| 1              |             Data Subject: Selects a particular application from the list of applications which are currently processing their data or from the received notification  |
+| 2              |      System: Opens the details of the selected application      |
+| 3              |   Data Subject: Clicks on the "Download Privacy Notice" button   |
+| 4              |   System: Prompts the Data Subject to download the updated Privacy Notice of the selected application       |
+
+#### Use Case 12, Manage Questionnaires - Data Controller or DPO (UC12)
+
+| Actors Involved  |        Data Controller or DPO       |
+| :--------------: | :----------------: |
+|   Precondition   |   User U is logged in as Data Controller or DPO    |
+|  Post condition | U has carried out a questionnaire for a particular application |
+| Nominal Scenario |    Scenario 12.1    |
+|     Variants     |    Scenario 12.2    |
+|    Exceptions    |                     |
+
+##### Scenario 12.1
+
+| Scenario 12.1   |                   Data Controller or DPO carries out a questionnaire for a particular application                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Controller or DPO                |
+| Post condition |               U has carried out a questionnaire for a particular application               |
+| Step#          |                 Description                 |
+| 1              |             Data Controller or DPO: Selects a particular application from the list of all the applications for which he is responsible, which are colour-coded based on the results of their respective questionnaires, if any, which verify compliance with the GDPR regulations  |
+| 2              |      System: Opens the details of the selected application      |
+| 3              |   Data Controller or DPO: Clicks on the "Carry Out Questionnaire" button   |
+| 4              |   System: Opens the questionnaire of the selected application      |
+| 5              |   Data Controller or DPO: Carries out the questionnaire for the selected application   |
+| 6              |   System: Saves the answers submitted to the questionnaire and sends a notification to all the data subjects bound to the application  |
+| 7              |   Data Controller or DPO: Clicks on the "See Summary" button   |
+| 8              |   System: Opens the summary highlighting the critical aspects of the selected application given the answers submitted to the corresponding questionnaire      |
+
+##### Scenario 12.2
+
+| Scenario 12.2   |                   Data Controller or DPO edits answers previously submitted to a questionnaire for a particular application                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Controller or DPO                |
+| Post condition |               U has edited answers previously submitted to a questionnaire for a particular application               |
+| Step#          |                 Description                 |
+| 1              |             Data Controller or DPO: Selects a particular application from the list of all the applications for which he is responsible, which are colour-coded based on the results of their respective questionnaires, if any, which verify compliance with the GDPR regulations  |
+| 2              |      System: Opens the details of the selected application      |
+| 3              |   Data Controller or DPO: Clicks on the "Edit Answers" button   |
+| 4              |   System: Opens the questionnaire of the selected application      |
+| 5              |   Data Controller or DPO: Edits the answers submitted to the questionnaire for the selected application   |
+| 6              |   System: Saves the answers submitted to the questionnaire and sends a notification to all the data subjects bound to the application  |
+| 7              |   Data Controller or DPO: Clicks on the "See Summary" button   |
+| 8              |   System: Opens the summary highlighting the critical aspects of the selected application given the answers submitted to the corresponding questionnaire      |
 
 ## Glossary
 
