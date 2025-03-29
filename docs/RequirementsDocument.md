@@ -53,6 +53,9 @@ A web application for dynamic privacy consent management integrated with a smart
     - [Use Case 12, Manage Questionnaires - Data Controller or DPO (UC12)](#use-case-12-manage-questionnaires---data-controller-or-dpo-uc12)
       - [Scenario 12.1](#scenario-121)
       - [Scenario 12.2](#scenario-122)
+    - [Use Case 13, Manage Privacy Impact Assessments - Data Controller or DPO (UC13)](#use-case-13-manage-privacy-impact-assessments---data-controller-or-dpo-uc13)
+      - [Scenario 13.1](#scenario-131)
+      - [Scenario 13.2](#scenario-132)
 - [Glossary](#glossary)
 - [System Design](#deployment-diagram)
 - [Deployment Diagram](#deployment-diagram)
@@ -138,7 +141,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | FR5.7 | Enable Data Subject to quickly and easily request the removal of all their personal data from a specific app. |
 | FR5.7.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their data to be erased from the application. |
 | **FR6** |                       **Manage Privacy Notices**                       |
-| FR6.1   | Enable the Data Controller and DPO to see a list of applications for which he is responsible along with their associated privacy notices. |
+| FR6.1   | Enable the Data Controller and DPO to see a list of applications for which he is responsible along with their associated privacy notices, if any. |
 | FR6.2   | Enable Data Controller and DPO to edit an existing privacy notice associated to an application. |
 | FR6.3   | Enable Data Controller and DPO to write from scratch a privacy notice to be associated to an application. |
 | FR6.4   | Enable Data Controller and DPO to write, starting from a provided template, a privacy notice to be associated to an application. |
@@ -150,13 +153,17 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | FR7.2  | Enable Data Controller and DPO to carry out a questionnaire for a specific application. |
 | FR7.3  | Enable Data Controller and DPO to edit answers previously submitted to a questionnaire for a specific application. |
 | FR7.4  | Enable Data Controller and DPO to see a summary highlighting the critical aspects of a specific application given the answers submitted to the corresponding questionnaire. |
-| **FR8** |                       **Manage Notifications**                       |
-| FR8.1  | Sending notifications and receiving notifications when certain actions are performed. |
-| FR8.1.1  | Sending a message: notification to the contact receiving the sent message. |
-| FR8.1.2  | Writing or editing a privacy notice: notification to all the data subjects bound to the application. |
-| FR8.1.3  | Carrying out or editing a questionnaire: notification to all the data subjects bound to the application. |
-| FR8.1.4  | Submitting a request of exercising a right: notification to all the related data controllers and DPO. |
-| FR8.1.5  | Answering to or changing the status of a request of exercising a right: notification to the data subject who submitted the request. |
+| **FR8** |                       **Manage Privacy Impact Assessments**                       |
+| FR8.1   | Enable the Data Controller and DPO to see a list of applications for which he is responsible along with their associated privacy impact assessments, if any. |
+| FR8.2   | Enable Data Controller and DPO to carry out a privacy impact assessment for a specific application. |
+| FR8.3   | Enable Data Controller and DPO to edit an existing privacy impact assessment associated to an application. |
+| **FR9** |                       **Manage Notifications**                       |
+| FR9.1  | Sending notifications and receiving notifications when certain actions are performed. |
+| FR9.1.1  | Sending a message: notification to the contact receiving the sent message. |
+| FR9.1.2  | Writing or editing a privacy notice: notification to all the data subjects bound to the application. |
+| FR9.1.3  | Carrying out or editing a questionnaire: notification to all the data subjects bound to the application. |
+| FR9.1.4  | Submitting a request of exercising a right: notification to all the related data controllers and DPO. |
+| FR9.1.5  | Answering to or changing the status of a request of exercising a right: notification to the data subject who submitted the request. |
 
 ### Non Functional Requirements
 
@@ -169,7 +176,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | NFR5  |            Portability             |                       The web application should be responsive                          |
 | NFR6  |             Usability              | At least 95% of average users (no computer professionals with more than 1 year of experience of using PC) can use the application within 1 hour, with no training |
 | NFR7  |               Safety               |          Data exchange should ensure confidentiality, integrity and availability        |
-| NFR8  |               Privacy              |               The web application should be fully compliant with GDPR regulations           |
+| NFR8  |               Privacy              |               The web application should be fully compliant with GDPR regulations       |
 
 ## Use Case Diagram and Use Cases
 
@@ -196,12 +203,12 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  Precondition  |                                          The user doesn't have an account                                          |
 | Post condition |                                                  User registered                                                   |
 |     Step#      |                                                    Description                                                     |
-|       1        |                                               User: Ask to register                                                |
-|       2        |                                System: ask username, name, surname, role, email, password                          |
-|       3        |                               User: Provide username, name, surname, role, email, password                         |
-|       4        |                                System: Read username, name, surname, role, email, password                         |
-|       5        | System: Check that the provided username or email aren't associated with any account yet. The username and email haven't been used yet. |
-|       6        |                               System: Create a new user and store their information                                |
+|       1        |                                               User: Asks to register                                                |
+|       2        |                                System: asks username, name, surname, role, email, password                          |
+|       3        |                               User: Provides username, name, surname, role, email, password                         |
+|       4        |                                System: Reads username, name, surname, role, email, password                         |
+|       5        | System: Checks that the provided username or email aren't associated with any account yet. The username and email haven't been used yet. |
+|       6        |                               System: Creates a new user and stores their information                                |
 
 ##### Scenario 1.2
 
@@ -210,11 +217,11 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  Precondition  |                                                          The user has an account                                                          |
 | Post condition |                                                            Registration failed                                                            |
 |     Step#      |                                                                Description                                                                |
-|       1        |                                                           User: Ask to register                                                           |
-|       2        |                                            System: ask username, name, surname, role, email, password                                     |
-|       3        |                                           User: Provide username, name, surname, role, email, password                                    |
-|       4        |                                           System: Read username, name, surname, role, email, password                                     |
-|       5        | System: Check that the provided username or email aren't associated with any account yet. The username or email have been used already. Provide error message |
+|       1        |                                                           User: Asks to register                                                           |
+|       2        |                                            System: asks username, name, surname, role, email, password                                     |
+|       3        |                                           User: Provides username, name, surname, role, email, password                                    |
+|       4        |                                           System: Reads username, name, surname, role, email, password                                     |
+|       5        | System: Checks that the provided username or email aren't associated with any account yet. The username or email have been used already. Provides error message |
 
 ##### Scenario 1.3
 
@@ -223,11 +230,11 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  Precondition  |                                   The user doesn't have an account                                    |
 | Post condition |                                          Registration failed                                          |
 |     Step#      |                                              Description                                              |
-|       1        |                                         User: Ask to register                                         |
-|       2        |                          System: ask username, name, surname, role, email, password                   |
-|       3        |                         User: Provide username, name, surname, role, email, password                  |
-|       4        |                         System: Read username, name, surname, role, password                          |
-|       5        | System: Check that all mandatory parameters are filled. At least one mandatory parameter is empty. Provide error message. |
+|       1        |                                         User: Asks to register                                         |
+|       2        |                          System: asks username, name, surname, role, email, password                   |
+|       3        |                         User: Provides username, name, surname, role, email, password                  |
+|       4        |                         System: Reads username, name, surname, role, password                          |
+|       5        | System: Checks that all mandatory parameters are filled. At least one mandatory parameter is empty. Provides error message. |
 
 ##### Scenario 1.4
 
@@ -236,11 +243,11 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  Precondition  |                                   The user doesn't have an account                                    |
 | Post condition |                                          Registration failed                                          |
 |     Step#      |                                              Description                                              |
-|       1        |                                         User: Ask to register                                         |
-|       2        |                          System: ask username, name, surname, role, email, password                   |
-|       3        |                         User: Provide username, name, surname, role = DPO, email, password            |
-|       4        |                         System: Read username, name, surname, role = DPO, email, password                    |
-|       5        | System: Check that DPO doesn't exist yet. The DPO has been created already. Provide error message.    |
+|       1        |                                         User: Asks to register                                         |
+|       2        |                          System: asks username, name, surname, role, email, password                   |
+|       3        |                         User: Provides username, name, surname, role = DPO, email, password            |
+|       4        |                         System: Reads username, name, surname, role = DPO, email, password                    |
+|       5        | System: Checks that DPO doesn't exist yet. The DPO has been created already. Provides error message.    |
 
 #### Use Case 2, Log in (UC2)
 
@@ -259,11 +266,11 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  Precondition  |                                       U is registered                                        |
 | Post condition |                                        U is logged in                                        |
 |     Step#      |                                         Description                                          |
-|       1        |                              System: Ask for username, password                              |
-|       2        |                              User: Provide username, password.                               |
-|       3        |                               System: Read username, password.                               |
-|       4        |                            System: Given username, find the user.                            |
-|       5        | System: Retrieve password, compare with the one provided. Passwords match, user is auhorized |
+|       1        |                              System: Asks for username, password                              |
+|       2        |                              User: Provides username, password.                               |
+|       3        |                               System: Reads username, password.                               |
+|       4        |                            System: Given username, finds the user.                            |
+|       5        | System: Retrieves password, compares with the one provided. Passwords match, user is auhorized |
 
 ##### Scenario 2.2
 
@@ -272,11 +279,11 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  Precondition  |                                             U is registered                                             |
 | Post condition |                                             U not logged in                                             |
 |     Step#      |                                               Description                                               |
-|       1        |                                     System: Ask username password.                                      |
-|       2        |                                    User: Provide username, password.                                    |
-|       3        |                                    System: Read username, password.                                     |
-|       4        |                                 System: Given username, find the user.                                  |
-|       5        | System: Retrieve password, compare with the one provided. Passwords do not match, user is not auhorized |
+|       1        |                                     System: Asks username password.                                      |
+|       2        |                                    User: Provides username, password.                                    |
+|       3        |                                    System: Reads username, password.                                     |
+|       4        |                                 System: Given username, finds the user.                                  |
+|       5        | System: Retrieves password, compares with the one provided. Passwords do not match, user is not auhorized |
 
 ##### Scenario 2.3
 
@@ -285,10 +292,10 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Precondition   |                              U is not registered                              |
 | Post condition |                              User not logged in                               |
 | Step#          |                                  Description                                  |
-| 1              |                        System: Ask username password.                         |
-| 2              |                       User: Provide username, password.                       |
-| 3              |                        System: Read username, password.                       |
-| 4              | System: Given username, find the user. User is not found. User not authorized |
+| 1              |                        System: Asks username password.                         |
+| 2              |                       User: Provides username, password.                       |
+| 3              |                        System: Reads username, password.                       |
+| 4              | System: Given username, finds the user. User is not found. User not authorized |
 
 ##### Scenario 2.4
 
@@ -297,10 +304,10 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Precondition   |                         U is registered                         |
 | Post condition |                         U is logged in                          |
 | Step#          |                           Description                           |
-| 1              |                 System: Ask username password.                  |
-| 2              |                User: Provide username, password.                |
-| 3              | System: Read username, password. The user is already logged in. |
-| 4              |                 System: Return an error message                 |
+| 1              |                 System: Asks username password.                  |
+| 2              |                User: Provides username, password.                |
+| 3              | System: Reads username, password. The user is already logged in. |
+| 4              |                 System: Returns an error message                 |
 
 #### Use Case 3, Manage account (UC3)
 
@@ -319,12 +326,12 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  Precondition  |                                          User U is logged in                                                       |
 | Post condition |                                          U changed his account informations                                        |
 |     Step#      |                                                    Description                                                     |
-|       1        |                                               User: Ask to change account informations                             |
-|       2        |                                System: ask new username, name, surname, email, password                            |
-|       3        |                               User: Provide username, name, surname, email, password                         |
-|       4        |                                System: Read username, name, surname, email, password                         |
-|       5        | System: Check that the provided username or email aren't associated with any account yet. The username and email haven't been used yet. |
-|       6        |                               System: Update user's informations                               |
+|       1        |                                               User: Asks to change account informations                             |
+|       2        |                                System: asks new username, name, surname, email, password                            |
+|       3        |                               User: Provides username, name, surname, email, password                         |
+|       4        |                                System: Reads username, name, surname, email, password                         |
+|       5        | System: Checks that the provided username or email aren't associated with any account yet. The username and email haven't been used yet. |
+|       6        |                               System: Updates user's informations                               |
 
 ##### Scenario 3.2
 
@@ -333,11 +340,11 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  Precondition  |                                          User U is logged in                                                       |
 | Post condition |                                         Account's informations update failed                                         |
 |     Step#      |                                                    Description                                                     |
-|       1        |                                               User: Ask to change account informations                             |
-|       2        |                                System: ask new username, name, surname, email, password                            |
-|       3        |                               User: Provide username, name, surname, email, password                         |
-|       4        |                                System: Read username, name, surname, email, password                         |
-|       5        | System: Check that the provided username or email aren't associated with any account yet. The username or email have been used already. Provide error message |
+|       1        |                                               User: Asks to change account informations                             |
+|       2        |                                System: asks new username, name, surname, email, password                            |
+|       3        |                               User: Provides username, name, surname, email, password                         |
+|       4        |                                System: Reads username, name, surname, email, password                         |
+|       5        | System: Checks that the provided username or email aren't associated with any account yet. The username or email have been used already. Provides error message |
 
 #### Use Case 4, Log out (UC4)
 
@@ -357,9 +364,9 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Post condition |               U not logged in               |
 | Step#          |                 Description                 |
 | 1              |             User: Ask to logout             |
-| 2              |      System: Check that U is logged in      |
-| 3              |   System: remove user authorization for U   |
-| 4              | System: Show a logout confirmation message. |
+| 2              |      System: Checks that U is logged in      |
+| 3              |   System: removes user authorization for U   |
+| 4              | System: Shows a logout confirmation message. |
 
 ##### Scenario 4.2
 
@@ -368,9 +375,9 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Precondition   |                      U is not logged in                      |
 | Post condition |                      U is not logged in                      |
 | Step#          |                         Description                          |
-| 1              |                     User: Ask to logout                      |
-| 2              |              System: Check that U is logged in               |
-| 3              | System: U hasn't performed login yet. Show an error message. |
+| 1              |                     User: Asks to logout                      |
+| 2              |              System: Checks that U is logged in               |
+| 3              | System: U hasn't performed login yet. Shows an error message. |
 
 #### Use Case 5, Manage Messages (UC5)
 
@@ -390,9 +397,9 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Post condition |               U exchanged messages with other users               |
 | Step#          |                 Description                 |
 | 1              |             User: Selects a contact to send a message to by looking in the list of available contacts or searching for a contact   |
-| 2              |      System: Open messaging interface with the selected contact      |
+| 2              |      System: Opens messaging interface with the selected contact      |
 | 3              |   User: Sends a message to the selected contact with an optional attachment   |
-| 4              |   System: Save the message and the attachment if any and send a notification to the contact     |
+| 4              |   System: Saves the message and the attachment if any and sends a notification to the contact     |
 
 ##### Scenario 5.2
 
@@ -402,7 +409,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Post condition |               U exchanged messages with other users               |
 | Step#          |                 Description                 |
 | 1              |             User: Sees notification of received message from a contact and opens the messaging interface  |
-| 2              |      System: Open messaging interface with the selected contact with the received message     |
+| 2              |      System: Opens messaging interface with the selected contact with the received message     |
 | 3              |   User: Reads the received message from the selected contact with an optional attachment to be downloaded  |
 | 4              |   System: Prompts the user to download the attachment if any   |
 
@@ -424,12 +431,12 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Post condition |               U has handled a request               |
 | Step#          |                 Description                 |
 | 1              |             Data Controller or DPO: Selects a request to handle in the list of requests or from the received notification   |
-| 2              |      System: Open the details of the selected request      |
-| 3              |   Data Controller or DPO: Write an answer to the request   |
-| 4              |   System: Save the answer and send a notification to the requester     |
-| 5              |   Data Controller or DPO: Change the status of the request to "handled"     |
-| 6              |   System: Save the new status of the request and send a notification to the requester   |
-| 7              |   System: Reconfigure the IoT device to align with the data subject's updated privacy consent   |
+| 2              |      System: Opens the details of the selected request      |
+| 3              |   Data Controller or DPO: Writes an answer to the request   |
+| 4              |   System: Saves the answer and send a notification to the requester     |
+| 5              |   Data Controller or DPO: Changes the status of the request to "handled"     |
+| 6              |   System: Saves the new status of the request and sends a notification to the requester   |
+| 7              |   System: Reconfigures the IoT device to align with the data subject's updated privacy consent   |
 
 #### Use Case 7, Manage Rights - Data Subject (UC7)
 
@@ -449,10 +456,10 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Post condition |               U has sent a request               |
 | Step#          |                 Description                 |
 | 1              |             Data Subject: Selects a right to exercise in the list of rights and selects and application to exercise the right to  |
-| 2              |      System: Open the details of the selected request      |
-| 3              |   Data Subject: Optionally provide additional information to a predefined message   |
-| 4              |   System: Save the request and send a notification to the related Data Controller or DPO     |
-| 5              |   Data Subject: See the request in the list of pending requests     |
+| 2              |      System: Opens the details of the selected request      |
+| 3              |   Data Subject: Optionally provides additional information to a predefined message   |
+| 4              |   System: Saves the request and sends a notification to the related Data Controller or DPO     |
+| 5              |   Data Subject: Sees the request in the list of pending requests     |
 
 #### Use Case 8, Manage Applications - Data Controller or DPO (UC8)
 
@@ -643,10 +650,48 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | 2              |      System: Opens the details of the selected application      |
 | 3              |   Data Controller or DPO: Clicks on the "Edit Answers" button   |
 | 4              |   System: Opens the questionnaire of the selected application      |
-| 5              |   Data Controller or DPO: Edits the answers submitted to the questionnaire for the selected application   |
+| 5              |   Data Controller or DPO: Edits the answers previously submitted to the questionnaire for the selected application   |
 | 6              |   System: Saves the answers submitted to the questionnaire and sends a notification to all the data subjects bound to the application  |
 | 7              |   Data Controller or DPO: Clicks on the "See Summary" button   |
 | 8              |   System: Opens the summary highlighting the critical aspects of the selected application given the answers submitted to the corresponding questionnaire      |
+
+#### Use Case 13, Manage Privacy Impact Assessments - Data Controller or DPO (UC13)
+
+| Actors Involved  |        Data Controller or DPO       |
+| :--------------: | :----------------: |
+|   Precondition   |   User U is logged in as Data Controller or DPO    |
+|  Post condition | U has carried out a Privacy Impact Assessment for a particular application |
+| Nominal Scenario |    Scenario 13.1    |
+|     Variants     |    Scenario 13.2    |
+|    Exceptions    |                     |
+
+##### Scenario 13.1
+
+| Scenario 13.1   |                   Data Controller or DPO carries out a Privacy Impact Assessment for a particular application                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Controller or DPO                |
+| Post condition |               U has carried out a Privacy Impact Assessment for a particular application               |
+| Step#          |                 Description                 |
+| 1              |             Data Controller or DPO: Selects a particular application from the list of all the applications for which he is responsible |
+| 2              |      System: Opens the details of the selected application      |
+| 3              |   Data Controller or DPO: Clicks on the "Carry Out Privacy Impact Assessment" button   |
+| 4              |   System: Opens the Privacy Impact Assessment of the selected application      |
+| 5              |   Data Controller or DPO: Carries out the Privacy Impact Assessment for the selected application   |
+| 6              |   System: Saves the answers submitted to the Privacy Impact Assessment |
+
+##### Scenario 13.2
+
+| Scenario 13.2   |                   Data Controller or DPO edits an existing Privacy Impact Assessment associated to a particular application                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Controller or DPO                |
+| Post condition |               U has edited an existing Privacy Impact Assessment associated to a particular application               |
+| Step#          |                 Description                 |
+| 1              |             Data Controller or DPO: Selects a particular application from the list of all the applications for which he is responsible |
+| 2              |      System: Opens the details of the selected application      |
+| 3              |   Data Controller or DPO: Clicks on the "Edit Privacy Impact Assessment" button   |
+| 4              |   System: Opens the Privacy Impact Assessment of the selected application      |
+| 5              |   Data Controller or DPO: Edits the existing Privacy Impact Assessment for the selected application   |
+| 6              |   System: Saves the answers submitted to the Privacy Impact Assessment |
 
 ## Glossary
 
