@@ -695,6 +695,8 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 
 ## Glossary
 
+![Glossary](./../images/Glossary.png)
+
 ## System Design
 
 ## Deployment Diagram
