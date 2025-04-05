@@ -57,7 +57,7 @@ A web application for dynamic privacy consent management integrated with a smart
       - [Scenario 13.1](#scenario-131)
       - [Scenario 13.2](#scenario-132)
 - [Glossary](#glossary)
-- [System Design](#deployment-diagram)
+- [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
 
 ## Overall description
@@ -699,4 +699,8 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 
 ## System Design
 
+![System Design](./../images/SystemDesign.png)
+
 ## Deployment Diagram
+
+![Deployment Diagram](./../images/DeploymentDiagram.png)
