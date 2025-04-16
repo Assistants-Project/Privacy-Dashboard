@@ -43,6 +43,7 @@ A web application for dynamic privacy consent management integrated with a smart
     - [Use Case 9, Manage Applications - Data Subject (UC9)](#use-case-9-manage-applications---data-subject-uc9)
       - [Scenario 9.1](#scenario-91)
       - [Scenario 9.2](#scenario-92)
+      - [Scenario 9.3](#scenario-93)
     - [Use Case 10, Manage Privacy Notices - Data Controller or DPO (UC10)](#use-case-10-manage-privacy-notices---data-controller-or-dpo-uc10)
       - [Scenario 10.1](#scenario-101)
       - [Scenario 10.2](#scenario-102)
@@ -79,6 +80,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  Data Controller         | User of the application who verifies compliance with the Data Subject's privacy preferences and GDPR regulations, handles privacy notices and interacts with Data Subjects, other Data Controllers and the Data Protection Officer |
 |  Data Protection Officer | User of the application who has similar privileges as Data Controller, but is unique to the application; that is, unlike Data Controller and Data Subject, there can only be one user with this role |
 |    SIFIS-Home            | External framework that allows to dynamically configure IoT devices in the smart home and interacts with Privacy Dashboard through dedicated APIs                             |
+|    Marketplace           | External framework that allows Data Controllers and Data Protection Officers to manage their applications and interacts with Privacy Dashboard through dedicated APIs         |
 |  Administrator           |                       Person who owns and manages the application                                                                                                             |
 |    Developer             |                       Person who develops and maintains the application                                                                                                       |
 
@@ -97,6 +99,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Data Controller         | Personal computing device  |         GUI        |
 | Data Protection Officer | Personal computing device  |         GUI        |
 |    SIFIS-Home           | Internet connection        |         API        |
+|    Marketplace          | Internet connection        |         API        |
 
 ## Requirements
 
@@ -138,8 +141,16 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  FR5.4  | Enable Data Subject to see a list of all the SIFIS-Home applications which are currently processing their data. |
 | FR5.5 | Enable Data Subject to access details of each application in the list, including the application's name, description, evaluation, Privacy Notice, the list of all data controllers and DPO involved in the processing of their data, and the list of consenses he has provided. |
 | FR5.6 | Enable Data Subject to download, for each application in the list, the Privacy Notice and the document, including as a XML and as a JSON, containing the list of consenses he has provided. |
-| FR5.7 | Enable Data Subject to quickly and easily request the removal of all their personal data from a specific app. |
-| FR5.7.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their data to be erased from the application. |
+| FR5.7 | Enable Data Subject to give consenses to a specific application by choosing from the application's predefined list of available consenses. |
+| FR5.8 | Enable Data Subject to quickly and easily request the withdrawal of selected consenses from a specific app. |
+| FR5.8.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their selected consenses to be withdrawn from the application. |
+| FR5.9 | Enable Data Subject to quickly and easily request the withdrawal of all their given consenses from a specific app. |
+| FR5.9.1 | Generate an automatic message to be sent to the relevant data controllers, requesting all their consenses to be withdrawn from the application. |
+| FR5.10  | Enable the Data Subject to quickly and easily request the removal of all their personal data from a specific app. |
+| FR5.10.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their data to be erased from the application. |
+| FR5.11 | Enable the SIFIS-Home framework to automatically add an application to the list of SIFIS-Home applications of a Data Subject when the Data Subject installs it in the SIFIS-Home framework. |
+| FR5.12 | Enable the SIFIS-Home framework to automatically request the removal of an application from the list of SIFIS-Home applications of a Data Subject when the Data Subject uninstalls it from the SIFIS-Home framework. |
+| FR5.13 | Enable the Marketplace framework to automatically add an application to the list of SIFIS-Home applications of a Data Controller or DPO when the Data Controller or DPO installs it from the Marketplace framework. |
 | **FR6** |                       **Manage Privacy Notices**                       |
 | FR6.1   | Enable the Data Controller and DPO to see a list of applications for which he is responsible along with their associated privacy notices, if any. |
 | FR6.2   | Enable Data Controller and DPO to edit an existing privacy notice associated to an application. |
@@ -489,17 +500,17 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Actors Involved  |        Data Subject       |
 | :--------------: | :----------------: |
 |   Precondition   |   User U is logged in as Data Subject    |
-|  Post condition | U has requested the removal of all their personal data from a specific app |
+|  Post condition | U has requested the removal of all their personal data from a specific application or has performed other actions regarding a specific application |
 | Nominal Scenario |    Scenario 9.1    |
-|     Variants     |    Scenario 9.2    |
+|     Variants     |    Scenario 9.2, Scenario 9.3    |
 |    Exceptions    |                    |
 
 ##### Scenario 9.1
 
-| Scenario 9.1   |                   Data Subject requests the removal of all their personal data from a specific app                 |
+| Scenario 9.1   |                   Data Subject requests the removal of all their personal data from a specific application                 |
 | -------------- | :-----------------------------------------: |
 | Precondition   |               U is logged in as Data Subject                |
-| Post condition |               U has requested the removal of all their personal data from a specific app               |
+| Post condition |               U has requested the removal of all their personal data from a specific application               |
 | Step#          |                 Description                 |
 | 1              |             Data Subject: Selects a particular application from the list of applications  which are currently processing their data  |
 | 2              |      System: Opens the details of the selected application      |
@@ -522,6 +533,20 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | 4              |   System: Prompts the Data Subject to download the Privacy Notice of the selected application.       |
 | 5              |   Data Subject: Clicks the button to download the document containing the list of consenses he has provided and chooses the format of the document     |
 | 6              |   System: Prompts the Data Subject to download the document containing the list of consenses he has provided in the selected format.     |
+
+##### Scenario 9.3
+
+| Scenario 9.3   |                   Data Subject gives one or more consenses to a specific application.                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Subject                |
+| Post condition |               U has given one or more consenses to a specific application               |
+| Step#          |                 Description                 |
+| 1              |             Data Subject: Selects a particular application from the list of applications  which are currently processing their data  |
+| 2              |      System: Opens the details of the selected application      |
+| 3              |   Data Subject: Clicks on the "Add consenses" button   |
+| 4              |   System: Prompts the Data Subject to choose the consenses he wants to give from the list of available consenses of the selected application.       |
+| 5              |   Data Subject: Selects the consenses he wants to give and clicks the button to confirm.     |
+| 6              |   System: Saves the new consenses.     |
 
 #### Use Case 10, Manage Privacy Notices - Data Controller or DPO (UC10)
 
