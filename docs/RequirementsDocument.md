@@ -63,9 +63,9 @@ A web application for dynamic privacy consent management integrated with a smart
 
 ## Overall description
 
-Privacy Dashboard is a web application designed with the main goal of dynamically collecting, managing, and monitoring user privacy consents within their smart home. More specifically, it allows to:
+Privacy Dashboard is a web application designed with the main goal of dynamically collecting, managing, and monitoring user privacy consents within their smart homes. More specifically, it allows to:
 
-- Handle personal data: Data Subjects are able to view and easily configure which personal data is collected by IoT devices installed in their smart home.
+- Handle personal data: Data Subjects are able to view and easily configure which personal data is collected by IoT devices installed in their smart homes.
 - Dynamically configure IoT devices: Data Subjects' choices are translated into automatic device configuration, in order to prevent the collection and transmission of unwanted data to third-party services. This is achieved through the interaction of Privacy Dashboard with the SIFIS-Home framework using dedicated APIs.
 - Exercise GDPR rights: Data Subjects can exercise their GDPR rights (access, withdrawal, portability, erasure, limitation and complaint) directly from the platform, with a user-friendly interface.
 - Interact directly with Data Controllers and Data Protection Officer: the dashboard works as a centralized point to put in touch Data Subjects with all the Data Controllers and the Data Protection Officer involved, simplifying the management of requests related to personal data.
@@ -80,7 +80,8 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  Data Controller         | User of the application who verifies compliance with the Data Subject's privacy preferences and GDPR regulations, handles privacy notices and interacts with Data Subjects, other Data Controllers and the Data Protection Officer |
 |  Data Protection Officer | User of the application who has similar privileges as Data Controller, but is unique to the application; that is, unlike Data Controller and Data Subject, there can only be one user with this role |
 |    SIFIS-Home            | External framework that allows to dynamically configure IoT devices in the smart home and interacts with Privacy Dashboard through dedicated APIs                             |
-|    Marketplace           | External framework that allows Data Controllers and Data Protection Officers to manage their applications and interacts with Privacy Dashboard through dedicated APIs         |
+|    Marketplace           | External framework that allows Users to manage their applications and interacts with Privacy Dashboard through dedicated APIs         |
+| Policy Translation Point | External framework that allows Data Subject to translate high-level security policies like “Do not record sound in the living room tonight” into low-level policies in a XACML formalism, and interacts with Privacy Dashboard through dedicated APIs         |
 |  Administrator           |                       Person who owns and manages the application                                                                                                             |
 |    Developer             |                       Person who develops and maintains the application                                                                                                       |
 
@@ -100,6 +101,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Data Protection Officer | Personal computing device  |         GUI        |
 |    SIFIS-Home           | Internet connection        |         API        |
 |    Marketplace          | Internet connection        |         API        |
+| Policy Translation Point | Internet connection        |         API        |
 
 ## Requirements
 
@@ -110,6 +112,9 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | **FR1** |                       **Manage Accounts**                       |
 |  FR1.1  | Enable the Unlogged User to create a new account choosing a role which is one of the following: Data Subject, Data Controller, Data Protection Officer. |
 |  FR1.2  | Enable the Unlogged User to log in and access his personal dashboard.    |
+|  FR1.2.1 | Enable Data Subject to see a list of all his Smart Homes right after logging in. |
+|  FR1.2.2 | Enable Data Subject to choose a Smart Home for which he wants to manage applications. |
+|  FR1.2.3 | Enable the SIFIS-Home framework to return to the Privacy Dashboard the list of SIFIS-Home applications of the Data Subject installed in the chosen Smart Home. |
 |  FR1.3  | Enable the user to manage his account, including changing his email and password.    |
 |  FR1.4  | Enable the user to log out.    |
 | **FR2** |                       **Manage Contacts**                       |
@@ -125,7 +130,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  FR3.4  | Enable the user to start a new conversation by selecting a contact from the list of available contacts. |
 |  FR3.5  | Enable the user to send attachments to a message. |
 | **FR4** |                       **Manage Rights**                       |
-|  FR4.1  | Enable Data Controller and DPO to see a list of all the requests received from different data subjects regarding different applications. |
+|  FR4.1  | Enable Data Controller and DPO to see a list of all the requests received from different data subjects regarding different applications installed in their different Smart Homes. |
 |  FR4.2  | Enable Data Controller and DPO to access details of each request in the list, including the type of request, the application it is related to, the date it was received, the current status of the request, the data subject's name and the specific right being exercised. |
 |  FR4.3  | Enable Data Controller and DPO to quickly see which requests are pending and which have been handled. |
 |  FR4.4  | Enable Data Controller and DPO to answer requests from Data Subjects. |
@@ -138,26 +143,30 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  FR5.1  | Enable Data Controller and DPO to see a list of all the SIFIS-Home applications for which he is responsible. |
 |  FR5.2  | Enable Data Controller and DPO to access details of each application in the list, including the application's name, description, evaluation, Privacy Notice, other joint data controllers or DPO if any, and the list of all data subjects who are bound to the application. |
 |  FR5.3  | Enable Data Controller and DPO to access the personal info, communication history and requests of each data subject who is bound to each application in the list. |
-|  FR5.4  | Enable Data Subject to see a list of all the SIFIS-Home applications which are currently processing their data. |
-| FR5.5 | Enable Data Subject to access details of each application in the list, including the application's name, description, evaluation, Privacy Notice, the list of all data controllers and DPO involved in the processing of their data, and the list of consenses he has provided. |
-| FR5.6 | Enable Data Subject to download, for each application in the list, the Privacy Notice and the document, including as a XML and as a JSON, containing the list of consenses he has provided. |
-| FR5.7 | Enable Data Subject to give consenses to a specific application by choosing from the application's predefined list of available consenses. |
-| FR5.8 | Enable Data Subject to quickly and easily request the withdrawal of selected consenses from a specific app. |
-| FR5.8.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their selected consenses to be withdrawn from the application. |
-| FR5.9 | Enable Data Subject to quickly and easily request the withdrawal of all their given consenses from a specific app. |
-| FR5.9.1 | Generate an automatic message to be sent to the relevant data controllers, requesting all their consenses to be withdrawn from the application. |
-| FR5.10  | Enable the Data Subject to quickly and easily request the removal of all their personal data from a specific app. |
-| FR5.10.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their data to be erased from the application. |
-| FR5.11 | Enable the SIFIS-Home framework to automatically add an application to the list of SIFIS-Home applications of a Data Subject when the Data Subject installs it in the SIFIS-Home framework. |
-| FR5.12 | Enable the SIFIS-Home framework to automatically request the removal of an application from the list of SIFIS-Home applications of a Data Subject when the Data Subject uninstalls it from the SIFIS-Home framework. |
-| FR5.13 | Enable the Marketplace framework to automatically add an application to the list of SIFIS-Home applications of a Data Controller or DPO when the Data Controller or DPO installs it from the Marketplace framework. |
+|  FR5.4  | Enable Data Subject to see a list of all the SIFIS-Home applications installed in the selected Smart Home which are currently processing their data. |
+| FR5.5 | Enable Data Subject to access details of each application in the list, including the application's name, description, evaluation, Privacy Notice, the list of all data controllers and DPO involved in the processing of their data, the list of consenses he has provided, and the list of high-level policies he has defined. |
+| FR5.6 | Enable Data Subject to download, for each application in the list, the Privacy Notice and the document, including as a XML and as a JSON, containing the list of consenses he has provided for the application in the selected Smart Home. |
+| FR5.7 | Enable Data Subject to give consenses to a specific application in the selected Smart Home by choosing from the application's predefined list of available consenses. |
+| FR5.7.1 | Automatically reconfigure the corresponding IoT device to align with the data subject's updated privacy consent by interacting with the SIFIS-Home framework through dedicated APIs. |
+| FR5.8 | Enable Data Subject to define a new high-level policy for a specific application in the selected Smart Home. |
+| FR5.8.1 | Enable the Policy Translation Point framework to receive the high-level policy and translate it to a low-level policy in a XACML formalism to be returned to the Privacy Dashboard through dedicated APIs. |
+| FR5.8.2 | Automatically reconfigure the corresponding IoT device to align with the newly obtained low-level policy by interacting with the SIFIS-Home framework through dedicated APIs. |
+| FR5.9 | Enable Data Subject to quickly and easily request the withdrawal of selected consenses from a specific app in the selected Smart Home. |
+| FR5.9.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their selected consenses to be withdrawn from the application in the selected Smart Home. |
+| FR5.10 | Enable Data Subject to quickly and easily request the withdrawal of all their given consenses from a specific app in the selected Smart Home. |
+| FR5.10.1 | Generate an automatic message to be sent to the relevant data controllers, requesting all their consenses to be withdrawn from the application in the selected Smart Home. |
+| FR5.11  | Enable the Data Subject to quickly and easily request the removal of all their personal data from a specific app. |
+| FR5.11.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their data to be erased from the application. |
+| FR5.12 | Enable the SIFIS-Home framework to automatically add an application to the list of SIFIS-Home applications of the selected Smart Home of a Data Subject when the Data Subject installs it in the selected Smart Home from the Marketplace framework. |
+| FR5.14 | Enable the SIFIS-Home framework to automatically request the removal of an application from the list of SIFIS-Home applications of the selected Smart Home of a Data Subject when the Data Subject uninstalls it from the selected Smart Home from the SIFIS-Home framework. |
+| FR5.15 | Enable the Marketplace framework to automatically add an application to the list of SIFIS-Home applications of a Data Controller or DPO when the Data Controller or DPO installs it from the Marketplace framework. |
 | **FR6** |                       **Manage Privacy Notices**                       |
 | FR6.1   | Enable the Data Controller and DPO to see a list of applications for which he is responsible along with their associated privacy notices, if any. |
 | FR6.2   | Enable Data Controller and DPO to edit an existing privacy notice associated to an application. |
 | FR6.3   | Enable Data Controller and DPO to write from scratch a privacy notice to be associated to an application. |
 | FR6.4   | Enable Data Controller and DPO to write, starting from a provided template, a privacy notice to be associated to an application. |
 | FR6.5   | Enable Data Controller and DPO to associate to an application an already existing privacy notice. |
-| FR6.6   | Enable Data Subject to see a list of applications which are currently processing their data along with their associated privacy notices and their corresponding Data Controller or DPO. |
+| FR6.6   | Enable Data Subject to see a list of applications installed in the selected Smart Home which are currently processing their data along with their associated privacy notices and their corresponding Data Controller or DPO. |
 | FR6.7   | Enable Data Subject to download the privacy notice associated to each application in the list. |
 | **FR7** |                       **Manage Questionnaires**                       |
 | FR7.1  | Enable Data Controller and DPO to see a list of all the applications for which he is responsible, which are colour-coded based on the results of their respective questionnaires which verify compliance with the GDPR regulations.  |
@@ -267,7 +276,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |   Precondition   | User U is not logged in |
 |  Post condition  |     U is logged in      |
 | Nominal Scenario |      Scenario 2.1       |
-|     Variants     |          None           |
+|     Variants     |          Scenario 2.5   |
 |    Exceptions    | Scenario 2.2, 2.3, 2.4  |
 
 ##### Scenario 2.1
@@ -319,6 +328,19 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | 2              |                User: Provides username, password.                |
 | 3              | System: Reads username, password. The user is already logged in. |
 | 4              |                 System: Returns an error message                 |
+
+##### Scenario 2.5
+
+| Scenario 2.5   |                     User logged in as Data Subject               |
+| -------------- | :-------------------------------------------------------------: |
+| Precondition   |                         U is registered                         |
+| Post condition |                         U is logged in as Data Subject and selects one of this Smart Homes       |
+| Step#          |                           Description                           |
+| 1              |                 User: Successfully logs in as Data Subject.                  |
+| 2              |                System: Shows the list of Smart Homes belonging to the Data Subject. |
+| 3              |                User: Selects one of the Smart Homes.             |
+| 3              | System: Automatically send a request to the SIFIS-Home framework to retrieve the list of SIFIS-Home applications installed in the selected Smart Home. |
+| 4              |                 System: Compares the response with the data present in the database and updates it if necessary to align the data in the database with the list of applications obtained in the response.                |
 
 #### Use Case 3, Manage account (UC3)
 
@@ -502,7 +524,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |   Precondition   |   User U is logged in as Data Subject    |
 |  Post condition | U has requested the removal of all their personal data from a specific application or has performed other actions regarding a specific application |
 | Nominal Scenario |    Scenario 9.1    |
-|     Variants     |    Scenario 9.2, Scenario 9.3    |
+|     Variants     |    Scenario 9.2, Scenario 9.3, Scenario 9.4    |
 |    Exceptions    |                    |
 
 ##### Scenario 9.1
@@ -512,7 +534,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Precondition   |               U is logged in as Data Subject                |
 | Post condition |               U has requested the removal of all their personal data from a specific application               |
 | Step#          |                 Description                 |
-| 1              |             Data Subject: Selects a particular application from the list of applications  which are currently processing their data  |
+| 1              |             Data Subject: Selects a particular application from the list of applications of the selected Smart Home which are currently processing their data  |
 | 2              |      System: Opens the details of the selected application      |
 | 3              |   Data Subject: Clicks on the "Request removal of all personal data" button   |
 | 4              |   System: Generates an automatic message to be sent to the relevant data controllers, requesting their data to be erased from the application.     |
@@ -527,7 +549,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Precondition   |               U is logged in as Data Subject                |
 | Post condition |               U has downloaded the Privacy Notice and the document containing the list of consenses he has provided               |
 | Step#          |                 Description                 |
-| 1              |             Data Subject: Selects a particular application from the list of applications  which are currently processing their data  |
+| 1              |             Data Subject: Selects a particular application from the list of applications of the selected Smart Home which are currently processing their data  |
 | 2              |      System: Opens the details of the selected application      |
 | 3              |   Data Subject: Clicks on the "Download Privacy Notice" button   |
 | 4              |   System: Prompts the Data Subject to download the Privacy Notice of the selected application.       |
@@ -541,12 +563,28 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Precondition   |               U is logged in as Data Subject                |
 | Post condition |               U has given one or more consenses to a specific application               |
 | Step#          |                 Description                 |
-| 1              |             Data Subject: Selects a particular application from the list of applications  which are currently processing their data  |
+| 1              |             Data Subject: Selects a particular application from the list of applications of the selected Smart Home which are currently processing their data  |
 | 2              |      System: Opens the details of the selected application      |
 | 3              |   Data Subject: Clicks on the "Add consenses" button   |
 | 4              |   System: Prompts the Data Subject to choose the consenses he wants to give from the list of available consenses of the selected application.       |
 | 5              |   Data Subject: Selects the consenses he wants to give and clicks the button to confirm.     |
 | 6              |   System: Saves the new consenses.     |
+| 7              |   System: Reconfigures the IoT device to align with the data subject's updated privacy consent   |
+
+##### Scenario 9.4
+
+| Scenario 9.4   |                   Data Subject defines a new high-level policy for a specific application.                 |
+| -------------- | :-----------------------------------------: |
+| Precondition   |               U is logged in as Data Subject                |
+| Post condition |               U has defined a new high-level policy for a specific application               |
+| Step#          |                 Description                 |
+| 1              |             Data Subject: Selects a particular application from the list of applications of the selected Smart Home which are currently processing their data  |
+| 2              |      System: Opens the details of the selected application      |
+| 3              |   Data Subject: Clicks on the "Add high-level policy" button   |
+| 4              |   System: Prompts the Data Subject to type the high-level policy he wants to give.|
+| 5              |   Data Subject: Types the high-level policy he wants to give and clicks the button to confirm.     |
+| 6              |   System: Sends the high-level policy to the Policy Translation Point framework, which translates it to a low-level policy and returns it to the Privacy Dashboard.     |
+| 7              |   System: Reconfigures the IoT device to align with the data subject's updated privacy consent   |
 
 #### Use Case 10, Manage Privacy Notices - Data Controller or DPO (UC10)
 
@@ -633,7 +671,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | Precondition   |               U is logged in as Data Subject                |
 | Post condition |               U has downloaded the Privacy Notice of a particular application               |
 | Step#          |                 Description                 |
-| 1              |             Data Subject: Selects a particular application from the list of applications which are currently processing their data or from the received notification  |
+| 1              |             Data Subject: Selects a particular application from the list of applications of the selected Smart Home which are currently processing their data or from the received notification  |
 | 2              |      System: Opens the details of the selected application      |
 | 3              |   Data Subject: Clicks on the "Download Privacy Notice" button   |
 | 4              |   System: Prompts the Data Subject to download the updated Privacy Notice of the selected application       |
