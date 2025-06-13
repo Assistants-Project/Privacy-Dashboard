@@ -89,7 +89,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 
 ### Context Diagram
 
-![Context Diagram](./../images/ContextDiagram.png)
+![Context Diagram](./images/ContextDiagram.png)
 
 ### Interfaces
 
@@ -202,7 +202,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 
 ### Use Case Diagram
 
-![Use Case Diagram](./../images/UseCaseDiagram.png)
+![Use Case Diagram](./images/UseCaseDiagram.png)
 
 ### Use Cases
 
@@ -758,12 +758,12 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 
 ## Glossary
 
-![Glossary](./../images/Glossary.png)
+![Glossary](./images/Glossary.png)
 
 ## System Design
 
-![System Design](./../images/SystemDesign.png)
+![System Design](./images/SystemDesign.png)
 
 ## Deployment Diagram
 
-![Deployment Diagram](./../images/DeploymentDiagram.png)
+![Deployment Diagram](./images/DeploymentDiagram.png)
