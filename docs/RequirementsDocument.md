@@ -155,11 +155,11 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | FR5.11  | Enable the Data Subject to quickly and easily request the removal of all their personal data from a specific app. |
 | FR5.11.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their data to be erased from the application. |
 | FR5.12 | Enable the SIFIS-Home framework to automatically add an application to the list of SIFIS-Home applications of the selected Smart Home of a Data Subject when the Data Subject installs it in the selected Smart Home from the Marketplace framework. |
-| FR5.14 | Enable the SIFIS-Home framework to automatically request the removal of an application from the list of SIFIS-Home applications of the selected Smart Home of a Data Subject when the Data Subject uninstalls it from the selected Smart Home from the SIFIS-Home framework. |
-| FR5.15 | Enable the Marketplace framework to automatically add an application to the list of SIFIS-Home applications of a Data Controller or DPO when the Data Controller or DPO installs it from the Marketplace framework. |
-| FR5.16 | Automatically reconfigure the corresponding IoT device to align with the data subject's updated privacy consent by interacting with the SIFIS-Home framework through dedicated APIs. |
-| FR5.17 | Enable the Policy Translation Point framework to receive the high-level policy and translate it to a low-level policy in a XACML formalism to be returned to the Privacy Dashboard through dedicated APIs. |
-| FR5.18 | Automatically reconfigure the corresponding IoT device to align with the newly obtained low-level policy by interacting with the SIFIS-Home framework through dedicated APIs. |
+| FR5.13 | Enable the SIFIS-Home framework to automatically request the removal of an application from the list of SIFIS-Home applications of the selected Smart Home of a Data Subject when the Data Subject uninstalls it from the selected Smart Home from the SIFIS-Home framework. |
+| FR5.14 | Enable the Marketplace framework to automatically add an application to the list of SIFIS-Home applications of a Data Controller or DPO when the Data Controller or DPO installs it from the Marketplace framework. |
+| FR5.15 | Automatically reconfigure the corresponding IoT device to align with the data subject's updated privacy consent by interacting with the SIFIS-Home framework through dedicated APIs. |
+| FR5.16 | Enable the Policy Translation Point framework to receive the high-level policy and translate it to a low-level policy in a XACML formalism to be returned to the Privacy Dashboard through dedicated APIs. |
+| FR5.17 | Automatically reconfigure the corresponding IoT device to align with the newly obtained low-level policy by interacting with the SIFIS-Home framework through dedicated APIs. |
 | **FR6** |                       **Manage Privacy Notices**                       |
 | FR6.1   | Enable the Data Controller and DPO to see a list of applications for which he is responsible along with their associated privacy notices, if any. |
 | FR6.2   | Enable Data Controller and DPO to edit an existing privacy notice associated to an application. |
