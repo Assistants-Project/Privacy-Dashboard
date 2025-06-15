@@ -3,7 +3,7 @@ from pathlib import Path
 from flask import Flask
 from dotenv import load_dotenv
 from config import config_by_name
-from .extensions import db, migrate, ma
+from .extensions import db, migrate, api
 from .controllers import testObj_bp
 
 def create_app(env_name: str = None) -> Flask:
@@ -31,8 +31,8 @@ def create_app(env_name: str = None) -> Flask:
 
     db.init_app(app)
     migrate.init_app(app, db)
-    ma.init_app(app)
+    api.init_app(app)
 
-    app.register_blueprint(testObj_bp)
+    api.register_blueprint(testObj_bp)
 
     return app
