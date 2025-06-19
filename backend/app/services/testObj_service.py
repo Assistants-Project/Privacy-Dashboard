@@ -5,8 +5,7 @@ from ..repositories import TestObjRepository
 class TestObjService:
     @staticmethod
     def get_test_obj_by_id(id: int) -> TestObj:
-        """
-        Retrieve a test object by its ID from the database.
+        """Retrieve a test object by its ID from the database.
 
         :param int id: the ID of the test object to retrieve
 
@@ -21,8 +20,7 @@ class TestObjService:
     
     @staticmethod
     def get_all_test_objs() -> List[TestObj]:
-        """
-        Retrieve all test objects from the database.
+        """Retrieve all test objects from the database.
 
         :return List[TestObj]: the retrieved test objects
         """

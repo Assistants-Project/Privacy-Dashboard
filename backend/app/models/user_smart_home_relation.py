@@ -1,0 +1,20 @@
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from ..extensions import db
+
+
+class UserSmartHomeRelation(db.Model):
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id", ondelete="CASCADE"), primary_key=True
+    )
+    smart_home_id: Mapped[int] = mapped_column(
+        ForeignKey("smart_home.id", ondelete="CASCADE"), primary_key=True
+    )
+
+    user: Mapped["User"] = relationship(  # noqa: F821 # type: ignore
+        back_populates="smart_homes",
+    )
+    smart_home: Mapped["SmartHome"] = relationship(  # noqa: F821 # type: ignore
+        back_populates="users",
+    )

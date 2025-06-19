@@ -1,10 +1,13 @@
 import os
 from pathlib import Path
-from flask import Flask
-from dotenv import load_dotenv
+
 from config import config_by_name
-from .extensions import db, migrate, api
+from dotenv import load_dotenv
+from flask import Flask
+
 from .controllers import testObj_bp
+from .extensions import api, db, ma, migrate
+
 
 def create_app(env_name: str = None) -> Flask:
     """
@@ -14,10 +17,7 @@ def create_app(env_name: str = None) -> Flask:
 
     env_name = env_name or os.getenv("FLASK_ENV", "development")
 
-    override_map = {
-        "testing":    ".env.test",
-        "production": ".env.prod"
-    }
+    override_map = {"testing": ".env.test", "production": ".env.prod"}
     override_file = override_map.get(env_name)
     if override_file:
         path = Path("../" + override_file)
@@ -31,6 +31,7 @@ def create_app(env_name: str = None) -> Flask:
 
     db.init_app(app)
     migrate.init_app(app, db)
+    ma.init_app(app)
     api.init_app(app)
 
     api.register_blueprint(testObj_bp)

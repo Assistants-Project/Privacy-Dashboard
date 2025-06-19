@@ -1,6 +1,6 @@
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from ...extensions import ma
 from ...models import TestObj
 
-class TestObjResSchema(SQLAlchemyAutoSchema):
+class TestObjResSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = TestObj
