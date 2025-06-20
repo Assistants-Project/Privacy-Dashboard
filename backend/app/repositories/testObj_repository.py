@@ -1,5 +1,7 @@
 from typing import List
+
 from ..models import TestObj
+
 
 class TestObjRepository:
     @staticmethod

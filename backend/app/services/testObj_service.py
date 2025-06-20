@@ -1,6 +1,8 @@
 from typing import List
+
 from ..models import TestObj
 from ..repositories import TestObjRepository
+
 
 class TestObjService:
     @staticmethod
@@ -17,7 +19,7 @@ class TestObjService:
         if not testObj:
             raise Exception(f"TestObj with id {id} not found")
         return testObj
-    
+
     @staticmethod
     def get_all_test_objs() -> List[TestObj]:
         """Retrieve all test objects from the database.
