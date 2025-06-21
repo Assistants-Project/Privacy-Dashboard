@@ -30,6 +30,14 @@ class Application(db.Model):
     privacy_notice: Mapped["PrivacyNotice"] = relationship(  # noqa: F821 # type: ignore
         back_populates="applications"
     )
-    questions: Mapped[List["QuestionApplicationRelation"]] = relationship(  # noqa: F821 # type: ignore
+    answers: Mapped[List["QuestionApplication"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="application", cascade="all, delete-orphan", passive_deletes=True
+    )
+    available_consents: Mapped[List["AvailableConsent"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="application", cascade="all, delete-orphan", passive_deletes=True
+    )
+    installed_by_user_smart_home_combinations: Mapped[
+        List["UserSmartHomeApplication"]  # noqa: F821 # type: ignore
+    ] = relationship(
         back_populates="application", cascade="all, delete-orphan", passive_deletes=True
     )

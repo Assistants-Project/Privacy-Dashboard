@@ -14,6 +14,12 @@ class SmartHome(db.Model):
     name: Mapped[str] = mapped_column(unique=True)
     address: Mapped[str]
 
-    users: Mapped[List["UserSmartHomeRelation"]] = relationship(  # noqa: F821 # type: ignore
+    owned_by_users: Mapped[List["UserSmartHome"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="smart_home", cascade="all, delete-orphan", passive_deletes=True
+    )
+    installed_applications: Mapped[List["UserSmartHomeApplication"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="smart_home", cascade="all, delete-orphan", passive_deletes=True
+    )
+    given_consents: Mapped[List["UserSmartHomeAvailableConsent"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="smart_home", cascade="all, delete-orphan", passive_deletes=True
     )

@@ -144,14 +144,14 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  FR5.2  | Enable Data Controller and DPO to access details of each application in the list, including the application's name, description, evaluation, Privacy Notice, other joint data controllers or DPO if any, and the list of all data subjects who are bound to the application. |
 |  FR5.3  | Enable Data Controller and DPO to access the personal info, communication history and requests of each data subject who is bound to each application in the list. |
 |  FR5.4  | Enable Data Subject to see a list of all the SIFIS-Home applications installed in the selected Smart Home which are currently processing their data. |
-| FR5.5 | Enable Data Subject to access details of each application in the list, including the application's name, description, evaluation, Privacy Notice, the list of all data controllers and DPO involved in the processing of their data, the list of consenses he has provided, and the list of high-level policies he has defined. |
-| FR5.6 | Enable Data Subject to download, for each application in the list, the Privacy Notice and the document, including as a XML and as a JSON, containing the list of consenses he has provided for the application in the selected Smart Home. |
-| FR5.7 | Enable Data Subject to give consenses to a specific application in the selected Smart Home by choosing from the application's predefined list of available consenses. |
+| FR5.5 | Enable Data Subject to access details of each application in the list, including the application's name, description, evaluation, Privacy Notice, the list of all data controllers and DPO involved in the processing of their data, the list of consents he has provided, and the list of high-level policies he has defined. |
+| FR5.6 | Enable Data Subject to download, for each application in the list, the Privacy Notice and the document, including as a XML and as a JSON, containing the list of consents he has provided for the application in the selected Smart Home. |
+| FR5.7 | Enable Data Subject to give consents to a specific application in the selected Smart Home by choosing from the application's predefined list of available consents. |
 | FR5.8 | Enable Data Subject to define a new high-level policy for a specific application in the selected Smart Home. |
-| FR5.9 | Enable Data Subject to quickly and easily request the withdrawal of selected consenses from a specific app in the selected Smart Home. |
-| FR5.9.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their selected consenses to be withdrawn from the application in the selected Smart Home. |
-| FR5.10 | Enable Data Subject to quickly and easily request the withdrawal of all their given consenses from a specific app in the selected Smart Home. |
-| FR5.10.1 | Generate an automatic message to be sent to the relevant data controllers, requesting all their consenses to be withdrawn from the application in the selected Smart Home. |
+| FR5.9 | Enable Data Subject to quickly and easily request the withdrawal of selected consents from a specific app in the selected Smart Home. |
+| FR5.9.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their selected consents to be withdrawn from the application in the selected Smart Home. |
+| FR5.10 | Enable Data Subject to quickly and easily request the withdrawal of all their given consents from a specific app in the selected Smart Home. |
+| FR5.10.1 | Generate an automatic message to be sent to the relevant data controllers, requesting all their consents to be withdrawn from the application in the selected Smart Home. |
 | FR5.11  | Enable the Data Subject to quickly and easily request the removal of all their personal data from a specific app. |
 | FR5.11.1 | Generate an automatic message to be sent to the relevant data controllers, requesting their data to be erased from the application. |
 | FR5.12 | Enable the SIFIS-Home framework to automatically add an application to the list of SIFIS-Home applications of the selected Smart Home of a Data Subject when the Data Subject installs it in the selected Smart Home from the Marketplace framework. |
@@ -544,31 +544,31 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 
 ##### Scenario 9.2
 
-| Scenario 9.2   |                   Data Subject downloads the Privacy Notice and the document containing the list of consenses he has provided.                 |
+| Scenario 9.2   |                   Data Subject downloads the Privacy Notice and the document containing the list of consents he has provided.                 |
 | -------------- | :-----------------------------------------: |
 | Precondition   |               U is logged in as Data Subject                |
-| Post condition |               U has downloaded the Privacy Notice and the document containing the list of consenses he has provided               |
+| Post condition |               U has downloaded the Privacy Notice and the document containing the list of consents he has provided               |
 | Step#          |                 Description                 |
 | 1              |             Data Subject: Selects a particular application from the list of applications of the selected Smart Home which are currently processing their data  |
 | 2              |      System: Opens the details of the selected application      |
 | 3              |   Data Subject: Clicks on the "Download Privacy Notice" button   |
 | 4              |   System: Prompts the Data Subject to download the Privacy Notice of the selected application.       |
-| 5              |   Data Subject: Clicks the button to download the document containing the list of consenses he has provided and chooses the format of the document     |
-| 6              |   System: Prompts the Data Subject to download the document containing the list of consenses he has provided in the selected format.     |
+| 5              |   Data Subject: Clicks the button to download the document containing the list of consents he has provided and chooses the format of the document     |
+| 6              |   System: Prompts the Data Subject to download the document containing the list of consents he has provided in the selected format.     |
 
 ##### Scenario 9.3
 
-| Scenario 9.3   |                   Data Subject gives one or more consenses to a specific application.                 |
+| Scenario 9.3   |                   Data Subject gives one or more consents to a specific application.                 |
 | -------------- | :-----------------------------------------: |
 | Precondition   |               U is logged in as Data Subject                |
-| Post condition |               U has given one or more consenses to a specific application               |
+| Post condition |               U has given one or more consents to a specific application               |
 | Step#          |                 Description                 |
 | 1              |             Data Subject: Selects a particular application from the list of applications of the selected Smart Home which are currently processing their data  |
 | 2              |      System: Opens the details of the selected application      |
-| 3              |   Data Subject: Clicks on the "Add consenses" button   |
-| 4              |   System: Prompts the Data Subject to choose the consenses he wants to give from the list of available consenses of the selected application.       |
-| 5              |   Data Subject: Selects the consenses he wants to give and clicks the button to confirm.     |
-| 6              |   System: Saves the new consenses.     |
+| 3              |   Data Subject: Clicks on the "Add consents" button   |
+| 4              |   System: Prompts the Data Subject to choose the consents he wants to give from the list of available consents of the selected application.       |
+| 5              |   Data Subject: Selects the consents he wants to give and clicks the button to confirm.     |
+| 6              |   System: Saves the new consents.     |
 | 7              |   System: Reconfigures the IoT device to align with the data subject's updated privacy consent   |
 
 ##### Scenario 9.4

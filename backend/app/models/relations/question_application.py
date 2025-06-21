@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ...extensions import db
 
 
-class QuestionApplicationRelation(db.Model):
+class QuestionApplication(db.Model):
     __tablename__ = "question_application_relations"
 
     question_id: Mapped[int] = mapped_column(
@@ -16,8 +16,8 @@ class QuestionApplicationRelation(db.Model):
     answer_content = mapped_column(Text, nullable=False)
 
     question: Mapped["Question"] = relationship(  # noqa: F821 # type: ignore
-        back_populates="applications"
+        back_populates="answers"
     )
     application: Mapped["Application"] = relationship(  # noqa: F821 # type: ignore
-        back_populates="questions"
+        back_populates="answers"
     )

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ...extensions import db
 
 
-class UserSmartHomeRelation(db.Model):
+class UserSmartHome(db.Model):
     __tablename__ = "user_smart_home_relations"
 
     user_id: Mapped[int] = mapped_column(
@@ -15,8 +15,8 @@ class UserSmartHomeRelation(db.Model):
     )
 
     user: Mapped["User"] = relationship(  # noqa: F821 # type: ignore
-        back_populates="smart_homes"
+        back_populates="owned_smart_homes"
     )
     smart_home: Mapped["SmartHome"] = relationship(  # noqa: F821 # type: ignore
-        back_populates="users"
+        back_populates="owned_by_users"
     )

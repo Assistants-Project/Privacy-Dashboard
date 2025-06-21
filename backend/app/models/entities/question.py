@@ -21,6 +21,6 @@ class Question(db.Model):
     choices = mapped_column(Text, nullable=True)
     type = mapped_column(Enum(QuestionType, validate_strings=True), nullable=False)
 
-    applications: Mapped[List["QuestionApplicationRelation"]] = relationship(  # noqa: F821 # type: ignore
+    answers: Mapped[List["QuestionApplication"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="question", cascade="all, delete-orphan", passive_deletes=True
     )

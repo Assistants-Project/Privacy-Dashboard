@@ -24,7 +24,13 @@ class User(db.Model):
     role = mapped_column(Enum(UserRole, validate_strings=True), nullable=False)
     profile_picture: Mapped[str | None]
 
-    smart_homes: Mapped[List["UserSmartHomeRelation"]] = relationship(  # noqa: F821 # type: ignore
+    owned_smart_homes: Mapped[List["UserSmartHome"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
+    installed_applications: Mapped[List["UserSmartHomeApplication"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
+    given_consents: Mapped[List["UserSmartHomeAvailableConsent"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
 
