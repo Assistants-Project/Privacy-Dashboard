@@ -33,5 +33,17 @@ class User(db.Model):
     given_consents: Mapped[List["UserSmartHomeAvailableConsent"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
+    sent_messages: Mapped[List["Message"]] = relationship(  # noqa: F821 # type: ignore
+        foreign_keys="Message.sender_id",
+        back_populates="sender",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    received_messages: Mapped[List["Message"]] = relationship(  # noqa: F821 # type: ignore
+        foreign_keys="Message.receiver_id",
+        back_populates="receiver",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
     # TODO: consider adding methods for password hashing and checking with werkzeug.security

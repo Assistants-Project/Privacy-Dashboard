@@ -180,10 +180,11 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | **FR9** |                       **Manage Notifications**                       |
 | FR9.1  | Sending notifications and receiving notifications when certain actions are performed. |
 | FR9.1.1  | Sending a message: notification to the contact receiving the sent message. |
-| FR9.1.2  | Writing or editing a privacy notice: notification to all the data subjects bound to the application. |
-| FR9.1.3  | Carrying out or editing a questionnaire: notification to all the data subjects bound to the application. |
+| FR9.1.2  | Writing or editing a privacy notice: notification to all the data subjects, data controllers and DPO bound to the application. |
+| FR9.1.3  | Carrying out or editing a questionnaire: notification to all the data subjects, data controllers and DPO bound to the application. |
 | FR9.1.4  | Submitting a request of exercising a right: notification to all the related data controllers and DPO. |
 | FR9.1.5  | Answering to or changing the status of a request of exercising a right: notification to the data subject who submitted the request. |
+| FR9.1.6  | Carrying out or editing a privacy impact assessment: notification to all the data controllers and DPO bound to the application. |
 
 ### Non Functional Requirements
 
