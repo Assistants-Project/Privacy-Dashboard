@@ -41,3 +41,6 @@ class Application(db.Model):
     ] = relationship(
         back_populates="application", cascade="all, delete-orphan", passive_deletes=True
     )
+    generated_notifications: Mapped[List["Notification"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="application", cascade="all, delete-orphan", passive_deletes=True
+    )

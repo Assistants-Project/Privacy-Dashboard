@@ -1,4 +1,5 @@
 import enum
+from typing import List
 
 from sqlalchemy import Enum, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -25,8 +26,8 @@ class Request(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     right_type = mapped_column(Enum(RightType, validate_strings=True), nullable=False)
-    addtional_information = mapped_column(Text, nullable=False)
-    response = mapped_column(Text, nullable=True)
+    additional_information = mapped_column(Text, nullable=False)
+    response = mapped_column(Text, default=None, nullable=True)
     status = mapped_column(
         Enum(Status, validate_strings=True), default=Status.PENDING, nullable=False
     )
@@ -36,4 +37,7 @@ class Request(db.Model):
 
     user_smart_home_application_relation: Mapped["UserSmartHomeApplication"] = (  # noqa: F821 # type: ignore
         relationship(back_populates="requests")
+    )
+    generated_notifications: Mapped[List["Notification"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="request", cascade="all, delete-orphan", passive_deletes=True
     )
