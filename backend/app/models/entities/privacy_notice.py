@@ -7,6 +7,18 @@ from ...extensions import db
 
 
 class PrivacyNotice(db.Model):
+    """Model for a privacy notice mapped to the table `privacy_notices`.
+
+    A `PrivacyNotice` instance corresponds to one privacy notice written by a Data Controller
+    and associated to one or more applications.
+
+    Attributes:
+        id: An auto-incremented integer identifier, used as the primary key.
+        content: A text field that represents the content of the privacy notice.
+        applications: A list of applications the privacy notice is associated to.
+            Represents a one-to-many relationship with the `Application` class.
+    """
+
     __tablename__ = "privacy_notices"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -15,3 +27,6 @@ class PrivacyNotice(db.Model):
     applications: Mapped[List["Application"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="privacy_notice", passive_deletes=True
     )
+
+    def __repr__(self) -> str:
+        return f"PrivacyNotice(id={self.id}, content={self.content})"

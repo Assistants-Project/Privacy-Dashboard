@@ -7,13 +7,13 @@ from ..repositories import TestObjRepository
 class TestObjService:
     @staticmethod
     def get_test_obj_by_id(id: int) -> TestObj:
-        """Retrieve a test object by its ID from the database.
+        """Returns a test object fetched by its ID from the database.
 
-        :param int id: the ID of the test object to retrieve
+        Args:
+            id: The ID of the test object to retrieve.
 
-        :return TestObj: the retrieved test object
-
-        :raise Exception: if no test object with the given ID is found
+        Raises:
+            Exception: If no test object with the given ID is found in the database.
         """
         testObj = TestObjRepository.get_by_id(id)
         if not testObj:
@@ -22,8 +22,5 @@ class TestObjService:
 
     @staticmethod
     def get_all_test_objs() -> List[TestObj]:
-        """Retrieve all test objects from the database.
-
-        :return List[TestObj]: the retrieved test objects
-        """
+        """Returns all test objects fetched from the database."""
         return TestObjRepository.get_all()

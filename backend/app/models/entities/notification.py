@@ -21,6 +21,30 @@ class NotificationType(enum.Enum):
 
 
 class Notification(db.Model):
+    """Model for a notification mapped to the table `notifications`.
+
+    A `Notification` instance corresponds to a notification received by one or more users
+    after an event of a specific type is performed by one user on a specific object
+    (either a request or an application).
+
+    Attributes:
+        id: An auto-incremented integer identifier, used as the primary key.
+        type: An enum that represents the type of event that triggered the notification.
+        sent_at: A datetime object that represents the date and time the notification was sent.
+            It is set to the current date and time by default.
+        sender_id: A foreign key ID of the sender of the notification.
+        application_id: A foreign key ID of the application that generated the notification, if any.
+        request_id: A foreign key ID of the request that generated the notification, if any.
+        sender: A user who performed the event that generated the notification.
+            Represents a many-to-one relationship with the `User` class.
+        application: An application which generated the notification, if any.
+            Represents a many-to-one relationship with the `Application` class.
+        request: A request which generated the notification, if any.
+            Represents a many-to-one relationship with the `Request` class.
+        receivers: A list of `UserNotification` instances.
+            Represents a one-to-many relationship with the `UserNotification` class.
+    """
+
     __tablename__ = "notifications"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -49,3 +73,6 @@ class Notification(db.Model):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+
+    def __repr__(self) -> str:
+        return f"Notification(id={self.id!r}, type={self.type!r}, sent_at={self.sent_at!r})"

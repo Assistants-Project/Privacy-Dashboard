@@ -14,6 +14,36 @@ class UserRole(enum.Enum):
 
 
 class User(db.Model):
+    """Model for a user mapped to the table `users`.
+
+    A `User` instance corresponds to a person that has an account of one of the three roles
+    and uses the application accordingly.
+
+    Attributes:
+        id: An auto-incremented integer identifier, used as the primary key.
+        firstname: A string that represents the first name of the user.
+        lastname: A string that represents the last name of the user.
+        email: A unique string that represents the email address of the user.
+        password_hash: A string that represents the hashed password of the user.
+        role: An enum that represents the role of the user, one of
+            `DATA_SUBJECT`, `DATA_CONTROLLER` and `DATA_PROTECTION_OFFICER`.
+        profile_picture: An optional string that represents the path to the profile picture of the user, if any.
+        owned_smart_homes: A list of `UserSmartHome` instances.
+            Represents a one-to-many relationship with the `UserSmartHome` class.
+        installed_applications: A list of `UserSmartHomeApplication` instances.
+            Represents a one-to-many relationship with the `UserSmartHomeApplication` class.
+        given_consents: A list of `UserSmartHomeAvailableConsent` instances.
+            Represents a one-to-many relationship with the `UserSmartHomeAvailableConsent` class.
+        sent_messages: A list of messages the user sent.
+            Represents a one-to-many relationship with the `Message` class.
+        received_messages: A list of messages the user received.
+            Represents a one-to-many relationship with the `Message` class.
+        sent_notifications: A list of notifications the user sent.
+            Represents a one-to-many relationship with the `Notification` class.
+        received_notifications: A list of `UserNotification` instances.
+            Represents a one-to-many relationship with the `UserNotification` class.
+    """
+
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -53,3 +83,8 @@ class User(db.Model):
     )
 
     # TODO: consider adding methods for password hashing and checking with werkzeug.security
+
+    def __repr__(self) -> str:
+        return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r}, \
+            email={self.email!r}, password_hash={self.password_hash!r}, role={self.role!r}), \
+            profile_picture={self.profile_picture!r})"
