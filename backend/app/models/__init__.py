@@ -6,8 +6,7 @@ from .entities.privacy_notice import PrivacyNotice
 from .entities.question import Question
 from .entities.request import Request
 from .entities.smart_home import SmartHome
-from .entities.testObj import TestObj
-from .entities.user import User
+from .entities.user import User, UserRole
 from .relations.question_application import QuestionApplication
 from .relations.user_notification import UserNotification
 from .relations.user_smart_home import UserSmartHome
@@ -23,8 +22,8 @@ __all__ = [
     "Question",
     "Request",
     "SmartHome",
-    "TestObj",
     "User",
+    "UserRole",
     "QuestionApplication",
     "UserNotification",
     "UserSmartHome",

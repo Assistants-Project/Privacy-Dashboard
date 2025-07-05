@@ -1,3 +1,1 @@
-from .testObj_repository import TestObjRepository
-
-__all__ = ["TestObjRepository"]
+#  __all__ = [""]

@@ -10,7 +10,7 @@ from ...extensions import db
 class UserSmartHomeApplication(db.Model):
     """Association object representing the tri-directional many-to-many
     relationship between `User`, `SmartHome`, and `Application`,
-    mapped to the table `user_smart_home_application_relations.
+    mapped to the table `user_smart_home_application_relations`.
 
     A `UserSmartHomeApplication` instance represents a unique combination
     of a `User` instance, a `SmartHome` instance, and an `Application`

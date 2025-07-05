@@ -5,8 +5,8 @@ from config import config_by_name
 from dotenv import load_dotenv
 from flask import Flask
 
-from .controllers import testObj_bp
 from .extensions import api, db, ma, migrate
+from .initial_data import init_data
 
 
 def create_app(env_name: str = None) -> Flask:
@@ -34,6 +34,10 @@ def create_app(env_name: str = None) -> Flask:
     ma.init_app(app)
     api.init_app(app)
 
-    api.register_blueprint(testObj_bp)
+    # api.register_blueprint(testObj_bp)
+
+    # Add dummy initial data only in development
+    if env_name == "development":
+        init_data(app)
 
     return app
