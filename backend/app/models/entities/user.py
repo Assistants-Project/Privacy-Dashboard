@@ -3,6 +3,7 @@ from typing import List
 
 from sqlalchemy import Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from werkzeug.security import check_password_hash
 
 from ...extensions import db
 
@@ -82,7 +83,8 @@ class User(db.Model):
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
 
-    # TODO: consider adding methods for password hashing and checking with werkzeug.security
+    def check_password(self, password: str) -> bool:
+        return check_password_hash(self.password_hash, password)
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r}, \

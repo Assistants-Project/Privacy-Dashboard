@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 
 class BaseConfig:
@@ -10,6 +11,11 @@ class BaseConfig:
     OPENAPI_URL_PREFIX = "/docs"
     OPENAPI_SWAGGER_UI_PATH = "/swagger"
     OPENAPI_SWAGGER_UI_URL = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "3301947240a7448b5c90462c7d981d10")
+    JWT_TOKEN_LOCATION = ["cookies", "headers"]
+    JWT_COOKIE_SECURE = True
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    JWT_CSRF_METHODS = ["GET", "POST", "PUT", "DELETE"]
 
 
 class DevelopmentConfig(BaseConfig):

@@ -1,5 +1,5 @@
 from flask import Flask
-from sqlalchemy import func, select
+from sqlalchemy import func, inspect, select
 
 from .extensions import db
 from .models import (
@@ -27,9 +27,12 @@ def init_data(app: Flask) -> None:
     """
 
     with app.app_context():
-        # Add initial data only if the database is empty, i.e. if there are no users, smart homes or applications
+        # Add initial data only if the database is empty, i.e. if the tables already exist and they have no entries yet
         if (
-            db.session.scalar(select(func.count(User.id))) == 0
+            inspect(db.engine).has_table("users")
+            and inspect(db.engine).has_table("smart_homes")
+            and inspect(db.engine).has_table("applications")
+            and db.session.scalar(select(func.count(User.id))) == 0
             and db.session.scalar(select(func.count(SmartHome.id))) == 0
             and db.session.scalar(select(func.count(Application.id))) == 0
         ):
@@ -37,21 +40,21 @@ def init_data(app: Flask) -> None:
                 firstname="First Name 1",
                 lastname="Last Name 1",
                 email="email1@example.com",
-                password_hash="randomfakehash1",
+                password_hash="scrypt:32768:8:1$LGQBBV2oGE4xVBjO$74f48cfb21b87418e143ff18a4b0315fc2f866a6103ee120d51350375fde31f29dd5b34026c06b5127a4a5563e3ec91b4ae86f7bd9d3c13ee2677d853dc14c90",
                 role=UserRole.DATA_SUBJECT,
             )
             data_controller1 = User(
                 firstname="First Name 2",
                 lastname="Last Name 2",
                 email="email2@example.com",
-                password_hash="randomfakehash2",
+                password_hash="scrypt:32768:8:1$55YPLaF53fDabRkm$2ab62f1da5c639a5dc6caf631d487242e5c7fe2fe33b6ff42eb7b99577eeae41b14aae5df5ec0ddd111343e3821f1817483339c28724549a2b58513e5c35d26e",
                 role=UserRole.DATA_CONTROLLER,
             )
             data_protection_officer1 = User(
                 firstname="First Name 3",
                 lastname="Last Name 3",
                 email="email3@example.com",
-                password_hash="randomfakehash3",
+                password_hash="scrypt:32768:8:1$vqp2I8uZB4oHMe6O$7a5f8787c684f935b630eaf92e35cc138147ef39aeb3fd73fe17c0a08907a38e63db1185c7cf7f94550e7f235d31fbe3fc401cb567a3f5eb2ac8a541085f9d5e",
                 role=UserRole.DATA_PROTECTION_OFFICER,
             )
             smart_home1 = SmartHome(name="Smart Home 1", address="Address 1")
@@ -186,4 +189,6 @@ def init_data(app: Flask) -> None:
 
             db.session.commit()
         else:
-            print("Database already populated, skipping insertion of initial data")
+            print(
+                "Tables are not existing in database or tables are already populated, skipping insertion of initial data"
+            )

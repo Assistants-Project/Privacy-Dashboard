@@ -5,7 +5,8 @@ from config import config_by_name
 from dotenv import load_dotenv
 from flask import Flask
 
-from .extensions import api, db, ma, migrate
+from .controllers import auth_bp
+from .extensions import api, db, jwt, ma, migrate
 from .initial_data import init_data
 
 
@@ -33,8 +34,9 @@ def create_app(env_name: str = None) -> Flask:
     migrate.init_app(app, db)
     ma.init_app(app)
     api.init_app(app)
+    jwt.init_app(app)
 
-    # api.register_blueprint(testObj_bp)
+    api.register_blueprint(auth_bp)
 
     # Add dummy initial data only in development
     if env_name == "development":
