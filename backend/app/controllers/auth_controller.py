@@ -1,34 +1,21 @@
-from functools import wraps
-
 from flask import Response
 from flask_jwt_extended import (
     create_access_token,
+    jwt_required,
     set_access_cookies,
-    verify_jwt_in_request,
+    unset_jwt_cookies,
 )
 from flask_smorest import Blueprint, abort
 
 from ..schemas import AuthReqSchema
 from ..services import AuthService
-
-
-def unlogged_required():
-    def wrapper(fn):
-        @wraps(fn)
-        def decorator(*args, **kwargs):
-            try:
-                verify_jwt_in_request()
-                return {"error": "Already logged in"}, 401
-            except Exception:
-                return fn(*args, **kwargs)
-
-        return decorator
-
-    return wrapper
-
+from ..utils import unlogged_required
 
 auth_bp = Blueprint(
-    "auth_bp", "auth_bp", url_prefix="/api/auth", description="Authentication API"
+    "Authentication API",
+    "auth_bp",
+    url_prefix="/api/auth",
+    description="Endpoints for authentication and authorization",
 )
 
 
@@ -40,8 +27,19 @@ def login(email: str, password: str):
     try:
         user = AuthService.login(email, password)
         access_token = create_access_token(
-            identity=user.email, additional_claims={"role": str(user.role)}
+            identity=user.email, additional_claims={"role": user.role.value}
         )
-        set_access_cookies(Response(status=204), access_token)
+        response = Response(status=204, content_type="application/json")
+        set_access_cookies(response, access_token)
+        return response
     except Exception as e:
         abort(401, message=str(e))
+
+
+@auth_bp.route("/logout", methods=["POST"])
+@auth_bp.response(204)
+@jwt_required()
+def logout():
+    response = Response(status=204, content_type="application/json")
+    unset_jwt_cookies(response)
+    return response

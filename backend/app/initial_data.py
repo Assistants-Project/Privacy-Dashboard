@@ -40,6 +40,7 @@ def init_data(app: Flask) -> None:
                 firstname="First Name 1",
                 lastname="Last Name 1",
                 email="email1@example.com",
+                # Plain text password: password1
                 password_hash="scrypt:32768:8:1$LGQBBV2oGE4xVBjO$74f48cfb21b87418e143ff18a4b0315fc2f866a6103ee120d51350375fde31f29dd5b34026c06b5127a4a5563e3ec91b4ae86f7bd9d3c13ee2677d853dc14c90",
                 role=UserRole.DATA_SUBJECT,
             )
@@ -47,6 +48,7 @@ def init_data(app: Flask) -> None:
                 firstname="First Name 2",
                 lastname="Last Name 2",
                 email="email2@example.com",
+                # Plain text password: password2
                 password_hash="scrypt:32768:8:1$55YPLaF53fDabRkm$2ab62f1da5c639a5dc6caf631d487242e5c7fe2fe33b6ff42eb7b99577eeae41b14aae5df5ec0ddd111343e3821f1817483339c28724549a2b58513e5c35d26e",
                 role=UserRole.DATA_CONTROLLER,
             )
@@ -54,6 +56,7 @@ def init_data(app: Flask) -> None:
                 firstname="First Name 3",
                 lastname="Last Name 3",
                 email="email3@example.com",
+                # Plain text password: password3
                 password_hash="scrypt:32768:8:1$vqp2I8uZB4oHMe6O$7a5f8787c684f935b630eaf92e35cc138147ef39aeb3fd73fe17c0a08907a38e63db1185c7cf7f94550e7f235d31fbe3fc401cb567a3f5eb2ac8a541085f9d5e",
                 role=UserRole.DATA_PROTECTION_OFFICER,
             )

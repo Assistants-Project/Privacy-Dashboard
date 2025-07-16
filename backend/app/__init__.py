@@ -8,6 +8,7 @@ from flask import Flask
 from .controllers import auth_bp
 from .extensions import api, db, jwt, ma, migrate
 from .initial_data import init_data
+from .utils import refresh_expiring_jwts
 
 
 def create_app(env_name: str = None) -> Flask:
@@ -37,6 +38,8 @@ def create_app(env_name: str = None) -> Flask:
     jwt.init_app(app)
 
     api.register_blueprint(auth_bp)
+
+    app.after_request(refresh_expiring_jwts)
 
     # Add dummy initial data only in development
     if env_name == "development":

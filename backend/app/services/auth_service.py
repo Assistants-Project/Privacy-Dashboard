@@ -21,5 +21,7 @@ class AuthService:
 
         user = UserRepository.find_user_by_email(email)
         if not user or not user.check_password(password):
-            raise Exception("Invalid username or password")
+            raise Exception(
+                "Invalid username or password"
+            )  # TODO Replace with custom exception
         return user

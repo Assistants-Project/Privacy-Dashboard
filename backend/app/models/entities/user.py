@@ -84,6 +84,15 @@ class User(db.Model):
     )
 
     def check_password(self, password: str) -> bool:
+        """Checks if the given password matches the stored password hash.
+
+        Args:
+            password: The password given by the user attempting to log in.
+
+        Returns:
+            True if the password matches the stored password hash, False otherwise.
+        """
+
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self) -> str:
