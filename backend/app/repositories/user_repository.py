@@ -4,5 +4,6 @@ from ..models import User
 
 class UserRepository:
     @staticmethod
-    def find_user_by_email(email: str) -> User | None:
-        return db.session.scalar(db.select(User).filter_by(email=email))
+    def get_user_by_email(email: str) -> User | None:
+        statement = db.select(User).filter_by(email=email)
+        return db.session.scalar(statement)

@@ -68,6 +68,9 @@ def init_data(app: Flask) -> None:
             application2 = Application(
                 name="Application 2", description="Description 2"
             )
+            application3 = Application(
+                name="Application 3", description="Description 3"
+            )
             available_consent1 = AvailableConsent(content="Available Consent 1")
             available_consent2 = AvailableConsent(content="Available Consent 2")
             available_consent3 = AvailableConsent(content="Available Consent 3")
@@ -81,17 +84,19 @@ def init_data(app: Flask) -> None:
                     smart_home2,
                     application1,
                     application2,
+                    application3,
                     available_consent1,
                     available_consent2,
                     available_consent3,
                     available_consent4,
                 ]
             )
-            # Application 1 has Consents 1 and 2, Application 2 has Consents 3 and 4
+            # Application 1 has Consents 1 and 2, Application 2 has Consents 3 and 4, Application 3 has Consent 3
             application1.available_consents.append(available_consent1)
             application1.available_consents.append(available_consent2)
             application2.available_consents.append(available_consent3)
             application2.available_consents.append(available_consent4)
+            application3.available_consents.append(available_consent3)
             # Data Subject 1 owns Smart Homes 1 and 2
             data_subject1_smart_home1 = UserSmartHome()
             data_subject1_smart_home2 = UserSmartHome()

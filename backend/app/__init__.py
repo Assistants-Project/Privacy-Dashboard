@@ -5,7 +5,7 @@ from config import config_by_name
 from dotenv import load_dotenv
 from flask import Flask
 
-from .controllers import auth_bp
+from .controllers import application_bp, auth_bp
 from .extensions import api, db, jwt, ma, migrate
 from .initial_data import init_data
 from .utils import refresh_expiring_jwts
@@ -37,6 +37,7 @@ def create_app(env_name: str = None) -> Flask:
     api.init_app(app)
     jwt.init_app(app)
 
+    api.register_blueprint(application_bp)
     api.register_blueprint(auth_bp)
 
     app.after_request(refresh_expiring_jwts)

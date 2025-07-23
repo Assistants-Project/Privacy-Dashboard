@@ -12,14 +12,14 @@ class AuthService:
             password: The password given by the user attempting to log in.
 
         Returns:
-            User: The authenticated user object if the credentials are valid.
+            The authenticated user object if the credentials are valid.
 
         Raises:
             Exception: If the email does not correspond to any user in the
                 database or the password is incorrect.
         """
 
-        user = UserRepository.find_user_by_email(email)
+        user = UserRepository.get_user_by_email(email)
         if not user or not user.check_password(password):
             raise Exception(
                 "Invalid username or password"

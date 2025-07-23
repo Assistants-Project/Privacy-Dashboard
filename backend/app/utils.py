@@ -18,7 +18,7 @@ from .services import UserService
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
     try:
-        return UserService.find_user_by_email(jwt_data["sub"])
+        return UserService.get_user_by_email(jwt_data["sub"])
     except Exception:
         return None
 
@@ -48,7 +48,14 @@ def refresh_expiring_jwts(response):
 
 
 # https://flask-jwt-extended.readthedocs.io/en/stable/custom_decorators.html
-def data_controller_or_dpo_required():
+def dc_or_dpo_required():
+    """Decorator that ensures the user making the request has a role of
+    `DATA_CONTROLLER` or `DATA_PROTECTION_OFFICER`. If the user's role is
+    neither of these, it returns a 403 Forbidden error. This decorator
+    verifies the JWT in the request and checks the user's role before
+    allowing access to the decorated function.
+    """
+
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
@@ -71,7 +78,14 @@ def data_controller_or_dpo_required():
     return wrapper
 
 
-def data_subject_required():
+def ds_required():
+    """Decorator that ensures the user making the request has a role of
+    `DATA_SUBJECT`. If the user's role is not data subject, it returns
+    a 403 Forbidden error. This decorator verifies the JWT in the
+    request and checks the user's role before allowing access to
+    the decorated function.
+    """
+
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
@@ -91,6 +105,12 @@ def data_subject_required():
 
 
 def unlogged_required():
+    """Decorator that ensures the user making the request is not logged in. If the
+    user is already logged in, it returns a 403 Forbidden error. This decorator
+    verifies the JWT in the request and checks whether the user is already logged in before
+    allowing access to the decorated function.
+    """
+
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
