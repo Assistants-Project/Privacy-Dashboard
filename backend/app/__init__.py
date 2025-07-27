@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from flask import Flask
 
 from .controllers import application_bp, auth_bp
+from .error_handler import global_error_handler
 from .extensions import api, db, jwt, ma, migrate
 from .initial_data import init_data
 from .utils import refresh_expiring_jwts
@@ -41,6 +42,8 @@ def create_app(env_name: str = None) -> Flask:
     api.register_blueprint(auth_bp)
 
     app.after_request(refresh_expiring_jwts)
+
+    app.register_error_handler(Exception, global_error_handler)
 
     # Add dummy initial data only in development
     if env_name == "development":

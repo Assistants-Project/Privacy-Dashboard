@@ -1,3 +1,4 @@
+from ..exceptions import WrongUserCredentialsException
 from ..models import User
 from ..repositories import UserRepository
 
@@ -15,13 +16,11 @@ class AuthService:
             The authenticated user object if the credentials are valid.
 
         Raises:
-            Exception: If the email does not correspond to any user in the
+            WrongUserCredentialsException: If the email does not correspond to any user in the
                 database or the password is incorrect.
         """
 
         user = UserRepository.get_user_by_email(email)
         if not user or not user.check_password(password):
-            raise Exception(
-                "Invalid username or password"
-            )  # TODO Replace with custom exception
+            raise WrongUserCredentialsException("Invalid email or password!")
         return user

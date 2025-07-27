@@ -8,7 +8,16 @@ from flask_jwt_extended import (
     set_access_cookies,
     verify_jwt_in_request,
 )
+from flask_jwt_extended.exceptions import NoAuthorizationError
 
+from .error_handler import global_error_handler
+from .exceptions import (
+    ExpiredJWTException,
+    InvalidJWTException,
+    MissingJWTException,
+    UserNotFoundException,
+    WrongUserRoleException,
+)
 from .extensions import jwt
 from .models import User, UserRole
 from .services import UserService
@@ -19,8 +28,24 @@ from .services import UserService
 def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
     try:
         return UserService.get_user_by_email(jwt_data["sub"])
-    except Exception:
+    except UserNotFoundException:
         return None
+
+
+# https://flask-jwt-extended.readthedocs.io/en/stable/changing_default_behavior.html
+@jwt.expired_token_loader
+def my_expired_token_callback(jwt_header, jwt_payload):
+    return global_error_handler(ExpiredJWTException("The JSON Web Token has expired!"))
+
+
+@jwt.invalid_token_loader
+def my_invalid_token_callback(error):
+    return global_error_handler(InvalidJWTException("The JSON Web Token is invalid!"))
+
+
+@jwt.unauthorized_loader
+def my_missing_token_callback(error):
+    return global_error_handler(MissingJWTException("The JSON Web Token is missing!"))
 
 
 # https://flask-jwt-extended.readthedocs.io/en/stable/refreshing_tokens.html#implicit-refreshing-with-cookies
@@ -67,11 +92,7 @@ def dc_or_dpo_required():
             ):
                 return fn(*args, **kwargs)
             else:
-                return {
-                    "code": 403,
-                    "message": "User is not a data controller or dpo",
-                    "status": "Forbidden",
-                }, 403
+                raise WrongUserRoleException("User is not a Data Controller or DPO!")
 
         return decorator
 
@@ -93,11 +114,7 @@ def ds_required():
             if get_jwt()["role"] == UserRole.DATA_SUBJECT.value:
                 return fn(*args, **kwargs)
             else:
-                return {
-                    "code": 403,
-                    "message": "User is not a data subject",
-                    "status": "Forbidden",
-                }, 403
+                raise WrongUserRoleException("User is not a Data Subject!")
 
         return decorator
 
@@ -106,7 +123,7 @@ def ds_required():
 
 def unlogged_required():
     """Decorator that ensures the user making the request is not logged in. If the
-    user is already logged in, it returns a 403 Forbidden error. This decorator
+    user is already logged in, it raises a 403 Forbidden error. This decorator
     verifies the JWT in the request and checks whether the user is already logged in before
     allowing access to the decorated function.
     """
@@ -116,12 +133,8 @@ def unlogged_required():
         def decorator(*args, **kwargs):
             try:
                 verify_jwt_in_request()
-                return {
-                    "code": 403,
-                    "message": "User already logged in",
-                    "status": "Forbidden",
-                }, 403
-            except Exception:
+                raise WrongUserRoleException("User already logged in!")
+            except NoAuthorizationError:
                 return fn(*args, **kwargs)
 
         return decorator
