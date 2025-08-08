@@ -5,6 +5,7 @@ from .extensions import db
 from .models import (
     Application,
     AvailableConsent,
+    PrivacyNotice,
     SmartHome,
     User,
     UserRole,
@@ -71,6 +72,7 @@ def init_data(app: Flask) -> None:
             application3 = Application(
                 name="Application 3", description="Description 3"
             )
+            privacy_notice1 = PrivacyNotice(content="Privacy Notice 1")
             available_consent1 = AvailableConsent(content="Available Consent 1")
             available_consent2 = AvailableConsent(content="Available Consent 2")
             available_consent3 = AvailableConsent(content="Available Consent 3")
@@ -85,12 +87,16 @@ def init_data(app: Flask) -> None:
                     application1,
                     application2,
                     application3,
+                    privacy_notice1,
                     available_consent1,
                     available_consent2,
                     available_consent3,
                     available_consent4,
                 ]
             )
+            # Privacy Notice 1 is associated with Application 1 and 3
+            privacy_notice1.applications.append(application1)
+            privacy_notice1.applications.append(application3)
             # Application 1 has Consents 1 and 2, Application 2 has Consents 3 and 4, Application 3 has Consent 3
             application1.available_consents.append(available_consent1)
             application1.available_consents.append(available_consent2)

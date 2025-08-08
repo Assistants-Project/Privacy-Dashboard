@@ -13,10 +13,10 @@ class AuthService:
             password: The password given by the user attempting to log in.
 
         Returns:
-            The authenticated user object if the credentials are valid.
+            The authenticated `User` object if the credentials are valid.
 
         Raises:
-            WrongUserCredentialsException: If the email does not correspond to any user in the
+            `WrongUserCredentialsException`: If the email does not correspond to any user in the
                 database or the password is incorrect.
         """
 

@@ -12,7 +12,7 @@ class UserService:
             email: The email address of the user to retrieve.
 
         Raises:
-            UserNotFoundException: If no user with the given email is found in the database.
+            `UserNotFoundException`: If no user with the given email is found in the database.
         """
 
         user = UserRepository.get_user_by_email(email)

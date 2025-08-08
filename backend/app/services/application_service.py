@@ -20,5 +20,6 @@ class ApplicationService:
             A list of dictionaries each containing the application instance and the date and time it was installed
             by the given user.
         """
+
         result = ApplicationRepository.get_applications_by_dc_or_dpo_id(user_id)
         return [{"application": app, "installed_at": dt} for app, dt in result]
