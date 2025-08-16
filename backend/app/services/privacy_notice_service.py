@@ -7,11 +7,11 @@ from ..repositories import ApplicationRepository
 
 class PrivacyNoticeService:
     @staticmethod
-    def get_privacy_notice_by_managed_application_uuid(
+    def get_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
         user_id: int, application_uuid: UUID
     ) -> PrivacyNotice | None:
         """Returns the `PrivacyNotice` associated with an `Application` if the `Application` with the given `UUID`
-        exists and is managed by the logged-in `DATA_CONTROLLER` or `DPO`.
+        exists and is managed by the given `DATA_CONTROLLER` or `DPO` user.
 
         Args:
             user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the applications.
@@ -21,14 +21,17 @@ class PrivacyNoticeService:
             The `PrivacyNotice` associated with the `Application`, or `None` if not found.
 
         Raises:
-            `ApplicationNotFoundException`: If the application with the given UUID is not found among the applications managed by the user.
+            `ApplicationNotFoundException`: If the application with the given `UUID` is not found among the applications managed by the user.
         """
 
-        application = ApplicationRepository.get_managed_application_by_uuid(
-            user_id, application_uuid
+        application = (
+            ApplicationRepository.get_application_by_dc_or_dpo_id_and_application_uuid(
+                user_id, application_uuid
+            )
         )
+
         if not application:
             raise ApplicationNotFoundException(
-                f"Application with uuid {application_uuid} not found among the applications you manage!"
+                f"Application with uuid {application_uuid} not found among the managed applications!"
             )
         return application.privacy_notice

@@ -5,7 +5,7 @@ from config import config_by_name
 from dotenv import load_dotenv
 from flask import Flask
 
-from .controllers import application_bp, auth_bp, privacy_notice_bp
+from .controllers import application_bp, auth_bp, privacy_notice_bp, user_bp
 from .error_handler import global_error_handler
 from .extensions import api, db, jwt, ma, migrate
 from .initial_data import init_data
@@ -38,7 +38,7 @@ def create_app(env_name: str = None) -> Flask:
     api.init_app(app)
     jwt.init_app(app)
 
-    for blueprint in [application_bp, auth_bp, privacy_notice_bp]:
+    for blueprint in [application_bp, auth_bp, privacy_notice_bp, user_bp]:
         app.register_blueprint(blueprint)
 
     app.after_request(refresh_expiring_jwts)

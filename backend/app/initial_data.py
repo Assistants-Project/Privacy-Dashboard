@@ -1,5 +1,6 @@
 from flask import Flask
 from sqlalchemy import func, inspect, select
+from werkzeug.security import generate_password_hash
 
 from .extensions import db
 from .models import (
@@ -42,7 +43,7 @@ def init_data(app: Flask) -> None:
                 lastname="Last Name 1",
                 email="email1@example.com",
                 # Plain text password: password1
-                password_hash="scrypt:32768:8:1$LGQBBV2oGE4xVBjO$74f48cfb21b87418e143ff18a4b0315fc2f866a6103ee120d51350375fde31f29dd5b34026c06b5127a4a5563e3ec91b4ae86f7bd9d3c13ee2677d853dc14c90",
+                password_hash=generate_password_hash("password1"),
                 role=UserRole.DATA_SUBJECT,
             )
             data_controller1 = User(
@@ -50,7 +51,7 @@ def init_data(app: Flask) -> None:
                 lastname="Last Name 2",
                 email="email2@example.com",
                 # Plain text password: password2
-                password_hash="scrypt:32768:8:1$55YPLaF53fDabRkm$2ab62f1da5c639a5dc6caf631d487242e5c7fe2fe33b6ff42eb7b99577eeae41b14aae5df5ec0ddd111343e3821f1817483339c28724549a2b58513e5c35d26e",
+                password_hash=generate_password_hash("password2"),
                 role=UserRole.DATA_CONTROLLER,
             )
             data_protection_officer1 = User(
@@ -58,8 +59,24 @@ def init_data(app: Flask) -> None:
                 lastname="Last Name 3",
                 email="email3@example.com",
                 # Plain text password: password3
-                password_hash="scrypt:32768:8:1$vqp2I8uZB4oHMe6O$7a5f8787c684f935b630eaf92e35cc138147ef39aeb3fd73fe17c0a08907a38e63db1185c7cf7f94550e7f235d31fbe3fc401cb567a3f5eb2ac8a541085f9d5e",
+                password_hash=generate_password_hash("password3"),
                 role=UserRole.DATA_PROTECTION_OFFICER,
+            )
+            data_subject2 = User(
+                firstname="First Name 4",
+                lastname="Last Name 4",
+                email="email4@example.com",
+                # Plain text password: password4
+                password_hash=generate_password_hash("password4"),
+                role=UserRole.DATA_SUBJECT,
+            )
+            data_controller2 = User(
+                firstname="First Name 5",
+                lastname="Last Name 5",
+                email="email5@example.com",
+                # Plain text password: password5
+                password_hash=generate_password_hash("password5"),
+                role=UserRole.DATA_CONTROLLER,
             )
             smart_home1 = SmartHome(name="Smart Home 1", address="Address 1")
             smart_home2 = SmartHome(name="Smart Home 2", address="Address 2")
@@ -82,6 +99,8 @@ def init_data(app: Flask) -> None:
                     data_subject1,
                     data_controller1,
                     data_protection_officer1,
+                    data_subject2,
+                    data_controller2,
                     smart_home1,
                     smart_home2,
                     application1,
@@ -111,6 +130,11 @@ def init_data(app: Flask) -> None:
             data_subject1.owned_smart_homes.append(data_subject1_smart_home1)
             data_subject1_smart_home2.smart_home = smart_home2
             data_subject1.owned_smart_homes.append(data_subject1_smart_home2)
+            # Data Subject 2 owns Smart Home 2
+            data_subject2_smart_home2 = UserSmartHome()
+            db.session.add(data_subject2_smart_home2)
+            data_subject2_smart_home2.smart_home = smart_home2
+            data_subject2.owned_smart_homes.append(data_subject2_smart_home2)
             # Data Subject 1 installed Application 1 on Smart Homes 1 and 2 and Application 2 on Smart Home 2
             data_subject1_smart_home1_application1 = UserSmartHomeApplication()
             data_subject1_smart_home2_application1 = UserSmartHomeApplication()
@@ -137,6 +161,14 @@ def init_data(app: Flask) -> None:
             data_subject1.installed_applications.append(
                 data_subject1_smart_home2_application2
             )
+            # Data Subject 2 installed Application 2 on Smart Home 2
+            data_subject2_smart_home2_application2 = UserSmartHomeApplication()
+            db.session.add(data_subject2_smart_home2_application2)
+            data_subject2_smart_home2_application2.smart_home = smart_home2
+            data_subject2_smart_home2_application2.application = application2
+            data_subject2.installed_applications.append(
+                data_subject2_smart_home2_application2
+            )
             # Data Controller 1 manages Application 1 and Application 2
             data_controller1_application1 = UserSmartHomeApplication()
             data_controller1_application2 = UserSmartHomeApplication()
@@ -150,6 +182,13 @@ def init_data(app: Flask) -> None:
             data_controller1_application2.application = application2
             data_controller1.installed_applications.append(
                 data_controller1_application2
+            )
+            # Data Controller 2 manages Application 2
+            data_controller2_application2 = UserSmartHomeApplication()
+            db.session.add(data_controller2_application2)
+            data_controller2_application2.application = application2
+            data_controller2.installed_applications.append(
+                data_controller2_application2
             )
             # Data Subject 1 gave Consent 1 in Smart Home 1, Consent 2 in Smart Home 2, Consent 3 in Smart Home 2 and Consent 4 in Smart Home 2
             data_subject1_smart_home1_available_consent1 = (

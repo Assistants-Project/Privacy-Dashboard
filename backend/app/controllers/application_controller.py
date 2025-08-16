@@ -13,8 +13,8 @@ application_bp = Blueprint(
 )
 
 
-@application_bp.route("/my-managed", methods=["GET"])
+@application_bp.route("/managed", methods=["GET"])
 @application_bp.response(200, ApplicationResSchema(many=True))
 @dc_or_dpo_required()
-def get_applications_by_current_dc_or_dpo():
+def get_managed_applications():
     return ApplicationService.get_applications_by_dc_or_dpo_id(current_user.id)
