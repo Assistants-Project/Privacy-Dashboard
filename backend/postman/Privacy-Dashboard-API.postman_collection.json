@@ -511,14 +511,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/my-managed",
+							"raw": "{{baseURL}}/api/applications/managed",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
 								"applications",
-								"my-managed"
+								"managed"
 							]
 						}
 					},
@@ -622,14 +622,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/my-managed",
+							"raw": "{{baseURL}}/api/applications/managed",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
 								"applications",
-								"my-managed"
+								"managed"
 							]
 						}
 					},
@@ -786,14 +786,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/my-managed",
+							"raw": "{{baseURL}}/api/applications/managed",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
 								"applications",
-								"my-managed"
+								"managed"
 							]
 						}
 					},
@@ -1257,8 +1257,8 @@
 									"    pm.expect(responseData.code).to.eql(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Message is equal to 'Application with uuid d8ddc781-ba92-486d-8d96-747856587fd5 not found among the applications you manage!'\", function () {\r",
-									"    pm.expect(responseData.message).to.eql('Application with uuid d8ddc781-ba92-486d-8d96-747856587fd5 not found among the applications you manage!');\r",
+									"pm.test(\"Message is equal to 'Application with uuid d8ddc781-ba92-486d-8d96-747856587fd5 not found among the managed applications!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Application with uuid d8ddc781-ba92-486d-8d96-747856587fd5 not found among the managed applications!');\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
@@ -1393,14 +1393,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/my-managed",
+							"raw": "{{baseURL}}/api/applications/managed",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
 								"applications",
-								"my-managed"
+								"managed"
 							]
 						}
 					},
@@ -1547,6 +1547,1096 @@
 									"key": null,
 									"value": "",
 									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users API",
+			"item": [
+				{
+					"name": "Unprocessable Users By Managed Application - Empty UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'application_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('application_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/managed-application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"managed-application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Users By Managed Application - Wrong UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'application_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('application_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/managed-application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"managed-application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "somethingwrong"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Users By Managed Application - Empty Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'query' having an object with key 'role'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('query').that.is.an('object').that.has.property('role');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/managed-application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"managed-application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "d8ddc781-ba92-486d-8d96-747856587fd5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Users By Managed Application - Wrong Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'query' having an object with key 'role'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('query').that.is.an('object').that.has.property('role');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/managed-application/:application_uuid?role=somethingwrong",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"managed-application",
+								":application_uuid"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "somethingwrong"
+								}
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "d8ddc781-ba92-486d-8d96-747856587fd5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized Users By Managed Application",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 401\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'The JSON Web Token is missing!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('The JSON Web Token is missing!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unauthorized');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/managed-application/:application_uuid?role=DATA_CONTROLLER",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"managed-application",
+								":application_uuid"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "DATA_CONTROLLER"
+								}
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DS Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email1@example.com\",\r\n    \"password\": \"password1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forbidden Users By Managed Application",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 403\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/managed-application/:application_uuid?role=DATA_CONTROLLER",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"managed-application",
+								":application_uuid"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "DATA_CONTROLLER"
+								}
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DC Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email2@example.com\",\r\n    \"password\": \"password2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Users By Managed Application",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Application with uuid d8ddc781-ba92-486d-8d96-747856587fd5 not found among the managed applications!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Application with uuid d8ddc781-ba92-486d-8d96-747856587fd5 not found among the managed applications!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/managed-application/:application_uuid?role=DATA_CONTROLLER",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"managed-application",
+								":application_uuid"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "DATA_CONTROLLER"
+								}
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "d8ddc781-ba92-486d-8d96-747856587fd5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful List Of Managed Apps",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    pm.expect(pm.response.json()).to.be.an('array').that.has.lengthOf(2);\r",
+									"});\r",
+									"\r",
+									"const responseBody = pm.response.json();\r",
+									"pm.test(\"First object contains expected application attributes\", function () {\r",
+									"    pm.expect(responseBody[0]).to.have.property('application');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('uuid');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('name');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('description');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('evaluation');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('questionnaire_summary');\r",
+									"    pm.expect(responseBody[0]).to.have.property('installed_at');\r",
+									"\r",
+									"    // Save the uuid of the first application to a variable\r",
+									"    pm.environment.set(\"application_uuid1\", responseBody[0].application.uuid);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Second object contains expected application attributes\", function () {\r",
+									"    pm.expect(responseBody[1]).to.have.property('application');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('uuid');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('name');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('description');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('evaluation');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('questionnaire_summary');\r",
+									"    pm.expect(responseBody[1]).to.have.property('installed_at');\r",
+									"    \r",
+									"    // Save the uuid of the second application to a variable\r",
+									"    pm.environment.set(\"application_uuid2\", responseBody[1].application.uuid);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/applications/managed",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"managed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Users By Managed Application - 2 DS",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
+									"\r",
+									"    responseBody.forEach(function(user) {\r",
+									"        pm.expect(user).to.have.all.keys(\"firstname\", \"lastname\", \"email\", \"role\", \"profile_picture\");\r",
+									"        pm.expect(user).to.not.have.property(\"password_hash\");\r",
+									"        pm.expect(user.role).to.eql(\"DATA_SUBJECT\");\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/managed-application/:application_uuid?role=DATA_SUBJECT",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"managed-application",
+								":application_uuid"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "DATA_SUBJECT"
+								}
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Users By Managed Application - 1 DC",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of one object\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(1);\r",
+									"\r",
+									"    pm.expect(responseBody[0]).to.have.all.keys(\"firstname\", \"lastname\", \"email\", \"role\", \"profile_picture\");\r",
+									"    pm.expect(responseBody[0]).to.not.have.property(\"password_hash\");\r",
+									"    pm.expect(responseBody[0].role).to.eql(\"DATA_CONTROLLER\");\r",
+									"    pm.expect(responseBody[0].email).to.not.equal(\"email2@example.com\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/managed-application/:application_uuid?role=DATA_CONTROLLER",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"managed-application",
+								":application_uuid"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "DATA_CONTROLLER"
+								}
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Users By Managed Application - 0 DPO",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/managed-application/:application_uuid?role=DATA_PROTECTION_OFFICER",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"managed-application",
+								":application_uuid"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "DATA_PROTECTION_OFFICER"
+								}
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Users By Managed Application - 0 DC",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid1\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/managed-application/:application_uuid?role=DATA_CONTROLLER",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"managed-application",
+								":application_uuid"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "DATA_CONTROLLER"
 								}
 							],
 							"variable": [

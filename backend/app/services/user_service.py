@@ -33,7 +33,7 @@ class UserService:
         Args:
             user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the applications.
             application_uuid: The UUID of the application to retrieve the users of.
-            role: An enum that represents the role of the user, one of `DATA_SUBJECT`, `DATA_CONTROLLER` and `DATA_PROTECTION_OFFICER`.
+            role: An enum that represents the role of the users to retrieve, one of `DATA_SUBJECT`, `DATA_CONTROLLER` and `DATA_PROTECTION_OFFICER`.
 
         Returns:
             The the list of `User` instances of the given role associated with the `Application` except for the given user, or an empty list if none are found.
