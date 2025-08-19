@@ -4,13 +4,11 @@ from .auth_exceptions import (
     MissingJWTException,
 )
 from .entities.application_exceptions import ApplicationNotFoundException
+from .entities.privacy_notice_exceptions import PrivacyNoticeNotFoundException
 from .entities.user_exceptions import (
     UserNotFoundException,
     WrongUserCredentialsException,
     WrongUserRoleException,
-)
-from .relations.user_smart_home_application_exceptions import (
-    UserApplicationRelationNotFoundError,
 )
 
 __all__ = [
@@ -18,8 +16,8 @@ __all__ = [
     "InvalidJWTException",
     "MissingJWTException",
     "ApplicationNotFoundException",
+    "PrivacyNoticeNotFoundException",
     "UserNotFoundException",
     "WrongUserCredentialsException",
     "WrongUserRoleException",
-    "UserApplicationRelationNotFoundError",
 ]

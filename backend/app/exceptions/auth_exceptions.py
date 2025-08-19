@@ -7,7 +7,7 @@ class ExpiredJWTException(Exception):
         super().__init__(message)
         self.message = message
         self.code = Forbidden.code
-        self.status = HTTP_STATUS_CODES.get(self.code, "Unknown Error")
+        self.status = HTTP_STATUS_CODES[self.code]
 
 
 class InvalidJWTException(Exception):
@@ -15,7 +15,7 @@ class InvalidJWTException(Exception):
         super().__init__(message)
         self.message = message
         self.code = Unauthorized.code
-        self.status = HTTP_STATUS_CODES.get(self.code, "Unknown Error")
+        self.status = HTTP_STATUS_CODES[self.code]
 
 
 class MissingJWTException(Exception):
@@ -23,4 +23,4 @@ class MissingJWTException(Exception):
         super().__init__(message)
         self.message = message
         self.code = Unauthorized.code
-        self.status = HTTP_STATUS_CODES.get(self.code, "Unknown Error")
+        self.status = HTTP_STATUS_CODES[self.code]

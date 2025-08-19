@@ -7,7 +7,7 @@ class UserNotFoundException(Exception):
         super().__init__(message)
         self.message = message
         self.code = NotFound.code
-        self.status = HTTP_STATUS_CODES.get(self.code, "Unknown Error")
+        self.status = HTTP_STATUS_CODES[self.code]
 
 
 class WrongUserCredentialsException(Exception):
@@ -15,7 +15,7 @@ class WrongUserCredentialsException(Exception):
         super().__init__(message)
         self.message = message
         self.code = Unauthorized.code
-        self.status = HTTP_STATUS_CODES.get(self.code, "Unknown Error")
+        self.status = HTTP_STATUS_CODES[self.code]
 
 
 class WrongUserRoleException(Exception):
@@ -23,4 +23,4 @@ class WrongUserRoleException(Exception):
         super().__init__(message)
         self.message = message
         self.code = Forbidden.code
-        self.status = HTTP_STATUS_CODES.get(self.code, "Unknown Error")
+        self.status = HTTP_STATUS_CODES[self.code]

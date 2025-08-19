@@ -1236,7 +1236,7 @@
 					"response": []
 				},
 				{
-					"name": "Not Found Privacy Notice By Managed Application",
+					"name": "Not Found Privacy Notice By Managed Application - No Application",
 					"event": [
 						{
 							"listen": "test",
@@ -1407,21 +1407,34 @@
 					"response": []
 				},
 				{
-					"name": "Successful Privacy Notice By Managed Application - Existing Response",
+					"name": "Not Found Privacy Notice By Managed Application - No Privacy Notice",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
 									"});\r",
-									"pm.test(\"Response body is an object with attributes 'uuid' and 'content'\", function () {\r",
-									"    const responseBody = pm.response.json();\r",
-									"    \r",
-									"    pm.expect(responseBody).to.be.an('object');\r",
-									"    pm.expect(responseBody).to.have.property('uuid');\r",
-									"    pm.expect(responseBody).to.have.property('content', \"Privacy Notice 1\");\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"pm.test(`Message is equal to 'No Privacy Notice found for the application with uuid ${applicationUuid}'`, function () {\r",
+									"    pm.expect(responseData.message).to.eql(`No Privacy Notice found for the application with uuid ${applicationUuid}`);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
 									"});\r",
 									""
 								],
@@ -1434,7 +1447,7 @@
 							"script": {
 								"exec": [
 									"// Retrieve the application_uuid from the environment variable\r",
-									"const applicationUuid = pm.environment.get(\"application_uuid1\");\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
 									"\r",
 									"// Check if application_uuid is available\r",
 									"if (applicationUuid) {\r",
@@ -1487,14 +1500,21 @@
 					"response": []
 				},
 				{
-					"name": "Successful Privacy Notice By Managed Application - Empty Response",
+					"name": "Successful Privacy Notice By Managed Application",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"pm.test(\"Response body is an object with attributes 'uuid' and 'content'\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseBody).to.be.an('object');\r",
+									"    pm.expect(responseBody).to.have.property('uuid');\r",
+									"    pm.expect(responseBody).to.have.property('content', \"Privacy Notice 1\");\r",
 									"});\r",
 									""
 								],
@@ -1507,7 +1527,7 @@
 							"script": {
 								"exec": [
 									"// Retrieve the application_uuid from the environment variable\r",
-									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid1\");\r",
 									"\r",
 									"// Check if application_uuid is available\r",
 									"if (applicationUuid) {\r",
@@ -2520,8 +2540,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an empty array\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(0);\r",
 									"});\r",
 									""
 								],
@@ -2597,8 +2622,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an empty array\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(0);\r",
 									"});\r",
 									""
 								],

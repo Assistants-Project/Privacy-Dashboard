@@ -1,6 +1,5 @@
 from uuid import UUID
 
-from flask import Response
 from flask_jwt_extended import current_user
 from flask_smorest import Blueprint
 
@@ -21,17 +20,10 @@ user_bp = Blueprint(
 @user_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
 @user_bp.arguments(UserRoleReqSchema, location="query", as_kwargs=True)
 @user_bp.response(200, UserResSchema(many=True))
-@user_bp.alt_response(
-    204,
-    description="No users with the selected role found for the selected application",
-)
 @dc_or_dpo_required()
 def get_users_by_managed_application_uuid_and_user_role(
     application_uuid: UUID, role: UserRole
 ):
-    users = UserService.get_users_by_dc_or_dpo_id_and_application_uuid_and_user_role(
+    return UserService.get_users_by_dc_or_dpo_id_and_application_uuid_and_user_role(
         current_user.id, application_uuid, role
     )
-    if not users:
-        return Response(status=204, content_type="application/json")
-    return users

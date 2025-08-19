@@ -36,7 +36,7 @@ class UserService:
             role: An enum that represents the role of the users to retrieve, one of `DATA_SUBJECT`, `DATA_CONTROLLER` and `DATA_PROTECTION_OFFICER`.
 
         Returns:
-            The the list of `User` instances of the given role associated with the `Application` except for the given user, or an empty list if none are found.
+            The list of `User` instances of the given role associated with the `Application` except for the given user, or an empty list if none are found.
 
         Raises:
             `ApplicationNotFoundException`: If the application with the given `UUID` is not found among the applications managed by the  user.

@@ -1,2 +1,0 @@
-class UserApplicationRelationNotFoundError(Exception):
-    pass
