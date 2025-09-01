@@ -1,5 +1,6 @@
 import enum
 from typing import List
+from uuid import UUID, uuid4
 
 from sqlalchemy import Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -22,6 +23,7 @@ class User(db.Model):
 
     Attributes:
         id: An auto-incremented integer identifier, used as the primary key.
+        uuid: A unique randomly generated UUID that identifies the application.
         firstname: A string that represents the first name of the user.
         lastname: A string that represents the last name of the user.
         email: A unique string that represents the email address of the user.
@@ -48,6 +50,7 @@ class User(db.Model):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
     firstname: Mapped[str]
     lastname: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
@@ -96,6 +99,6 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self) -> str:
-        return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r}, \
+        return f"User(id={self.id!r}, uuid={self.uuid!r}, firstname={self.firstname!r}, lastname={self.lastname!r}, \
             email={self.email!r}, password_hash={self.password_hash!r}, role={self.role!r}), \
             profile_picture={self.profile_picture!r})"

@@ -27,3 +27,10 @@ def get_users_by_managed_application_uuid_and_user_role(
     return UserService.get_users_by_dc_or_dpo_id_and_application_uuid_and_user_role(
         current_user.id, application_uuid, role
     )
+
+
+@user_bp.route("/contacts", methods=["GET"])
+@user_bp.response(200, UserResSchema(many=True))
+@dc_or_dpo_required()
+def get_dc_or_dpo_contacts():
+    return UserService.get_contacts_by_dc_or_dpo_id(current_user.id)

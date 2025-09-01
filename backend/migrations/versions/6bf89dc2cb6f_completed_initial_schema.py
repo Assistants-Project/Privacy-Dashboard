@@ -51,6 +51,7 @@ def upgrade():
     op.create_table(
         "users",
         sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("uuid", sa.Uuid(), nullable=False),
         sa.Column("firstname", sa.String(), nullable=False),
         sa.Column("lastname", sa.String(), nullable=False),
         sa.Column("email", sa.String(), nullable=False),
@@ -68,6 +69,7 @@ def upgrade():
         sa.Column("profile_picture", sa.String(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
+        sa.UniqueConstraint("uuid"),
     )
     op.create_table(
         "applications",

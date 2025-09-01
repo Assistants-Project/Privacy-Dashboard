@@ -119,7 +119,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  FR1.4  | Enable the user to log out.    |
 | **FR2** |                       **Manage Contacts**                       |
 |  FR2.1  | Enable the user to see a list of available contacts. |
-|  FR2.1.1  | Enable Data Controller and DPO to view a list of all the Data Subjects with whom they have interacted and send them updates, notices, and other important information. |
+|  FR2.1.1  | Enable Data Controller and DPO to view a list of all the users with whom they have interacted and send them updates, notices, and other important information. |
 |  FR2.1.2  | Enable Data Subject to view all of the Data Controllers and DPO to whom they have provided their personal data. |
 |  FR2.2  | Enable the user to see each contact's details, including name, email if any, role, and apps related to that contact. |
 |  FR2.3  | Enable the user to select a contact to send and receive messages to and from that contact. |
@@ -142,7 +142,7 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 | **FR5** |                       **Manage Applications**                       |
 |  FR5.1  | Enable Data Controller and DPO to see a list of all the SIFIS-Home applications for which he is responsible. |
 |  FR5.2  | Enable Data Controller and DPO to access details of each application in the list, including the application's name, description, evaluation, Privacy Notice, other joint data controllers or DPO if any, and the list of all data subjects who are bound to the application. |
-|  FR5.3  | Enable Data Controller and DPO to access the personal info, communication history and requests of each data subject who is bound to each application in the list. |
+|  FR5.3  | Enable Data Controller and DPO to access the personal info, communication history and requests of each joint data controller or DPO if any, and of each data subject who is bound to each application in the list. |
 |  FR5.4  | Enable Data Subject to see a list of all the SIFIS-Home applications installed in the selected Smart Home which are currently processing their data. |
 | FR5.5 | Enable Data Subject to access details of each application in the list, including the application's name, description, evaluation, Privacy Notice, the list of all data controllers and DPO involved in the processing of their data, the list of consents he has provided, and the list of high-level policies he has defined. |
 | FR5.6 | Enable Data Subject to download, for each application in the list, the Privacy Notice and the document, including as a XML and as a JSON, containing the list of consents he has provided for the application in the selected Smart Home. |

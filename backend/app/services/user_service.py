@@ -55,3 +55,18 @@ class UserService:
             application.id, role
         )
         return [user for user in users if user.id != user_id]
+
+    @staticmethod
+    def get_contacts_by_dc_or_dpo_id(user_id: int) -> List[User]:
+        """Returns the contacts of the given user with role `DATA_CONTROLLER` or `DPO`. A contact, for
+        a `DATA_CONTROLLER` or `DPO`, is any `User` of any role who has at least one managed or installed `Application`
+        in common with the given `DATA_CONTROLLER` or `DPO`.
+
+        Args:
+            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO`.
+
+        Returns:
+            The list of `User` instances that are contacts of the given user.
+        """
+
+        return UserRepository.get_contacts_by_dc_or_dpo_id(user_id)
