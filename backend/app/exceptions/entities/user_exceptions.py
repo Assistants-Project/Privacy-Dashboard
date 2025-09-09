@@ -1,4 +1,4 @@
-from werkzeug.exceptions import Forbidden, NotFound, Unauthorized
+from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Unauthorized
 from werkzeug.http import HTTP_STATUS_CODES
 
 
@@ -23,4 +23,12 @@ class WrongUserRoleException(Exception):
         super().__init__(message)
         self.message = message
         self.code = Forbidden.code
+        self.status = HTTP_STATUS_CODES[self.code]
+
+
+class WrongUserUuidException(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.code = BadRequest.code
         self.status = HTTP_STATUS_CODES[self.code]

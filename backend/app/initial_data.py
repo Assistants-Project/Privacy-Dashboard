@@ -6,6 +6,7 @@ from .extensions import db
 from .models import (
     Application,
     AvailableConsent,
+    Message,
     PrivacyNotice,
     SmartHome,
     User,
@@ -239,6 +240,69 @@ def init_data(app: Flask) -> None:
             data_subject1.given_consents.append(
                 data_subject1_smart_home2_available_consent4
             )
+            # Data Controller 1 exchanged messages with Data Controller 2
+            data_controller1_data_controller2_message1 = Message(
+                content="Hello DC2, I am Data Controller 1"
+            )
+            data_controller1_data_controller2_message2 = Message(
+                content="Hello DC1, I am Data Controller 2"
+            )
+            data_controller1_data_controller2_message3 = Message(
+                content="How are you, DC 2?"
+            )
+            data_controller1_data_controller2_message4 = Message(
+                content="I am fine, thank you DC 1"
+            )
+            db.session.add_all(
+                [
+                    data_controller1_data_controller2_message1,
+                    data_controller1_data_controller2_message2,
+                    data_controller1_data_controller2_message3,
+                    data_controller1_data_controller2_message4,
+                ]
+            )
+            data_controller1_data_controller2_message1.sender = data_controller1
+            data_controller1_data_controller2_message1.receiver = data_controller2
+            data_controller1_data_controller2_message2.sender = data_controller2
+            data_controller1_data_controller2_message2.receiver = data_controller1
+            data_controller1_data_controller2_message3.sender = data_controller1
+            data_controller1_data_controller2_message3.receiver = data_controller2
+            data_controller1_data_controller2_message4.sender = data_controller2
+            data_controller1_data_controller2_message4.receiver = data_controller1
+            # Data Controller 1 exchanged messages with Data Subject 1
+            data_controller1_data_subject1_message1 = Message(
+                content="Hello DS1, I am Data Controller 1"
+            )
+            data_controller1_data_subject1_message2 = Message(
+                content="Hello DC1, I am Data Subject 1"
+            )
+            db.session.add_all(
+                [
+                    data_controller1_data_subject1_message1,
+                    data_controller1_data_subject1_message2,
+                ]
+            )
+            data_controller1_data_subject1_message1.sender = data_controller1
+            data_controller1_data_subject1_message1.receiver = data_subject1
+            data_controller1_data_subject1_message2.sender = data_subject1
+            data_controller1_data_subject1_message2.receiver = data_controller1
+            # Data Controller 2 exchanged messages with Data Subject 1
+            data_controller2_data_subject1_message1 = Message(
+                content="Hello DS1, I am Data Controller 2"
+            )
+            data_controller2_data_subject1_message2 = Message(
+                content="Hello DC2, I am Data Subject 1"
+            )
+            db.session.add_all(
+                [
+                    data_controller2_data_subject1_message1,
+                    data_controller2_data_subject1_message2,
+                ]
+            )
+            data_controller2_data_subject1_message1.sender = data_controller2
+            data_controller2_data_subject1_message1.receiver = data_subject1
+            data_controller2_data_subject1_message2.sender = data_subject1
+            data_controller2_data_subject1_message2.receiver = data_controller2
 
             db.session.commit()
         else:

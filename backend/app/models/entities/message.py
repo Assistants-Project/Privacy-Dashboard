@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID, uuid4
 
 from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -15,6 +16,7 @@ class Message(db.Model):
 
     Attributes:
         id: An auto-incremented integer identifier, used as the primary key.
+        uuid: A unique randomly generated UUID that identifies the message.
         content: A string that represents the content of the message.
         attachment: An optional string that represents the path to the attachment of the message, if any.
         sent_at: A datetime object that represents the date and time the message was sent.
@@ -32,6 +34,7 @@ class Message(db.Model):
     __tablename__ = "messages"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
     content = mapped_column(Text, nullable=False)
     attachment: Mapped[str | None]
     sent_at: Mapped[datetime] = mapped_column(default=datetime.now())
@@ -47,4 +50,4 @@ class Message(db.Model):
     )
 
     def __repr__(self) -> str:
-        return f"Message(id={self.id!r}, content={self.content!r}, attachment={self.attachment!r}, sent_at={self.sent_at!r}, is_read={self.is_read!r})"
+        return f"Message(id={self.id!r}, uuid={self.uuid!r}, content={self.content!r}, attachment={self.attachment!r}, sent_at={self.sent_at!r}, is_read={self.is_read!r})"

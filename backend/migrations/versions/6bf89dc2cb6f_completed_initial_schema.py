@@ -94,6 +94,7 @@ def upgrade():
     op.create_table(
         "messages",
         sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("uuid", sa.Uuid(), nullable=False),
         sa.Column("attachment", sa.String(), nullable=True),
         sa.Column("content", sa.Text(), nullable=False),
         sa.Column("sent_at", sa.DateTime(), nullable=False),
@@ -103,6 +104,7 @@ def upgrade():
         sa.ForeignKeyConstraint(["receiver_id"], ["users.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["sender_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("uuid"),
     )
     op.create_table(
         "user_smart_home_relations",

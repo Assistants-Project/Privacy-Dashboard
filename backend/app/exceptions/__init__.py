@@ -9,6 +9,7 @@ from .entities.user_exceptions import (
     UserNotFoundException,
     WrongUserCredentialsException,
     WrongUserRoleException,
+    WrongUserUuidException,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "UserNotFoundException",
     "WrongUserCredentialsException",
     "WrongUserRoleException",
+    "WrongUserUuidException",
 ]

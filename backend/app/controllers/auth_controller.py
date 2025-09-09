@@ -26,7 +26,7 @@ auth_bp = Blueprint(
 def login(email: str, password: str):
     user = AuthService.login(email, password)
     access_token = create_access_token(
-        identity=user.email, additional_claims={"role": user.role.value}
+        identity=user.uuid, additional_claims={"role": user.role.value}
     )
     response = Response(status=204, content_type="application/json")
     set_access_cookies(response, access_token)

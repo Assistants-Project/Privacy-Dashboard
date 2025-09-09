@@ -23,7 +23,7 @@ class User(db.Model):
 
     Attributes:
         id: An auto-incremented integer identifier, used as the primary key.
-        uuid: A unique randomly generated UUID that identifies the application.
+        uuid: A unique randomly generated UUID that identifies the user.
         firstname: A string that represents the first name of the user.
         lastname: A string that represents the last name of the user.
         email: A unique string that represents the email address of the user.

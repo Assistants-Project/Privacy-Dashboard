@@ -8,19 +8,19 @@ from ..repositories import ApplicationRepository, UserRepository
 
 class UserService:
     @staticmethod
-    def get_user_by_email(email: str) -> User:
-        """Returns a user fetched by its email from the database.
+    def get_user_by_uuid(uuid: UUID) -> User:
+        """Returns a user fetched by its `UUID` from the database.
 
         Args:
-            email: The email address of the user to retrieve.
+            uuid: The `UUID` of the user to retrieve.
 
         Raises:
-            `UserNotFoundException`: If no user with the given email is found in the database.
+            `UserNotFoundException`: If no user with the given `UUID` is found in the database.
         """
 
-        user = UserRepository.get_user_by_email(email)
+        user = UserRepository.get_user_by_uuid(uuid)
         if not user:
-            raise UserNotFoundException(f"User with email {email} not found")
+            raise UserNotFoundException(f"User with uuid {uuid} not found")
         return user
 
     @staticmethod
@@ -51,10 +51,10 @@ class UserService:
             raise ApplicationNotFoundException(
                 f"Application with uuid {application_uuid} not found among the managed applications!"
             )
-        users = UserRepository.get_users_by_application_id_and_user_role(
+        iterator = UserRepository.get_users_by_application_id_and_user_role(
             application.id, role
         )
-        return [user for user in users if user.id != user_id]
+        return [user for user in iterator if user.id != user_id]
 
     @staticmethod
     def get_contacts_by_dc_or_dpo_id(user_id: int) -> List[User]:
