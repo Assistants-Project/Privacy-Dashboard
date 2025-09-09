@@ -525,7 +525,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful DS Login",
+					"name": "Successful DS Login - DS1",
 					"event": [
 						{
 							"listen": "test",
@@ -673,7 +673,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful DC Login",
+					"name": "Successful DC Login - DC1",
 					"event": [
 						{
 							"listen": "test",
@@ -842,7 +842,7 @@
 			"name": "Privacy Notices API",
 			"item": [
 				{
-					"name": "Unprocessable Privacy Notice By Managed Application - Empty Input",
+					"name": "Unprocessable Privacy Notice By Managed Application - Empty UUID",
 					"event": [
 						{
 							"listen": "test",
@@ -908,7 +908,7 @@
 					"response": []
 				},
 				{
-					"name": "Unprocessable Privacy Notice By Managed Application - Wrong Input",
+					"name": "Unprocessable Privacy Notice By Managed Application - Wrong UUID",
 					"event": [
 						{
 							"listen": "test",
@@ -1040,7 +1040,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful DS Login",
+					"name": "Successful DS Login - DS1",
 					"event": [
 						{
 							"listen": "test",
@@ -1190,7 +1190,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful DC Login",
+					"name": "Successful DC Login - DC1",
 					"event": [
 						{
 							"listen": "test",
@@ -1964,7 +1964,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful DS Login",
+					"name": "Successful DS Login - DS1",
 					"event": [
 						{
 							"listen": "test",
@@ -2120,7 +2120,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful DC Login",
+					"name": "Successful DC Login - DC1",
 					"event": [
 						{
 							"listen": "test",
@@ -2166,7 +2166,7 @@
 					"response": []
 				},
 				{
-					"name": "Not Found Users By Managed Application",
+					"name": "Not Found Users By Managed Application - No Application",
 					"event": [
 						{
 							"listen": "test",
@@ -2354,8 +2354,7 @@
 									"if (applicationUuid) {\r",
 									"    // Set the request URL with the application_uuid path variable\r",
 									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
-									"}\r",
-									""
+									"}"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2769,7 +2768,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful DS Login",
+					"name": "Successful DS Login - DS1",
 					"event": [
 						{
 							"listen": "test",
@@ -2905,7 +2904,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful DC Login",
+					"name": "Successful DC Login - DC1",
 					"event": [
 						{
 							"listen": "test",
@@ -3033,7 +3032,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful DC Login",
+					"name": "Successful DC Login - DC2",
 					"event": [
 						{
 							"listen": "test",
@@ -3161,7 +3160,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful DPO Login",
+					"name": "Successful DPO Login - DPO1",
 					"event": [
 						{
 							"listen": "test",
@@ -3285,6 +3284,1256 @@
 			]
 		},
 		{
+			"name": "Messages API",
+			"item": [
+				{
+					"name": "Unprocessable Messages By User - Empty UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'user_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('user_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Messages By User - Wrong UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'user_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('user_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid",
+									"value": "somethingwrong"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized Messages By User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 401\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'The JSON Web Token is missing!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('The JSON Web Token is missing!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unauthorized');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DS Login - DS1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email1@example.com\",\r\n    \"password\": \"password1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forbidden Messages By User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 403\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DC Login - DC1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									"\r",
+									"// Assuming the UUID is part of the JWT payload, decode the JWT to extract the UUID\r",
+									"const jwt = pm.cookies.get('access_token_cookie'); // Retrieve the JWT from the cookies\r",
+									"if (jwt) {\r",
+									"    const payload = JSON.parse(atob(jwt.split('.')[1])); // Decode the JWT payload\r",
+									"    pm.environment.set('userUuid', payload.sub); // Assuming the UUID is stored under the key 'sub' of the decoded JWT, set the user UUID as an environment variable\r",
+									"}\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email2@example.com\",\r\n    \"password\": \"password2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bad Request Messages By User - Same User",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the user_uuid from the environment variable\r",
+									"const userUuid = pm.environment.get(\"userUuid\");\r",
+									"\r",
+									"// Check if user_uuid is available\r",
+									"if (userUuid) {\r",
+									"    // Set the request URL with the user_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":user_uuid\", userUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 400\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(400);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 400\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to Cannot get message history with yourself!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Cannot get message history with yourself!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Bad Request'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Bad Request');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Messages By User - Unexisting User",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User with uuid d8ddc781-ba92-486d-8d96-747856587fd5 not found among the contacts!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User with uuid d8ddc781-ba92-486d-8d96-747856587fd5 not found among the contacts!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid",
+									"value": "d8ddc781-ba92-486d-8d96-747856587fd5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Contacts of DC or DPO - Users 1, 4, 5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of three objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(3);\r",
+									"\r",
+									"    let hasEmail1 = false;\r",
+									"    let hasEmail5 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(user) {\r",
+									"        pm.expect(user).to.have.all.keys(\"uuid\", \"firstname\", \"lastname\", \"email\", \"role\", \"profile_picture\");\r",
+									"        pm.expect(user).to.not.have.property(\"password_hash\");\r",
+									"        pm.expect(user.email).to.not.equal(\"email2@example.com\");\r",
+									"\r",
+									"        if (user.email === \"email1@example.com\") {\r",
+									"            pm.environment.set('data_subject1_uuid', user.uuid);\r",
+									"            hasEmail1 = true;\r",
+									"        }\r",
+									"        if (user.email === \"email5@example.com\") {\r",
+									"            pm.environment.set('data_controller2_uuid', user.uuid);\r",
+									"            hasEmail5 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    // Expect DC2 and DS1 to be among the contacts of DC1\r",
+									"    pm.expect(hasEmail1).to.be.true;\r",
+									"    pm.expect(hasEmail5).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/users/contacts",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"contacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Messages By User -  DC1 And DC2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the data_controller2_uuid from the environment variable\r",
+									"const userUuid = pm.environment.get(\"data_controller2_uuid\");\r",
+									"\r",
+									"// Check if user_uuid is available\r",
+									"if (userUuid) {\r",
+									"    // Set the request URL with the user_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":user_uuid\", userUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of four objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(4);\r",
+									"\r",
+									"    let data_controller1_data_controller2_message1 = false;\r",
+									"    let data_controller1_data_controller2_message2 = false;\r",
+									"    let data_controller1_data_controller2_message3 = false;\r",
+									"    let data_controller1_data_controller2_message4 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"message\", \"sender_uuid\", \"receiver_uuid\");\r",
+									"        pm.expect(element.message).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.message).to.have.all.keys(\"uuid\", \"content\", \"attachment\", \"sent_at\", \"is_read\");\r",
+									"        if (element.message.content === \"Hello DC2, I am Data Controller 1\") {\r",
+									"            data_controller1_data_controller2_message1 = true;\r",
+									"        }\r",
+									"        if (element.message.content == \"Hello DC1, I am Data Controller 2\") {\r",
+									"            data_controller1_data_controller2_message2 = true;\r",
+									"        }\r",
+									"        if (element.message.content === \"How are you, DC 2?\") {\r",
+									"            data_controller1_data_controller2_message3 = true;\r",
+									"        }\r",
+									"        if (element.message.content == \"I am fine, thank you DC 1\") {\r",
+									"            data_controller1_data_controller2_message4 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_controller1_data_controller2_message1).to.be.true;\r",
+									"    pm.expect(data_controller1_data_controller2_message2).to.be.true;\r",
+									"    pm.expect(data_controller1_data_controller2_message3).to.be.true;\r",
+									"    pm.expect(data_controller1_data_controller2_message4).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Messages By User -  DC1 And DS1",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the data_subject1_uuid from the environment variable\r",
+									"const userUuid = pm.environment.get(\"data_subject1_uuid\");\r",
+									"\r",
+									"// Check if user_uuid is available\r",
+									"if (userUuid) {\r",
+									"    // Set the request URL with the user_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":user_uuid\", userUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
+									"\r",
+									"    let data_controller1_data_subject1_message1 = false;\r",
+									"    let data_controller1_data_subject1_message2 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"message\", \"sender_uuid\", \"receiver_uuid\");\r",
+									"        pm.expect(element.message).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.message).to.have.all.keys(\"uuid\", \"content\", \"attachment\", \"sent_at\", \"is_read\");\r",
+									"        if (element.message.content === \"Hello DS1, I am Data Controller 1\") {\r",
+									"            data_controller1_data_subject1_message1 = true;\r",
+									"        }\r",
+									"        if (element.message.content == \"Hello DC1, I am Data Subject 1\") {\r",
+									"            data_controller1_data_subject1_message2 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_controller1_data_subject1_message1).to.be.true;\r",
+									"    pm.expect(data_controller1_data_subject1_message2).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DC Login - DC2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									"\r",
+									"// Assuming the UUID is part of the JWT payload, decode the JWT to extract the UUID\r",
+									"const jwt = pm.cookies.get('access_token_cookie'); // Retrieve the JWT from the cookies\r",
+									"if (jwt) {\r",
+									"    const payload = JSON.parse(atob(jwt.split('.')[1])); // Decode the JWT payload\r",
+									"    pm.environment.set('userUuid', payload.sub); // Assuming the UUID is stored under the key 'sub' of the decoded JWT, set the user UUID as an environment variable\r",
+									"}\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email5@example.com\",\r\n    \"password\": \"password5\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Contacts of DC or DPO - Users 1, 2, 4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of three objects\", function () {\r",
+									"    const data_subject1_uuid = pm.environment.get(\"data_subject1_uuid\");\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(3);\r",
+									"\r",
+									"    let has_data_subject1_uuid = false;\r",
+									"\r",
+									"    responseBody.forEach(function(user) {\r",
+									"        pm.expect(user).to.have.all.keys(\"uuid\", \"firstname\", \"lastname\", \"email\", \"role\", \"profile_picture\");\r",
+									"        pm.expect(user).to.not.have.property(\"password_hash\");\r",
+									"        pm.expect(user.email).to.not.equal(\"email5@example.com\");\r",
+									"        if (user.uuid === data_subject1_uuid) {\r",
+									"            has_data_subject1_uuid = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    // Expect DS1 to be among the contacts of DC2\r",
+									"    pm.expect(has_data_subject1_uuid).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/users/contacts",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"contacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Messages By User -  DC2 And DS1",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the data_subject1_uuid from the environment variable\r",
+									"const userUuid = pm.environment.get(\"data_subject1_uuid\");\r",
+									"\r",
+									"// Check if user_uuid is available\r",
+									"if (userUuid) {\r",
+									"    // Set the request URL with the user_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":user_uuid\", userUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
+									"\r",
+									"    let data_controller2_data_subject1_message1 = false;\r",
+									"    let data_controller2_data_subject1_message2 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"message\", \"sender_uuid\", \"receiver_uuid\");\r",
+									"        pm.expect(element.message).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.message).to.have.all.keys(\"uuid\", \"content\", \"attachment\", \"sent_at\", \"is_read\");\r",
+									"        if (element.message.content === \"Hello DS1, I am Data Controller 2\") {\r",
+									"            data_controller2_data_subject1_message1 = true;\r",
+									"        }\r",
+									"        if (element.message.content == \"Hello DC2, I am Data Subject 1\") {\r",
+									"            data_controller2_data_subject1_message2 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_controller2_data_subject1_message1).to.be.true;\r",
+									"    pm.expect(data_controller2_data_subject1_message2).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DPO Login - DPO1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email3@example.com\",\r\n    \"password\": \"password3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Contacts of DC or DPO - No Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an empty array\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(0);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/users/contacts",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"contacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Messages By User - Unexisting Contact",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the data_subject1_uuid from the environment variable\r",
+									"const userUuid = pm.environment.get(\"data_subject1_uuid\");\r",
+									"\r",
+									"// Check if user_uuid is available\r",
+									"if (userUuid) {\r",
+									"    // Set the request URL with the user_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":user_uuid\", userUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const data_subject1_uuid = pm.environment.get(\"data_subject1_uuid\");\r",
+									"pm.test(`Message is equal to 'User with uuid ${data_subject1_uuid} not found among the contacts!'`, function () {\r",
+									"    pm.expect(responseData.message).to.eql(`User with uuid ${data_subject1_uuid} not found among the contacts!`);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Unexisting Route",
 			"event": [
 				{
@@ -3317,6 +4566,56 @@
 					],
 					"path": [
 						"i-dont-exist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cleanup Request",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jar = pm.cookies.jar();\r",
+							"const apiBase = pm.globals.get('baseURL');\r",
+							"\r",
+							"jar.clear(apiBase, function(err) {\r",
+							"  if (err) console.log('cookie clear error', err);\r",
+							"  else console.log('cookie jar cleared for', apiBase);\r",
+							"});\r",
+							"\r",
+							"pm.environment.clear();\r",
+							"pm.globals.clear();"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://postman-echo.com/get",
+					"protocol": "https",
+					"host": [
+						"postman-echo",
+						"com"
+					],
+					"path": [
+						"get"
 					]
 				}
 			},
