@@ -6,6 +6,7 @@ from .response.application_res_schema import ApplicationResSchema
 from .response.message_res_schema import MessageResSchema
 from .response.privacy_notice_res_schema import PrivacyNoticeResSchema
 from .response.user_res_schema import UserResSchema
+from .response.home_res_schema import HomeResSchema
 
 __all__ = [
     "ApplicationUuidReqSchema",
@@ -16,4 +17,5 @@ __all__ = [
     "MessageResSchema",
     "PrivacyNoticeResSchema",
     "UserResSchema",
+    "HomeResSchema"
 ]

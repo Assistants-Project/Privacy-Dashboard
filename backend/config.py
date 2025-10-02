@@ -17,6 +17,14 @@ class BaseConfig:
     JWT_COOKIE_SECURE = True
     JWT_SESSION_COOKIE = False
     JWT_CSRF_METHODS = ["GET", "POST", "PUT", "DELETE"]
+    # --- Smartotum ---
+    SMARTOTUM_BASE_URL = os.getenv("SMARTOTUM_BASE_URL", "https://api.smartotum.com")
+    SMARTOTUM_API_BASE_PATH = os.getenv("SMARTOTUM_API_BASE_PATH", "/auth")
+    SMARTOTUM_AUTH_MODE = os.getenv("SMARTOTUM_AUTH_MODE", "header")
+    SMARTOTUM_RID = os.getenv("SMARTOTUM_RID", "emailpassword")
+    SMARTOTUM_JWKS_URL = os.getenv("SMARTOTUM_JWKS_URL","https://api.smartotum.com/auth/jwt/jwks.json")
+    SMARTOTUM_ISSUER = os.getenv("SMARTOTUM_ISSUER", "https://api.smartotum.com/auth")
+    SMARTOTUM_TIMEOUT = float(os.getenv("SMARTOTUM_TIMEOUT", "10")) #max time a http requesto to smartotum api can last
 
 
 class DevelopmentConfig(BaseConfig):

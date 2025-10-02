@@ -1,6 +1,8 @@
 from flask import Flask
 from sqlalchemy import func, inspect, select
 from werkzeug.security import generate_password_hash
+#added for smartotum id
+from uuid import UUID
 
 from .extensions import db
 from .models import (
@@ -43,6 +45,8 @@ def init_data(app: Flask) -> None:
                 firstname="First Name 1",
                 lastname="Last Name 1",
                 email="email1@example.com",
+                #user id smartotum -> only 1, the other are for the moment created randomly
+                uuid=UUID("fd031a1a-7cc3-40e4-a52a-5ab7ff7d10d4"),
                 # Plain text password: password1
                 password_hash=generate_password_hash("password1"),
                 role=UserRole.DATA_SUBJECT,

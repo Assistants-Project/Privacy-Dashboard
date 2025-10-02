@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 
-from flask import request
+from flask import request, g
 from flask_jwt_extended import (
     create_access_token,
     get_jwt,
@@ -21,6 +21,11 @@ from .exceptions import (
 from .extensions import jwt
 from .models import User, UserRole
 from .services import UserService
+
+from jwt import ExpiredSignatureError, InvalidTokenError, PyJWKClientError
+from .integrations.smartotum.jwks import decode_smartotum_token
+from .repositories import UserRepository
+from uuid import UUID
 
 
 # https://flask-jwt-extended.readthedocs.io/en/stable/automatic_user_loading.html
@@ -47,6 +52,42 @@ def my_invalid_token_callback(error):
 def my_missing_token_callback(error):
     return global_error_handler(MissingJWTException("The JSON Web Token is missing!"))
 
+def smartotum_required():
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+
+            token = request.cookies.get("st_access_token")
+            if not token:
+                raise MissingJWTException("Smartotum access token missing")
+
+            try:
+                claims = decode_smartotum_token(token)
+            except ExpiredSignatureError as exc:
+                raise ExpiredJWTException("Smartotum token expired") from exc
+            except InvalidTokenError as exc:
+                raise InvalidJWTException("Smartotum token invalid") from exc
+            except PyJWKClientError as exc:
+                raise InvalidJWTException("Smartotum token invalid") from exc
+
+            g.smartotum_claims = claims
+            return fn(*args, **kwargs)
+        return decorator
+    return wrapper
+
+def get_current_user_from_claims() -> User:
+    claims = getattr(g,"smartotum_claims", None)
+    if not claims:
+        raise MissingJWTException("Smartotum token missing")
+    current_user = getattr(g, "current_user", None)
+    if current_user:
+        return current_user
+    
+    user = UserRepository.get_user_by_uuid(UUID(claims["sub"]))
+    if not user:
+        raise UserNotFoundException
+    g.current_user = user
+    return user
 
 # https://flask-jwt-extended.readthedocs.io/en/stable/refreshing_tokens.html#implicit-refreshing-with-cookies
 def refresh_expiring_jwts(response):
@@ -84,8 +125,9 @@ def dc_or_dpo_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            verify_jwt_in_request()
-            user_role = get_jwt()["role"]
+            #verify_jwt_in_request()
+            user = get_current_user_from_claims()
+            user_role = user.role
             if (
                 user_role == UserRole.DATA_CONTROLLER.value
                 or user_role == UserRole.DATA_PROTECTION_OFFICER.value
@@ -110,8 +152,11 @@ def ds_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            verify_jwt_in_request()
-            if get_jwt()["role"] == UserRole.DATA_SUBJECT.value:
+            #verify_jwt_in_request()
+            user = get_current_user_from_claims()
+            user_role = user.role
+            #if get_jwt()["role"] == UserRole.DATA_SUBJECT.value:
+            if user_role == UserRole.DATA_SUBJECT.value:
                 return fn(*args, **kwargs)
             else:
                 raise WrongUserRoleException("User is not a Data Subject!")
@@ -131,11 +176,26 @@ def unlogged_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
+
+            #old implementation
+            #try:
+            #   verify_jwt_in_request()
+            #   raise WrongUserRoleException("User already logged in!")
+            #except NoAuthorizationError:
+
             try:
-                verify_jwt_in_request()
-                raise WrongUserRoleException("User already logged in!")
-            except NoAuthorizationError:
+                @smartotum_required()
+                #function to call the decorator on
+                def _validate(*_args, **_kwargs):
+                    return None
+
+                _validate(*args, **kwargs)
+            
+            except (MissingJWTException, InvalidJWTException, ExpiredJWTException):
+                # the user is not logged
                 return fn(*args, **kwargs)
+            
+            raise WrongUserRoleException("User already logged in!")
 
         return decorator
 
