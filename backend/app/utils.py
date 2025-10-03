@@ -85,7 +85,7 @@ def get_current_user_from_claims() -> User:
     
     user = UserRepository.get_user_by_uuid(UUID(claims["sub"]))
     if not user:
-        raise UserNotFoundException
+        raise UserNotFoundException("User not registered in Privacy Dashboard")
     g.current_user = user
     return user
 

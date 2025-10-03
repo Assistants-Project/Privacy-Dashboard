@@ -37,11 +37,11 @@ def login(email: str, password: str):
     # set_access_cookies(response, access_token)
     # return response
 
-    result = AuthService.login(email,password)
+    result = AuthService.login(email, password)
 
-    user = result["user"]
-    access_token = result["access_token"]
-    refresh_token = result["refresh_token"]
+    user = result.user
+    access_token = result.access_token
+    refresh_token = result.refresh_token
 
     response = Response(status=204, content_type="application/json")
 

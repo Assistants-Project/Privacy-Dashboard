@@ -25,4 +25,4 @@ def decode_smartotum_token(token: str) -> dict[str, Any]:
         algorithms=["RS256"],
         issuer=current_app.config["SMARTOTUM_ISSUER"],
         options={"verify_aud": False},
-    )
+    ) #return payload of the token: sub, exp, st-role, st-perm

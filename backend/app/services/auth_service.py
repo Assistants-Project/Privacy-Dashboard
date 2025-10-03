@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from ..exceptions import WrongUserCredentialsException
 from ..models import User
 from ..repositories import UserRepository
@@ -8,9 +10,16 @@ from ..integrations.smartotum import decode_smartotum_token
 from ..integrations.smartotum import SmartotumClient, SmartotumLoginResult
 
 
+@dataclass
+class AuthLoginResult:
+    user: User
+    access_token: str
+    refresh_token: str
+
+
 class AuthService:
     @staticmethod
-    def login(email: str, password: str) -> User:
+    def login(email: str, password: str) -> AuthLoginResult:
         """Checks if the provided credentials are valid to allow a user to log in.
 
         Args:
@@ -39,7 +48,11 @@ class AuthService:
         if not user:
             raise WrongUserCredentialsException("User not registered in Privacy Dashboard!")
 
-        return {"user": user,"access_token": login_result.access_token,"refresh_token": login_result.refresh_token}
+        return AuthLoginResult(
+            user=user,
+            access_token=login_result.access_token,
+            refresh_token=login_result.refresh_token,
+        )
     
         #old login implementation
         # user = UserRepository.get_user_by_email(email)
