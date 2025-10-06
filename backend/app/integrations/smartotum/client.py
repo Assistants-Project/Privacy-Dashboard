@@ -99,3 +99,20 @@ class SmartotumClient:
             raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
         
         return response.json()
+    
+    def get_home_devices(self, access_token: str, system_id: str) -> Dict[str, Any]:
+
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+
+        try:
+            response = self._session.get(
+                self._url(f"/service/systems/{system_id}/devices"), headers=headers, timeout=self._timeout
+            )
+            response.raise_for_status()
+        except RequestException as exc:
+            raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+        
+        return response.json()

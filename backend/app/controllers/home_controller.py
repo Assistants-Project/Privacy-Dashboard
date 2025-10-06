@@ -1,6 +1,7 @@
 from flask_smorest import Blueprint
 
 from ..schemas import HomeResSchema
+from ..schemas import DeviceResSchema
 from ..services.smartotum_service import SmartotumService
 from ..utils import smartotum_required
 
@@ -16,3 +17,10 @@ homes_bp = Blueprint(
 @smartotum_required()
 def list_homes():
     return SmartotumService.get_homes()
+
+
+@homes_bp.route("/<system_id>/devices", methods=["GET"])
+@homes_bp.response(200, DeviceResSchema(many=True))
+@smartotum_required()
+def list_home_devices(system_id: str):
+    return SmartotumService.get_home_devices(system_id)
