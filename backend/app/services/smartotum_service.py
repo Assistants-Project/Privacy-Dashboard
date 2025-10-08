@@ -1,10 +1,14 @@
+from typing import Any
+
 from flask import request
+
 from ..exceptions import MissingJWTException, WrongUserCredentialsException
 from ..integrations.smartotum import SmartotumClient
 
+
 class SmartotumService:
     @staticmethod
-    def get_homes() -> list[dict]:
+    def get_homes() -> list[dict[str, Any]]:
         access_token = request.cookies.get("st_access_token")
         if not access_token:
             raise MissingJWTException("Smartotum access token missing")
@@ -12,10 +16,8 @@ class SmartotumService:
         try:
             systems_data = SmartotumClient().get_systems(access_token)
         except WrongUserCredentialsException:
-            # token not valid
             raise
 
-        #for every home it returns only some information -> mapping between smartotum api response and our api
         return [
             {
                 "uuid": item["id"],
@@ -30,20 +32,18 @@ class SmartotumService:
             }
             for item in systems_data.get("data", []) #returns [] if the are no element
         ]
-    
+
     @staticmethod
-    def get_home_devices(system_id:str) -> list[dict]:
+    def get_home_devices(system_id: str) -> list[dict[str, Any]]:
         access_token = request.cookies.get("st_access_token")
         if not access_token:
             raise MissingJWTException("Smartotum access token missing")
 
         try:
-            systems_data = SmartotumClient().get_home_devices(access_token,system_id)
+            systems_data = SmartotumClient().get_home_devices(access_token, system_id)
         except WrongUserCredentialsException:
-            # token not valid
             raise
-
-        #for every home it returns only some information -> mapping between smartotum api response and our api
+#for every home it returns only some information -> mapping between smartotum api response and our api
         if isinstance(systems_data, dict):
             return systems_data.get("data", [])
         return systems_data

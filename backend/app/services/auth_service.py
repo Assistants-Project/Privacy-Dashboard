@@ -14,24 +14,22 @@ from ..integrations.smartotum import SmartotumClient, SmartotumLoginResult
 class AuthLoginResult:
     user: User
     access_token: str
-    refresh_token: str
 
 
 class AuthService:
     @staticmethod
     def login(email: str, password: str) -> AuthLoginResult:
-        """Checks if the provided credentials are valid to allow a user to log in.
+        """Authenticate the user via Smartotum.
 
         Args:
             email: The email address given by the user attempting to log in.
             password: The password given by the user attempting to log in.
 
         Returns:
-            The authenticated `User` object if the credentials are valid.
+            An `AuthLoginResult` containing the local user plus Smartotum access/refresh tokens.
 
         Raises:
-            `WrongUserCredentialsException`: If the email does not correspond to any user in the
-                database or the password is incorrect.
+            `WrongUserCredentialsException`: If the credentials are rejected or the user is unknown locally.
         """
         client = SmartotumClient()
         login_result: SmartotumLoginResult = client.login(email, password)
@@ -51,11 +49,4 @@ class AuthService:
         return AuthLoginResult(
             user=user,
             access_token=login_result.access_token,
-            refresh_token=login_result.refresh_token,
         )
-    
-        #old login implementation
-        # user = UserRepository.get_user_by_email(email)
-        # if not user or not user.check_password(password):
-        #     raise WrongUserCredentialsException("Invalid email or password!")
-        # return user

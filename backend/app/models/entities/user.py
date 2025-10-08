@@ -4,7 +4,6 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from werkzeug.security import check_password_hash
 
 from ...extensions import db
 
@@ -23,11 +22,10 @@ class User(db.Model):
 
     Attributes:
         id: An auto-incremented integer identifier, used as the primary key.
-        uuid: A unique randomly generated UUID that identifies the user.
+        uuid: The UUID that identifies the user in Smartotum.
         firstname: A string that represents the first name of the user.
         lastname: A string that represents the last name of the user.
         email: A unique string that represents the email address of the user.
-        password_hash: A string that represents the hashed password of the user.
         role: An enum that represents the role of the user, one of
             `DATA_SUBJECT`, `DATA_CONTROLLER` and `DATA_PROTECTION_OFFICER`.
         profile_picture: An optional string that represents the path to the profile picture of the user, if any.
@@ -54,7 +52,6 @@ class User(db.Model):
     firstname: Mapped[str]
     lastname: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
-    password_hash: Mapped[str]
     role = mapped_column(Enum(UserRole, validate_strings=True), nullable=False)
     profile_picture: Mapped[str | None]
 
@@ -86,19 +83,7 @@ class User(db.Model):
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
 
-    def check_password(self, password: str) -> bool:
-        """Checks if the given password matches the stored password hash.
-
-        Args:
-            password: The password given by the user attempting to log in.
-
-        Returns:
-            True if the password matches the stored password hash, False otherwise.
-        """
-
-        return check_password_hash(self.password_hash, password)
-
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, uuid={self.uuid!r}, firstname={self.firstname!r}, lastname={self.lastname!r}, \
-            email={self.email!r}, password_hash={self.password_hash!r}, role={self.role!r}), \
+            email={self.email!r}, role={self.role!r}), \
             profile_picture={self.profile_picture!r})"
