@@ -1,7 +1,7 @@
 from typing import Tuple
+import traceback
 
 from flask import Response, jsonify
-
 
 def global_error_handler(err: Exception) -> Tuple[Response, int]:
     """A global error handler function that catches all exceptions.
@@ -23,6 +23,7 @@ def global_error_handler(err: Exception) -> Tuple[Response, int]:
     )
     custom_status = getattr(err, "status", "Internal Server Error")
 
+    traceback.print_exc()
     return jsonify(
         {
             "code": custom_code,

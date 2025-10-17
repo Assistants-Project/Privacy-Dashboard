@@ -5,6 +5,7 @@ from typing import Any
 
 from sqlalchemy import Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from werkzeug.security import check_password_hash
 
 from ...extensions import db
 
@@ -53,6 +54,7 @@ class User(db.Model):
     firstname: Mapped[str]
     lastname: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
+    password_hash: Mapped[str]
     role = mapped_column(Enum(UserRole, validate_strings=True), nullable=False)
     profile_picture: Mapped[str | None]
 

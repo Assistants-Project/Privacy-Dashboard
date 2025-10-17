@@ -8,8 +8,10 @@ from flask import Flask
 
 from .controllers import application_bp, auth_bp, message_bp, privacy_notice_bp, user_bp, homes_bp
 from .error_handler import global_error_handler
-from .extensions import api, db, ma, migrate
+from .extensions import api, db, ma, migrate, jwt
 from .initial_data import init_data
+from .utils import refresh_expiring_jwts
+
 def create_app(env_name: Optional[str] = None) -> Flask:
     """
     Creates and configures the Flask app instance.
@@ -34,10 +36,12 @@ def create_app(env_name: Optional[str] = None) -> Flask:
     migrate.init_app(app, db)
     ma.init_app(app)
     api.init_app(app)
+    jwt.init_app(app)
 
     for blueprint in [application_bp, auth_bp, message_bp, privacy_notice_bp, user_bp, homes_bp]:
         api.register_blueprint(blueprint)
 
+    app.after_request(refresh_expiring_jwts)
     app.register_error_handler(Exception, global_error_handler)
 
     # Add dummy initial data only in development

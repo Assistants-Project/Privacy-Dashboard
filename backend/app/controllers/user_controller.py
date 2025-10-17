@@ -5,7 +5,7 @@ from flask_smorest import Blueprint
 from ..models import UserRole
 from ..schemas import ApplicationUuidReqSchema, UserResSchema, UserRoleReqSchema
 from ..services import UserService
-from ..utils import dc_or_dpo_required, get_current_user_from_claims
+from ..utils import dc_or_dpo_required
 
 user_bp = Blueprint(
     "Users API",
@@ -21,17 +21,16 @@ user_bp = Blueprint(
 @user_bp.response(200, UserResSchema(many=True))
 @dc_or_dpo_required()
 def get_users_by_managed_application_uuid_and_user_role(
-    application_uuid: UUID, role: UserRole
+    application_uuid: UUID, role: UserRole, current_user
 ):
-    user = get_current_user_from_claims()
     return UserService.get_users_by_dc_or_dpo_id_and_application_uuid_and_user_role(
-        user.id, application_uuid, role
+        current_user.id, application_uuid, role
     )
 
 
 @user_bp.route("/contacts", methods=["GET"])
 @user_bp.response(200, UserResSchema(many=True))
 @dc_or_dpo_required()
-def get_dc_or_dpo_contacts():
-    user = get_current_user_from_claims()
-    return UserService.get_contacts_by_dc_or_dpo_id(user.id)
+def get_dc_or_dpo_contacts(current_user):
+
+    return UserService.get_contacts_by_dc_or_dpo_id(current_user.id)

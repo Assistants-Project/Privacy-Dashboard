@@ -24,6 +24,7 @@ def login(email: str, password: str):
 
     result = AuthService.login(email, password)
 
+    user = result.user
     access_token = result.access_token
 
     user_data = UserResSchema().dump(user)

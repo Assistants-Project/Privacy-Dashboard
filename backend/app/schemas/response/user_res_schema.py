@@ -8,4 +8,4 @@ class UserResSchema(ma.SQLAlchemyAutoSchema):
         include_fk = False
         include_relationships = False
         load_instance = False
-        exclude = ("id",)
+        exclude = ("id", "password_hash")
