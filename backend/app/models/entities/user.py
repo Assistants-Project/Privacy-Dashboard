@@ -1,6 +1,7 @@
 import enum
 from typing import List
 from uuid import UUID, uuid4
+from typing import Any
 
 from sqlalchemy import Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -82,6 +83,21 @@ class User(db.Model):
     received_notifications: Mapped[List["UserNotification"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+    def check_password(self, password: str) -> bool:
+        """Checks if the given password matches the stored password hash.
+
+        Args:
+            password: The password given by the user attempting to log in.
+
+        Returns:
+            True if the password matches the stored password hash, False otherwise.
+        """
+
+        return check_password_hash(self.password_hash, password)
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, uuid={self.uuid!r}, firstname={self.firstname!r}, lastname={self.lastname!r}, \

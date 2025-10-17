@@ -1,6 +1,7 @@
 from functools import wraps
+from flask_jwt_extended import decode_token
+from flask_jwt_extended.exceptions import JWTExtendedException
 from typing import Any
-from uuid import UUID
 
 from flask import g, request
 from jwt import ExpiredSignatureError, InvalidTokenError, PyJWKClientError
@@ -11,7 +12,13 @@ from .exceptions import (
     MissingJWTException,
     UserNotFoundException,
     WrongUserRoleException,
+    UnloggedUserException,
 )
+from .extensions import jwt
+from .models import User, UserRole
+from .services import UserService
+
+from jwt import ExpiredSignatureError, InvalidTokenError, PyJWKClientError, PyJWTError
 from .integrations.smartotum.jwks import decode_smartotum_token
 from .models import User, UserRole
 from .repositories import UserRepository
@@ -51,6 +58,24 @@ def smartotum_required():
     return wrapper
 
 
+def logged_in_required():
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            
+            token = request.cookies.get("st_access_token")
+            if not token:
+                raise UnloggedUserException("User not logged in!")
+
+            if _has_smartotum_session(token) or _has_internal_session(token):
+                return fn(*args, **kwargs)
+
+            raise UnloggedUserException("User not logged in!")
+
+        return decorator
+    return wrapper
+
+
 def get_current_user_from_claims() -> User:
     claims = _ensure_smartotum_claims()
 
@@ -70,10 +95,11 @@ def dc_or_dpo_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            user = get_current_user_from_claims()
-            if user.role in (
-                UserRole.DATA_CONTROLLER,
-                UserRole.DATA_PROTECTION_OFFICER,
+            verify_jwt_in_request()
+            user_role = get_jwt()["role"]
+            if (
+                user_role == UserRole.DATA_CONTROLLER.value
+                or user_role == UserRole.DATA_PROTECTION_OFFICER.value
             ):
                 return fn(*args, **kwargs)
 
@@ -84,12 +110,17 @@ def dc_or_dpo_required():
     return wrapper
 
 
+
 def ds_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
+
+            _ensure_smartotum_claims() #verify and 
             user = get_current_user_from_claims()
-            if user.role == UserRole.DATA_SUBJECT:
+            user_role = user.role
+            #if get_jwt()["role"] == UserRole.DATA_SUBJECT.value:
+            if user_role == UserRole.DATA_SUBJECT:
                 return fn(*args, **kwargs)
 
             raise WrongUserRoleException("User is not a Data Subject!")
@@ -99,18 +130,37 @@ def ds_required():
     return wrapper
 
 
+def _has_smartotum_session(token: str) -> bool:
+    try:
+        decode_smartotum_token(token)
+        return True
+    except (ExpiredSignatureError, InvalidTokenError, PyJWKClientError):
+        return False
+
+def _has_internal_session(token: str) -> bool:
+    try:
+        decode_token(token)
+        return True
+    except (JWTExtendedException, PyJWTError, RuntimeError, KeyError):
+        return False
+
+
 def unlogged_required():
+    """Decorator that ensures the user making the request is not logged in. If the
+    user is already logged in, it raises a 403 Forbidden error. This decorator
+    verifies the JWT (DATA_CONTROLLER,DPO) or Smartotum (DATA_SUBJECT) token in the request and checks whether the user is already logged in before
+    allowing access to the decorated function.
+    """
+
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            try:
-                _ensure_smartotum_claims()
-            except (MissingJWTException, InvalidJWTException, ExpiredJWTException):
-                return fn(*args, **kwargs)
-
-            raise WrongUserRoleException("User already logged in!")
-
+            token = request.cookies.get("st_access_token")
+            if token and (_has_smartotum_session(token)):
+                raise WrongUserRoleException("User already logged in!")
+            if token and (_has_internal_session(token)):
+                raise WrongUserRoleException("User already logged in!")
+            return fn(*args, **kwargs)
         return decorator
-
     return wrapper
 

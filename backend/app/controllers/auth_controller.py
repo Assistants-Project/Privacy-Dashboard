@@ -1,9 +1,12 @@
-from flask import Response, current_app
+from flask import Response, jsonify
 from flask_smorest import Blueprint
 
-from ..schemas import AuthReqSchema
+from ..schemas import AuthReqSchema, UserResSchema
 from ..services import AuthService
-from ..utils import smartotum_required, unlogged_required
+from ..utils import unlogged_required
+from ..utils import logged_in_required
+
+from flask import current_app
 
 auth_bp = Blueprint(
     "Authentication API",
@@ -15,15 +18,18 @@ auth_bp = Blueprint(
 
 @auth_bp.route("/login", methods=["POST"])
 @auth_bp.arguments(AuthReqSchema, as_kwargs=True)
-@auth_bp.response(204, description="Successful login")
 @unlogged_required()
 def login(email: str, password: str):
+
+
     result = AuthService.login(email, password)
 
     access_token = result.access_token
 
-    response = Response(status=204, content_type="application/json")
+    user_data = UserResSchema().dump(user)
+    response = jsonify(user_data)
 
+    
     secure_cookie = current_app.config.get("JWT_COOKIE_SECURE", True)
     response.set_cookie(
         "st_access_token",
@@ -39,9 +45,15 @@ def login(email: str, password: str):
 
 @auth_bp.route("/logout", methods=["POST"])
 @auth_bp.response(204, description="Successful logout")
-@smartotum_required()
+@logged_in_required()
 def logout():
     response = Response(status=204, content_type="application/json")
-    response.delete_cookie("st_access_token", path="/")
-    response.delete_cookie("st_refresh_token", path="/")
+    secure_cookie = current_app.config.get("JWT_COOKIE_SECURE", True)
+    response.delete_cookie(
+        "st_access_token",
+        path="/",
+        httponly=True,
+        secure=secure_cookie,
+        samesite="None" if secure_cookie else "Lax",
+    )
     return response

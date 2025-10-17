@@ -49,5 +49,8 @@ class Message(db.Model):
         foreign_keys=[receiver_id], back_populates="received_messages"
     )
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __repr__(self) -> str:
         return f"Message(id={self.id!r}, uuid={self.uuid!r}, content={self.content!r}, attachment={self.attachment!r}, sent_at={self.sent_at!r}, is_read={self.is_read!r})"

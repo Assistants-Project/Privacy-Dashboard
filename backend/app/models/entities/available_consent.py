@@ -30,6 +30,9 @@ class AvailableConsent(db.Model):
         ForeignKey("applications.id", ondelete="CASCADE")
     )
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     application: Mapped["Application"] = relationship(  # noqa: F821 # type: ignore
         back_populates="available_consents"
     )

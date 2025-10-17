@@ -41,10 +41,13 @@ def init_data(app: Flask) -> None:
             and db.session.scalar(select(func.count(Application.id))) == 0
         ):
             data_subject1 = User(
-                firstname="First Name 1",
-                lastname="Last Name 1",
-                email="email1@example.com",
+                firstname="Alberto",
+                lastname="Hugonin",
+                email="s312192@studenti.polito.it",
+                #user id smartotum -> only 1, the other are for the moment created randomly
                 uuid=UUID("fd031a1a-7cc3-40e4-a52a-5ab7ff7d10d4"),
+                # Password is the smartotum one
+                password_hash="",
                 role=UserRole.DATA_SUBJECT,
             )
             data_controller1 = User(

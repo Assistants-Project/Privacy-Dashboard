@@ -33,6 +33,9 @@ class SmartHome(db.Model):
     name: Mapped[str] = mapped_column(unique=True)
     address: Mapped[str]
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     owned_by_users: Mapped[List["UserSmartHome"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="smart_home", cascade="all, delete-orphan", passive_deletes=True
     )

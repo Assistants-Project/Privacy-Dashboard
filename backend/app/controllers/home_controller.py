@@ -4,6 +4,7 @@ from ..schemas import HomeResSchema
 from ..schemas import DeviceResSchema
 from ..services.smartotum_service import SmartotumService
 from ..utils import smartotum_required
+from ..utils import ds_required
 
 homes_bp = Blueprint(
     "Homes API",
@@ -14,13 +15,13 @@ homes_bp = Blueprint(
 
 @homes_bp.route("", methods=["GET"])
 @homes_bp.response(200, HomeResSchema(many=True))
-@smartotum_required()
+@ds_required()
 def list_homes():
     return SmartotumService.get_homes()
 
 
 @homes_bp.route("/<system_id>/devices", methods=["GET"])
 @homes_bp.response(200, DeviceResSchema(many=True))
-@smartotum_required()
+@ds_required()
 def list_home_devices(system_id: str):
     return SmartotumService.get_home_devices(system_id)

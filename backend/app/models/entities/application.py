@@ -54,6 +54,9 @@ class Application(db.Model):
         ForeignKey("privacy_notices.id", ondelete="SET NULL"), default=None
     )
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     privacy_notice: Mapped["PrivacyNotice | None"] = relationship(  # noqa: F821 # type: ignore
         back_populates="applications"
     )

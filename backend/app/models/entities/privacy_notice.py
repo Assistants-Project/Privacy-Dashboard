@@ -27,6 +27,9 @@ class PrivacyNotice(db.Model):
     uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
     content = mapped_column(Text, nullable=False)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     applications: Mapped[List["Application"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="privacy_notice", passive_deletes=True
     )
