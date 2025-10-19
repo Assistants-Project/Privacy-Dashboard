@@ -10,6 +10,14 @@ class UserNotFoundException(Exception):
         self.status = HTTP_STATUS_CODES[self.code]
 
 
+class UserAlreadyRegisteredException(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.code = NotFound.code
+        self.status = HTTP_STATUS_CODES[self.code]
+        
+
 class WrongUserCredentialsException(Exception):
     def __init__(self, message: str) -> None:
         super().__init__(message)

@@ -1,6 +1,7 @@
 from ...extensions import ma
+from marshmallow import fields
 
 
 class AuthReqSchema(ma.Schema):
-    email = ma.Email(required=True, allow_none=False)
-    password = ma.String(required=True, allow_none=False)
+    email = fields.Email(required=True, allow_none=False)
+    password = fields.String(required=True, allow_none=False)

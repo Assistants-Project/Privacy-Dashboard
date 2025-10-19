@@ -1,7 +1,7 @@
 from flask import Response, jsonify
 from flask_smorest import Blueprint
 
-from ..schemas import AuthReqSchema, UserResSchema
+from ..schemas import AuthReqSchema, UserResSchema, RegistrationReqSchema
 from ..services import AuthService
 from ..utils import unlogged_required
 from ..utils import logged_in_required
@@ -15,6 +15,14 @@ auth_bp = Blueprint(
     description="Endpoints for authentication and authorization",
 )
 
+@auth_bp.route("/register", methods=["POST"])
+@auth_bp.arguments(RegistrationReqSchema, as_kwargs=True)
+@unlogged_required()
+def register(email, password, role, firstname, lastname):
+    user = AuthService.register(email, password, role, firstname, lastname)
+    response = jsonify(UserResSchema().dump(user))
+    response.status_code = 201
+    return response
 
 @auth_bp.route("/login", methods=["POST"])
 @auth_bp.arguments(AuthReqSchema, as_kwargs=True)

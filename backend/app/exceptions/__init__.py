@@ -11,6 +11,7 @@ from .entities.user_exceptions import (
     WrongUserRoleException,
     WrongUserUuidException,
     UnloggedUserException,
+    UserAlreadyRegisteredException,
 )
 
 __all__ = [
@@ -24,4 +25,5 @@ __all__ = [
     "WrongUserRoleException",
     "WrongUserUuidException",
     "UnloggedUserException",
+    "UserAlreadyRegisteredException",
 ]

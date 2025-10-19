@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ..exceptions import WrongUserCredentialsException
+from ..exceptions import WrongUserCredentialsException, UserAlreadyRegisteredException
 from ..models import User, UserRole
 from ..repositories import UserRepository
 
@@ -11,6 +11,7 @@ from flask_jwt_extended import (
 from uuid import UUID
 from ..integrations.smartotum import decode_smartotum_token
 from ..integrations.smartotum import SmartotumClient, SmartotumLoginResult
+from werkzeug.security import generate_password_hash
 
 
 @dataclass
@@ -20,6 +21,7 @@ class AuthLoginResult:
 
 
 class AuthService:
+
     @staticmethod
     def login(email: str, password: str) -> AuthLoginResult:
 
@@ -62,6 +64,7 @@ class AuthService:
 
         user = UserRepository.get_user_by_uuid(user_uuid)
         
+        #user not registered in the dashboard but is registered on smartotum
         if not user:
             raise WrongUserCredentialsException("Invalid email or password!")
 
@@ -69,3 +72,36 @@ class AuthService:
             user=user,
             access_token=login_result.access_token,
         )
+    
+    @staticmethod
+    def register(email: str, password: str, role:UserRole, firstname:str, lastname:str) -> User | None:
+
+        #see if the user is already registered
+        user = UserRepository.get_user_by_email(email)
+        if user:
+            raise UserAlreadyRegisteredException("User already registered!")
+
+        #user not registered
+        #if the user is a data subject we check if it's a user of smartotum
+        if role == UserRole.DATA_SUBJECT:
+
+            client = SmartotumClient()
+            login_result: SmartotumLoginResult = client.login(email, password)
+
+            try:
+                claims = decode_smartotum_token(login_result.access_token)
+            except InvalidTokenError as exc:
+                raise WrongUserCredentialsException("Invalid Smartotum token received") from exc
+
+            #we have now the uuid of the user in smartotum
+            user_uuid = UUID(claims["sub"])
+            if UserRepository.get_user_by_uuid(user_uuid):
+                raise UserAlreadyRegisteredException("User already registered!")
+            
+            user = UserRepository.register_user(email,role,firstname,lastname,None,user_uuid)
+            return user
+        else:
+
+            password_hash=generate_password_hash(password)
+            user = UserRepository.register_user(email,role,firstname,lastname,password_hash,None)
+            return user

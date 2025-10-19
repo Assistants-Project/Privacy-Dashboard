@@ -1,6 +1,6 @@
 from flask import Flask
 from sqlalchemy import func, inspect, select
-#added for smartotum id
+from werkzeug.security import generate_password_hash
 from uuid import UUID
 
 from .extensions import db
@@ -54,24 +54,32 @@ def init_data(app: Flask) -> None:
                 firstname="First Name 2",
                 lastname="Last Name 2",
                 email="email2@example.com",
+                # Plain text password: password2
+                password_hash=generate_password_hash("password2"),
                 role=UserRole.DATA_CONTROLLER,
             )
             data_protection_officer1 = User(
                 firstname="First Name 3",
                 lastname="Last Name 3",
                 email="email3@example.com",
+                # Plain text password: password3
+                password_hash=generate_password_hash("password3"),
                 role=UserRole.DATA_PROTECTION_OFFICER,
             )
             data_subject2 = User(
                 firstname="First Name 4",
                 lastname="Last Name 4",
                 email="email4@example.com",
+                # Plain text password: password4
+                password_hash=generate_password_hash("password4"),
                 role=UserRole.DATA_SUBJECT,
             )
             data_controller2 = User(
                 firstname="First Name 5",
                 lastname="Last Name 5",
                 email="email5@example.com",
+                # Plain text password: password5
+                password_hash=generate_password_hash("password5"),
                 role=UserRole.DATA_CONTROLLER,
             )
             smart_home1 = SmartHome(name="Smart Home 1", address="Address 1")
