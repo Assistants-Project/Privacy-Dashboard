@@ -21,9 +21,18 @@ class BaseConfig:
     JWT_CSRF_METHODS = ["GET", "POST", "PUT", "DELETE"]
     # --- Smartotum ---
     SMARTOTUM_BASE_URL = os.getenv("SMARTOTUM_BASE_URL", "https://api.smartotum.com")
+    SMARTOTUM_DHT_URL = os.getenv("SMARTOTUM_DHT_URL", "https://house_name.pods.smartotum.com/.dht/")
     SMARTOTUM_API_BASE_PATH = os.getenv("SMARTOTUM_API_BASE_PATH", "/auth")
     SMARTOTUM_AUTH_MODE = os.getenv("SMARTOTUM_AUTH_MODE", "header")
     SMARTOTUM_RID = os.getenv("SMARTOTUM_RID", "emailpassword")
+    SMARTOTUM_DEVICE_TOPICS = [
+        t.strip()
+        for t in os.getenv(
+            "SMARTOTUM_DEVICE_TOPICS",
+            "domo_light,domo_light_dimmable,domo_rgbw_light,domo_switch,domo_button,domo_bistable_button,domo_window_sensor,domo_siren,domo_ble_thermometer,domo_ble_valve,domo_ble_contact,domo_roller_shutter,domo_ac_unit,domo_floor_valve,domo_camera",
+        ).split(",")
+        if t.strip()
+    ]
     SMARTOTUM_JWKS_URL = os.getenv("SMARTOTUM_JWKS_URL","https://api.smartotum.com/auth/jwt/jwks.json")
     SMARTOTUM_ISSUER = os.getenv("SMARTOTUM_ISSUER", "https://api.smartotum.com/auth")
     SMARTOTUM_TIMEOUT = float(os.getenv("SMARTOTUM_TIMEOUT", "10")) #max time a http requesto to smartotum api can last

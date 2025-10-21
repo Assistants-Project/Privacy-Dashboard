@@ -37,6 +37,8 @@ class UserSmartHome(db.Model):
         back_populates="owned_by_users"
     )
 
+    
+
     def __repr__(self) -> str:
         return f"UserSmartHome(user_id={self.user_id}, \
             smart_home_id={self.smart_home_id})"

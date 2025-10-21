@@ -1,5 +1,4 @@
 from typing import List
-from uuid import UUID, uuid4
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -29,7 +28,7 @@ class SmartHome(db.Model):
     __tablename__ = "smart_homes"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
+    uuid: Mapped[str] = mapped_column(unique=True)
     name: Mapped[str] = mapped_column(unique=True)
     address: Mapped[str]
 
@@ -43,6 +42,9 @@ class SmartHome(db.Model):
         back_populates="smart_home", cascade="all, delete-orphan", passive_deletes=True
     )
     given_consents: Mapped[List["UserSmartHomeAvailableConsent"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="smart_home", cascade="all, delete-orphan", passive_deletes=True
+    )
+    rooms: Mapped[List["Room"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="smart_home", cascade="all, delete-orphan", passive_deletes=True
     )
 

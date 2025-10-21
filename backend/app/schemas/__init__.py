@@ -9,6 +9,7 @@ from .response.privacy_notice_res_schema import PrivacyNoticeResSchema
 from .response.user_res_schema import UserResSchema
 from .response.home_res_schema import HomeResSchema
 from .response.device_res_schema import DeviceResSchema
+from .response.room_res_schema import RoomResSchema
 
 __all__ = [
     "ApplicationUuidReqSchema",
@@ -21,5 +22,6 @@ __all__ = [
     "PrivacyNoticeResSchema",
     "UserResSchema",
     "HomeResSchema",
-    "DeviceResSchema"
+    "DeviceResSchema",
+    "RoomResSchema",
 ]

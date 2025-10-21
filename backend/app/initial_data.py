@@ -82,8 +82,8 @@ def init_data(app: Flask) -> None:
                 password_hash=generate_password_hash("password5"),
                 role=UserRole.DATA_CONTROLLER,
             )
-            smart_home1 = SmartHome(name="Smart Home 1", address="Address 1")
-            smart_home2 = SmartHome(name="Smart Home 2", address="Address 2")
+            smart_home1 = SmartHome(uuid="smart-home-1", name="Smart Home 1", address="Address 1")
+            smart_home2 = SmartHome(uuid="smart-home-2", name="Smart Home 2", address="Address 2")
             application1 = Application(
                 name="Application 1", description="Description 1"
             )

@@ -21,7 +21,7 @@ class UserRepository:
 
         if user_uuid is not None:
             user.uuid = user_uuid #for smartotum data subject
-
+            
         db.session.add(user)
         db.session.commit()
         return user
