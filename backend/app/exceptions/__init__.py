@@ -13,8 +13,9 @@ from .entities.user_exceptions import (
     UnloggedUserException,
     UserAlreadyRegisteredException,
 )
-from .entities.room_exceptions import RoomPersistenceException
-from .entities.smart_home_exception import SmartHomeNotFoundException
+from .entities.room_exceptions import RoomNotFoundException
+from .entities.home_exception import SmartHomeNotFoundException
+from .entities.home_exception import SmartHomeForbiddenException
 
 __all__ = [
     "ExpiredJWTException",
@@ -28,6 +29,8 @@ __all__ = [
     "WrongUserUuidException",
     "UnloggedUserException",
     "UserAlreadyRegisteredException",
-    "RoomPersistenceException",
-    "SmartHomeNotFoundException"
+    "RoomNotFoundException",
+    "SmartHomeNotFoundException",
+    "SmartHomeForbiddenException"
+
 ]

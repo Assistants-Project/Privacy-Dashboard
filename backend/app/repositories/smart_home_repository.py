@@ -1,5 +1,6 @@
 from ..extensions import db
 from ..models import SmartHome
+from ..models import UserSmartHome
 from ..models.relations.user_smart_home import UserSmartHome
 
 
@@ -9,6 +10,13 @@ class SmartHomeRepository:
         """Return the smart home with the given UUID, if present."""
         statement = db.select(SmartHome).where(SmartHome.uuid == home_uuid)
         return db.session.scalar(statement)
+    
+    @staticmethod
+    def get_home_owners_by_home_id(home_id: int) -> list[int]:
+        """Return the id of the user owners of the smart home"""
+        statement = db.select(UserSmartHome.user_id).where(UserSmartHome.smart_home_id == home_id)
+        return list(db.session.scalars(statement))
+
     
     @staticmethod
     def get_homes_by_user_id(user_id: int) -> list[SmartHome]:

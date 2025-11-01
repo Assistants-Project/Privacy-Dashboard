@@ -82,8 +82,15 @@ def init_data(app: Flask) -> None:
                 password_hash=generate_password_hash("password5"),
                 role=UserRole.DATA_CONTROLLER,
             )
-            smart_home1 = SmartHome(uuid="smart-home-1", name="Smart Home 1", address="Address 1")
-            smart_home2 = SmartHome(uuid="smart-home-2", name="Smart Home 2", address="Address 2")
+            smart_home1 = SmartHome(
+                uuid="smart-home-1", name="Smart Home 1", address="Address 1"
+            )
+            smart_home2 = SmartHome(
+                uuid="smart-home-2", name="Smart Home 2", address="Address 2"
+            )
+            smart_home3 = SmartHome(
+                uuid="smart-home-3", name="Smart Home 3", address="Address 3"
+            )
             application1 = Application(
                 name="Application 1", description="Description 1"
             )
@@ -107,6 +114,7 @@ def init_data(app: Flask) -> None:
                     data_controller2,
                     smart_home1,
                     smart_home2,
+                    smart_home3,
                     application1,
                     application2,
                     application3,
@@ -134,11 +142,14 @@ def init_data(app: Flask) -> None:
             data_subject1.owned_smart_homes.append(data_subject1_smart_home1)
             data_subject1_smart_home2.smart_home = smart_home2
             data_subject1.owned_smart_homes.append(data_subject1_smart_home2)
-            # Data Subject 2 owns Smart Home 2
+            # Data Subject 2 owns Smart Homes 2 and 3
             data_subject2_smart_home2 = UserSmartHome()
-            db.session.add(data_subject2_smart_home2)
+            data_subject2_smart_home3 = UserSmartHome()
+            db.session.add_all([data_subject2_smart_home2, data_subject2_smart_home3])
             data_subject2_smart_home2.smart_home = smart_home2
             data_subject2.owned_smart_homes.append(data_subject2_smart_home2)
+            data_subject2_smart_home3.smart_home = smart_home3
+            data_subject2.owned_smart_homes.append(data_subject2_smart_home3)
             # Data Subject 1 installed Application 1 on Smart Homes 1 and 2 and Application 2 on Smart Home 2
             data_subject1_smart_home1_application1 = UserSmartHomeApplication()
             data_subject1_smart_home2_application1 = UserSmartHomeApplication()

@@ -8,7 +8,7 @@ from ..extensions import db
 from ..models import Room
 from ..models import SmartHome
 from ..models import Device
-from ..exceptions import RoomPersistenceException
+from ..exceptions import RoomNotFoundException
 
 
 class DeviceRepository:
@@ -44,5 +44,5 @@ class DeviceRepository:
             db.session.commit()
         except IntegrityError as exc:
             db.session.rollback()
-            raise RoomPersistenceException("Unable to update device for smart home") from exc
+            raise RoomNotFoundException("Unable to update device for smart home") from exc
 

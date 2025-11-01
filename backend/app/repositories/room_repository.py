@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from ..extensions import db
 from ..models import Room
-from ..exceptions import RoomPersistenceException
+from ..exceptions import RoomNotFoundException
 
 
 class RoomRepository:
@@ -40,4 +40,4 @@ class RoomRepository:
             db.session.commit()
         except IntegrityError as exc:
             db.session.rollback()
-            raise RoomPersistenceException("Unable to update rooms for smart home") from exc
+            raise RoomNotFoundException("Unable to update rooms for smart home") from exc
