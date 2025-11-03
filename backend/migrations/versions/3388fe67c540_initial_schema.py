@@ -1,8 +1,8 @@
 """Initial schema
 
-Revision ID: 9c014d18c51e
+Revision ID: 3388fe67c540
 Revises: 
-Create Date: 2025-10-21 12:10:40.564953
+Create Date: 2025-11-03 21:02:23.758244
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '9c014d18c51e'
+revision = '3388fe67c540'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -111,7 +111,7 @@ def upgrade():
     sa.Column('home_id', sa.Integer(), nullable=False),
     sa.Column('room_id', sa.Integer(), nullable=True),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('topic_name', sa.String(), nullable=False),
+    sa.Column('topic_name', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['home_id'], ['smart_homes.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['room_id'], ['rooms.room_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('device_id'),

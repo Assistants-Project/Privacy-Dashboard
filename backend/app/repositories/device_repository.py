@@ -5,10 +5,12 @@ from uuid import UUID
 from sqlalchemy.exc import IntegrityError
 
 from ..extensions import db
-from ..models import Room
-from ..models import SmartHome
 from ..models import Device
-from ..exceptions import RoomNotFoundException
+from ..exceptions import DeviceSyncException
+from sqlalchemy import inspect
+from sqlalchemy.orm import Mapper
+from typing import cast
+from sqlalchemy.orm import selectinload
 
 
 class DeviceRepository:
@@ -16,7 +18,7 @@ class DeviceRepository:
     def get_device_by_home_id(
         home_id: int,
     ) -> List[Device]:
-        statement = db.select(Device).filter(Device.home_id == home_id)
+        statement = db.select(Device).filter(Device.home_id == home_id).options(selectinload(Device.room))
         
         return list(db.session.scalars(statement).all())
     
@@ -25,7 +27,7 @@ class DeviceRepository:
         home_id: int,
         room_id: int
     ) -> List[Device]:
-        statement = db.select(Device).filter(Device.home_id == home_id, Device.room_id == room_id)
+        statement = db.select(Device).filter(Device.home_id == home_id, Device.room_id == room_id).options(selectinload(Device.room))
         
         return list(db.session.scalars(statement).all())
 
@@ -35,14 +37,30 @@ class DeviceRepository:
         devices: List[Device]
     ) -> None:
         
-        try:
-            db.session.query(Device).filter(Device.home_id == home_id).delete()
+        get_devices_statement = db.select(Device).filter(Device.home_id == home_id)
 
-            for device in devices:
+        devices_present = list(db.session.scalars(get_devices_statement).all())
+
+        devices_dict_present: dict[UUID, Device] = {device.device_uuid: device for device in devices_present}
+        devices_dict_input: dict[UUID, Device] = {device.device_uuid: device for device in devices}
+        mapper = cast(Mapper[Device], inspect(Device))
+
+        # for every device in the input we check if it's present in our database
+        for device_uuid, device in devices_dict_input.items():
+            device_present = devices_dict_present.get(device_uuid)
+            if device_present:
+                # if the device is already present we update the values
+                for attr in mapper.column_attrs:
+                    if attr.key == "device_id":  # we don't update the primary key
+                        continue
+                    # update every attr of the Device from the database model
+                    setattr(device_present, attr.key, getattr(device, attr.key))
+            else:
+                # if the device is not present we add it
                 db.session.add(device)
 
-            db.session.commit()
-        except IntegrityError as exc:
-            db.session.rollback()
-            raise RoomNotFoundException("Unable to update device for smart home") from exc
-
+        # removes devices that have been deleted
+        devices_input_uuid = set(devices_dict_input.keys())
+        for existing_uuid, existing_device in devices_dict_present.items():
+            if existing_uuid not in devices_input_uuid:
+                db.session.delete(existing_device)

@@ -3,6 +3,10 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .device import Device
+
 
 from ...extensions import db
 
@@ -29,6 +33,7 @@ class Room(db.Model):
     category: Mapped[Optional[str]]
 
     smart_home: Mapped["SmartHome"] = relationship(back_populates="rooms")  # type: ignore
+    devices: Mapped[list["Device"]] = relationship(back_populates="room", passive_deletes=True)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

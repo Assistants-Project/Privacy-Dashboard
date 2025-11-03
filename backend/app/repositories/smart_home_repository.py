@@ -45,10 +45,12 @@ class SmartHomeRepository:
             relation.smart_home_id = home_id
             relation.user_id = user_id
             db.session.add(relation)
-            db.session.commit()
 
         return relation
         
+    @staticmethod
+    def delete_home(home: SmartHome) -> None:
+        db.session.delete(home)
 
     @staticmethod
     def upsert_home(home_uuid: str, name: str, address: str) -> SmartHome:
@@ -58,11 +60,9 @@ class SmartHomeRepository:
         if home is None:
             home = SmartHome(uuid=home_uuid, name=name, address= address or "")
             db.session.add(home)
-            db.session.commit()
+            db.session.flush()
             return home
 
         home.name = name
         home.address = address or ""
-
-        db.session.commit()
         return home

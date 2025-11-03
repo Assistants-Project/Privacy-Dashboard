@@ -17,9 +17,16 @@ from ..models import Device
 from ..repositories.device_repository import DeviceRepository
 from ..exceptions.entities.room_exceptions import RoomNotFoundException
 from .smartotum_service import SmartotumService
+from ..extensions import db
+from sqlalchemy import delete
 
 
 class SmartHomeService:
+    @staticmethod
+    def delete_all_homes() -> None:
+        session = db.session
+        session.execute(delete(SmartHome))
+        session.commit()
 
     @staticmethod
     def update_database_for_user(current_user: User):
@@ -32,6 +39,7 @@ class SmartHomeService:
     @staticmethod
     def get_homes(current_user: User) -> list[SmartHome]:
 
+        #TODO to avoid side effects we should add a DTO
         return SmartHomeRepository.get_homes_by_user_id(current_user.id)
     
     #gets the rooms of the requested home

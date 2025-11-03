@@ -2,9 +2,12 @@ from typing import Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...extensions import db
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .room import Room
 
 
 class Device(db.Model):
@@ -31,6 +34,7 @@ class Device(db.Model):
     )
     name: Mapped[str]
     topic_name: Mapped[Optional[str]] = mapped_column(nullable=True)
+    room: Mapped[Optional["Room"]] = relationship(back_populates="devices")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

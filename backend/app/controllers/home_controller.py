@@ -25,7 +25,7 @@ def list_homes(current_user):
 @ds_required()
 def refresh_homes(current_user):
     SmartHomeService.update_database_for_user(current_user)
-    return "", 202
+    return "Home updated with Smartotum for user " + current_user.email, 202
 
 @homes_bp.route("/<system_uuid>/rooms", methods=["GET"])
 @homes_bp.response(200, RoomResSchema(many=True))
@@ -44,3 +44,10 @@ def list_home_devices(system_uuid: str, current_user):
 @ds_required()
 def list_home_room_devices(system_uuid: str, room_uuid: str, current_user):
     return SmartHomeService.get_home_room_devices(system_uuid,room_uuid,current_user)
+
+
+@homes_bp.route("/debug/clear", methods=["DELETE"])
+@homes_bp.response(204, description="All homes removed (debug only)")
+def clear_all_homes():
+    SmartHomeService.delete_all_homes()
+    return "Deleted all the homes", 204
