@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "220fbd86-5916-43c4-97bc-5d0f321c8946",
+		"_postman_id": "06380287-fd3d-4da8-892b-f23bd14c3cfb",
 		"name": "Privacy Dashboard API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "39418907",
-		"_collection_link": "https://privacy-dashboard-team.postman.co/workspace/56987148-bf37-4a0c-963d-00e1c7a5dfb6/collection/39418907-220fbd86-5916-43c4-97bc-5d0f321c8946?action=share&source=collection_link&creator=39418907"
+		"_exporter_id": "49801020",
+		"_collection_link": "https://albertohugonin-907717.postman.co/workspace/Alberto-Hugonin's-Workspace~998ac536-7fa1-47fb-817b-e4b685e1c1df/collection/48631079-06380287-fd3d-4da8-892b-f23bd14c3cfb?action=share&source=collection_link&creator=49801020"
 	},
 	"item": [
 		{
@@ -263,16 +263,33 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
-									"});\r",
-									"\r",
-									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
-									"pm.environment.set('csrfToken', csrfToken);\r",
-									""
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"const csrfToken = pm.cookies.get('csrf_access_token');",
+									"pm.environment.set('csrfToken', csrfToken);",
+									"",
+									"// Parse response JSON once",
+									"let body = pm.response.json();",
+									"",
+									"// Combined attribute checks in a single test",
+									"pm.test(\"Response body attributes and uuid existence are as expected\", function () {",
+									"    // Exact value checks",
+									"    pm.expect(body).to.have.property(\"email\", \"email2@example.com\");",
+									"    pm.expect(body).to.have.property(\"firstname\", \"First Name 2\");",
+									"    pm.expect(body).to.have.property(\"lastname\", \"Last Name 2\");",
+									"    pm.expect(body).to.have.property(\"profile_picture\", null);",
+									"    pm.expect(body).to.have.property(\"role\", \"DATA_CONTROLLER\");",
+									"",
+									"    // Existence and type checks for uuid (no specific value)",
+									"    pm.expect(body).to.have.property(\"uuid\");",
+									"    pm.expect(body.uuid).to.be.a(\"string\").and.to.have.length.greaterThan(0);",
+									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -281,7 +298,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"email1@example.com\",\r\n    \"password\": \"password1\"\r\n}",
+							"raw": "{\r\n    \"email\": \"email2@example.com\",\r\n    \"password\": \"password2\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -423,8 +440,8 @@
 									"    pm.expect(responseData.code).to.eql(401);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Message is equal to 'The JSON Web Token is missing!'\", function () {\r",
-									"    pm.expect(responseData.message).to.eql('The JSON Web Token is missing!');\r",
+									"pm.test(\"Message is equal to 'User not logged in!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User not logged in!');\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
@@ -433,7 +450,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -482,8 +500,8 @@
 									"    pm.expect(responseData.code).to.eql(401);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Message is equal to 'The JSON Web Token is missing!'\", function () {\r",
-									"    pm.expect(responseData.message).to.eql('The JSON Web Token is missing!');\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
@@ -491,7 +509,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -531,8 +550,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -540,7 +559,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -549,7 +569,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"email1@example.com\",\r\n    \"password\": \"password1\"\r\n}",
+							"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -679,8 +699,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -688,7 +708,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -995,8 +1016,8 @@
 									"    pm.expect(responseData.code).to.eql(401);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Message is equal to 'The JSON Web Token is missing!'\", function () {\r",
-									"    pm.expect(responseData.message).to.eql('The JSON Web Token is missing!');\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
@@ -1004,7 +1025,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1046,8 +1068,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -1055,7 +1077,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1064,7 +1087,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"email1@example.com\",\r\n    \"password\": \"password1\"\r\n}",
+							"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1196,8 +1219,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -1205,7 +1228,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1913,8 +1937,8 @@
 									"    pm.expect(responseData.code).to.eql(401);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Message is equal to 'The JSON Web Token is missing!'\", function () {\r",
-									"    pm.expect(responseData.message).to.eql('The JSON Web Token is missing!');\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
@@ -1922,7 +1946,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1970,8 +1995,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -1979,7 +2004,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1988,7 +2014,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"email1@example.com\",\r\n    \"password\": \"password1\"\r\n}",
+							"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2126,8 +2152,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -2135,7 +2161,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2737,8 +2764,8 @@
 									"    pm.expect(responseData.code).to.eql(401);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Message is equal to 'The JSON Web Token is missing!'\", function () {\r",
-									"    pm.expect(responseData.message).to.eql('The JSON Web Token is missing!');\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
@@ -2746,7 +2773,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2774,8 +2802,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -2783,7 +2811,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2792,7 +2821,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"email1@example.com\",\r\n    \"password\": \"password1\"\r\n}",
+							"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2910,8 +2939,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -2919,7 +2948,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3038,8 +3068,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -3047,7 +3077,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3166,8 +3197,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -3175,7 +3206,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3440,8 +3472,8 @@
 									"    pm.expect(responseData.code).to.eql(401);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Message is equal to 'The JSON Web Token is missing!'\", function () {\r",
-									"    pm.expect(responseData.message).to.eql('The JSON Web Token is missing!');\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
@@ -3449,7 +3481,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3491,8 +3524,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -3500,7 +3533,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3509,7 +3543,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"email1@example.com\",\r\n    \"password\": \"password1\"\r\n}",
+							"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3641,15 +3675,15 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
 									"pm.environment.set('csrfToken', csrfToken);\r",
 									"\r",
 									"// Assuming the UUID is part of the JWT payload, decode the JWT to extract the UUID\r",
-									"const jwt = pm.cookies.get('access_token_cookie'); // Retrieve the JWT from the cookies\r",
+									"const jwt = pm.cookies.get('st_access_token'); // Retrieve the JWT from the cookies\r",
 									"if (jwt) {\r",
 									"    const payload = JSON.parse(atob(jwt.split('.')[1])); // Decode the JWT payload\r",
 									"    pm.environment.set('userUuid', payload.sub); // Assuming the UUID is stored under the key 'sub' of the decoded JWT, set the user UUID as an environment variable\r",
@@ -3658,7 +3692,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3858,7 +3893,7 @@
 									"        pm.expect(user).to.not.have.property(\"password_hash\");\r",
 									"        pm.expect(user.email).to.not.equal(\"email2@example.com\");\r",
 									"\r",
-									"        if (user.email === \"email1@example.com\") {\r",
+									"        if (user.email === \"s312192@studenti.polito.it\") {\r",
 									"            pm.environment.set('data_subject1_uuid', user.uuid);\r",
 									"            hasEmail1 = true;\r",
 									"        }\r",
@@ -3875,7 +3910,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4112,8 +4148,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -4129,7 +4165,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4338,8 +4375,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
 									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
@@ -4347,7 +4384,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4628,6 +4666,7 @@
 			"script": {
 				"type": "text/javascript",
 				"packages": {},
+				"requests": {},
 				"exec": [
 					"const csrfToken = pm.environment.get('csrfToken');\r",
 					"if (csrfToken) {\r",
@@ -4647,6 +4686,7 @@
 			"script": {
 				"type": "text/javascript",
 				"packages": {},
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -4656,8 +4696,7 @@
 	"variable": [
 		{
 			"key": "baseURL",
-			"value": "https://127.0.0.1:5000",
-			"type": "default"
+			"value": "https://127.0.0.1:5000"
 		}
 	]
 }
