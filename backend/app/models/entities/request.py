@@ -1,5 +1,7 @@
 import enum
+from datetime import datetime
 from typing import List
+from uuid import UUID, uuid4
 
 from sqlalchemy import Enum, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -30,9 +32,12 @@ class Request(db.Model):
 
     Attributes:
         id: An auto-incremented integer identifier, used as the primary key.
+        uuid: A unique randomly generated UUID that identifies the request.
         right_type: An enum that represents the type of right requested by the Data Subject.
         additional_information: A text field that represents additional information about the request.
         response: A text field that represents the response given by the Data Controller or DPO to the request, if any.
+        created_at: A datetime object that represents the date and time the request was created.
+            It is set to the current date and time by default.
         status: An enum that represents the status of the request, either `PENDING` or `HANDLED`.
         user_smart_home_application_relation_id: A foreign key ID of the User-SmartHome-Application combination
             that submitted the request.
@@ -46,9 +51,11 @@ class Request(db.Model):
     __tablename__ = "requests"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
     right_type = mapped_column(Enum(RightType, validate_strings=True), nullable=False)
     additional_information = mapped_column(Text, nullable=False)
     response = mapped_column(Text, default=None, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now())
     status = mapped_column(
         Enum(Status, validate_strings=True), default=Status.PENDING, nullable=False
     )
@@ -64,6 +71,6 @@ class Request(db.Model):
     )
 
     def __repr__(self) -> str:
-        return f"Request(id={self.id!r}, right_type={self.right_type!r}, \
+        return f"Request(id={self.id!r}, uuid={self.uuid}, right_type={self.right_type!r}, \
             additional_information={self.additional_information!r}, \
-            response={self.response!r}, status={self.status!r})"
+            response={self.response!r}, created_at={self.created_at!r}, status={self.status!r})"

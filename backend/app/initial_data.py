@@ -1,7 +1,8 @@
+from uuid import UUID
+
 from flask import Flask
 from sqlalchemy import func, inspect, select
 from werkzeug.security import generate_password_hash
-from uuid import UUID
 
 from .extensions import db
 from .models import (
@@ -9,6 +10,8 @@ from .models import (
     AvailableConsent,
     Message,
     PrivacyNotice,
+    Request,
+    RightType,
     SmartHome,
     User,
     UserRole,
@@ -44,7 +47,7 @@ def init_data(app: Flask) -> None:
                 firstname="Alberto",
                 lastname="Hugonin",
                 email="s312192@studenti.polito.it",
-                #user id smartotum -> only 1, the other are for the moment created randomly
+                # user id smartotum -> only 1, the other are for the moment created randomly
                 uuid=UUID("fd031a1a-7cc3-40e4-a52a-5ab7ff7d10d4"),
                 # Password is the smartotum one
                 password_hash="",
@@ -317,6 +320,31 @@ def init_data(app: Flask) -> None:
             data_controller2_data_subject1_message1.receiver = data_subject1
             data_controller2_data_subject1_message2.sender = data_subject1
             data_controller2_data_subject1_message2.receiver = data_controller2
+            # Data Subject 1 created a Request for Application 1
+            data_subject1_request1 = Request(
+                right_type=RightType.WITHDRAW_CONSENT,
+                additional_information="Request 1 for Application 1",
+            )
+            db.session.add(data_subject1_request1)
+            data_subject1_request1.user_smart_home_application_relation = (
+                data_subject1_smart_home1_application1
+            )
+            # Data Subject 1 created Requests for Application 2
+            data_subject1_request2 = Request(
+                right_type=RightType.ASK_INFORMATION,
+                additional_information="Request 2 for Application 2",
+            )
+            data_subject1_request3 = Request(
+                right_type=RightType.ERASE_DATA,
+                additional_information="Request 3 for Application 2",
+            )
+            db.session.add_all([data_subject1_request2, data_subject1_request3])
+            data_subject1_request2.user_smart_home_application_relation = (
+                data_subject1_smart_home2_application2
+            )
+            data_subject1_request3.user_smart_home_application_relation = (
+                data_subject1_smart_home2_application2
+            )
 
             db.session.commit()
         else:
