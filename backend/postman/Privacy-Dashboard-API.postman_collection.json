@@ -4572,6 +4572,893 @@
 			]
 		},
 		{
+			"name": "Requests API",
+			"item": [
+				{
+					"name": "Unprocessable Requests By Managed Application And User - Empty UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'application_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('application_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/application/:application_uuid/user/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"application",
+								":application_uuid",
+								"user",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								},
+								{
+									"key": "user_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Requests By Managed Application And User - Wrong UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'application_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('application_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/application/:application_uuid/user/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"application",
+								":application_uuid",
+								"user",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "somethingwrong"
+								},
+								{
+									"key": "user_uuid",
+									"value": "somethingwrong"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized Requests By Managed Application And User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 401\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unauthorized');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/application/:application_uuid/user/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"application",
+								":application_uuid",
+								"user",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								},
+								{
+									"key": "user_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DS Login - DS1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forbidden Requests By Managed Application And User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 403\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/application/:application_uuid/user/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"application",
+								":application_uuid",
+								"user",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								},
+								{
+									"key": "user_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DC Login - DC1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email2@example.com\",\r\n    \"password\": \"password2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Requests By Managed Application And User  - No Application",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Application with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found among the managed applications!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Application with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found among the managed applications!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/application/:application_uuid/user/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"application",
+								":application_uuid",
+								"user",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								},
+								{
+									"key": "user_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful List Of Managed Apps",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    pm.expect(pm.response.json()).to.be.an('array').that.has.lengthOf(2);\r",
+									"});\r",
+									"\r",
+									"const responseBody = pm.response.json();\r",
+									"pm.test(\"First object contains expected application attributes\", function () {\r",
+									"    pm.expect(responseBody[0]).to.have.property('application');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('uuid');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('name');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('description');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('evaluation');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('questionnaire_summary');\r",
+									"    pm.expect(responseBody[0]).to.have.property('installed_at');\r",
+									"\r",
+									"    // Save the uuid of the first application to a variable\r",
+									"    pm.environment.set(\"application_uuid1\", responseBody[0].application.uuid);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Second object contains expected application attributes\", function () {\r",
+									"    pm.expect(responseBody[1]).to.have.property('application');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('uuid');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('name');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('description');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('evaluation');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('questionnaire_summary');\r",
+									"    pm.expect(responseBody[1]).to.have.property('installed_at');\r",
+									"    \r",
+									"    // Save the uuid of the second application to a variable\r",
+									"    pm.environment.set(\"application_uuid2\", responseBody[1].application.uuid);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/applications/managed",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"managed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Requests By Managed Application And User  - No User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found among the contacts!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found among the contacts!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/application/:application_uuid/user/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"application",
+								":application_uuid",
+								"user",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								},
+								{
+									"key": "user_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Contacts of DC or DPO - Users 1, 4, 5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of three objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(3);\r",
+									"\r",
+									"    let hasEmail1 = false;\r",
+									"    let hasEmail5 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(user) {\r",
+									"        pm.expect(user).to.have.all.keys(\"uuid\", \"firstname\", \"lastname\", \"email\", \"role\", \"profile_picture\");\r",
+									"        pm.expect(user).to.not.have.property(\"password_hash\");\r",
+									"        pm.expect(user.email).to.not.equal(\"email2@example.com\");\r",
+									"\r",
+									"        if (user.email === \"s312192@studenti.polito.it\") {\r",
+									"            pm.environment.set('data_subject1_uuid', user.uuid);\r",
+									"            hasEmail1 = true;\r",
+									"        }\r",
+									"        if (user.email === \"email5@example.com\") {\r",
+									"            pm.environment.set('data_controller2_uuid', user.uuid);\r",
+									"            hasEmail5 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    // Expect DC2 and DS1 to be among the contacts of DC1\r",
+									"    pm.expect(hasEmail1).to.be.true;\r",
+									"    pm.expect(hasEmail5).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/users/contacts",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"contacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Requests By Managed Application And User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
+									"\r",
+									"    let data_subject1_request2 = false;\r",
+									"    let data_subject1_request3 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
+									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"status\");\r",
+									"        if (element.request.additional_information === \"Request 2 for Application 2\") {\r",
+									"            data_subject1_request2 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information == \"Request 3 for Application 2\") {\r",
+									"            data_subject1_request3 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_subject1_request2).to.be.true;\r",
+									"    pm.expect(data_subject1_request3).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									"\r",
+									"// Retrieve the data_subject1_uuid from the environment variable\r",
+									"const userUuid = pm.environment.get(\"data_subject1_uuid\");\r",
+									"\r",
+									"// Check if user_uuid is available\r",
+									"if (userUuid) {\r",
+									"    // Set the request URL with the user_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":user_uuid\", userUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/application/:application_uuid/user/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"application",
+								":application_uuid",
+								"user",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								},
+								{
+									"key": "user_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Unexisting Route",
 			"event": [
 				{
