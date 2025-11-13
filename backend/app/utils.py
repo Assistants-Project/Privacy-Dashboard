@@ -166,7 +166,6 @@ def dc_or_dpo_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            verify_jwt_in_request()
             user = get_current_user_from_claims()
             if user.role in (
                 UserRole.DATA_CONTROLLER,

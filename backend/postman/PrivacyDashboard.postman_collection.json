@@ -1,0 +1,417 @@
+{
+	"info": {
+		"_postman_id": "0d720d73-c818-4e27-b40f-1b2c6bce2b17",
+		"name": "PrivacyDashboard",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49801020",
+		"_collection_link": "https://albertohugonin-907717.postman.co/workspace/Alberto-Hugonin's-Workspace~998ac536-7fa1-47fb-817b-e4b685e1c1df/collection/48631079-0d720d73-c818-4e27-b40f-1b2c6bce2b17?action=share&source=collection_link&creator=49801020"
+	},
+	"item": [
+		{
+			"name": "DataSubject-Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Accept",
+						"value": "*/*",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"s312192@studenti.polito.it\",\n    \"password\": \"Smartotum2025\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DataSubject-Login-NotSmartotum",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Accept",
+						"value": "*/*",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"email2@example.com\",\n    \"password\": \"password4\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DataController-Registration",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Accept",
+						"value": "*/*",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstname\": \"Alberto\",\n    \"lastname\": \"Hugonin\",\n    \"email\": \"s312196@studenti.polito.it\",\n    \"password\": \"Smartotum2025\",\n    \"role\": \"DATA_CONTROLLER\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DataSubject-Registration",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Accept",
+						"value": "*/*",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstname\": \"Alberto\",\n    \"lastname\": \"Hugonin\",\n    \"email\": \"s312196@studenti.polito.it\",\n    \"password\": \"Smartotum2025\",\n    \"role\": \"DATA_SUBJECT\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DataController-Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "*/*",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"email2@example.com\",\n    \"password\": \"password2\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "*/*",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"s312192@studenti.polito.it\",\n    \"password\": \"Smartotum2025\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Homes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/homes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"homes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rooms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/homes/fixissuesbpoyqq/rooms",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"homes",
+						"fixissuesbpoyqq",
+						"rooms"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/homes/refresh",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"homes",
+						"refresh"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete House Database",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/homes/debug/clear",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"homes",
+						"debug",
+						"clear"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Devices",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/homes/fixissuesbpoyqq/devices",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"homes",
+						"fixissuesbpoyqq",
+						"devices"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Room Devices",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/homes/fixissuesbpoyqq/rooms/00000000-0000-0000-0000-000000000000/devices",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"homes",
+						"fixissuesbpoyqq",
+						"rooms",
+						"00000000-0000-0000-0000-000000000000",
+						"devices"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Contacts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/users/contacts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"contacts"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
