@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://elite.polito.it/ontologies/sifis-home.owl/testuser#"
+     xml:base="http://elite.polito.it/ontologies/sifis-home.owl/testuser"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:ns="http://creativecommons.org/ns#"
+     xmlns:ns1="http://www.w3.org/2003/06/sw-vocab-status/ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:wot="http://xmlns.com/wot/0.1/"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:foaf="http://xmlns.com/foaf/0.1/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:vann="http://purl.org/vocab/vann/"
+     xmlns:terms="http://purl.org/dc/terms/"
+     xmlns:eupont="http://elite.polito.it/ontologies/eupont.owl#"
+     xmlns:sifis-home="http://elite.polito.it/ontologies/sifis-home.owl#">
+    <owl:Ontology rdf:about="http://elite.polito.it/ontologies/sifis-home.owl/testuser">
+        <owl:imports rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_dont_record_audio_action -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_dont_record_audio_action"/>
+    
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_dont_record_video_action -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_dont_record_video_action"/>
+    
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl/testuser#sifis_time -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl/testuser#sifis_time">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Service"/>
+        <eupont:offerTrigger rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl/testuser#triggers"/>
+        <eupont:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time service for SIFIS</eupont:description>
+        <name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SIFIS Time</name>
+        <id rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1</id>
+        <color rdf:datatype="http://www.w3.org/2001/XMLSchema#string">#ff0000</color>
+        <image rdf:datatype="http://www.w3.org/2001/XMLSchema#string">time.png</image>
+    </owl:NamedIndividual>
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl/testuser#triggers -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl/testuser#triggers">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Trigger"/>
+        <eupont:description rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time-based triggers</eupont:description>
+        <name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time Triggers</name>
+    </owl:NamedIndividual>
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl/testuser#location-bedroom -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl/testuser#location-bedroom">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
+        <name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bedroom</name>
+    </owl:NamedIndividual>
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl/testuser#location-livingroom -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl/testuser#location-livingroom">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
+        <name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Living Room</name>
+    </owl:NamedIndividual>
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl/testuser#location-kitchen -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl/testuser#location-kitchen">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
+        <name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kitchen</name>
+    </owl:NamedIndividual>
+
+
+</rdf:RDF>
