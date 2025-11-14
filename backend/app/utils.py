@@ -204,10 +204,10 @@ def logged_in_required():
         def decorator(*args, **kwargs):
             token = request.cookies.get("st_access_token")
             if not token:
-                raise UnloggedUserException("User not logged in!")
-
+                raise UnloggedUserException("Authentication token missing")
+            user = get_current_user_from_claims()
             if _has_smartotum_session(token) or _has_internal_session(token):
-                return fn(*args, **kwargs)
+                return fn(*args, **kwargs, current_user=user)
 
             raise UnloggedUserException("User not logged in!")
 

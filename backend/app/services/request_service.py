@@ -40,7 +40,7 @@ class RequestService:
             raise ApplicationNotFoundException(
                 f"Application with uuid {application_uuid} not found among the managed applications!"
             )
-        other_user = UserRepository.get_contact_by_dc_or_dpo_id_and_other_user_uuid(
+        other_user = UserRepository.get_contact_by_user_id_and_other_user_uuid(
             current_user_id, other_user_uuid
         )
         if not other_user:

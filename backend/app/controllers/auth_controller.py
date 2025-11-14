@@ -1,12 +1,9 @@
-from flask import Response, jsonify
+from flask import Response, current_app, jsonify
 from flask_smorest import Blueprint
 
-from ..schemas import AuthReqSchema, UserResSchema, RegistrationReqSchema
+from ..schemas import AuthReqSchema, RegistrationReqSchema, UserResSchema
 from ..services import AuthService
-from ..utils import unlogged_required
-from ..utils import logged_in_required
-
-from flask import current_app
+from ..utils import logged_in_required, unlogged_required
 
 auth_bp = Blueprint(
     "Authentication API",
@@ -14,6 +11,7 @@ auth_bp = Blueprint(
     url_prefix="/api/auth",
     description="Endpoints for authentication and authorization",
 )
+
 
 @auth_bp.route("/register", methods=["POST"])
 @auth_bp.arguments(RegistrationReqSchema, as_kwargs=True)
@@ -24,12 +22,11 @@ def register(email, password, role, firstname, lastname):
     response.status_code = 201
     return response
 
+
 @auth_bp.route("/login", methods=["POST"])
 @auth_bp.arguments(AuthReqSchema, as_kwargs=True)
 @unlogged_required()
 def login(email: str, password: str):
-
-
     result = AuthService.login(email, password)
 
     user = result.user
@@ -38,7 +35,6 @@ def login(email: str, password: str):
     user_data = UserResSchema().dump(user)
     response = jsonify(user_data)
 
-    
     secure_cookie = current_app.config.get("JWT_COOKIE_SECURE", True)
     response.set_cookie(
         "st_access_token",
@@ -55,7 +51,7 @@ def login(email: str, password: str):
 @auth_bp.route("/logout", methods=["POST"])
 @auth_bp.response(204, description="Successful logout")
 @logged_in_required()
-def logout():
+def logout(current_user):
     response = Response(status=204, content_type="application/json")
     secure_cookie = current_app.config.get("JWT_COOKIE_SECURE", True)
     response.delete_cookie(
