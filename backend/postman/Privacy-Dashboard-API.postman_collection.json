@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "06380287-fd3d-4da8-892b-f23bd14c3cfb",
+		"_postman_id": "e9ff8fa3-2a94-4e73-b966-df442d7be92b",
 		"name": "Privacy Dashboard API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "49801020",
-		"_collection_link": "https://albertohugonin-907717.postman.co/workspace/Alberto-Hugonin's-Workspace~998ac536-7fa1-47fb-817b-e4b685e1c1df/collection/48631079-06380287-fd3d-4da8-892b-f23bd14c3cfb?action=share&source=collection_link&creator=49801020"
+		"_collection_link": "https://albertohugonin-907717.postman.co/workspace/Alberto-Hugonin's-Workspace~998ac536-7fa1-47fb-817b-e4b685e1c1df/collection/49801020-e9ff8fa3-2a94-4e73-b966-df442d7be92b?action=share&source=collection_link&creator=49801020"
 	},
 	"item": [
 		{
@@ -440,8 +440,8 @@
 									"    pm.expect(responseData.code).to.eql(401);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Message is equal to 'User not logged in!'\", function () {\r",
-									"    pm.expect(responseData.message).to.eql('User not logged in!');\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
@@ -2743,7 +2743,7 @@
 					"response": []
 				},
 				{
-					"name": "Unauthorized Contacts of DC or DPO",
+					"name": "Unauthorized Contacts",
 					"event": [
 						{
 							"listen": "test",
@@ -2843,38 +2843,33 @@
 					"response": []
 				},
 				{
-					"name": "Forbidden Contacts of DC or DPO",
+					"name": "Successful Contacts - Users 2, 5",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 403\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(403);\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
-									"const responseData = pm.response.json();\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
 									"\r",
-									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
-									"    pm.expect(responseData).to.be.an('object');\r",
-									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Code is equal to 403\", function () {\r",
-									"    pm.expect(responseData.code).to.eql(403);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
-									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
-									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
+									"    responseBody.forEach(function(user) {\r",
+									"        pm.expect(user).to.have.all.keys(\"uuid\", \"firstname\", \"lastname\", \"email\", \"role\", \"profile_picture\");\r",
+									"        pm.expect(user).to.not.have.property(\"password_hash\");\r",
+									"        pm.expect(user.email).to.not.equal(\"s312192@studenti.polito.it\");\r",
+									"        pm.expect(user.role).to.not.equal(\"DATA_SUBJECT\");\r",
+									"        pm.expect(user.role).to.be.oneOf([\"DATA_CONTROLLER\", \"DATA_PROTECTION_OFFICER\"]);\r",
+									"    });\r",
 									"});\r",
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3518,157 +3513,6 @@
 					"response": []
 				},
 				{
-					"name": "Successful DS Login - DS1",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(200);\r",
-									"});\r",
-									"\r",
-									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
-									"pm.environment.set('csrfToken', csrfToken);\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseURL}}/api/auth/login",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Forbidden Messages By User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status code is 403\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(403);\r",
-									"});\r",
-									"\r",
-									"const responseData = pm.response.json();\r",
-									"\r",
-									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
-									"    pm.expect(responseData).to.be.an('object');\r",
-									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Code is equal to 403\", function () {\r",
-									"    pm.expect(responseData.code).to.eql(403);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
-									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
-									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseURL}}/api/messages/history/:application_uuid",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"messages",
-								"history",
-								":application_uuid"
-							],
-							"variable": [
-								{
-									"key": "application_uuid",
-									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Successful Logout",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
-									"});\r",
-									"\r",
-									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
-									"pm.environment.set('csrfToken', csrfToken);\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{baseURL}}/api/auth/logout",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"logout"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Successful DC Login - DC1",
 					"event": [
 						{
@@ -3886,6 +3730,7 @@
 									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(3);\r",
 									"\r",
 									"    let hasEmail1 = false;\r",
+									"    let hasEmail4 = false;\r",
 									"    let hasEmail5 = false;\r",
 									"\r",
 									"    responseBody.forEach(function(user) {\r",
@@ -3897,14 +3742,19 @@
 									"            pm.environment.set('data_subject1_uuid', user.uuid);\r",
 									"            hasEmail1 = true;\r",
 									"        }\r",
+									"        if (user.email === \"email4@example.com\") {\r",
+									"            pm.environment.set('data_subject2_uuid', user.uuid);\r",
+									"            hasEmail4 = true;\r",
+									"        }\r",
 									"        if (user.email === \"email5@example.com\") {\r",
 									"            pm.environment.set('data_controller2_uuid', user.uuid);\r",
 									"            hasEmail5 = true;\r",
 									"        }\r",
 									"    });\r",
 									"\r",
-									"    // Expect DC2 and DS1 to be among the contacts of DC1\r",
+									"    // Expect DC2 and DS1 and DS2 to be among the contacts of DC1\r",
 									"    pm.expect(hasEmail1).to.be.true;\r",
+									"    pm.expect(hasEmail4).to.be.true;\r",
 									"    pm.expect(hasEmail5).to.be.true;\r",
 									"});\r",
 									""
@@ -4218,6 +4068,9 @@
 									"        pm.expect(user).to.have.all.keys(\"uuid\", \"firstname\", \"lastname\", \"email\", \"role\", \"profile_picture\");\r",
 									"        pm.expect(user).to.not.have.property(\"password_hash\");\r",
 									"        pm.expect(user.email).to.not.equal(\"email5@example.com\");\r",
+									"        if (user.email === \"email2@example.com\") {\r",
+									"            pm.environment.set('data_controller1_uuid', user.uuid);\r",
+									"        }\r",
 									"        if (user.uuid === data_subject1_uuid) {\r",
 									"            has_data_subject1_uuid = true;\r",
 									"        }\r",
@@ -4229,7 +4082,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4505,6 +4359,391 @@
 								],
 								"type": "text/javascript",
 								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DS Login - DS1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Messages By User - Wrong Role Contact",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const data_subject2_uuid = pm.environment.get(\"data_subject2_uuid\");\r",
+									"pm.test(`Message is equal to 'User with uuid ${data_subject2_uuid} not found among the contacts!'`, function () {\r",
+									"    pm.expect(responseData.message).to.eql(`User with uuid ${data_subject2_uuid} not found among the contacts!`);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the data_subject2_uuid from the environment variable\r",
+									"const userUuid = pm.environment.get(\"data_subject2_uuid\");\r",
+									"\r",
+									"// Check if user_uuid is available\r",
+									"if (userUuid) {\r",
+									"    // Set the request URL with the user_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":user_uuid\", userUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Contacts of DS",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
+									"\r",
+									"    responseBody.forEach(function(user) {\r",
+									"        pm.expect(user).to.have.all.keys(\"uuid\", \"firstname\", \"lastname\", \"email\", \"role\", \"profile_picture\");\r",
+									"        pm.expect(user).to.not.have.property(\"password_hash\");\r",
+									"        pm.expect(user.email).to.not.equal(\"s312192@studenti.polito.it\");\r",
+									"        pm.expect(user.role).to.not.equal(\"DATA_SUBJECT\");\r",
+									"        pm.expect(user.role).to.be.oneOf([\"DATA_CONTROLLER\", \"DATA_PROTECTION_OFFICER\"]);\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/users/contacts",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"contacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Messages By User -  DS1 And DC1",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the data_controller1_uuid from the environment variable\r",
+									"const userUuid = pm.environment.get(\"data_controller1_uuid\");\r",
+									"\r",
+									"// Check if user_uuid is available\r",
+									"if (userUuid) {\r",
+									"    // Set the request URL with the user_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":user_uuid\", userUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
+									"\r",
+									"    let data_controller1_data_subject1_message1 = false;\r",
+									"    let data_controller1_data_subject1_message2 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"message\", \"sender_uuid\", \"receiver_uuid\");\r",
+									"        pm.expect(element.message).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.message).to.have.all.keys(\"uuid\", \"content\", \"attachment\", \"sent_at\", \"is_read\");\r",
+									"        if (element.message.content === \"Hello DS1, I am Data Controller 1\") {\r",
+									"            data_controller1_data_subject1_message1 = true;\r",
+									"        }\r",
+									"        if (element.message.content == \"Hello DC1, I am Data Subject 1\") {\r",
+									"            data_controller1_data_subject1_message2 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_controller1_data_subject1_message1).to.be.true;\r",
+									"    pm.expect(data_controller1_data_subject1_message2).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/messages/history/:user_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"history",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Messages By User -  DS1 And DC2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the data_controller2_uuid from the environment variable\r",
+									"const userUuid = pm.environment.get(\"data_controller2_uuid\");\r",
+									"\r",
+									"// Check if user_uuid is available\r",
+									"if (userUuid) {\r",
+									"    // Set the request URL with the user_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":user_uuid\", userUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
+									"\r",
+									"    let data_controller2_data_subject1_message1 = false;\r",
+									"    let data_controller2_data_subject1_message2 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"message\", \"sender_uuid\", \"receiver_uuid\");\r",
+									"        pm.expect(element.message).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.message).to.have.all.keys(\"uuid\", \"content\", \"attachment\", \"sent_at\", \"is_read\");\r",
+									"        if (element.message.content === \"Hello DS1, I am Data Controller 2\") {\r",
+									"            data_controller2_data_subject1_message1 = true;\r",
+									"        }\r",
+									"        if (element.message.content == \"Hello DC2, I am Data Subject 1\") {\r",
+									"            data_controller2_data_subject1_message2 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_controller2_data_subject1_message1).to.be.true;\r",
+									"    pm.expect(data_controller2_data_subject1_message2).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -5459,6 +5698,417 @@
 			]
 		},
 		{
+			"name": "Smartotum Integration",
+			"item": [
+				{
+					"name": "DataSubject-Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"s312192@studenti.polito.it\",\n    \"password\": \"Smartotum2025\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataSubject-Login-NotSmartotum",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"email2@example.com\",\n    \"password\": \"password4\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataController-Registration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\": \"Alberto\",\n    \"lastname\": \"Hugonin\",\n    \"email\": \"s312196@studenti.polito.it\",\n    \"password\": \"Smartotum2025\",\n    \"role\": \"DATA_CONTROLLER\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataSubject-Registration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\": \"Alberto\",\n    \"lastname\": \"Hugonin\",\n    \"email\": \"s312196@studenti.polito.it\",\n    \"password\": \"Smartotum2025\",\n    \"role\": \"DATA_SUBJECT\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataController-Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"email2@example.com\",\n    \"password\": \"password2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"s312192@studenti.polito.it\",\n    \"password\": \"Smartotum2025\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/logout",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Homes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/homes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"homes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rooms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/homes/fixissuesbpoyqq/rooms",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"homes",
+								"fixissuesbpoyqq",
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/homes/refresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"homes",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete House Database",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/homes/debug/clear",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"homes",
+								"debug",
+								"clear"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Devices",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/homes/fixissuesbpoyqq/devices",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"homes",
+								"fixissuesbpoyqq",
+								"devices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Room Devices",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/homes/fixissuesbpoyqq/rooms/00000000-0000-0000-0000-000000000000/devices",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"homes",
+								"fixissuesbpoyqq",
+								"rooms",
+								"00000000-0000-0000-0000-000000000000",
+								"devices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Contacts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/users/contacts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"users",
+								"contacts"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Unexisting Route",
 			"event": [
 				{
@@ -5583,7 +6233,7 @@
 	"variable": [
 		{
 			"key": "baseURL",
-			"value": "https://127.0.0.1:5000"
+			"value": "http://127.0.0.1:5000"
 		}
 	]
 }
