@@ -1,0 +1,12 @@
+# config.yaml
+ontology:
+  directory: "app/ontologies/"
+  base_endpoint: "https://elite.polito.it/ontologies/eupont.owl"
+  sifis_file: "sifis-home.owl"
+
+reasoner:
+  type: "hermit" 
+  precompute_inferences: true  # Enable reasoner to infer property values
+
+logging:
+  level: "INFO"
