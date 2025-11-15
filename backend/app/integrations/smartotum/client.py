@@ -35,6 +35,17 @@ class SmartotumDeviceResult:
     topic_name: str
     room_uuid: UUID | None = None #se non hanno una casa per il momento lasciamo none
 
+@dataclass
+class SmartotumRule:
+    rule_uuid: UUID
+    rule_topic_name: str
+    target_uuid: UUID
+    target_topic_name: str
+    time_start: str | None = None
+    time_end: str | None = None
+    days: list[str] | None = None
+    expiration_date: str | None = None
+
 class SmartotumClient:
 
     #initialize env variables
@@ -44,6 +55,7 @@ class SmartotumClient:
         self._base_dht_url = cfg["SMARTOTUM_DHT_URL"].rstrip("/")
         self._api_base_path = cfg["SMARTOTUM_API_BASE_PATH"].strip("/")
         self._smartotum_device_topics = cfg["SMARTOTUM_DEVICE_TOPICS"]
+        self._rule_topic = cfg["SMARTOTUM_RULE_TOPIC"]
         self._timeout = cfg.get("SMARTOTUM_TIMEOUT", 10)
         self._session = session or requests.Session()
         self._rid = cfg["SMARTOTUM_RID"]
@@ -56,7 +68,110 @@ class SmartotumClient:
     def smartotum_dht_api_url(self, path: str, home_uuid: str) -> str:
         base = self._base_dht_url.replace("house_name", home_uuid)
         return f"{base}/{path.lstrip('/')}"
+    
+    def _build_rule_payload(self, rule: SmartotumRule) -> Dict[str, Any]:
 
+        value: Dict[str, Any] = {
+            "target_topic": rule.target_topic_name,
+            "target_uuid": str(rule.target_uuid),
+        }
+        
+        if rule.time_start:
+            value["time_start"] = rule.time_start
+        if rule.time_end:
+            value["time_end"] = rule.time_end
+        if rule.days:
+            value["days"] = [str(day) for day in rule.days]
+        if rule.expiration_date:
+            value["expiration_date"] = rule.expiration_date
+
+        return {
+            "topic_uuid": str(rule.rule_uuid),
+            "topic_name": rule.rule_topic_name,
+            "value": value,
+        }
+    
+    def post_rules(self, access_token: str, system_uuid: str, rules: List[SmartotumRule]) -> List[SmartotumRule]:
+
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+
+        complete_url = self.smartotum_dht_api_url(f"/topic_name/{self._rule_topic}", system_uuid)
+
+        if not rules:
+            return []
+
+        created_rules: List[SmartotumRule] = []
+
+        for rule in rules:
+
+            payload = self._build_rule_payload(rule)
+
+            try:
+                response = self._session.post(
+                    complete_url, headers=headers, json=payload, timeout=self._timeout
+                )
+                response.raise_for_status()
+            except RequestException as exc:
+                raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+            
+            created_rules.append(rule)
+
+        return created_rules
+
+
+    def get_rules(self, access_token: str, system_uuid: str) -> List[SmartotumRule]:
+
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+
+        rules: List[SmartotumRule] = []
+
+        complete_url=self.smartotum_dht_api_url(f"/topic_name/{self._rule_topic}", system_uuid)
+
+        try:
+            response = self._session.get(
+                complete_url, headers=headers, timeout=self._timeout
+            )
+            response.raise_for_status()
+        except RequestException as exc:
+            raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+            
+        rules_response: List[Dict[str,Any]] = response.json()
+
+        for rule_response in rules_response:
+
+            rule_uuid = UUID(rule_response.get("topic_uuid"))
+
+
+            value = rule_response.get("value", {}) or {}
+            target_uuid = UUID(value.get("target_uuid"))
+            target_topic = value.get("target_topic")
+            days_value = value.get("days", [])
+            days = [str(day) for day in days_value]
+
+            #TODO: Evaluate if there is a need for more validation because our app is responsable to create and receive correct rules
+
+            rules.append(
+                SmartotumRule(
+                    rule_uuid=rule_uuid,
+                    rule_topic_name=self._rule_topic,
+                    target_uuid=target_uuid,
+                    target_topic_name=str(target_topic),
+                    time_start=value.get("TIME_START"),
+                    time_end=value.get("TIME_END"),
+                    days=days,
+                    expiration_date=value.get("EXPIRATION_DATE"),
+                )
+            )
+
+
+        return rules
 
     def get_home_devices(self, access_token: str, system_uuid: str) -> List[SmartotumDeviceResult]:
 
