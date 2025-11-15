@@ -24,6 +24,7 @@ SMARTOTUM_AUTH_MODE=header
 SMARTOTUM_JWKS_URL=https://api.smartotum.com/auth/jwt/jwks.json
 SMARTOTUM_ISSUER=https://api.smartotum.com/auth
 SMARTOTUM_DEVICE_TOPICS=domo_light,domo_light_dimmable,domo_rgbw_light,domo_switch,domo_button,domo_bistable_button,domo_window_sensor,domo_siren,domo_ble_thermometer,domo_ble_valve,domo_ble_contact,domo_roller_shutter,domo_ac_unit,domo_floor_valve,domo_camera
+SMARTOTUM_RULE_TOPIC=privacy_rule
 SMARTOTUM_TIMEOUT=10
 # Set to False if you run Flask over plain HTTP in development
 JWT_COOKIE_SECURE=False

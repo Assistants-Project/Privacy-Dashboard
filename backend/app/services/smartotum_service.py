@@ -14,11 +14,14 @@ from ..models import Device
 from ..repositories.device_repository import DeviceRepository
 from ..exceptions.entities.room_exceptions import RoomNotFoundException
 from ..extensions import db
+from ..integrations.smartotum.client import SmartotumRule
+from typing import List
 
 class SmartotumService:
 
     @staticmethod
     def update_database_smartotum(access_token: str, user: User):
+        #for now it doesn't update rules and application, waiting for a database implementation for rules by the PTP app
         session = db.session
         try:
             client = SmartotumClient()
@@ -133,6 +136,21 @@ class SmartotumService:
             raise SmartotumSyncException("Smartotum synchronization failed") from exc
 
         return
+    
+    @staticmethod
+    def get_rules_from_smartotum(access_token: str, system_uuid: str) -> List[SmartotumRule]:
+
+        client = SmartotumClient()
+
+        return client.get_rules(access_token,system_uuid)
+    
+    @staticmethod
+    def post_rules_to_smartotum(access_token: str, system_uuid: str, rules: List[SmartotumRule]) -> List[SmartotumRule]:
+
+        client = SmartotumClient()
+
+        return client.post_rules(access_token,system_uuid,rules)
+
 
     @staticmethod
     def update_database_smartotum_for_user(user: User):

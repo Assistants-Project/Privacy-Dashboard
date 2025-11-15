@@ -33,6 +33,7 @@ class BaseConfig:
         ).split(",")
         if t.strip()
     ]
+    SMARTOTUM_RULE_TOPIC = os.getenv("SMARTOTUM_RULES_TOPIC", "privacy_rule")
     SMARTOTUM_JWKS_URL = os.getenv("SMARTOTUM_JWKS_URL","https://api.smartotum.com/auth/jwt/jwks.json")
     SMARTOTUM_ISSUER = os.getenv("SMARTOTUM_ISSUER", "https://api.smartotum.com/auth")
     SMARTOTUM_TIMEOUT = float(os.getenv("SMARTOTUM_TIMEOUT", "10")) #max time a http requesto to smartotum api can last
