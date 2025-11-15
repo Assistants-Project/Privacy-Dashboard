@@ -1,4 +1,4 @@
-## DOCUMENTAZIONE INTEGRAZIONE CON SMARTOTUM - ALBERTO HUGONIN (Vers 0.1) 
+## DOCUMENTAZIONE INTEGRAZIONE CON SMARTOTUM - ALBERTO HUGONIN (Vers 0.2) 
 
 ### FUNZIONAMENTO SISTEMA DOMOTICA SMARTOTUM
 
@@ -41,23 +41,23 @@
 - La privacy dashboard recupera informazioni dal sistema Smartotum e le riorganizza per renderle più facilmente utilizzabili per i seguenti scopi:
     -  **Creazione e Gestione delle regole** per i dispositivi:
         - per i dispositivi compatibili di una smart home è possibile generare delle regole che verranno poi applicate al sistema di domotica ad es: 
-        - non si possono accendere determinate luci dalle 8 del mattino alle 20 di sera
-        - le telecamere devono essere disattivate dalle 14:00 alle 20:00
+          - non si possono accendere determinate luci dalle 8 del mattino alle 20 di sera
+          - le telecamere devono essere disattivate dalle 14:00 alle 20:00
     -   **Gestione delle applicazioni**:
         - la smart home può avere delle applicazioni installate che utilizzano e elaborano i dati dell'utente e che quindi devono rispondere al GDPR
-        - Il flusso per il momento va solo in una direzione: le applicazioni della casa vengono automaticamente importate
+        - Il flusso segue solo in una direzione: applicazioni della casa vengono automaticamente importate nella Privacy Dashboard (da implementare quando disponibile modello app a livello di Smartotum)
         - eventuali applicazioni create a livello della privacy dashboard per il momento non possono essere legate ad una casa
 
 - Il **Data Subject** è l'utente dell'applicazione che vuole gestire i suoi dati personali in relazione alla sua smart home personale o di terzi di cui ha accesso:
-    - per potersi registrare e accedere alla privacy dashboard deve avere le seguenti caratteristiche:
-        - deve essere possessore di un account smartotum 
-        - deve essere proprietario o almeno avere accesso ad una smart home
+    - per potersi registrare e accedere alla privacy dashboard deve essere possessore di un account smartotum
     - Durante la registrazione vengono chieste informazioni base e l'autenticazione al suo account Smartotum
     - In seguito ad ogni log-in vengono recuperate e salvate / sincronizzate le seguenti informazioni dal sistema smartotum:
         - tutte le case di cui l'utente ha accesso che comprende recupero delle case e assegnazione di ciascuna casa all'utente
         - per ciascuna casa tutte le sue stanze e viene creata anche una stanza fittizia non presente nel sistema smartotum per raggruppare tutti i dispositivi senza una stanza assegnata
-        - per ciascuna casa si recuperano tutti i dispositivi compatibili secondo una allow list nel file env chiamata SMARTOTUM_DEVICE_TOPICS e si assegna ciascun dispositivo alla sua stanza
-        - per il momento il sistema si concentra solo sui dispositivi per cui si possono definire regole, quindi non vengono prese in considerazione le app, in futuro deve essere gestito il recupero delle stesse e assegnazione ad un Data Controller che potrà poi assegnarle ad un DPO
+        - per ciascuna casa si recuperano tutti i dispositivi compatibili secondo una allow list nel file env chiamata SMARTOTUM_DEVICE_TOPICS e si assegna ciascun dispositivo alla sua stanza che si collega di conseguenza ad una determinata casa
+        - per il momento il sistema si concentra solo sui dispositivi per cui si possono definire regole, quindi non vengono prese in considerazione le app, in futuro deve essere gestito il recupero delle stesse da Smartotum e assegnazione ad un Data Controller che potrà poi assegnarle ad un DPO. 
+        - Le regole vengono per il momento solo recuperate da Smartotum ma non memorizzate perchè manca ancora il modello delle regole a livello del database.
+
 Il sistema di sincronizzazione parte ad ogni log-in del data subject o attraverso end point di refresh perché il sistema non memorizza l'access token di Smartotum ma utilizza quello ritornato dall'utente ad ogni chiamata all'API.
 
 ### API IMPORTANTI PER GESTIONE DISPOSITIVI
@@ -65,11 +65,11 @@ Il sistema di sincronizzazione parte ad ogni log-in del data subject o attravers
 Queste API operano direttamente sul database della Privacy Dashboard e restituiscono quindi una snapshot dei dati sincronizzati durante l'ultimo log-in del data subject o dopo un refresh manuale.
 
 **Prerequisiti**
-- l'utente deve essersi registrato alla Privacy Dashboard utilizzando il suo account Smartotum
-- l'utente deve inviare il cookie che contiene un access token Smartotum valido legato all'account con cui si è registrato alla Privacy Dashboard
+- l'utente deve essersi registrato alla Privacy Dashboard utilizzando il suo account Smartotum (è un Data Subject)
+- l'utente deve fornire il cookie contenente un access token Smartotum valido che deve essere legato all'account con cui si è registrato alla Privacy Dashboard. L'access token verrà poi validato dalla @ds_required tramite il procedimento spiegato in seguito.
 
 **Consistenza dei Dati**
-- i dati restano invariati finché l'utente non effettua un nuovo log-in o invoca l'endpoint di refresh `POST /api/home/refresh`
+- i dati restano invariati finché l'utente non effettua un nuovo log-in o invoca l'endpoint di refresh `POST /api/homes/refresh`
 
 #### GET /api/homes
 - **Scopo**: elenco delle smart home associate all'utente.
@@ -207,11 +207,11 @@ Attraverso la chiamata `POST http://privacydashboard.com/api/auth/login` fornend
             - recupera la chiave pubblica corrispondente al kid nel json e la ritorna
             - attraverso la jwt.decode verifica la firma della chiave pubblica e decodifica il token da cui si ottengono informazioni come sub (identificativo utente) e scadenza
         3. ottenuti i campi che compongono il token si utilizza il sub e si va a cercare una corrispondenza sub == UUID utente:
-            - se la corrispondenza c'è viene ritornato al client l'utente nel body della risposta e l'access token nei cookie
+            - se la corrispondenza c'è viene ritornato al client l'utente nel body della risposta e l'access token ottenuto da Smartotum nei cookie
             - se la corrispondenza non c'è viene lanciato un errore di credenziali errate (teoricamente si potrebbe chiedere al client di registrarsi perché è iscritto a Smartotum ma non alla PrivacyDashboard) 
         - I passaggi 2 e 3:
             - sono una sicurezza in più perché garantiscono che il token ricevuto sia veramente di Smartotum 
-            - avvengono anche all'interno del decoratore @ds_required() per proteggere le route che devono essere chiamate solo da un DataSubject
+            - avvengono anche all'interno del decoratore @ds_required() per proteggere le route che devono essere chiamate solo da un DataSubject. 
 
 #### VANTAGGI
 - non avendo access e refresh token salvati rende il sistema più sicuro da attacchi che voglio accedere a Smartotum:
