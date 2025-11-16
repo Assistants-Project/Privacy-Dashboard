@@ -2,7 +2,7 @@ from typing import Any, Optional, List, TYPE_CHECKING
 from dataclasses import dataclass, field
 
 if TYPE_CHECKING:
-    from ..rule import DbTrigger, DbAction
+    from ..db import DbTrigger, DbAction
 
 
 @dataclass
