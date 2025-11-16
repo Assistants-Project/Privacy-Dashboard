@@ -2,10 +2,10 @@ from typing import List, TYPE_CHECKING
 from sqlalchemy import ForeignKey, String, BigInteger, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...extensions import db
+from ....extensions import db
 
 if TYPE_CHECKING:
-    from .user import User
+    from ..user import User
 
 
 class DbEntity(db.Model):
