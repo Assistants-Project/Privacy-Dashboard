@@ -3,6 +3,7 @@ from .request.application_and_user_uuid_req_schema import (
 )
 from .request.application_uuid_req_schema import ApplicationUuidReqSchema
 from .request.auth_req_schema import AuthReqSchema
+from .request.message_req_schema import MessageReqSchema
 from .request.registration_req_schema import RegistrationReqSchema
 from .request.user_role_req_schema import UserRoleReqSchema
 from .request.user_uuid_req_schema import UserUuidReqSchema
@@ -19,6 +20,7 @@ __all__ = [
     "ApplicationAndUserUuidReqSchema",
     "ApplicationUuidReqSchema",
     "AuthReqSchema",
+    "MessageReqSchema",
     "RegistrationReqSchema",
     "UserRoleReqSchema",
     "UserUuidReqSchema",
