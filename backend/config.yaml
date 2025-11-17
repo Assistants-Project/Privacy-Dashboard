@@ -8,5 +8,11 @@ reasoner:
   type: "hermit" 
   precompute_inferences: true  # Enable reasoner to infer property values
 
+dht:
+  endpoint: "http://host.docker.internal:3000/"
+
+policies:
+  directory: "data/policies/"
+
 logging:
   level: "INFO"
