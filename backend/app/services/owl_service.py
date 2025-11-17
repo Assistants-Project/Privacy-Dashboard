@@ -6,10 +6,11 @@ from typing import Set, Dict, List, Optional
 from owlready2 import *
 from dataclasses import dataclass
 
-from ..models.entities.owl.action import Action
-from ..models.entities.owl.service import Service
-from ..models.entities.owl.trigger import Trigger
-from ..models.entities.owl.detail import Detail
+from ..models.entities.sifis.owl.action import Action
+from ..models.entities.sifis.owl.command import Command
+from ..models.entities.sifis.owl.service import Service
+from ..models.entities.sifis.owl.trigger import Trigger
+from ..models.entities.sifis.owl.detail import Detail
 
 
 class OWLService:
@@ -224,7 +225,7 @@ class OWLService:
                 detail_type = self._safe_get_property(detail_instance, "type")
 
                 detail = Detail(
-                    URL=str(detail_instance.iri),
+                    url=str(detail_instance.iri),
                     id=detail_instance.name,
                     name=detail_name,
                     type=detail_type,
@@ -248,7 +249,7 @@ class OWLService:
                 if entities:
                     details.append(
                         Detail(
-                            URL="entity_detail",
+                            url="entity_detail",
                             id="entity_detail",
                             name="Which entity?",
                             type="entity",
@@ -520,9 +521,9 @@ class OWLService:
             return None
 
     def get_trigger_by_url(self, url: str, username: str) -> Optional[Trigger]:
-        """Get trigger by URL"""
+        """Get trigger by url"""
         try:
-            # Extract trigger ID from URL
+            # Extract trigger ID from url
             trigger_id = url.split("#")[-1]
             trigger_instance = getattr(self.sifis_ns, trigger_id, None)
 
@@ -555,13 +556,13 @@ class OWLService:
 
             return trigger
         except Exception as e:
-            self.logger.error(f"Error getting trigger by URL {url}: {e}")
+            self.logger.error(f"Error getting trigger by url {url}: {e}")
             return None
 
     def get_action_by_url(self, url: str, username: str) -> Optional[Action]:
-        """Get action by URL"""
+        """Get action by url"""
         try:
-            # Extract action ID from URL
+            # Extract action ID from url
             action_id = url.split("#")[-1]
             action_instance = getattr(self.sifis_ns, action_id, None)
 
@@ -593,13 +594,13 @@ class OWLService:
 
             return action
         except Exception as e:
-            self.logger.error(f"Error getting action by URL {url}: {e}")
+            self.logger.error(f"Error getting action by url {url}: {e}")
             return None
 
     def get_entity_by_url(self, url: str, username: str) -> Optional[Dict]:
-        """Get IoT entity by URL"""
+        """Get IoT entity by url"""
         try:
-            # Extract entity ID from URL
+            # Extract entity ID from url
             entity_id = url.split("#")[-1]
 
             # Try to find in user ontology
@@ -619,7 +620,7 @@ class OWLService:
 
             return None
         except Exception as e:
-            self.logger.error(f"Error getting entity by URL {url}: {e}")
+            self.logger.error(f"Error getting entity by url {url}: {e}")
             return None
 
     def _get_user_world(self, username: str):
@@ -653,3 +654,124 @@ class OWLService:
         except Exception as e:
             self.logger.error(f"Error loading user world for {username}: {e}")
             return None
+
+    def get_commands(
+        self, action: Action, location: Dict, username: str
+    ) -> List[Command]:
+        """Get commands for an action based on location.
+
+        This queries the user's ontology to find all commands that can reproduce the given action,
+        filtering by location if specified (and not "Entire Home").
+
+        Args:
+            action: Action object
+            location: Location dictionary with 'name' and 'url'
+            username: Username for context
+
+        Returns:
+            List of Command objects
+        """
+        commands = []
+
+        try:
+            # Load user world
+            user_world = self._get_user_world(username)
+            if not user_world:
+                self.logger.warning(f"Could not load user world for {username}")
+                return commands
+
+            # Re-run reasoner with inferences
+            sync_reasoner_hermit(user_world, infer_property_values=True)
+
+            # Find the action individual in the base ontology
+            action_individual = None
+            for ind in self.onto.individuals():
+                if str(ind.iri) == action.url:
+                    action_individual = ind
+                    break
+
+            if not action_individual:
+                self.logger.warning(
+                    f"Could not find action individual for {action.url}"
+                )
+                return commands
+
+            # Get commands that reproduce this action (from user world)
+            # Find the action in user world that corresponds to the base action
+            user_action = None
+            for ind in user_world.individuals():
+                if str(ind.iri) == action.url:
+                    user_action = ind
+                    break
+
+            if not user_action:
+                self.logger.warning(f"Action {action.url} not found in user world")
+                return commands
+
+            # Get commands via reproduceBy property (direct) or allowTo property (inverse)
+            reproduce_by_commands = getattr(user_action, "reproduceBy", [])
+
+            for command_individual in reproduce_by_commands:
+                # Get the service this command belongs to
+                command_services = getattr(command_individual, "commandIsOfService", [])
+                if not command_services:
+                    continue
+
+                command_service = command_services[0]
+
+                # Get the entity that has this service
+                entities_with_service = getattr(command_service, "isOfEntity", [])
+                if not entities_with_service:
+                    continue
+
+                entity_individual = entities_with_service[0]
+
+                # Check location filter
+                if location and location.get("name") != "Entire Home":
+                    entity_locations = getattr(entity_individual, "position", [])
+                    if entity_locations:
+                        entity_location = entity_locations[0]
+                        if str(entity_location.iri) != location.get("url"):
+                            # Entity not in specified location, skip
+                            continue
+
+                # Create Command object
+                command = Command()
+
+                # Set url (short form without namespace)
+                command.url = command_individual.name
+
+                # Get command properties
+                command_id_values = getattr(command_individual, "id", [])
+                if command_id_values:
+                    command.id = (
+                        str(command_id_values[0])
+                        if isinstance(command_id_values, list)
+                        else str(command_id_values)
+                    )
+
+                # Get type property by searching all properties
+                command.type = None
+                for prop in command_individual.get_properties():
+                    if "type" in str(prop.iri).lower():
+                        values = prop[command_individual]
+                        if values:
+                            command.type = (
+                                str(values[0])
+                                if isinstance(values, list)
+                                else str(values)
+                            )
+                            break
+
+                # Get entity details
+                command.entity = self.get_entity_by_url(
+                    str(entity_individual.iri), username
+                )
+
+                commands.append(command)
+
+            return commands
+
+        except Exception as e:
+            self.logger.error(f"Error getting commands: {e}", exc_info=True)
+            return commands
