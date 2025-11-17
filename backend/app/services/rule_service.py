@@ -1,12 +1,13 @@
 import logging
-from typing import List, Set
+from typing import List, Set, Dict, Any
 import time
 
-from ..models.entities.rule import DbRule, DbTrigger, DbAction, DbDetail
+from ..models.entities.sifis.db import DbRule, DbTrigger, DbAction, DbDetail
 from ..models.entities.user import User
-from ..models.entities.owl.trigger import Trigger
-from ..models.entities.owl.action import Action
-from ..models.entities.owl.detail import Detail
+from ..models.entities.sifis.owl.trigger import Trigger
+from ..models.entities.sifis.owl.action import Action
+from ..models.entities.sifis.owl.detail import Detail
+from ..models.entities.sifis.owl.rule import Rule
 from ..repositories.rule_repository import RuleRepository
 from .owl_service import OWLService
 
@@ -21,12 +22,12 @@ class RuleService:
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
 
-    def save_rule(self, rule_data: dict, rule_type: str, user: User) -> int:
+    def save_rule(self, rule_data: Dict[str, Any], rule_type: str, user: User) -> int:
         """
         Save a rule to the database
 
         Args:
-            rule_data: Dictionary containing trigger, action, effect, subject, timestamp
+            rule_data: Validated dictionary (from DTO schema) containing trigger, action, effect, subject, timestamp
             rule_type: Type of rule (e.g., 'sifis')
             user: User creating the rule
 
@@ -63,7 +64,7 @@ class RuleService:
                 location_value = detail.get("value", {})
                 if location_value:
                     db_detail = DbDetail(
-                        url=detail.get("url") or detail.get("URL"),
+                        url=detail.get("url"),
                         type=detail["type"],
                         value=location_value.get("name"),
                         value_url=location_value.get("url"),
@@ -71,7 +72,7 @@ class RuleService:
                     db_trigger.details.append(db_detail)
             elif detail.get("value"):
                 db_detail = DbDetail(
-                    url=detail.get("url") or detail.get("URL"),
+                    url=detail.get("url"),
                     type=detail["type"],
                     value=str(detail["value"]),
                 )
@@ -107,7 +108,7 @@ class RuleService:
                 location_value = detail.get("value", {})
                 if location_value:
                     db_detail = DbDetail(
-                        url=detail.get("url") or detail.get("URL"),
+                        url=detail.get("url"),
                         type=detail["type"],
                         value=location_value.get("name"),
                         value_url=location_value.get("url"),
@@ -115,7 +116,7 @@ class RuleService:
                     db_action.details.append(db_detail)
             elif detail.get("value"):
                 db_detail = DbDetail(
-                    url=detail.get("url") or detail.get("URL"),
+                    url=detail.get("url"),
                     type=detail["type"],
                     value=str(detail["value"]),
                 )
@@ -142,7 +143,7 @@ class RuleService:
         saved_rule = self.rule_repo.save_rule(db_rule)
         return saved_rule.id
 
-    def get_rules_by_type(self, rule_type: str, user: User) -> List[dict]:
+    def get_rules_by_type(self, rule_type: str, user: User) -> List[Rule]:
         """
         Get all rules for a user by type
 
@@ -151,7 +152,7 @@ class RuleService:
             user: User to get rules for
 
         Returns:
-            List of rules with populated trigger/action details
+            List of Rule objects with populated trigger/action details
         """
         self.logger.info(
             f"Fetching rules of type '{rule_type}' for user '{user.email}'"
@@ -182,14 +183,14 @@ class RuleService:
                         )
                     elif detail.type == "location":
                         for db_detail in db_trigger.details:
-                            if detail.URL == db_detail.url:
+                            if detail.url == db_detail.url:
                                 detail.value = {
                                     "name": db_detail.value,
                                     "url": db_detail.value_url,
                                 }
                     else:
                         for db_detail in db_trigger.details:
-                            if detail.URL == db_detail.url and detail.type not in [
+                            if detail.url == db_detail.url and detail.type not in [
                                 "entity",
                                 "location",
                             ]:
@@ -208,14 +209,14 @@ class RuleService:
                         )
                     elif detail.type == "location":
                         for db_detail in db_action.details:
-                            if detail.URL == db_detail.url:
+                            if detail.url == db_detail.url:
                                 detail.value = {
                                     "name": db_detail.value,
                                     "url": db_detail.value_url,
                                 }
                     else:
                         for db_detail in db_action.details:
-                            if detail.URL == db_detail.url and detail.type not in [
+                            if detail.url == db_detail.url and detail.type not in [
                                 "entity",
                                 "location",
                             ]:
@@ -225,15 +226,15 @@ class RuleService:
                 trigger.details.sort(key=lambda d: d.name)
                 action.details.sort(key=lambda d: d.name)
 
-                rule = {
-                    "db_id": db_rule.id,
-                    "type": db_rule.type,
-                    "effect": db_rule.effect,
-                    "subject": db_rule.subject,
-                    "timestamp": db_rule.timestamp,
-                    "trigger": trigger,
-                    "action": action,
-                }
+                rule = Rule(
+                    db_id=db_rule.id,
+                    type=db_rule.type,
+                    effect=db_rule.effect,
+                    subject=db_rule.subject,
+                    timestamp=db_rule.timestamp,
+                    trigger=trigger,
+                    action=action,
+                )
 
                 rules.append(rule)
 
