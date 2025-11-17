@@ -13,7 +13,7 @@ class Detail:
     containing information about parameters, values, and alternatives.
     """
 
-    URL: Optional[str] = None
+    url: Optional[str] = None
     id: Optional[str] = None
     name: Optional[str] = None
     type: Optional[str] = None
@@ -35,7 +35,7 @@ class Detail:
             return True
         if not isinstance(other, Detail):
             return False
-        return self.URL == other.URL and self.value == other.value
+        return self.url == other.url and self.value == other.value
 
     def __str__(self) -> str:
         """String representation of the Detail.
@@ -52,7 +52,7 @@ class Detail:
             Dictionary with all detail data
         """
         return {
-            "URL": self.URL,
+            "url": self.url,
             "id": self.id,
             "name": self.name,
             "type": self.type,
