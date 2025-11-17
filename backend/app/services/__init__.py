@@ -5,6 +5,8 @@ from .owl_service import OWLService
 from .privacy_notice_service import PrivacyNoticeService
 from .user_service import UserService
 from .smartotum_service import SmartotumService
+from .xacml_service import XACMLService
+from .dht_service import DHTService
 
 __all__ = [
     "ApplicationService",
@@ -13,5 +15,7 @@ __all__ = [
     "OWLService",
     "PrivacyNoticeService",
     "UserService",
-    "SmartotumService"
+    "SmartotumService",
+    "XACMLService",
+    "DHTService",
 ]
