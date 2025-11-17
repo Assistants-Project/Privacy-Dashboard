@@ -29,3 +29,15 @@ class ApplicationRepository:
             )
         )
         return db.session.scalar(statement)
+
+    @staticmethod
+    def get_applications_by_ds_id_and_smart_home_id(
+        user_id: int, smart_home_id: int
+    ) -> Iterator[Tuple[Application, datetime]]:
+        statement = db.select(Application, UserSmartHomeApplication.installed_at).join(
+            Application.installed_by_user_smart_home_combinations.and_(
+                UserSmartHomeApplication.user_id == user_id,
+                UserSmartHomeApplication.smart_home_id == smart_home_id,
+            )
+        )
+        return db.session.execute(statement)
