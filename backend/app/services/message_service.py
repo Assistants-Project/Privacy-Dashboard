@@ -7,12 +7,6 @@ from ..repositories import MessageRepository, UserRepository
 from ..schemas import MessageReqSchema
 
 
-class MessageReqDict(TypedDict):
-    content: str
-    attachment: str
-    receiver_uuid: UUID
-
-
 class MessageResDict(TypedDict):
     message: Message
     sender_uuid: UUID
@@ -71,7 +65,7 @@ class MessageService:
         Args:
             sender_id: The ID of the user who sends the message.
             sender_role: The role of the user who sends the message.
-            message_data: A dictionary containing the content of the message,
+            message: An object containing the content of the message,
                 the optional attachment path, and the `UUID` of the receiver.
 
         Returns:

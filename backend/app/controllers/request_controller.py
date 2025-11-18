@@ -2,9 +2,14 @@ from uuid import UUID
 
 from flask_smorest import Blueprint
 
-from ..schemas import ApplicationAndUserUuidReqSchema, RequestResSchema
+from ..schemas import (
+    ApplicationAndUserUuidReqSchema,
+    RequestReqSchema,
+    RequestResSchema,
+    RequestSchema,
+)
 from ..services import RequestService
-from ..utils import dc_or_dpo_required
+from ..utils import dc_or_dpo_required, ds_required
 
 request_bp = Blueprint(
     "Requests API",
@@ -26,3 +31,11 @@ def get_requests_by_managed_application_uuid_and_user_uuid(
             current_user.id, application_uuid, user_uuid
         )
     )
+
+
+@request_bp.route("/submit", methods=["POST"])
+@request_bp.arguments(RequestReqSchema, location="json", as_kwargs=False)
+@request_bp.response(201, RequestSchema)
+@ds_required()
+def submit_request(request, current_user):
+    return RequestService.submit_request(current_user.id, request)

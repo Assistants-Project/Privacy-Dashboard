@@ -44,6 +44,9 @@ class ApplicationService:
         Returns:
             A list of dictionaries each containing the application instance and the date and time it was installed
             on the specified smart home, or an empty list if none are found.
+
+        Raises:
+            `SmartHomeNotFoundException`: If the `SmartHome` with the given `UUID` is not found among the owned smart homes.
         """
 
         smart_home = SmartHomeRepository.get_home_by_ds_id_and_home_uuid(

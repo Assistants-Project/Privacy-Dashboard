@@ -1,9 +1,19 @@
 from typing import List, TypedDict
 from uuid import UUID
 
-from ..exceptions import ApplicationNotFoundException, UserNotFoundException
+from ..exceptions import (
+    ApplicationNotFoundException,
+    SmartHomeNotFoundException,
+    UserNotFoundException,
+)
 from ..models import Request
-from ..repositories import ApplicationRepository, RequestRepository, UserRepository
+from ..repositories import (
+    ApplicationRepository,
+    RequestRepository,
+    SmartHomeRepository,
+    UserRepository,
+)
+from ..schemas import RequestReqSchema
 
 
 class RequestDict(TypedDict):
@@ -31,6 +41,7 @@ class RequestService:
             `ApplicationNotFoundException`: If the application with the given `UUID` is not found among the applications managed by the given `DATA_CONTROLLER` or `DPO` user.
             `UserNotFoundException`: If the user with the given `UUID` is not found among the contacts of the given `DATA_CONTROLLER` or `DPO` user.
         """
+
         application = (
             ApplicationRepository.get_application_by_dc_or_dpo_id_and_application_uuid(
                 current_user_id, application_uuid
@@ -58,3 +69,39 @@ class RequestService:
             }
             for request, user_email, application_name in iterator
         ]
+
+    @staticmethod
+    def submit_request(current_user_id: int, request: RequestReqSchema) -> Request:
+        """Submits a request for a given application in a given smart home for a given user.
+
+        Args:
+            current_user_id: The ID of the user who submits the request.
+            request: An object containing the right type, the additional information, the `UUID` of the smart home and the `UUID` of the application.
+
+        Returns:
+            The submitted `Request` for a given application in a given smart home for a given user.
+
+        Raises:
+            `SmartHomeNotFoundException`: If the `SmartHome` with the given `UUID` is not found among the owned smart homes.
+            `ApplicationNotFoundException`: If the `Application` with the given `UUID` is not found among the installed applications of the given smart home.
+        """
+
+        smart_home = SmartHomeRepository.get_home_by_ds_id_and_home_uuid(
+            current_user_id, request["smart_home_uuid"]
+        )
+        if not smart_home:
+            raise SmartHomeNotFoundException(
+                f"Smart Home with uuid {request['smart_home_uuid']} not found among the owned smart homes!"
+            )
+        user_smart_home_application = ApplicationRepository.get_user_smart_home_application_by_ds_id_and_smart_home_id_and_application_uuid(
+            current_user_id, smart_home.id, request["application_uuid"]
+        )
+        if not user_smart_home_application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {request['application_uuid']} not found among the installed applications of smart home with uuid {request['smart_home_uuid']}!"
+            )
+        return RequestRepository.create_request(
+            request["right_type"],
+            request["additional_information"],
+            user_smart_home_application.id,
+        )

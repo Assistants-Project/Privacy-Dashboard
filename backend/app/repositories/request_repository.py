@@ -1,7 +1,7 @@
 from typing import Iterator, Tuple
 
 from ..extensions import db
-from ..models import Application, Request, User, UserSmartHomeApplication
+from ..models import Application, Request, RightType, User, UserSmartHomeApplication
 
 
 class RequestRepository:
@@ -26,3 +26,19 @@ class RequestRepository:
             .join(Application)
         )
         return db.session.execute(statement)
+
+    @staticmethod
+    def create_request(
+        right_type: RightType,
+        additional_information: str,
+        user_smart_home_application_id: int,
+    ) -> Request:
+        request = Request(
+            right_type=right_type,
+            additional_information=additional_information,
+            user_smart_home_application_relation_id=user_smart_home_application_id,
+        )
+        db.session.add(request)
+        db.session.commit()
+        db.session.refresh(request)
+        return request

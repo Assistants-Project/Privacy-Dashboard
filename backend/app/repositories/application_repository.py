@@ -41,3 +41,16 @@ class ApplicationRepository:
             )
         )
         return db.session.execute(statement)
+
+    @staticmethod
+    def get_user_smart_home_application_by_ds_id_and_smart_home_id_and_application_uuid(
+        user_id: int, smart_home_id: int, application_uuid: UUID
+    ) -> UserSmartHomeApplication | None:
+        statement = db.select(UserSmartHomeApplication).join(
+            UserSmartHomeApplication.application.and_(
+                UserSmartHomeApplication.user_id == user_id,
+                UserSmartHomeApplication.smart_home_id == smart_home_id,
+                Application.uuid == application_uuid,
+            )
+        )
+        return db.session.scalar(statement)
