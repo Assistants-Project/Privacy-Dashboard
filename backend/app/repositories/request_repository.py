@@ -1,7 +1,14 @@
 from typing import Iterator, Tuple
 
 from ..extensions import db
-from ..models import Application, Request, RightType, User, UserSmartHomeApplication
+from ..models import (
+    Application,
+    Request,
+    RightType,
+    Status,
+    User,
+    UserSmartHomeApplication,
+)
 
 
 class RequestRepository:
@@ -42,3 +49,26 @@ class RequestRepository:
         db.session.commit()
         db.session.refresh(request)
         return request
+
+    @staticmethod
+    def get_requests_by_ds_id_and_smart_home_id_and_status(
+        current_user_id: int, smart_home_id: int, status: Status | None
+    ) -> Iterator[Tuple[Request, str, str]]:
+        statement = (
+            db.select(
+                Request,
+                User.email,
+                Application.name,
+            )
+            .join(
+                Request.user_smart_home_application_relation.and_(
+                    UserSmartHomeApplication.smart_home_id == smart_home_id,
+                    UserSmartHomeApplication.user_id == current_user_id,
+                )
+            )
+            .join(User)
+            .join(Application)
+        )
+        if status:
+            statement = statement.filter(Request.status == status)
+        return db.session.execute(statement)

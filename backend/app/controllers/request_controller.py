@@ -2,11 +2,14 @@ from uuid import UUID
 
 from flask_smorest import Blueprint
 
+from ..models import Status
 from ..schemas import (
     ApplicationAndUserUuidReqSchema,
     RequestReqSchema,
     RequestResSchema,
     RequestSchema,
+    RequestStatusReqSchema,
+    SmartHomeUuidReqSchema,
 )
 from ..services import RequestService
 from ..utils import dc_or_dpo_required, ds_required
@@ -39,3 +42,16 @@ def get_requests_by_managed_application_uuid_and_user_uuid(
 @ds_required()
 def submit_request(request, current_user):
     return RequestService.submit_request(current_user.id, request)
+
+
+@request_bp.route("/home/<smart_home_uuid>", methods=["GET"])
+@request_bp.arguments(SmartHomeUuidReqSchema, location="path", as_kwargs=True)
+@request_bp.arguments(RequestStatusReqSchema, location="query", as_kwargs=True)
+@request_bp.response(200, RequestResSchema(many=True))
+@ds_required()
+def get_requests_by_smart_home_uuid(
+    smart_home_uuid: str, status: Status | None, current_user
+):
+    return RequestService.get_requests_by_ds_id_and_smart_home_uuid(
+        current_user.id, smart_home_uuid, status
+    )

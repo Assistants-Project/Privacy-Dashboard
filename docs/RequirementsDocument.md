@@ -136,8 +136,8 @@ Privacy Dashboard is a web application designed with the main goal of dynamicall
 |  FR4.4  | Enable Data Controller and DPO to answer requests from Data Subjects. |
 |  FR4.5  | Enable Data Controller and DPO to change the status of requests from Data Subjects. |
 |  FR4.6  | Enable Data Subject to see a list of all the GDPR rights he can exercise. |
-|  FR4.7  | Enable Data Subject to submit a request to a Data Controller or DPO by choosing the specific right he wants to exercise and the application it is related to and by eventually providing additional information to a predefined message. |
-|  FR4.8  | Enable Data Subject to monitor the status of the requests he has submitted. |
+|  FR4.7  | Enable Data Subject to submit a request to a Data Controller or DPO from the selected Smart Home by choosing the specific right he wants to exercise and the application it is related to and by eventually providing additional information to a predefined message. |
+|  FR4.8  | Enable Data Subject to monitor the status of the requests he has submitted from the selected Smart Home. |
 |  FR4.9  | Once the status of a request is set to "handled", automatically reconfigure the corresponding IoT device to align with the data subject's updated privacy consent by interacting with the SIFIS-Home framework through dedicated APIs. |
 | **FR5** |                       **Manage Applications**                       |
 |  FR5.1  | Enable Data Controller and DPO to see a list of all the SIFIS-Home applications for which he is responsible. |

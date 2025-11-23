@@ -6,7 +6,7 @@ from ..exceptions import (
     SmartHomeNotFoundException,
     UserNotFoundException,
 )
-from ..models import Request
+from ..models import Request, Status
 from ..repositories import (
     ApplicationRepository,
     RequestRepository,
@@ -75,7 +75,7 @@ class RequestService:
         """Submits a request for a given application in a given smart home for a given user.
 
         Args:
-            current_user_id: The ID of the user who submits the request.
+            current_user_id: The ID of the user with role `DATA_SUBJECT` who submits the request.
             request: An object containing the right type, the additional information, the `UUID` of the smart home and the `UUID` of the application.
 
         Returns:
@@ -105,3 +105,40 @@ class RequestService:
             request["additional_information"],
             user_smart_home_application.id,
         )
+
+    @staticmethod
+    def get_requests_by_ds_id_and_smart_home_uuid(
+        current_user_id: int, smart_home_uuid: str, status: Status | None
+    ) -> List[RequestDict]:
+        """Returns a list of requests fetched by a smart home's `UUID` and filtered by status from the database.
+
+        Args:
+            current_user_id: The ID of the user with role `DATA_SUBJECT` who is fetching requests.
+            smart_home_uuid: The `UUID` of the smart home to fetch requests of.
+            status: The status to filter requests by.
+
+        Returns:
+            A list of dictionaries each containing the request instance, the email of the user who created the request and the name of the application, or an empty list if none are found.
+
+        Raises:
+            `SmartHomeNotFoundException`: If the `SmartHome` with the given `UUID` is not found among the owned smart homes.
+        """
+
+        smart_home = SmartHomeRepository.get_home_by_ds_id_and_home_uuid(
+            current_user_id, smart_home_uuid
+        )
+        if not smart_home:
+            raise SmartHomeNotFoundException(
+                f"Smart Home with uuid {smart_home_uuid} not found among the owned smart homes!"
+            )
+        iterator = RequestRepository.get_requests_by_ds_id_and_smart_home_id_and_status(
+            current_user_id, smart_home.id, status
+        )
+        return [
+            {
+                "request": request,
+                "user_email": user_email,
+                "application_name": application_name,
+            }
+            for request, user_email, application_name in iterator
+        ]

@@ -5,7 +5,7 @@ from .entities.message import Message
 from .entities.notification import Notification
 from .entities.privacy_notice import PrivacyNotice
 from .entities.question import Question
-from .entities.request import Request, RightType
+from .entities.request import Request, RightType, Status
 from .entities.room import Room
 from .entities.smart_home import SmartHome
 from .entities.user import User, UserRole
@@ -24,6 +24,7 @@ __all__ = [
     "Question",
     "Request",
     "RightType",
+    "Status",
     "Room",
     "SmartHome",
     "User",
