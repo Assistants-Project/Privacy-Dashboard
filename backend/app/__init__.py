@@ -2,9 +2,11 @@ import os
 from pathlib import Path
 from typing import Optional
 
+import os
 from config import config_by_name
 from dotenv import load_dotenv
 from flask import Flask
+from flask_cors import CORS
 
 from .controllers import application_bp, auth_bp, message_bp, privacy_notice_bp, user_bp, homes_bp
 from .error_handler import global_error_handler
@@ -31,6 +33,22 @@ def create_app(env_name: Optional[str] = None) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config_by_name[env_name])
     app.config.setdefault("JSON_SORT_KEYS", False)
+
+    allowed_origins = [
+        o.strip()
+        for o in os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:5173,http://127.0.0.1:5173",
+        ).split(",")
+        if o.strip()
+    ]
+    CORS(
+        app,
+        resources={r"/*": {"origins": allowed_origins}},
+        supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    )
 
     db.init_app(app)
     migrate.init_app(app, db)

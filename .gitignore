@@ -131,3 +131,9 @@ venv.bak/
 
 .DS_Store
 appunti.txt
+
+
+node_modules
+dist
+.vite
+.env

@@ -1,6 +1,6 @@
 # Privacy Dashboard
 
-## Run Environment
+## Run Backend Environment
 
 ### Prerequisites
 - Docker and Docker Compose
@@ -16,6 +16,7 @@ POSTGRES_DB=privacy_db
 POSTGRES_PORT=5434
 FLASK_ENV=development
 DEV_DATABASE_URI=postgresql+psycopg2://<user>:<password>@localhost:5434/privacy_db
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 SMARTOTUM_BASE_URL=https://api.smartotum.com
 SMARTOTUM_DHT_URL=http://house_name.pods.smartotum.com/.dht/
 SMARTOTUM_API_BASE_PATH=/auth
@@ -57,7 +58,7 @@ flask db upgrade
 ### 6. Run the API server
 ```bash
 export FLASK_APP=run.py   # run this in every new shell session
-flask run --debug --port 5000
+flask run --debug --port 5050 #use 5050 to avoid airplay port collision on mac os
 ```
 The service is now reachable at `http://localhost:5000`.
 
@@ -66,3 +67,16 @@ The service is now reachable at `http://localhost:5000`.
 - **Swagger UI / OpenAPI docs:** `http://localhost:5000/docs/swagger`
 - **Login:** `POST /api/auth/login` (sets `st_access_token` / `st_refresh_token` cookies)
 - **Smartotum homes:** `GET /api/homes` (requires the access-token cookie; maps data from Smartotum’s `/service/systems` endpoint)
+
+## Run Frontend Enviroment
+
+### 1. Install dependencies
+```bash
+cd frontend
+npm install
+```
+
+### 2. run dev server Vite
+```bash
+npm run dev
+```

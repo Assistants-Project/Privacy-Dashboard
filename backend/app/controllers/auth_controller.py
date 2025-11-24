@@ -51,11 +51,16 @@ def login(email: str, password: str):
 
     return response
 
+@auth_bp.route("/current", methods=["GET"])
+@auth_bp.response(200, UserResSchema(many=False))
+@logged_in_required()
+def current(current_user):
+    return jsonify(UserResSchema().dump(current_user))
 
 @auth_bp.route("/logout", methods=["POST"])
 @auth_bp.response(204, description="Successful logout")
 @logged_in_required()
-def logout():
+def logout(current_user):
     response = Response(status=204, content_type="application/json")
     secure_cookie = current_app.config.get("JWT_COOKIE_SECURE", True)
     response.delete_cookie(
