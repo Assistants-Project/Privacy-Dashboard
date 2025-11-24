@@ -35,20 +35,31 @@ class RequestRepository:
         return db.session.execute(statement)
 
     @staticmethod
-    def create_request(
-        right_type: RightType,
-        additional_information: str,
-        user_smart_home_application_id: int,
-    ) -> Request:
-        request = Request(
-            right_type=right_type,
-            additional_information=additional_information,
-            user_smart_home_application_relation_id=user_smart_home_application_id,
+    def get_requests_by_dc_or_dpo_id_and_status(
+        current_user_id: int, status: Status | None
+    ) -> Iterator[Tuple[Request, str, str]]:
+        subquery = (
+            db.select(UserSmartHomeApplication.application_id)
+            .where(UserSmartHomeApplication.user_id == current_user_id)
+            .subquery()
         )
-        db.session.add(request)
-        db.session.commit()
-        db.session.refresh(request)
-        return request
+        statement = (
+            db.select(
+                Request,
+                User.email,
+                Application.name,
+            )
+            .join(
+                Request.user_smart_home_application_relation.and_(
+                    UserSmartHomeApplication.application_id.in_(db.select(subquery)),
+                )
+            )
+            .join(User)
+            .join(Application)
+        )
+        if status:
+            statement = statement.filter(Request.status == status)
+        return db.session.execute(statement)
 
     @staticmethod
     def get_requests_by_ds_id_and_smart_home_id_and_status(
@@ -72,3 +83,19 @@ class RequestRepository:
         if status:
             statement = statement.filter(Request.status == status)
         return db.session.execute(statement)
+
+    @staticmethod
+    def create_request(
+        right_type: RightType,
+        additional_information: str,
+        user_smart_home_application_id: int,
+    ) -> Request:
+        request = Request(
+            right_type=right_type,
+            additional_information=additional_information,
+            user_smart_home_application_relation_id=user_smart_home_application_id,
+        )
+        db.session.add(request)
+        db.session.commit()
+        db.session.refresh(request)
+        return request

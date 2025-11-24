@@ -36,12 +36,12 @@ def get_requests_by_managed_application_uuid_and_user_uuid(
     )
 
 
-@request_bp.route("/submit", methods=["POST"])
-@request_bp.arguments(RequestReqSchema, location="json", as_kwargs=False)
-@request_bp.response(201, RequestSchema)
-@ds_required()
-def submit_request(request, current_user):
-    return RequestService.submit_request(current_user.id, request)
+@request_bp.route("/", methods=["GET"])
+@request_bp.arguments(RequestStatusReqSchema, location="query", as_kwargs=True)
+@request_bp.response(200, RequestResSchema(many=True))
+@dc_or_dpo_required()
+def get_requests(status: Status | None, current_user):
+    return RequestService.get_requests_by_dc_or_dpo_id(current_user.id, status)
 
 
 @request_bp.route("/home/<smart_home_uuid>", methods=["GET"])
@@ -55,3 +55,11 @@ def get_requests_by_smart_home_uuid(
     return RequestService.get_requests_by_ds_id_and_smart_home_uuid(
         current_user.id, smart_home_uuid, status
     )
+
+
+@request_bp.route("/submit", methods=["POST"])
+@request_bp.arguments(RequestReqSchema, location="json", as_kwargs=False)
+@request_bp.response(201, RequestSchema)
+@ds_required()
+def submit_request(request, current_user):
+    return RequestService.submit_request(current_user.id, request)
