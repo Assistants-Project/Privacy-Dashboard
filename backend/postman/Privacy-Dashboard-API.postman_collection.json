@@ -9504,6 +9504,136 @@
 					"response": []
 				},
 				{
+					"name": "Unprocessable Requests - Wrong Enum",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'query' having an object with key 'status'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('query').that.is.an('object').that.has.property('status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=somethingwrong",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "somethingwrong"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized Requests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 401\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unauthorized');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=PENDING",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Successful DC Login - DC1",
 					"event": [
 						{
@@ -9806,18 +9936,18 @@
 									"    const responseBody = pm.response.json();\r",
 									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(3);\r",
 									"\r",
-									"    let data_subject1_home2_application1 = false;\r",
+									"    let data_subject1_home2_application2 = false;\r",
 									"\r",
 									"    responseBody.forEach(function(element) {\r",
 									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
 									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
 									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"status\");\r",
 									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 2\") {\r",
-									"            data_subject1_home2_application1 = true;\r",
+									"            data_subject1_home2_application2 = true;\r",
 									"        }\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(data_subject1_home2_application1).to.be.true;\r",
+									"    pm.expect(data_subject1_home2_application2).to.be.true;\r",
 									"});\r",
 									""
 								],
@@ -9892,6 +10022,157 @@
 					"response": []
 				},
 				{
+					"name": "Successful Requests - Status PENDING",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of six objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(6);\r",
+									"\r",
+									"    let data_subject1_home1_application1 = false;\r",
+									"    let data_subject1_home2_application1 = false;\r",
+									"    let data_subject1_home2_application2 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
+									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"status\");\r",
+									"        pm.expect(element.request.status).to.eql(\"PENDING\");\r",
+									"        pm.expect(element.user_email).to.eql(\"s312192@studenti.polito.it\");\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 1, Application 1\") {\r",
+									"            data_subject1_home1_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information == \"Request for User 1, Home 2, Application 1\") {\r",
+									"            data_subject1_home2_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 2\") {\r",
+									"            data_subject1_home2_application2 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_subject1_home1_application1).to.be.true;\r",
+									"    pm.expect(data_subject1_home2_application1).to.be.true;\r",
+									"    pm.expect(data_subject1_home2_application2).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=PENDING",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Requests - Status HANDLED",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an empty array\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(0);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=HANDLED",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "HANDLED"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Successful Logout",
 					"event": [
 						{
@@ -9909,6 +10190,451 @@
 								"type": "text/javascript",
 								"packages": {},
 								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DC Login - DC2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email5@example.com\",\r\n    \"password\": \"password5\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Requests - Status PENDING",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of three objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(3);\r",
+									"\r",
+									"    let data_subject1_home1_application1 = false;\r",
+									"    let data_subject1_home2_application1 = false;\r",
+									"    let data_subject1_home2_application2 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
+									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"status\");\r",
+									"        pm.expect(element.request.status).to.eql(\"PENDING\");\r",
+									"        pm.expect(element.user_email).to.eql(\"s312192@studenti.polito.it\");\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 1, Application 1\") {\r",
+									"            data_subject1_home1_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information == \"Request for User 1, Home 2, Application 1\") {\r",
+									"            data_subject1_home2_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 2\") {\r",
+									"            data_subject1_home2_application2 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_subject1_home1_application1).to.be.false;\r",
+									"    pm.expect(data_subject1_home2_application1).to.be.false;\r",
+									"    pm.expect(data_subject1_home2_application2).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=PENDING",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Requests - Status HANDLED",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an empty array\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(0);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=HANDLED",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "HANDLED"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DPO Login - DPO1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email3@example.com\",\r\n    \"password\": \"password3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Requests - Status PENDING",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an empty array\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(0);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=PENDING",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Requests - Status HANDLED",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an empty array\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(0);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=HANDLED",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "HANDLED"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -9971,6 +10697,66 @@
 								"api",
 								"auth",
 								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forbidden Requests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 403\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
 							]
 						}
 					},
