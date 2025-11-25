@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 @dataclass
 class Service:
     """Service entity for OWL ontology.
-    
+
     Implements comparison based on web_id for sorting services.
     """
 
@@ -73,17 +73,31 @@ class Service:
 
     def to_dict(self) -> dict:
         """Convert Service to dictionary for JSON serialization.
-        
+
         Returns:
             Dictionary with all service data, converting sets to lists
         """
         return {
-            'url': self.url,
-            'id': self.id,
-            'name': self.name,
-            'color': self.color,
-            'web_id': self.web_id,
-            'image': self.image,
-            'triggers': [t.to_dict() if hasattr(t, 'to_dict') else t.__dict__ for t in self.triggers] if self.triggers else [],
-            'actions': [a.to_dict() if hasattr(a, 'to_dict') else a.__dict__ for a in self.actions] if self.actions else []
+            "url": self.url,
+            "id": self.id,
+            "name": self.name,
+            "color": self.color,
+            "web_id": self.web_id,
+            "image": self.image,
+            "triggers": (
+                [
+                    t.to_dict() if hasattr(t, "to_dict") else t.__dict__
+                    for t in self.triggers
+                ]
+                if self.triggers
+                else []
+            ),
+            "actions": (
+                [
+                    a.to_dict() if hasattr(a, "to_dict") else a.__dict__
+                    for a in self.actions
+                ]
+                if self.actions
+                else []
+            ),
         }

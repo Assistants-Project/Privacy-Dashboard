@@ -43,6 +43,14 @@ class Action:
             and self.service == other.service
         )
 
+    def __hash__(self) -> int:
+        """Hash implementation for Action.
+
+        Returns:
+            Hash value based on URL (immutable identifier)
+        """
+        return hash(self.url)
+
     def __str__(self) -> str:
         """String representation of the Action.
 
@@ -53,15 +61,22 @@ class Action:
 
     def to_dict(self) -> dict:
         """Convert Action to dictionary for JSON serialization.
-        
+
         Returns:
             Dictionary with all action data
         """
         return {
-            'url': self.url,
-            'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'service': self.service.to_dict() if self.service else None,
-            'details': [d.to_dict() if hasattr(d, 'to_dict') else d.__dict__ for d in self.details] if self.details else []
+            "url": self.url,
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "service": self.service.to_dict() if self.service else None,
+            "details": (
+                [
+                    d.to_dict() if hasattr(d, "to_dict") else d.__dict__
+                    for d in self.details
+                ]
+                if self.details
+                else []
+            ),
         }
