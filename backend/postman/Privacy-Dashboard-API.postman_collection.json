@@ -7788,7 +7788,7 @@
 									"    responseBody.forEach(function(element) {\r",
 									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
 									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
-									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"status\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
 									"        if (element.request.additional_information === \"Request 2 for Application 2\") {\r",
 									"            data_subject1_request2 = true;\r",
 									"        }\r",
@@ -9634,6 +9634,420 @@
 					"response": []
 				},
 				{
+					"name": "Unprocessable Handle Request - Empty UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'request_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('request_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"response\": \"some response\",\r\n    \"status\": \"HANDLED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/handle/:request_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"handle",
+								":request_uuid"
+							],
+							"variable": [
+								{
+									"key": "request_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Handle Request - Wrong UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'request_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('request_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"response\": \"some response\",\r\n    \"status\": \"HANDLED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/handle/:request_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"handle",
+								":request_uuid"
+							],
+							"variable": [
+								{
+									"key": "request_uuid",
+									"value": "somethingwrong"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Handle Request - Empty Enum",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'json' having an object with key 'status'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('json').that.is.an('object').that.has.property('status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"response\": \"some response\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/handle/:request_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"handle",
+								":request_uuid"
+							],
+							"variable": [
+								{
+									"key": "request_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Handle Request - Wrong Enum",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'json' having an object with key 'status'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('json').that.is.an('object').that.has.property('status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"response\": \"some response\",\r\n    \"status\": \"somethingwrong\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/handle/:request_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"handle",
+								":request_uuid"
+							],
+							"variable": [
+								{
+									"key": "request_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Handle Request - Null Response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'json' having an object with key 'response'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('json').that.is.an('object').that.has.property('response');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"response\": null,\r\n    \"status\": \"somethingwrong\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/handle/:request_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"handle",
+								":request_uuid"
+							],
+							"variable": [
+								{
+									"key": "request_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized Handle Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 401\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unauthorized');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"response\": \"some response\",\r\n    \"status\": \"HANDLED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/handle/:request_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"handle",
+								":request_uuid"
+							],
+							"variable": [
+								{
+									"key": "request_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Successful DC Login - DC1",
 					"event": [
 						{
@@ -9837,7 +10251,7 @@
 									"    responseBody.forEach(function(element) {\r",
 									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
 									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
-									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"status\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
 									"        if (element.request.additional_information === \"Request for User 1, Home 1, Application 1\") {\r",
 									"            data_subject1_home1_application1 = true;\r",
 									"        }\r",
@@ -9941,7 +10355,7 @@
 									"    responseBody.forEach(function(element) {\r",
 									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
 									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
-									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"status\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
 									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 2\") {\r",
 									"            data_subject1_home2_application2 = true;\r",
 									"        }\r",
@@ -10022,7 +10436,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful Requests - Status PENDING",
+					"name": "Successful Requests - Status PENDING - 6 Requests",
 					"event": [
 						{
 							"listen": "test",
@@ -10043,7 +10457,7 @@
 									"    responseBody.forEach(function(element) {\r",
 									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
 									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
-									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"status\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
 									"        pm.expect(element.request.status).to.eql(\"PENDING\");\r",
 									"        pm.expect(element.user_email).to.eql(\"s312192@studenti.polito.it\");\r",
 									"        if (element.request.additional_information === \"Request for User 1, Home 1, Application 1\") {\r",
@@ -10051,9 +10465,11 @@
 									"        }\r",
 									"        if (element.request.additional_information == \"Request for User 1, Home 2, Application 1\") {\r",
 									"            data_subject1_home2_application1 = true;\r",
+									"            pm.environment.set(\"request_uuid1\", element.request.uuid);\r",
 									"        }\r",
 									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 2\") {\r",
 									"            data_subject1_home2_application2 = true;\r",
+									"            pm.environment.set(\"request_uuid2\", element.request.uuid);\r",
 									"        }\r",
 									"    });\r",
 									"\r",
@@ -10110,7 +10526,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful Requests - Status HANDLED",
+					"name": "Successful Requests - Status HANDLED - 0 Requests",
 					"event": [
 						{
 							"listen": "test",
@@ -10123,6 +10539,347 @@
 									"pm.test(\"Response is an empty array\", function () {\r",
 									"    const responseBody = pm.response.json();\r",
 									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(0);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=HANDLED",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "HANDLED"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Handle Request - Unexisting Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(`Message is equal to 'Request with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found among the requests of the managed applications!'`, function () {\r",
+									"    pm.expect(responseData.message).to.eql(`Request with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found among the requests of the managed applications!`);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"response\": \"some response\",\r\n    \"status\": \"HANDLED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/handle/:request_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"handle",
+								":request_uuid"
+							],
+							"variable": [
+								{
+									"key": "request_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Handle Request - DS 1, Home 2, Application 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body is an object with attributes uuid, right_type, additional_information, response, created_at, handled_at, status\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseBody).to.be.an('object');\r",
+									"    pm.expect(responseBody).to.have.property('uuid').to.not.equal(null);\r",
+									"    pm.expect(responseBody).to.have.property('right_type', 'ACCESS_DATA');\r",
+									"    pm.expect(responseBody).to.have.property('additional_information', 'Request for User 1, Home 2, Application 1');\r",
+									"    pm.expect(responseBody).to.have.property('response', 'Handled request for ds 1, home 2, application 1');\r",
+									"    pm.expect(responseBody).to.have.property('created_at').to.not.equal(null);\r",
+									"    pm.expect(responseBody).to.have.property('handled_at').to.not.equal(null);\r",
+									"    pm.expect(responseBody).to.have.property('status', 'HANDLED');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the request_uuid from the environment variable\r",
+									"const requestUuid = pm.environment.get(\"request_uuid1\");\r",
+									"\r",
+									"// Check if request_uuid is available\r",
+									"if (requestUuid) {\r",
+									"    // Set the request URL with the request_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":request_uuid\", requestUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"response\": \"Handled request for ds 1, home 2, application 1\",\r\n    \"status\": \"HANDLED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/handle/:request_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"handle",
+								":request_uuid"
+							],
+							"variable": [
+								{
+									"key": "request_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Requests - Status PENDING - 5 Requests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of five objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(5);\r",
+									"\r",
+									"    let data_subject1_home1_application1 = false;\r",
+									"    let data_subject1_home2_application1 = false;\r",
+									"    let data_subject1_home2_application2 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
+									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
+									"        pm.expect(element.request.status).to.eql(\"PENDING\");\r",
+									"        pm.expect(element.user_email).to.eql(\"s312192@studenti.polito.it\");\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 1, Application 1\") {\r",
+									"            data_subject1_home1_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information == \"Request for User 1, Home 2, Application 1\") {\r",
+									"            data_subject1_home2_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 2\") {\r",
+									"            data_subject1_home2_application2 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_subject1_home1_application1).to.be.true;\r",
+									"    pm.expect(data_subject1_home2_application1).to.be.false;\r",
+									"    pm.expect(data_subject1_home2_application2).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=PENDING",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Requests - Status HANDLED - 1 Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of one object\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(1);\r",
+									"\r",
+									"    let data_subject1_home1_application1 = false;\r",
+									"    let data_subject1_home2_application1 = false;\r",
+									"    let data_subject1_home2_application2 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
+									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
+									"        pm.expect(element.request.status).to.eql(\"HANDLED\");\r",
+									"        pm.expect(element.request).to.have.property('handled_at').to.not.equal(null);\r",
+									"        pm.expect(element.request).to.have.property('response').to.not.equal(null);\r",
+									"        pm.expect(element.user_email).to.eql(\"s312192@studenti.polito.it\");\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 1, Application 1\") {\r",
+									"            data_subject1_home1_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information == \"Request for User 1, Home 2, Application 1\") {\r",
+									"            data_subject1_home2_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 2\") {\r",
+									"            data_subject1_home2_application2 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_subject1_home1_application1).to.be.false;\r",
+									"    pm.expect(data_subject1_home2_application1).to.be.true;\r",
+									"    pm.expect(data_subject1_home2_application2).to.be.false;\r",
 									"});\r",
 									""
 								],
@@ -10258,7 +11015,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful Requests - Status PENDING",
+					"name": "Successful Requests - Status PENDING - 3 Requests",
 					"event": [
 						{
 							"listen": "test",
@@ -10279,9 +11036,10 @@
 									"    responseBody.forEach(function(element) {\r",
 									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
 									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
-									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"status\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
 									"        pm.expect(element.request.status).to.eql(\"PENDING\");\r",
 									"        pm.expect(element.user_email).to.eql(\"s312192@studenti.polito.it\");\r",
+									"        pm.expect(element.application_name).to.eql(\"Application 2\");\r",
 									"        if (element.request.additional_information === \"Request for User 1, Home 1, Application 1\") {\r",
 									"            data_subject1_home1_application1 = true;\r",
 									"        }\r",
@@ -10346,7 +11104,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful Requests - Status HANDLED",
+					"name": "Successful Requests - Status HANDLED - 0 Requests",
 					"event": [
 						{
 							"listen": "test",
@@ -10359,6 +11117,356 @@
 									"pm.test(\"Response is an empty array\", function () {\r",
 									"    const responseBody = pm.response.json();\r",
 									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(0);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=HANDLED",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "HANDLED"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Handle Request - Wrong Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(`Message is equal to 'Request with uuid ${pm.environment.get(\"request_uuid1\")} not found among the requests of the managed applications!'`, function () {\r",
+									"    pm.expect(responseData.message).to.eql(`Request with uuid ${pm.environment.get(\"request_uuid1\")} not found among the requests of the managed applications!`);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the request_uuid from the environment variable\r",
+									"const requestUuid = pm.environment.get(\"request_uuid1\");\r",
+									"\r",
+									"// Check if request_uuid is available\r",
+									"if (requestUuid) {\r",
+									"    // Set the request URL with the request_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":request_uuid\", requestUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"response\": \"Handled request for ds 1, home 2, application 1\",\r\n    \"status\": \"HANDLED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/handle/:request_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"handle",
+								":request_uuid"
+							],
+							"variable": [
+								{
+									"key": "request_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Handle Request - DS 1, Home 2, Application 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body is an object with attributes uuid, right_type, additional_information, response, created_at, handled_at, status\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseBody).to.be.an('object');\r",
+									"    pm.expect(responseBody).to.have.property('uuid').to.not.equal(null);\r",
+									"    pm.expect(responseBody).to.have.property('right_type', 'ACCESS_DATA');\r",
+									"    pm.expect(responseBody).to.have.property('additional_information', 'Request for User 1, Home 2, Application 2');\r",
+									"    pm.expect(responseBody).to.have.property('response', 'Handled request for ds 1, home 2, application 2');\r",
+									"    pm.expect(responseBody).to.have.property('created_at').to.not.equal(null);\r",
+									"    pm.expect(responseBody).to.have.property('handled_at').to.not.equal(null);\r",
+									"    pm.expect(responseBody).to.have.property('status', 'HANDLED');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the request_uuid from the environment variable\r",
+									"const requestUuid = pm.environment.get(\"request_uuid2\");\r",
+									"\r",
+									"// Check if request_uuid is available\r",
+									"if (requestUuid) {\r",
+									"    // Set the request URL with the request_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":request_uuid\", requestUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"response\": \"Handled request for ds 1, home 2, application 2\",\r\n    \"status\": \"HANDLED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/handle/:request_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"handle",
+								":request_uuid"
+							],
+							"variable": [
+								{
+									"key": "request_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Requests - Status PENDING - 2 Requests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
+									"\r",
+									"    let data_subject1_home1_application1 = false;\r",
+									"    let data_subject1_home2_application1 = false;\r",
+									"    let data_subject1_home2_application2 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
+									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
+									"        pm.expect(element.request.status).to.eql(\"PENDING\");\r",
+									"        pm.expect(element.user_email).to.eql(\"s312192@studenti.polito.it\");\r",
+									"        pm.expect(element.application_name).to.eql(\"Application 2\");\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 1, Application 1\") {\r",
+									"            data_subject1_home1_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information == \"Request for User 1, Home 2, Application 1\") {\r",
+									"            data_subject1_home2_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 2\") {\r",
+									"            data_subject1_home2_application2 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_subject1_home1_application1).to.be.false;\r",
+									"    pm.expect(data_subject1_home2_application1).to.be.false;\r",
+									"    pm.expect(data_subject1_home2_application2).to.be.false;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests?status=PENDING",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Requests - Status HANDLED - 1 Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of one object\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(1);\r",
+									"\r",
+									"    let data_subject1_home1_application1 = false;\r",
+									"    let data_subject1_home2_application1 = false;\r",
+									"    let data_subject1_home2_application2 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
+									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
+									"        pm.expect(element.request.status).to.eql(\"HANDLED\");\r",
+									"        pm.expect(element.user_email).to.eql(\"s312192@studenti.polito.it\");\r",
+									"        pm.expect(element.application_name).to.eql(\"Application 2\");\r",
+									"        pm.expect(element.request).to.have.property('handled_at').to.not.equal(null);\r",
+									"        pm.expect(element.request).to.have.property('response').to.not.equal(null);\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 1, Application 1\") {\r",
+									"            data_subject1_home1_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information == \"Request for User 1, Home 2, Application 1\") {\r",
+									"            data_subject1_home2_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 2\") {\r",
+									"            data_subject1_home2_application2 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_subject1_home1_application1).to.be.false;\r",
+									"    pm.expect(data_subject1_home2_application1).to.be.false;\r",
+									"    pm.expect(data_subject1_home2_application2).to.be.true;\r",
 									"});\r",
 									""
 								],
@@ -10493,7 +11601,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful Requests - Status PENDING",
+					"name": "Successful Requests - Status PENDING - 0 Requests",
 					"event": [
 						{
 							"listen": "test",
@@ -10556,7 +11664,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful Requests - Status HANDLED",
+					"name": "Successful Requests - Status HANDLED - 0 Requests",
 					"event": [
 						{
 							"listen": "test",
@@ -10763,6 +11871,76 @@
 					"response": []
 				},
 				{
+					"name": "Forbidden Handle Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 403\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"response\": \"some response\",\r\n    \"status\": \"HANDLED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/requests/handle/:request_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"requests",
+								"handle",
+								":request_uuid"
+							],
+							"variable": [
+								{
+									"key": "request_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Not Found Requests By SmartHome - Unexisting SmartHome",
 					"event": [
 						{
@@ -10935,7 +12113,7 @@
 									"    responseBody.forEach(function(element) {\r",
 									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
 									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
-									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"status\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
 									"        pm.expect(element.request.status).to.eql(\"PENDING\");\r",
 									"        pm.expect(element.user_email).to.eql(\"s312192@studenti.polito.it\");\r",
 									"        if (element.request.additional_information === \"Request for User 1, Home 1, Application 1\") {\r",
@@ -11003,7 +12181,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful Requests By SmartHome - SmartHome 2",
+					"name": "Successful Requests By SmartHome - SmartHome 2 - Status PENDING",
 					"event": [
 						{
 							"listen": "test",
@@ -11013,9 +12191,9 @@
 									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Response is an array of four objects\", function () {\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
 									"    const responseBody = pm.response.json();\r",
-									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(4);\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
 									"\r",
 									"    let data_subject1_home2_application1 = false;\r",
 									"    let data_subject1_home2_application2 = false;\r",
@@ -11023,7 +12201,7 @@
 									"    responseBody.forEach(function(element) {\r",
 									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
 									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
-									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"status\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
 									"        pm.expect(element.request.status).to.eql(\"PENDING\");\r",
 									"        pm.expect(element.user_email).to.eql(\"s312192@studenti.polito.it\");\r",
 									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 1\") {\r",
@@ -11034,8 +12212,8 @@
 									"        }\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(data_subject1_home2_application1).to.be.true;\r",
-									"    pm.expect(data_subject1_home2_application2).to.be.true;\r",
+									"    pm.expect(data_subject1_home2_application1).to.be.false;\r",
+									"    pm.expect(data_subject1_home2_application2).to.be.false;\r",
 									"});\r",
 									""
 								],
@@ -11101,7 +12279,7 @@
 					"response": []
 				},
 				{
-					"name": "Successful Requests By SmartHome - Empty Result",
+					"name": "Successful Requests By SmartHome - SmartHome 2 - Status HANDLED",
 					"event": [
 						{
 							"listen": "test",
@@ -11111,9 +12289,31 @@
 									"    pm.expect(pm.response.code).to.eql(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Response is an empty array\", function () {\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
 									"    const responseBody = pm.response.json();\r",
-									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(0);\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
+									"\r",
+									"    let data_subject1_home2_application1 = false;\r",
+									"    let data_subject1_home2_application2 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"request\", \"user_email\", \"application_name\");\r",
+									"        pm.expect(element.request).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.request).to.have.all.keys(\"uuid\", \"right_type\", \"additional_information\", \"response\", \"created_at\", \"handled_at\", \"status\");\r",
+									"        pm.expect(element.request.status).to.eql(\"HANDLED\");\r",
+									"        pm.expect(element.user_email).to.eql(\"s312192@studenti.polito.it\");\r",
+									"        pm.expect(element.request).to.have.property('handled_at').to.not.equal(null);\r",
+									"        pm.expect(element.request).to.have.property('response').to.not.equal(null);\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 1\") {\r",
+									"            data_subject1_home2_application1 = true;\r",
+									"        }\r",
+									"        if (element.request.additional_information === \"Request for User 1, Home 2, Application 2\") {\r",
+									"            data_subject1_home2_application2 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_subject1_home2_application1).to.be.true;\r",
+									"    pm.expect(data_subject1_home2_application2).to.be.true;\r",
 									"});\r",
 									""
 								],
