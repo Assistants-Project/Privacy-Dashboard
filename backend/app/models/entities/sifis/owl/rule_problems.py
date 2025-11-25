@@ -22,7 +22,7 @@ class RuleProblems:
         Args:
             rules: List of rules forming a loop
         """
-        # Convert list to tuple for set storage (lists aren't hashable)
+        # Convert list to tuple for set storage
         self.loops.add(tuple(rules))
 
     def add_redundant_rules(self, rules: List[Rule]) -> None:
