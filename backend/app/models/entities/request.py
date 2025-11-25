@@ -38,6 +38,8 @@ class Request(db.Model):
         response: A text field that represents the response given by the Data Controller or DPO to the request, if any.
         created_at: A datetime object that represents the date and time the request was created.
             It is set to the current date and time by default.
+        handled_at: A datetime object that represents the date and time the request was handled.
+            It is set to `None` by default and updated when the request is handled.
         status: An enum that represents the status of the request, either `PENDING` or `HANDLED`.
         user_smart_home_application_relation_id: A foreign key ID of the User-SmartHome-Application combination
             that submitted the request.
@@ -56,6 +58,7 @@ class Request(db.Model):
     additional_information = mapped_column(Text, nullable=False)
     response = mapped_column(Text, default=None, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())
+    handled_at: Mapped[datetime] = mapped_column(default=None, nullable=True)
     status = mapped_column(
         Enum(Status, validate_strings=True), default=Status.PENDING, nullable=False
     )

@@ -198,6 +198,7 @@ def upgrade():
         sa.Column("additional_information", sa.Text(), nullable=False),
         sa.Column("response", sa.Text(), nullable=True),
         sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("handled_at", sa.DateTime(), nullable=True),
         sa.Column(
             "status", sa.Enum("PENDING", "HANDLED", name="status"), nullable=False
         ),

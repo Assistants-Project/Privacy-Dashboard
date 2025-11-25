@@ -3,6 +3,7 @@ from uuid import UUID
 
 from ..exceptions import (
     ApplicationNotFoundException,
+    RequestNotFoundException,
     SmartHomeNotFoundException,
     UserNotFoundException,
 )
@@ -167,4 +168,32 @@ class RequestService:
             request["right_type"],
             request["additional_information"],
             user_smart_home_application.id,
+        )
+
+    @staticmethod
+    def handle_request(
+        current_user_id: int, request_uuid: UUID, response: str | None, status: Status
+    ) -> Request:
+        """Handles a request for a given application in a given smart home for a given user by adding a response and changing the status.
+
+        Args:
+            current_user_id: The ID of the user with role `DATA_SUBJECT` who is handling the request.
+            request_uuid: The `UUID` of the request to be handled.
+            request_handling: An object containing the response and the status of the request to update.
+
+        Returns:
+            The handled `Request` for a given application in a given smart home for a given user.
+
+        Raises:
+            `RequestNotFoundException`: If the `Request` with the given `UUID` is not found among the requests of the managed applications.
+        """
+        request = RequestRepository.get_request_by_dc_or_dpo_id_and_request_uuid(
+            current_user_id, request_uuid
+        )
+        if not request:
+            raise RequestNotFoundException(
+                f"Request with uuid {request_uuid} not found among the requests of the managed applications!"
+            )
+        return RequestRepository.update_request_status_and_response(
+            request.id, response, status
         )

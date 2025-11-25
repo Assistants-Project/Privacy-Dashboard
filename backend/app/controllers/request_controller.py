@@ -5,10 +5,12 @@ from flask_smorest import Blueprint
 from ..models import Status
 from ..schemas import (
     ApplicationAndUserUuidReqSchema,
+    RequestHandlingReqSchema,
     RequestReqSchema,
     RequestResSchema,
     RequestSchema,
     RequestStatusReqSchema,
+    RequestUuidReqSchema,
     SmartHomeUuidReqSchema,
 )
 from ..services import RequestService
@@ -63,3 +65,16 @@ def get_requests_by_smart_home_uuid(
 @ds_required()
 def submit_request(request, current_user):
     return RequestService.submit_request(current_user.id, request)
+
+
+@request_bp.route("/handle/<request_uuid>", methods=["PUT"])
+@request_bp.arguments(RequestUuidReqSchema, location="path", as_kwargs=True)
+@request_bp.arguments(RequestHandlingReqSchema, location="json", as_kwargs=True)
+@request_bp.response(200, RequestSchema)
+@dc_or_dpo_required()
+def handle_request(
+    request_uuid: UUID, response: str | None, status: Status, current_user
+):
+    return RequestService.handle_request(
+        current_user.id, request_uuid, response, status
+    )

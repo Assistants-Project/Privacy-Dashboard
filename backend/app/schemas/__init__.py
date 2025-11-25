@@ -5,8 +5,10 @@ from .request.application_uuid_req_schema import ApplicationUuidReqSchema
 from .request.auth_req_schema import AuthReqSchema
 from .request.message_req_schema import MessageReqSchema
 from .request.registration_req_schema import RegistrationReqSchema
+from .request.request_handling_req_schema import RequestHandlingReqSchema
 from .request.request_req_schema import RequestReqSchema
 from .request.request_status_req_schema import RequestStatusReqSchema
+from .request.request_uuid_req_schema import RequestUuidReqSchema
 from .request.smart_home_uuid_req_schema import SmartHomeUuidReqSchema
 from .request.user_role_req_schema import UserRoleReqSchema
 from .request.user_uuid_req_schema import UserUuidReqSchema
@@ -25,8 +27,10 @@ __all__ = [
     "AuthReqSchema",
     "MessageReqSchema",
     "RegistrationReqSchema",
+    "RequestHandlingReqSchema",
     "RequestReqSchema",
     "RequestStatusReqSchema",
+    "RequestUuidReqSchema",
     "SmartHomeUuidReqSchema",
     "UserRoleReqSchema",
     "UserUuidReqSchema",
