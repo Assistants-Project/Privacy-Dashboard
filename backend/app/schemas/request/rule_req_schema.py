@@ -49,6 +49,8 @@ class RuleRequestSchema(Schema):
     class Meta:
         unknown = EXCLUDE
 
+    db_id = fields.Int(required=True)
+    type = fields.Str(allow_none=True)
     trigger = fields.Nested(RuleTriggerSchema, required=True)
     action = fields.Nested(RuleActionSchema, required=True)
     effect = fields.Str(allow_none=True)
@@ -62,7 +64,7 @@ class RuleResponseSchema(Schema):
     class Meta:
         unknown = EXCLUDE
 
-    db_id = fields.Int(required=True, data_key="dbId")
+    db_id = fields.Int(required=True)
     type = fields.Str(required=True)
     trigger = fields.Nested(RuleTriggerSchema, required=True)
     action = fields.Nested(RuleActionSchema, required=True)
