@@ -7,6 +7,7 @@ from .user_service import UserService
 from .smartotum_service import SmartotumService
 from .xacml_service import XACMLService
 from .dht_service import DHTService
+from .petrinet_service import PetriNetService
 
 __all__ = [
     "ApplicationService",
@@ -18,4 +19,5 @@ __all__ = [
     "SmartotumService",
     "XACMLService",
     "DHTService",
+    "PetriNetService",
 ]

@@ -775,3 +775,105 @@ class OWLService:
         except Exception as e:
             self.logger.error(f"Error getting commands: {e}", exc_info=True)
             return commands
+
+    def triggers(self, action: Action, trigger: Trigger) -> bool:
+        """
+        Check if an action can trigger a specific trigger using OWL reasoning.
+
+        Uses the reasoner to query the 'triggers' object property from the ontology
+        to determine if the given action can cause the trigger to fire.
+
+        Args:
+            action: Action to check
+            trigger: Trigger to check
+
+        Returns:
+            True if action triggers the trigger, False otherwise
+        """
+        try:
+            # Get action individual from ontology
+            action_id = action.url.split("#")[-1]
+            action_individual = getattr(self.sifis_ns, action_id, None)
+
+            if not action_individual:
+                return False
+
+            # Get the 'triggers' property from eupont namespace
+            triggers_prop = getattr(self.eupont_ns, "triggers", None)
+            if not triggers_prop:
+                self.logger.warning("triggers property not found in ontology")
+                return False
+
+            # Get all triggers that this action can trigger (using reasoner inferences)
+            triggered_individuals = getattr(action_individual, "triggers", [])
+
+            # Check if the given trigger is in the list
+            for triggered in triggered_individuals:
+                if str(triggered.iri) == trigger.url:
+                    return True
+
+            return False
+
+        except Exception as e:
+            self.logger.error(f"Error checking if action triggers trigger: {e}")
+            return False
+
+    def equals_ml(self, action1: Action, action2: Action) -> bool:
+        """
+        Check if two actions are equivalent at the machine learning level.
+        This checks if actions have the same effect/behavior.
+
+        Args:
+            action1: First action
+            action2: Second action
+
+        Returns:
+            True if actions are equivalent, False otherwise
+        """
+        try:
+            # Simple check: compare action URLs and types
+            if action1.url == action2.url:
+                return True
+
+            # Extract action IDs
+            action1_id = action1.url.split("#")[-1]
+            action2_id = action2.url.split("#")[-1]
+
+            action1_individual = getattr(self.sifis_ns, action1_id, None)
+            action2_individual = getattr(self.sifis_ns, action2_id, None)
+
+            if not action1_individual or not action2_individual:
+                return False
+
+            # Check if they have the same features
+            action1_features = set(
+                str(f) for f in getattr(action1_individual, "hasFeature", [])
+            )
+            action2_features = set(
+                str(f) for f in getattr(action2_individual, "hasFeature", [])
+            )
+
+            # If features match, actions are equivalent
+            if action1_features and action2_features:
+                return action1_features == action2_features
+
+            # Check types
+            action1_types = set(
+                str(t).lower() for t in getattr(action1_individual, "type", [])
+            )
+            action2_types = set(
+                str(t).lower() for t in getattr(action2_individual, "type", [])
+            )
+
+            if action1_types and action2_types:
+                return action1_types == action2_types
+
+            # Check names as last resort
+            if action1.name == action2.name:
+                return True
+
+            return False
+
+        except Exception as e:
+            self.logger.error(f"Error checking if actions are equal: {e}")
+            return False
