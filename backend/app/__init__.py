@@ -9,6 +9,7 @@ from flask import Flask
 from .controllers import (
     application_bp,
     auth_bp,
+    available_consent_bp,
     homes_bp,
     message_bp,
     privacy_notice_bp,
@@ -50,6 +51,7 @@ def create_app(env_name: Optional[str] = None) -> Flask:
     for blueprint in [
         application_bp,
         auth_bp,
+        available_consent_bp,
         homes_bp,
         message_bp,
         privacy_notice_bp,

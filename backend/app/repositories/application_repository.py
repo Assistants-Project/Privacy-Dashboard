@@ -19,7 +19,7 @@ class ApplicationRepository:
         return db.session.execute(statement)
 
     @staticmethod
-    def get_application_by_dc_or_dpo_id_and_application_uuid(
+    def get_application_by_user_id_and_application_uuid(
         user_id: int, application_uuid: UUID
     ) -> Application | None:
         statement = db.select(Application).join(

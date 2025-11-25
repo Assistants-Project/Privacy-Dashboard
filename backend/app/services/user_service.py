@@ -43,7 +43,7 @@ class UserService:
         """
 
         application = (
-            ApplicationRepository.get_application_by_dc_or_dpo_id_and_application_uuid(
+            ApplicationRepository.get_application_by_user_id_and_application_uuid(
                 user_id, application_uuid
             )
         )

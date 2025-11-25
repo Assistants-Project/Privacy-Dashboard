@@ -131,12 +131,11 @@ def init_data(app: Flask) -> None:
             # Privacy Notice 1 is associated with Application 1 and 3
             privacy_notice1.applications.append(application1)
             privacy_notice1.applications.append(application3)
-            # Application 1 has Consents 1 and 2, Application 2 has Consents 3 and 4, Application 3 has Consent 3
+            # Application 1 has Consents 1 and 2, Application 2 has Consents 3 and 4
             application1.available_consents.append(available_consent1)
             application1.available_consents.append(available_consent2)
             application2.available_consents.append(available_consent3)
             application2.available_consents.append(available_consent4)
-            application3.available_consents.append(available_consent3)
             # Data Subject 1 owns Smart Homes 1 and 2
             data_subject1_smart_home1 = UserSmartHome()
             data_subject1_smart_home2 = UserSmartHome()

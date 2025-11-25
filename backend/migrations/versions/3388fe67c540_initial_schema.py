@@ -130,12 +130,14 @@ def upgrade():
     op.create_table(
         "available_consents",
         sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("uuid", sa.Uuid(), nullable=False),
         sa.Column("content", sa.String(), nullable=False),
         sa.Column("application_id", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["application_id"], ["applications.id"], ondelete="CASCADE"
         ),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("uuid"),
     )
     op.create_table(
         "devices",

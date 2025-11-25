@@ -13,6 +13,7 @@ from .request.smart_home_uuid_req_schema import SmartHomeUuidReqSchema
 from .request.user_role_req_schema import UserRoleReqSchema
 from .request.user_uuid_req_schema import UserUuidReqSchema
 from .response.application_res_schema import ApplicationResSchema
+from .response.available_consent_res_schema import AvailableConsentResSchema
 from .response.device_res_schema import DeviceResSchema
 from .response.home_res_schema import HomeResSchema
 from .response.message_res_schema import MessageResSchema
@@ -35,6 +36,7 @@ __all__ = [
     "UserRoleReqSchema",
     "UserUuidReqSchema",
     "ApplicationResSchema",
+    "AvailableConsentResSchema",
     "DeviceResSchema",
     "HomeResSchema",
     "MessageResSchema",

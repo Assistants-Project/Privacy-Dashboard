@@ -44,7 +44,7 @@ class RequestService:
         """
 
         application = (
-            ApplicationRepository.get_application_by_dc_or_dpo_id_and_application_uuid(
+            ApplicationRepository.get_application_by_user_id_and_application_uuid(
                 current_user_id, application_uuid
             )
         )
