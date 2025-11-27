@@ -14,6 +14,8 @@ from ..models.entities.petrinet import (
     InputArc,
     OutputArc,
 )
+from ..models.entities.petrinet.rest_simulator import RestSimulator
+from ..models.entities.petrinet.token import Token, TokenSet
 from ..models.entities.sifis.owl.rule import Rule
 from ..models.entities.sifis.owl.trigger import Trigger
 from ..models.entities.sifis.owl.action import Action
@@ -27,6 +29,7 @@ class PetriNetService:
     def __init__(self, owl_service: OWLService):
         self.owl_service = owl_service
         self.nets: Dict[str, ExtendedPetriNet] = {}
+        self.simulators: Dict[str, RestSimulator] = {}
         self.logger = logging.getLogger()
 
     def get_net(
@@ -54,6 +57,68 @@ class PetriNetService:
             self.nets[username] = petri_net
 
         return petri_net
+
+    def get_rest_simulator(self, username: str) -> Optional[RestSimulator]:
+        """Get the active simulator for a user."""
+        return self.simulators.get(username)
+
+    def start_rest_simulation(
+        self, trigger: Trigger, rules: List[Rule], username: str
+    ) -> Optional[Rule]:
+        """
+        Start a step-by-step simulation.
+        
+        Args:
+            trigger: The initial trigger to fire
+            rules: List of rules to simulate
+            username: User starting the simulation
+            
+        Returns:
+            The first rule executed, or None
+        """
+        net = self.get_net(username, rules, refresh=False)
+        
+        # Add the token for the simulation
+        net.remove_all_tokens()
+        
+        trigger_place = net.get_trigger_place(trigger)
+        if not trigger_place:
+            self.logger.error(f"Trigger place not found for {trigger}")
+            return None
+            
+        token = Token(trigger_place.trigger)
+        token.set_initial_marking_expression("1")
+        trigger_place.add_token(TokenSet(token))
+        
+        simulator = RestSimulator(net)
+        self.simulators[username] = simulator
+        
+        return simulator.step()
+
+    def step_rest_simulation(self, username: str) -> Optional[Rule]:
+        """
+        Execute the next step in the simulation.
+        
+        Args:
+            username: User running the simulation
+            
+        Returns:
+            The next rule executed, or None
+        """
+        simulator = self.simulators.get(username)
+        if simulator:
+            return simulator.step()
+        return None
+
+    def stop_rest_simulator(self, username: str) -> None:
+        """
+        Stop the simulation for a user.
+        
+        Args:
+            username: User stopping the simulation
+        """
+        if username in self.simulators:
+            del self.simulators[username]
 
     def _build_net(self, username: str, rules: List[Rule]) -> ExtendedPetriNet:
         """

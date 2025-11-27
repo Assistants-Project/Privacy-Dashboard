@@ -553,3 +553,94 @@ def check_rule():
     except Exception as e:
         logging.error(f"Error checking rule: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
+
+
+@sifis_bp.route("/simulation/start", methods=["POST"])
+# @jwt_required() TODO: Uncomment when auth is ready
+def start_simulation():
+    """Start a step-by-step simulation"""
+    if not petrinet_service or not rule_service:
+        return jsonify({"error": "Services not available"}), 500
+
+    try:
+        # user = user_repo.find_user_by_username(get_jwt_identity())
+        user = user_repo.get_user_by_uuid("03af6091-280d-457f-a131-689449a144d8")
+        user.email = "ptp-demo"
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        data = request.get_json()
+        if not data or "trigger" not in data:
+            return jsonify({"error": "Trigger data required"}), 400
+
+        # Get rules for user
+        rules = rule_service.get_rules_by_type("sifis", user)
+
+        # Parse trigger from request
+        trigger_data = data["trigger"]
+        # We need to reconstruct the Trigger object. 
+        # Ideally we should use a schema, but for now we'll rely on OWL service to hydrate it
+        # or construct it manually if it's a simple object.
+        # Let's try to get it from OWL service if URL is present
+        trigger = None
+        if "url" in trigger_data:
+            trigger = owl_service.get_trigger_by_url(trigger_data["url"], user.email)
+        
+        if not trigger:
+             return jsonify({"error": "Invalid trigger"}), 400
+
+        # Start simulation
+        result_rule = petrinet_service.start_rest_simulation(trigger, rules, user.email)
+        
+        if result_rule:
+            return jsonify(result_rule.to_dict()), 200
+        else:
+            return jsonify({"message": "Simulation started, no rule executed immediately"}), 200
+
+    except Exception as e:
+        logging.error(f"Error starting simulation: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+
+@sifis_bp.route("/simulation/step", methods=["POST"])
+# @jwt_required() TODO: Uncomment when auth is ready
+def step_simulation():
+    """Execute next step in simulation"""
+    if not petrinet_service:
+        return jsonify({"error": "Services not available"}), 500
+
+    try:
+        # user = user_repo.find_user_by_username(get_jwt_identity())
+        user = user_repo.get_user_by_uuid("03af6091-280d-457f-a131-689449a144d8")
+        user.email = "ptp-demo"
+        
+        rule = petrinet_service.step_rest_simulation(user.email)
+        
+        if rule:
+            return jsonify(rule.to_dict()), 200
+        else:
+            return jsonify({"message": "No rule executed in this step or simulation finished"}), 200
+
+    except Exception as e:
+        logging.error(f"Error stepping simulation: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+
+@sifis_bp.route("/simulation/stop", methods=["POST"])
+# @jwt_required() TODO: Uncomment when auth is ready
+def stop_simulation():
+    """Stop the simulation"""
+    if not petrinet_service:
+        return jsonify({"error": "Services not available"}), 500
+
+    try:
+        # user = user_repo.find_user_by_username(get_jwt_identity())
+        user = user_repo.get_user_by_uuid("03af6091-280d-457f-a131-689449a144d8")
+        user.email = "ptp-demo"
+        
+        petrinet_service.stop_rest_simulator(user.email)
+        return jsonify({"message": "Simulation stopped"}), 200
+
+    except Exception as e:
+        logging.error(f"Error stopping simulation: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
