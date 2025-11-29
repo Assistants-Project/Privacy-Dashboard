@@ -1,10 +1,13 @@
 # owl_service.py
+import os
 import yaml
 import logging
 from pathlib import Path
 from typing import Set, Dict, List, Optional
+from uuid import UUID
 from owlready2 import *
 from dataclasses import dataclass
+from flask import current_app
 
 from ..models.entities.sifis.owl.action import Action
 from ..models.entities.sifis.owl.command import Command
@@ -877,3 +880,536 @@ class OWLService:
         except Exception as e:
             self.logger.error(f"Error checking if actions are equal: {e}")
             return False
+
+    # ========================================
+    # User OWL File Generation Methods (Static)
+    # ========================================
+    # New static methods follow
+    BASE_IRI = "http://elite.polito.it/ontologies/sifis-home.owl"
+    EUPONT_IRI = "http://elite.polito.it/ontologies/eupont.owl"
+    
+    @staticmethod
+    def _get_ontology_dir() -> str:
+        """Returns the absolute path to the ontologies directory."""
+        return os.path.join(current_app.root_path, "ontologies")
+
+    @staticmethod
+    def create_user_ontology(user_uuid: UUID) -> str:
+        """
+        Creates a new OWL file for the user with default locations, devices, services, and rules.
+        Returns the user's Ontology IRI.
+        """
+        ontology_dir = OWLService._get_ontology_dir()
+        users_dir = os.path.join(ontology_dir, "users")
+        os.makedirs(users_dir, exist_ok=True)
+
+        user_iri = f"{OWLService.BASE_IRI}/{user_uuid}"
+        filename = f"{user_uuid}.owl"
+        file_path = os.path.join(users_dir, filename)
+
+        # 1. Load Base Ontology
+        import owlready2
+        if ontology_dir not in owlready2.onto_path:
+            owlready2.onto_path.append(ontology_dir)
+        
+        base_onto = get_ontology("http://elite.polito.it/ontologies/sifis-home.owl").load()
+        
+        # 2. Create new ontology
+        onto = get_ontology(user_iri)
+        onto.imported_ontologies.append(base_onto)
+        
+        with onto:
+            # 3. Create Content
+            OWLService._create_user_individual(onto, base_onto, user_uuid)
+            locations = OWLService._create_locations(onto, base_onto)
+            OWLService._create_triggers(onto, base_onto)
+            OWLService._create_notifications(onto, base_onto)
+            OWLService._create_commands(onto, base_onto)
+            OWLService._create_services(onto, base_onto)
+            OWLService._create_devices(onto, base_onto, locations)
+
+        # 4. Save to file
+        onto.save(file=file_path)
+        
+        # 5. Post-processing to enforce serialization format matching ptp-demo.owl
+        with open(file_path, 'r') as f:
+            content = f.read()
+            
+        # Fix prefixes
+        content = content.replace('xmlns:eupo="', 'xmlns:eupont="')
+        content = content.replace('eupo:', 'eupont:')
+        content = content.replace('xmlns:sifi="', 'xmlns:sifis-home="')
+        content = content.replace('sifi:', 'sifis-home:')
+        
+        # Fix property rendering (remove rdf:datatype)
+        import re
+        content = re.sub(r'<sifis-home:type[^>]*>([^<]+)</sifis-home:type>', r'<eupont:type>\1</eupont:type>', content)
+        content = re.sub(r'<sifis-home:id[^>]*>([^<]+)</sifis-home:id>', r'<sifis-home:id>\1</sifis-home:id>', content)
+
+        # Fix Serialization Style: Typed Node -> Generic Node
+        ns_map = {
+            "eupont": "http://elite.polito.it/ontologies/eupont.owl#",
+            "sifis-home": "http://elite.polito.it/ontologies/sifis-home.owl#"
+        }
+
+        def replace_typed_node(match):
+            prefix = match.group(1)
+            class_name = match.group(2)
+            attributes = match.group(3)
+            
+            if prefix in ns_map:
+                full_iri = f"{ns_map[prefix]}{class_name}"
+                return f'<owl:NamedIndividual{attributes}>\n  <rdf:type rdf:resource="{full_iri}"/>'
+            return match.group(0)
+
+        # Convert Typed Nodes (Classes start with Uppercase) to Generic Nodes
+        content = re.sub(r'<(eupont|sifis-home):([A-Z]\w+)([^>]*)>', replace_typed_node, content)
+        content = re.sub(r'</(eupont|sifis-home):([A-Z]\w+)>', '</owl:NamedIndividual>', content)
+
+        # Remove redundant implicit type
+        content = content.replace('<rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>', '')
+        
+        # Cleanup empty lines
+        content = re.sub(r'\n\s*\n', '\n', content)
+
+        with open(file_path, 'w') as f:
+            f.write(content)
+            
+        return user_iri
+
+    @staticmethod
+    def _get_class(base_onto, class_name, iri=None):
+        """Helper to safely get a class from the ontology."""
+        # Try direct access
+        cls = getattr(base_onto, class_name, None)
+        if cls: return cls
+        
+        # Try searching in world
+        if iri:
+            if '#' in iri:
+                base_iri, fragment = iri.split('#', 1)
+                cls = base_onto.world.get_ontology(base_iri)[fragment]
+            elif '/' in iri:
+                base_iri, fragment = iri.rsplit('/', 1)
+                cls = base_onto.world.get_ontology(base_iri + '/')[fragment]
+            
+            if cls: return cls
+            
+        # Try searching by name in classes
+        for cls in base_onto.classes():
+            if cls.name == class_name:
+                return cls
+                
+        # Try EUPont explicitly
+        eupont = base_onto.world.get_ontology(OWLService.EUPONT_IRI)
+        if eupont:
+            cls = getattr(eupont, class_name, None)
+            if cls: return cls
+            
+        return None
+
+    @staticmethod
+    def _create_individual(onto, class_obj, name, types=None, props=None):
+        """Helper to create an individual safely with properties."""
+        if not class_obj:
+            return None
+            
+        ind = onto[name]
+        if ind is None:
+            ind = class_obj(name, namespace=onto)
+        
+        if types:
+            for t in types:
+                if t: ind.is_a.append(t)
+        
+        if props:
+            for prop_name, prop_value in props.items():
+                # Find property
+                prop = None
+                
+                # Helper to check if object is a property
+                def is_prop(obj):
+                    return hasattr(obj, 'python_name') and hasattr(obj, 'iri')
+
+                # Try direct lookup on ontology
+                if hasattr(onto, prop_name):
+                    candidate = getattr(onto, prop_name)
+                    if is_prop(candidate):
+                        prop = candidate
+
+                # Try lookup on imported ontologies
+                if not prop:
+                    for imported in onto.imported_ontologies:
+                        if hasattr(imported, prop_name):
+                            candidate = getattr(imported, prop_name)
+                            if is_prop(candidate):
+                                prop = candidate
+                                break
+                
+                # Special handling for known properties if not found by name
+                if not prop:
+                    if prop_name == "id":
+                        # Look for data property 'id'
+                        prop = onto.world.search_one(iri="*#id", type=None) # type=None to find any entity
+                        # Filter to ensure it's a property
+                        if not is_prop(prop):
+                             # Try specific known IRI
+                             prop = onto.world.get_ontology("http://elite.polito.it/ontologies/sifis-home.owl").search_one(iri="*#id")
+
+                    elif prop_name == "name":
+                        prop = onto.world.get_ontology("http://elite.polito.it/ontologies/sifis-home.owl").search_one(iri="*#name")
+                    elif prop_name == "allowTo":
+                        prop = onto.world.get_ontology("http://elite.polito.it/ontologies/eupont.owl").search_one(iri="*#allowTo")
+                    elif prop_name == "type":
+                        # Use eupont:type specifically, not sifis-home:type
+                        prop = onto.world.get_ontology("http://elite.polito.it/ontologies/eupont.owl").search_one(iri="http://elite.polito.it/ontologies/eupont.owl#type")
+
+                if prop and hasattr(prop, 'python_name'):
+                    try:
+                        # Handle list vs single value
+                        if isinstance(prop_value, list):
+                            setattr(ind, prop.python_name, prop_value)
+                        else:
+                            setattr(ind, prop.python_name, [prop_value])
+                    except Exception as e:
+                        print(f"Error assigning property {prop_name} ({prop}) to {name}: {e}")
+                        # Re-raise to stop execution if needed, or continue
+                        raise e
+                
+        return ind
+
+    @staticmethod
+    def _create_user_individual(onto, base_onto, user_uuid):
+        Person = OWLService._get_class(base_onto, "Person", "http://xmlns.com/foaf/0.1/Person")
+        if Person:
+            Person(f"{user_uuid}", namespace=onto)
+
+    @staticmethod
+    def _create_locations(onto, base_onto):
+        Location = OWLService._get_class(base_onto, "Location")
+        Room = OWLService._get_class(base_onto, "Room")
+        Building = OWLService._get_class(base_onto, "Building")
+        
+        if not Location:  return {}
+
+        locations = {}
+        
+        # Default Rooms - NOTE: omitting 'name' property to prevent IRI corruption by owlready2
+        rooms = ["bedroom", "livingroom", "kitchen", "bathroom", "office"]
+        for room_id in rooms:
+            loc_ind = OWLService._create_individual(onto, Location, f"location-{room_id}", [Room])
+            locations[f"location-{room_id}"] = loc_ind
+            
+        # Home
+        home_ind = OWLService._create_individual(onto, Location, "location-home", [Building])
+        locations["location-home"] = home_ind
+        
+        return locations
+
+    @staticmethod
+    def _create_triggers(onto, base_onto):
+        # Triggers are referenced in allowTo but defined in sifis-home.owl
+        # We don't need to create them, just reference them.
+        pass 
+
+    @staticmethod
+    def _create_notifications(onto, base_onto):
+        TimeNotification = OWLService._get_class(base_onto, "TimeNotification")
+        CloseNotification = OWLService._get_class(base_onto, "CloseNotification")
+        OpenNotification = OWLService._get_class(base_onto, "OpenNotification")
+        
+        # Triggers (referenced by IRI)
+        triggers = {
+            "morning": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_morning_trigger",
+            "afternoon": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_afternoon_trigger",
+            "evening": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_evening_trigger",
+            "night": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_night_trigger",
+            "day": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_day_trigger",
+            "win_open": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_windows_open_trigger",
+            "win_close": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_windows_close_trigger"
+        }
+        
+        # Helper to get trigger objects safely
+        def get_trigger(key):
+            iri = triggers[key]
+            # Try searching in base_onto first
+            res = base_onto.search_one(iri=iri)
+            if not res:
+                 # Try world search
+                 res = onto.world.search_one(iri=iri)
+            return res
+
+        # Calendar Alarm
+        allow_to_list = [
+            get_trigger("morning"), get_trigger("afternoon"), 
+            get_trigger("evening"), get_trigger("night"), get_trigger("day")
+        ]
+        # Filter out None values
+        allow_to_list = [t for t in allow_to_list if t]
+        
+        n_cal = OWLService._create_individual(onto, TimeNotification, "n-calendar1-alarm", props={
+            "id": "calendar1-alarm",
+            "allowTo": allow_to_list
+        })
+        
+        # Window Notifications
+        t_win_close = get_trigger("win_close")
+        t_win_open = get_trigger("win_open")
+        
+        OWLService._create_individual(onto, CloseNotification, "n-window_1-close", props={
+            "id": "window_1-closed",
+            "allowTo": [t_win_close] if t_win_close else []
+        })
+        OWLService._create_individual(onto, OpenNotification, "n-window_1-open", props={
+            "id": "window_1-opened",
+            "allowTo": [t_win_open] if t_win_open else []
+        })
+        OWLService._create_individual(onto, CloseNotification, "n-window_2-close", props={
+            "id": "window_2-closed",
+            "allowTo": [t_win_close] if t_win_close else []
+        })
+        OWLService._create_individual(onto, OpenNotification, "n-window_2-open", props={
+            "id": "window_2-opened",
+            "allowTo": [t_win_open] if t_win_open else []
+        })
+
+    @staticmethod
+    def _create_commands(onto, base_onto):
+        StartCommand = OWLService._get_class(base_onto, "StartCommand")
+        StopCommand = OWLService._get_class(base_onto, "StopCommand")
+        TurnOnCommand = OWLService._get_class(base_onto, "TurnOnCommand")
+        TurnOffCommand = OWLService._get_class(base_onto, "TurnOffCommand")
+        OpenCommand = OWLService._get_class(base_onto, "OpenCommand")
+        CloseCommand = OWLService._get_class(base_onto, "CloseCommand")
+
+        # Actions (referenced by IRI)
+        actions = {
+            "all_audio": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_audio_actions",
+            "rec_audio": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_record_audio_action",
+            "stop_audio": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_stop_record_audio_action",
+            "all_video": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_video_actions",
+            "rec_video": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_record_video_action",
+            "stop_video": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_stop_record_video_action",
+            "all_light": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions",
+            "on_light": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action",
+            "off_light": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action",
+            "all_heat": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_heating_actions",
+            "on_heat": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_heating_action",
+            "off_heat": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_heating_action",
+            "all_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions",
+            "open_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_windows_action",
+            "close_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_windows_action"
+        }
+        
+        def get_action(key):
+            iri = actions[key]
+            res = base_onto.search_one(iri=iri)
+            if not res:
+                res = onto.world.search_one(iri=iri)
+            return res
+
+        # Helper to create list safely
+        def safe_list(*args):
+            return [a for a in args if a]
+
+        # Camera Commands
+        for i in range(1, 4):
+            OWLService._create_individual(onto, StartCommand, f"c-camera{i}-start-audio", props={
+                "id": f"camera{i}-start-audio", "type": "turn_on",
+                "allowTo": safe_list(get_action("all_audio"), get_action("rec_audio"))
+            })
+            OWLService._create_individual(onto, StopCommand, f"c-camera{i}-stop-audio", props={
+                "id": f"camera{i}-stop-audio", "type": "turn_off",
+                "allowTo": safe_list(get_action("all_audio"), get_action("stop_audio"))
+            })
+            OWLService._create_individual(onto, StartCommand, f"c-camera{i}-start-video", props={
+                "id": f"camera{i}-start-video", "type": "turn_on",
+                "allowTo": safe_list(get_action("all_video"), get_action("rec_video"))
+            })
+            OWLService._create_individual(onto, StopCommand, f"c-camera{i}-stop-video", props={
+                "id": f"camera{i}-stop-video", "type": "turn_off",
+                "allowTo": safe_list(get_action("all_video"), get_action("stop_video"))
+            })
+
+        # Speaker Commands
+        for i in range(1, 3):
+            OWLService._create_individual(onto, StartCommand, f"c-speaker{i}-start-audio", props={
+                "id": f"speaker{i}-start-audio", "type": "turn_on",
+                "allowTo": safe_list(get_action("all_audio"), get_action("rec_audio"))
+            })
+            OWLService._create_individual(onto, StopCommand, f"c-speaker{i}-stop-audio", props={
+                "id": f"speaker{i}-stop-audio", "type": "turn_off",
+                "allowTo": safe_list(get_action("all_audio"), get_action("stop_audio"))
+            })
+
+        # Lamp Commands
+        for i in range(1, 4):
+            OWLService._create_individual(onto, TurnOnCommand, f"c-lamp_{i}-turn-on", props={
+                "id": f"lamp_{i}-turn-on", "type": "turn_on",
+                "allowTo": safe_list(get_action("all_light"), get_action("on_light"))
+            })
+            OWLService._create_individual(onto, TurnOffCommand, f"c-lamp_{i}-turn-off", props={
+                "id": f"lamp_{i}-turn-off", "type": "turn_off",
+                "allowTo": safe_list(get_action("all_light"), get_action("off_light"))
+            })
+
+        # Radiator Commands
+        for i in range(1, 3):
+            OWLService._create_individual(onto, TurnOnCommand, f"c-radiator_{i}-turn-on", props={
+                "id": f"radiator_{i}-turn-on", "type": "turn_on",
+                "allowTo": safe_list(get_action("all_heat"), get_action("on_heat"))
+            })
+            OWLService._create_individual(onto, TurnOffCommand, f"c-radiator_{i}-turn-off", props={
+                "id": f"radiator_{i}-turn-off", "type": "turn_off",
+                "allowTo": safe_list(get_action("all_heat"), get_action("off_heat"))
+            })
+
+        # Window Commands
+        for i in range(1, 3):
+            OWLService._create_individual(onto, OpenCommand, f"c-window_{i}-open", props={
+                "id": f"window_{i}-open", "type": "unlock",
+                "allowTo": safe_list(get_action("all_win"), get_action("open_win"))
+            })
+            OWLService._create_individual(onto, CloseCommand, f"c-window_{i}-close", props={
+                "id": f"window_{i}-close", "type": "lock",
+                "allowTo": safe_list(get_action("all_win"), get_action("close_win"))
+            })
+
+    @staticmethod
+    def _create_services(onto, base_onto):
+        AudioRecordingService = OWLService._get_class(base_onto, "AudioRecordingService")
+        VideoRecordingService = OWLService._get_class(base_onto, "VideoRecordingService")
+        LightingService = OWLService._get_class(base_onto, "LightingService")
+        HeatingService = OWLService._get_class(base_onto, "HeatingService")
+        FrameService = OWLService._get_class(base_onto, "FrameService")
+        TimerService = OWLService._get_class(base_onto, "TimerService")
+
+        # Camera Services
+        for i in range(1, 4):
+            s_audio = OWLService._create_individual(onto, AudioRecordingService, f"s-camera{i}-record-audio")
+            s_video = OWLService._create_individual(onto, VideoRecordingService, f"s-camera{i}-record-video")
+            
+            # Link commands
+            if s_audio:
+                s_audio.hasCommand.append(onto[f"c-camera{i}-start-audio"])
+                s_audio.hasCommand.append(onto[f"c-camera{i}-stop-audio"])
+            if s_video:
+                s_video.hasCommand.append(onto[f"c-camera{i}-start-video"])
+                s_video.hasCommand.append(onto[f"c-camera{i}-stop-video"])
+
+        # Speaker Services
+        for i in range(1, 3):
+            s_audio = OWLService._create_individual(onto, AudioRecordingService, f"s-speaker{i}-record-audio")
+            if s_audio:
+                s_audio.hasCommand.append(onto[f"c-speaker{i}-start-audio"])
+                s_audio.hasCommand.append(onto[f"c-speaker{i}-stop-audio"])
+
+        # Lamp Services
+        for i in range(1, 4):
+            s_light = OWLService._create_individual(onto, LightingService, f"s-lamp_{i}-lighting")
+            if s_light:
+                s_light.hasCommand.append(onto[f"c-lamp_{i}-turn-on"])
+                s_light.hasCommand.append(onto[f"c-lamp_{i}-turn-off"])
+
+        # Radiator Services
+        for i in range(1, 3):
+            s_heat = OWLService._create_individual(onto, HeatingService, f"s-radiator_{i}-heating")
+            if s_heat:
+                s_heat.hasCommand.append(onto[f"c-radiator_{i}-turn-on"])
+                s_heat.hasCommand.append(onto[f"c-radiator_{i}-turn-off"])
+
+        # Window Services
+        for i in range(1, 3):
+            s_frame = OWLService._create_individual(onto, FrameService, f"s-window_{i}-opening")
+            if s_frame:
+                s_frame.hasCommand.append(onto[f"c-window_{i}-open"])
+                s_frame.hasCommand.append(onto[f"c-window_{i}-close"])
+                s_frame.hasNotification.append(onto[f"n-window_{i}-open"])
+                s_frame.hasNotification.append(onto[f"n-window_{i}-close"])
+
+        # Timer Service
+        s_timer = OWLService._create_individual(onto, TimerService, "s-caledar-alarm")
+        if s_timer:
+            s_timer.hasNotification.append(onto["n-calendar1-alarm"])
+
+    @staticmethod
+    def _create_devices(onto, base_onto, locations):
+        Camera = OWLService._get_class(base_onto, "Camera")
+        Lamp = OWLService._get_class(base_onto, "Lamp")
+        Heater = OWLService._get_class(base_onto, "Heater")
+        Speaker = OWLService._get_class(base_onto, "Speaker")
+        SmartWindow = OWLService._get_class(base_onto, "SmartWindow")
+
+        # Cameras
+        # Camera 1: Living Room
+        d_cam1 = OWLService._create_individual(onto, Camera, "d-camera1", props={"id": "camera-1"})
+        if d_cam1:
+            d_cam1.hasService.append(onto["s-camera1-record-audio"])
+            d_cam1.hasService.append(onto["s-camera1-record-video"])
+            d_cam1.position = [locations["location-livingroom"]]
+            
+        # Camera 2 & 3: Bedroom
+        for i in range(2, 4):
+            d_cam = OWLService._create_individual(onto, Camera, f"d-camera{i}", props={"id": f"camera-{i}"})
+            if d_cam:
+                d_cam.hasService.append(onto[f"s-camera{i}-record-audio"])
+                d_cam.hasService.append(onto[f"s-camera{i}-record-video"])
+                d_cam.position = [locations["location-bedroom"]]
+
+        # Lamps
+        # Lamp 1: Bedroom
+        d_lamp1 = OWLService._create_individual(onto, Lamp, "d-lamp_1", props={"id": "lamp_1"})
+        if d_lamp1:
+            d_lamp1.hasService.append(onto["s-lamp_1-lighting"])
+            d_lamp1.position = [locations["location-bedroom"]]
+            
+        # Lamp 2: Living Room
+        d_lamp2 = OWLService._create_individual(onto, Lamp, "d_lamp_2", props={"id": "lamp_2"}) # Note: ptp-demo uses d_lamp_2 not d-lamp_2
+        if d_lamp2:
+            d_lamp2.hasService.append(onto["s-lamp_2-lighting"])
+            d_lamp2.position = [locations["location-livingroom"]]
+            
+        # Lamp 3: Kitchen
+        d_lamp3 = OWLService._create_individual(onto, Lamp, "d_lamp_3", props={"id": "lamp_3"})
+        if d_lamp3:
+            d_lamp3.hasService.append(onto["s-lamp_3-lighting"])
+            d_lamp3.position = [locations["location-kitchen"]]
+
+        # Radiators
+        # Rad 1: Bedroom
+        d_rad1 = OWLService._create_individual(onto, Heater, "d-radiator_1", props={"id": "radiator_valve_1"})
+        if d_rad1:
+            d_rad1.hasService.append(onto["s-radiator_1-heating"])
+            d_rad1.position = [locations["location-bedroom"]]
+            
+        # Rad 2: Kitchen
+        d_rad2 = OWLService._create_individual(onto, Heater, "d-radiator_2", props={"id": "radiator_valve_2"})
+        if d_rad2:
+            d_rad2.hasService.append(onto["s-radiator_2-heating"])
+            d_rad2.position = [locations["location-kitchen"]]
+
+        # Speakers
+        # Speaker 1: Living Room
+        d_spk1 = OWLService._create_individual(onto, Speaker, "d-speaker1", props={"id": "speaker-1"})
+        if d_spk1:
+            d_spk1.hasService.append(onto["s-speaker1-record-audio"])
+            d_spk1.position = [locations["location-livingroom"]]
+            
+        # Speaker 2: Bedroom
+        d_spk2 = OWLService._create_individual(onto, Speaker, "d-speaker2", props={"id": "speaker-2"})
+        if d_spk2:
+            d_spk2.hasService.append(onto["s-speaker2-record-audio"])
+            d_spk2.position = [locations["location-bedroom"]]
+
+        # Windows
+        # Window 1: Bedroom
+        d_win1 = OWLService._create_individual(onto, SmartWindow, "d-window_1", props={"id": "window_sensor_1"})
+        if d_win1:
+            d_win1.hasService.append(onto["s-window_1-opening"])
+            d_win1.position = [locations["location-bedroom"]]
+            
+        # Window 2: Living Room
+        d_win2 = OWLService._create_individual(onto, SmartWindow, "d-window_2", props={"id": "window_sensor_2"})
+        if d_win2:
+            d_win2.hasService.append(onto["s-window_2-opening"])
+            d_win2.position = [locations["location-livingroom"]]
