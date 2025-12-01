@@ -54,3 +54,14 @@ class ApplicationRepository:
             )
         )
         return db.session.scalar(statement)
+
+    @staticmethod
+    def get_user_smart_home_application_by_ds_id_and_smart_home_id_and_application_id(
+        user_id: int, smart_home_id: int, application_id: int
+    ) -> UserSmartHomeApplication | None:
+        statement = db.select(UserSmartHomeApplication).where(
+            UserSmartHomeApplication.user_id == user_id,
+            UserSmartHomeApplication.smart_home_id == smart_home_id,
+            UserSmartHomeApplication.application_id == application_id,
+        )
+        return db.session.scalar(statement)

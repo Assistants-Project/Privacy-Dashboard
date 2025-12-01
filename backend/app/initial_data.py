@@ -207,25 +207,17 @@ def init_data(app: Flask) -> None:
             data_controller2.installed_applications.append(
                 data_controller2_application2
             )
-            # Data Subject 1 gave Consent 1 in Smart Home 1, Consent 2 in Smart Home 2, Consent 3 in Smart Home 2 and Consent 4 in Smart Home 2
+            # Data Subject 1 gave Consent 1 in Smart Home 1, Consent 2 in Smart Home 2
             data_subject1_smart_home1_available_consent1 = (
                 UserSmartHomeAvailableConsent()
             )
             data_subject1_smart_home2_available_consent2 = (
                 UserSmartHomeAvailableConsent()
             )
-            data_subject1_smart_home2_available_consent3 = (
-                UserSmartHomeAvailableConsent()
-            )
-            data_subject1_smart_home2_available_consent4 = (
-                UserSmartHomeAvailableConsent()
-            )
             db.session.add_all(
                 [
                     data_subject1_smart_home1_available_consent1,
                     data_subject1_smart_home2_available_consent2,
-                    data_subject1_smart_home2_available_consent3,
-                    data_subject1_smart_home2_available_consent4,
                 ]
             )
             data_subject1_smart_home1_available_consent1.smart_home = smart_home1
@@ -241,20 +233,6 @@ def init_data(app: Flask) -> None:
             )
             data_subject1.given_consents.append(
                 data_subject1_smart_home2_available_consent2
-            )
-            data_subject1_smart_home2_available_consent3.smart_home = smart_home2
-            data_subject1_smart_home2_available_consent3.available_consent = (
-                available_consent3
-            )
-            data_subject1.given_consents.append(
-                data_subject1_smart_home2_available_consent3
-            )
-            data_subject1_smart_home2_available_consent4.smart_home = smart_home2
-            data_subject1_smart_home2_available_consent4.available_consent = (
-                available_consent4
-            )
-            data_subject1.given_consents.append(
-                data_subject1_smart_home2_available_consent4
             )
             # Data Controller 1 exchanged messages with Data Controller 2
             data_controller1_data_controller2_message1 = Message(

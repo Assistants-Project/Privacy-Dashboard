@@ -4,6 +4,12 @@ from .auth_exceptions import (
     MissingJWTException,
 )
 from .entities.application_exceptions import ApplicationNotFoundException
+from .entities.available_consent_exceptions import (
+    AvailableConsentApplicationMismatchException,
+    AvailableConsentEmptyListException,
+    AvailableConsentNotFoundException,
+    AvailableConsentWrongListException,
+)
 from .entities.device_exceptions import DeviceSyncException
 from .entities.home_exception import (
     SmartHomeForbiddenException,
@@ -21,12 +27,20 @@ from .entities.user_exceptions import (
     WrongUserRoleException,
     WrongUserUuidException,
 )
+from .relations.user_smart_home_available_consent_exceptions import (
+    UserSmartHomeAvailableConsentAlreadyCreatedException,
+    UserSmartHomeAvailableConsentCreationException,
+)
 
 __all__ = [
     "ExpiredJWTException",
     "InvalidJWTException",
     "MissingJWTException",
     "ApplicationNotFoundException",
+    "AvailableConsentApplicationMismatchException",
+    "AvailableConsentEmptyListException",
+    "AvailableConsentNotFoundException",
+    "AvailableConsentWrongListException",
     "PrivacyNoticeNotFoundException",
     "RequestNotFoundException",
     "UserNotFoundException",
@@ -41,4 +55,6 @@ __all__ = [
     "SmartHomeForbiddenException",
     "DeviceSyncException",
     "SmartotumSyncException",
+    "UserSmartHomeAvailableConsentAlreadyCreatedException",
+    "UserSmartHomeAvailableConsentCreationException",
 ]
