@@ -1,4 +1,5 @@
-from typing import List
+from datetime import datetime
+from typing import List, TypedDict
 from uuid import UUID
 
 from ..exceptions import (
@@ -15,6 +16,12 @@ from ..repositories import (
     AvailableConsentRepository,
     SmartHomeRepository,
 )
+
+
+class AvailableConsentGivenDict(TypedDict):
+    available_consent = AvailableConsent
+    application_name = str
+    given_at = datetime
 
 
 class AvailableConsentService:
@@ -46,6 +53,42 @@ class AvailableConsentService:
                 f"Application with uuid {application_uuid} not found among your applications!"
             )
         return application.available_consents
+
+    @staticmethod
+    def get_given_consents_by_ds_id_and_smart_home_uuid(
+        current_user_id: int, smart_home_uuid: str
+    ) -> List[AvailableConsentGivenDict]:
+        """Returns a list of available consents given by a `DATA_SUBJECT` user in a given `SmartHome`.
+
+        Args:
+            current_user_id: The ID of the user with role `DATA_SUBJECT` who is fetching the given consents.
+            smart_home_uuid: The `UUID` of the smart home to fetch given consents of.
+
+        Returns:
+            A list of dictionaries each containing the available consent instance, the name of the application associated to the consent and the date and time it was given, or an empty list if none are found.
+
+        Raises:
+            `SmartHomeNotFoundException`: If the `SmartHome` with the given `UUID` is not found among the owned smart homes of the user.
+        """
+
+        smart_home = SmartHomeRepository.get_home_by_ds_id_and_home_uuid(
+            current_user_id, smart_home_uuid
+        )
+        if not smart_home:
+            raise SmartHomeNotFoundException(
+                f"Smart Home with uuid {smart_home_uuid} not found among the owned smart homes!"
+            )
+        iterator = AvailableConsentRepository.get_available_consents_by_ds_id_and_smart_home_id(
+            current_user_id, smart_home.id
+        )
+        return [
+            {
+                "available_consent": available_consent,
+                "application_name": application_name,
+                "given_at": given_at,
+            }
+            for available_consent, application_name, given_at in iterator
+        ]
 
     @staticmethod
     def give_consents_in_smart_home(

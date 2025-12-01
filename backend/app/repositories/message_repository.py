@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Iterator
 
 from ..extensions import db
@@ -38,6 +39,7 @@ class MessageRepository:
             attachment=attachment,
             sender_id=sender_id,
             receiver_id=receiver_id,
+            sent_at=datetime.now(),
         )
         db.session.add(message)
         db.session.commit()

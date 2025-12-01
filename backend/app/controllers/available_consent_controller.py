@@ -9,6 +9,7 @@ from ..exceptions import (
 )
 from ..schemas import (
     ApplicationUuidReqSchema,
+    AvailableConsentGivenResSchema,
     AvailableConsentResSchema,
     AvailableConsentsReqSchema,
     SmartHomeUuidReqSchema,
@@ -33,6 +34,16 @@ available_consent_bp = Blueprint(
 def get_available_consents_by_application_uuid(application_uuid: UUID, current_user):
     return AvailableConsentService.get_available_consents_by_application_uuid(
         current_user.id, application_uuid
+    )
+
+
+@available_consent_bp.route("/home/<smart_home_uuid>", methods=["GET"])
+@available_consent_bp.arguments(SmartHomeUuidReqSchema, location="path", as_kwargs=True)
+@available_consent_bp.response(200, AvailableConsentGivenResSchema(many=True))
+@ds_required()
+def get_given_consents_by_smart_home_uuid(smart_home_uuid: str, current_user):
+    return AvailableConsentService.get_given_consents_by_ds_id_and_smart_home_uuid(
+        current_user.id, smart_home_uuid
     )
 
 

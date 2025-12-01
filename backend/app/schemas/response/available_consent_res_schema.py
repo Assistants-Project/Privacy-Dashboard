@@ -9,3 +9,9 @@ class AvailableConsentResSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = False
         load_instance = False
         exclude = ("id",)
+
+
+class AvailableConsentGivenResSchema(ma.Schema):
+    available_consent = ma.Nested(AvailableConsentResSchema)
+    application_name = ma.Str()
+    given_at = ma.DateTime()

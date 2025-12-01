@@ -1,9 +1,11 @@
+from datetime import datetime
+from typing import Iterator, Tuple
 from uuid import UUID
 
 from sqlalchemy import Row
 
 from ..extensions import db
-from ..models import AvailableConsent, UserSmartHomeAvailableConsent
+from ..models import Application, AvailableConsent, UserSmartHomeAvailableConsent
 
 
 class AvailableConsentRepository:
@@ -26,6 +28,26 @@ class AvailableConsentRepository:
         return db.session.scalar(statement)
 
     @staticmethod
+    def get_available_consents_by_ds_id_and_smart_home_id(
+        current_user_id: int, smart_home_id: int
+    ) -> Iterator[Tuple[AvailableConsent, str, datetime]]:
+        statement = (
+            db.select(
+                AvailableConsent,
+                Application.name,
+                UserSmartHomeAvailableConsent.given_at,
+            )
+            .join(
+                AvailableConsent.given_by_user_smart_home_combinations.and_(
+                    UserSmartHomeAvailableConsent.smart_home_id == smart_home_id,
+                    UserSmartHomeAvailableConsent.user_id == current_user_id,
+                )
+            )
+            .join(Application)
+        )
+        return db.session.execute(statement)
+
+    @staticmethod
     def create_user_smart_home_available_consent(
         user_id: int,
         smart_home_id: int,
@@ -35,6 +57,7 @@ class AvailableConsentRepository:
             user_id=user_id,
             smart_home_id=smart_home_id,
             available_consent_id=available_consent_id,
+            given_at=datetime.now(),
         )
         db.session.add(given_consent)
         db.session.commit()

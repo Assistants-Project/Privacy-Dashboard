@@ -113,6 +113,7 @@ class RequestRepository:
             right_type=right_type,
             additional_information=additional_information,
             user_smart_home_application_relation_id=user_smart_home_application_id,
+            created_at=datetime.now(),
         )
         db.session.add(request)
         db.session.commit()
