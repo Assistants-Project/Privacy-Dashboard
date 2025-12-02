@@ -30,6 +30,7 @@ from .entities.user_exceptions import (
 from .relations.user_smart_home_available_consent_exceptions import (
     UserSmartHomeAvailableConsentAlreadyCreatedException,
     UserSmartHomeAvailableConsentCreationException,
+    UserSmartHomeAvailableConsentDeletionException,
 )
 
 __all__ = [
@@ -57,4 +58,5 @@ __all__ = [
     "SmartotumSyncException",
     "UserSmartHomeAvailableConsentAlreadyCreatedException",
     "UserSmartHomeAvailableConsentCreationException",
+    "UserSmartHomeAvailableConsentDeletionException",
 ]

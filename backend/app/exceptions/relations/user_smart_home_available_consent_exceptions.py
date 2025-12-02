@@ -10,6 +10,14 @@ class UserSmartHomeAvailableConsentCreationException(Exception):
         self.status = HTTP_STATUS_CODES[self.code]
 
 
+class UserSmartHomeAvailableConsentDeletionException(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.code = InternalServerError.code
+        self.status = HTTP_STATUS_CODES[self.code]
+
+
 class UserSmartHomeAvailableConsentAlreadyCreatedException(Exception):
     def __init__(self, message: str) -> None:
         super().__init__(message)

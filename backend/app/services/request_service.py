@@ -177,7 +177,7 @@ class RequestService:
         """Handles a request for a given application in a given smart home for a given user by adding a response and changing the status.
 
         Args:
-            current_user_id: The ID of the user with role `DATA_SUBJECT` who is handling the request.
+            current_user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who is handling the request.
             request_uuid: The `UUID` of the request to be handled.
             request_handling: An object containing the response and the status of the request to update.
 

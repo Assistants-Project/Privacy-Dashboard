@@ -63,3 +63,16 @@ class AvailableConsentRepository:
         db.session.commit()
         db.session.refresh(given_consent)
         return given_consent
+
+    @staticmethod
+    def delete_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_available_consent_id(
+        user_id: int, smart_home_id: int, available_consent_id: int
+    ) -> None:
+        statement = db.delete(UserSmartHomeAvailableConsent).where(
+            UserSmartHomeAvailableConsent.user_id == user_id,
+            UserSmartHomeAvailableConsent.smart_home_id == smart_home_id,
+            UserSmartHomeAvailableConsent.available_consent_id == available_consent_id,
+        )
+        db.session.execute(statement)
+        db.session.commit()
+        return

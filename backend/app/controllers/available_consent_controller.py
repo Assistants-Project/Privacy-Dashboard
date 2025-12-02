@@ -13,9 +13,10 @@ from ..schemas import (
     AvailableConsentResSchema,
     AvailableConsentsReqSchema,
     SmartHomeUuidReqSchema,
+    UserAndSmartHomeAndAvailableConsentUuidReqSchema,
 )
 from ..services import AvailableConsentService
-from ..utils import ds_required, logged_in_required
+from ..utils import dc_or_dpo_required, ds_required, logged_in_required
 
 available_consent_bp = Blueprint(
     "Available Consents API",
@@ -62,5 +63,19 @@ def give_consents_in_smart_home(
         raise AvailableConsentWrongListException("Duplicate consents selected!")
     AvailableConsentService.give_consents_in_smart_home(
         current_user.id, smart_home_uuid, selected_consents
+    )
+    return "", 204
+
+
+@available_consent_bp.route("/given-consent", methods=["DELETE"])
+@available_consent_bp.arguments(
+    UserAndSmartHomeAndAvailableConsentUuidReqSchema, location="json", as_kwargs=True
+)
+@dc_or_dpo_required()
+def delete_given_consent_by_ds_uuid_and_smart_home_uuid_and_available_consent_uuid(
+    user_uuid: UUID, smart_home_uuid: str, available_consent_uuid: UUID, current_user
+):
+    AvailableConsentService.delete_given_consent_by_ds_uuid_and_smart_home_uuid_and_available_consent_uuid(
+        current_user.id, user_uuid, smart_home_uuid, available_consent_uuid
     )
     return "", 204
