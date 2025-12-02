@@ -225,12 +225,84 @@ class AvailableConsentService:
             )
         except Exception:
             raise UserSmartHomeAvailableConsentDeletionException(
-                "Error while saving selected consents!"
+                "Error while deleting the given consent!"
             )
         if AvailableConsentRepository.get_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_available_consent_id(
             other_user.id, smart_home.id, available_consent.id
         ):
             raise UserSmartHomeAvailableConsentDeletionException(
                 "Error while deleting the given consent!"
+            )
+        return
+
+    @staticmethod
+    def delete_given_consent_by_ds_uuid_and_smart_home_uuid_and_application_uuid(
+        current_user_id: int,
+        other_user_uuid: UUID,
+        smart_home_uuid: str,
+        application_uuid: UUID,
+    ) -> None:
+        """Deletes all given consents associated to an application in the given smart home owned by the given user.
+
+        Args:
+            current_user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who is deleting the given consents.
+            other_user_uuid: The `UUID` of the user with role `DATA_SUBJECT` who gave the consents to be deleted.
+            smart_home_uuid: The `UUID` of the smart home where to delete the given consents from.
+            application_uuid: The `UUID` of the application associated to the given consents to be deleted.
+
+        Returns:
+            `None`
+
+        Raises:
+            `UserNotFoundException`: If the `User` with the given `UUID` is not found among the contacts of the given `DATA_CONTROLLER` or `DPO` user.
+            `SmartHomeNotFoundException`: If the `SmartHome` with the given `UUID` is not found among the owned smart homes of the given `DATA_SUBJECT` user.
+            `ApplicationNotFoundException`: If the `Application` with the given `UUID` is not found among the installed applications of the given smart home of the given `DATA_SUBJECT` user.
+            `ApplicationNotFoundException`: If the `Application` with the given `UUID` is not found among the applications managed by the given `DATA_CONTROLLER` or `DPO` user.
+            `UserSmartHomeAvailableConsentDeletionException`: If an error occurs while deleting the given consents in the database.
+        """
+
+        other_user = UserRepository.get_contact_by_user_id_and_other_user_uuid(
+            current_user_id, other_user_uuid
+        )
+        if not other_user:
+            raise UserNotFoundException(
+                f"User with uuid {other_user_uuid} not found among the contacts!"
+            )
+        smart_home = SmartHomeRepository.get_home_by_ds_id_and_home_uuid(
+            other_user.id, smart_home_uuid
+        )
+        if not smart_home:
+            raise SmartHomeNotFoundException(
+                f"Smart Home with uuid {smart_home_uuid} not found among the owned smart homes of user with uuid {other_user_uuid}!"
+            )
+        user_smart_home_application = ApplicationRepository.get_user_smart_home_application_by_ds_id_and_smart_home_id_and_application_uuid(
+            other_user.id, smart_home.id, application_uuid
+        )
+        if not user_smart_home_application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among the installed applications of smart home with uuid {smart_home_uuid}!"
+            )
+        application = (
+            ApplicationRepository.get_application_by_user_id_and_application_uuid(
+                current_user_id, application_uuid
+            )
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among the managed applications!"
+            )
+        try:
+            AvailableConsentRepository.delete_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_application_id(
+                other_user.id, smart_home.id, application.id
+            )
+        except Exception:
+            raise UserSmartHomeAvailableConsentDeletionException(
+                "Error while deleting the consents associated to the given application!"
+            )
+        if AvailableConsentRepository.get_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_application_id(
+            other_user.id, smart_home.id, application.id
+        ):
+            raise UserSmartHomeAvailableConsentDeletionException(
+                "Error while deleting the consents associated to the given application!"
             )
         return

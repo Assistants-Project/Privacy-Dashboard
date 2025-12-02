@@ -11,6 +11,9 @@ from .request.request_req_schema import RequestReqSchema
 from .request.request_status_req_schema import RequestStatusReqSchema
 from .request.request_uuid_req_schema import RequestUuidReqSchema
 from .request.smart_home_uuid_req_schema import SmartHomeUuidReqSchema
+from .request.user_and_smart_home_and_application_uuid_req_schema import (
+    UserAndSmartHomeAndApplicationUuidReqSchema,
+)
 from .request.user_and_smart_home_and_available_consent_uuid_req_schema import (
     UserAndSmartHomeAndAvailableConsentUuidReqSchema,
 )
@@ -41,6 +44,7 @@ __all__ = [
     "RequestStatusReqSchema",
     "RequestUuidReqSchema",
     "SmartHomeUuidReqSchema",
+    "UserAndSmartHomeAndApplicationUuidReqSchema",
     "UserAndSmartHomeAndAvailableConsentUuidReqSchema",
     "UserRoleReqSchema",
     "UserUuidReqSchema",

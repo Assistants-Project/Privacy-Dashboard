@@ -13,6 +13,7 @@ from ..schemas import (
     AvailableConsentResSchema,
     AvailableConsentsReqSchema,
     SmartHomeUuidReqSchema,
+    UserAndSmartHomeAndApplicationUuidReqSchema,
     UserAndSmartHomeAndAvailableConsentUuidReqSchema,
 )
 from ..services import AvailableConsentService
@@ -77,5 +78,19 @@ def delete_given_consent_by_ds_uuid_and_smart_home_uuid_and_available_consent_uu
 ):
     AvailableConsentService.delete_given_consent_by_ds_uuid_and_smart_home_uuid_and_available_consent_uuid(
         current_user.id, user_uuid, smart_home_uuid, available_consent_uuid
+    )
+    return "", 204
+
+
+@available_consent_bp.route("/given-consents/application", methods=["DELETE"])
+@available_consent_bp.arguments(
+    UserAndSmartHomeAndApplicationUuidReqSchema, location="json", as_kwargs=True
+)
+@dc_or_dpo_required()
+def delete_given_consent_by_ds_uuid_and_smart_home_uuid_and_application_uuid(
+    user_uuid: UUID, smart_home_uuid: str, application_uuid: UUID, current_user
+):
+    AvailableConsentService.delete_given_consent_by_ds_uuid_and_smart_home_uuid_and_application_uuid(
+        current_user.id, user_uuid, smart_home_uuid, application_uuid
     )
     return "", 204

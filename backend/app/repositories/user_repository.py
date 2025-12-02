@@ -69,7 +69,7 @@ class UserRepository:
             .join(
                 User.installed_applications.and_(
                     UserSmartHomeApplication.user_id != user_id,
-                    UserSmartHomeApplication.application_id.in_(db.select(subquery)),
+                    UserSmartHomeApplication.application_id.in_(subquery),
                 )
             )
         )
@@ -92,7 +92,7 @@ class UserRepository:
                 User.installed_applications.and_(
                     User.uuid == other_user_uuid,
                     UserSmartHomeApplication.user_id != user_id,
-                    UserSmartHomeApplication.application_id.in_(db.select(subquery)),
+                    UserSmartHomeApplication.application_id.in_(subquery),
                 )
             )
         )

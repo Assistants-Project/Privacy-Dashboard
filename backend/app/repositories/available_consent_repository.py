@@ -28,6 +28,19 @@ class AvailableConsentRepository:
         return db.session.scalar(statement)
 
     @staticmethod
+    def get_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_application_id(
+        user_id: int, smart_home_id: int, application_id: int
+    ) -> Row | None:
+        statement = db.select(UserSmartHomeAvailableConsent).join(
+            UserSmartHomeAvailableConsent.available_consent.and_(
+                UserSmartHomeAvailableConsent.user_id == user_id,
+                UserSmartHomeAvailableConsent.smart_home_id == smart_home_id,
+                AvailableConsent.application_id == application_id,
+            )
+        )
+        return db.session.execute(statement).first()
+
+    @staticmethod
     def get_available_consents_by_ds_id_and_smart_home_id(
         current_user_id: int, smart_home_id: int
     ) -> Iterator[Tuple[AvailableConsent, str, datetime]]:
@@ -72,6 +85,24 @@ class AvailableConsentRepository:
             UserSmartHomeAvailableConsent.user_id == user_id,
             UserSmartHomeAvailableConsent.smart_home_id == smart_home_id,
             UserSmartHomeAvailableConsent.available_consent_id == available_consent_id,
+        )
+        db.session.execute(statement)
+        db.session.commit()
+        return
+
+    @staticmethod
+    def delete_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_application_id(
+        user_id: int, smart_home_id: int, application_id: int
+    ) -> None:
+        subquery = (
+            db.select(AvailableConsent.id)
+            .where(AvailableConsent.application_id == application_id)
+            .subquery()
+        )
+        statement = db.delete(UserSmartHomeAvailableConsent).where(
+            UserSmartHomeAvailableConsent.user_id == user_id,
+            UserSmartHomeAvailableConsent.smart_home_id == smart_home_id,
+            UserSmartHomeAvailableConsent.available_consent_id.in_(subquery),
         )
         db.session.execute(statement)
         db.session.commit()

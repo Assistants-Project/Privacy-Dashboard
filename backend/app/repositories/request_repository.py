@@ -53,7 +53,7 @@ class RequestRepository:
             )
             .join(
                 Request.user_smart_home_application_relation.and_(
-                    UserSmartHomeApplication.application_id.in_(db.select(subquery)),
+                    UserSmartHomeApplication.application_id.in_(subquery),
                 )
             )
             .join(User)
@@ -74,7 +74,7 @@ class RequestRepository:
         )
         statement = db.select(Request).join(
             Request.user_smart_home_application_relation.and_(
-                UserSmartHomeApplication.application_id.in_(db.select(subquery)),
+                UserSmartHomeApplication.application_id.in_(subquery),
                 Request.uuid == request_uuid,
             )
         )
