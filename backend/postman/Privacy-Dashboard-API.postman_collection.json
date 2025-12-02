@@ -15216,6 +15216,1343 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Unprocessable Delete Given Consent By User, Home, Consent - Empty User UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'json' having an object with key 'user_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('json').that.is.an('object').that.has.property('user_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"smart_home_uuid\": \"some content\",\r\n    \"available_consent_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c296\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Delete Given Consent By User, Home, Consent - Wrong User UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'json' having an object with key 'user_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('json').that.is.an('object').that.has.property('user_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_uuid\": \"somethingwrong\",\r\n    \"smart_home_uuid\": \"some content\",\r\n    \"available_consent_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c296\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Delete Given Consent By User, Home, Consent - Empty Consent UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'json' having an object with key 'available_consent_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('json').that.is.an('object').that.has.property('available_consent_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\",\r\n    \"smart_home_uuid\": \"some content\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Delete Given Consent By User, Home, Consent - Wrong Consent UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'json' having an object with key 'available_consent_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('json').that.is.an('object').that.has.property('available_consent_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\",\r\n    \"smart_home_uuid\": \"some content\",\r\n    \"available_consent_uuid\": \"somethingwrong\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Delete Given Consent By User, Home, Consent - Null Home UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'json' having an object with key 'smart_home_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('json').that.is.an('object').that.has.property('smart_home_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\",\r\n    \"smart_home_uuid\": null,\r\n    \"available_consent_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized Delete Given Consent By User, Home, Consent",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 401\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unauthorized');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\",\r\n    \"smart_home_uuid\": \"some content\",\r\n    \"available_consent_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DC Login - DC1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email2@example.com\",\r\n    \"password\": \"password2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Delete Given Consent By User, Home, Consent - Unexisting User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User with uuid ebb94e4a-0043-4348-b5f4-7f5d7db4c295 not found among the contacts!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User with uuid ebb94e4a-0043-4348-b5f4-7f5d7db4c295 not found among the contacts!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\",\r\n    \"smart_home_uuid\": \"some content\",\r\n    \"available_consent_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Contacts of DC or DPO - Users 1, 4, 5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of three objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(3);\r",
+									"\r",
+									"    let hasEmail1 = false;\r",
+									"    let hasEmail5 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(user) {\r",
+									"        pm.expect(user).to.have.all.keys(\"uuid\", \"firstname\", \"lastname\", \"email\", \"role\", \"profile_picture\");\r",
+									"        pm.expect(user).to.not.have.property(\"password_hash\");\r",
+									"        pm.expect(user.email).to.not.equal(\"email2@example.com\");\r",
+									"\r",
+									"        if (user.email === \"s312192@studenti.polito.it\") {\r",
+									"            pm.environment.set('data_subject1_uuid', user.uuid);\r",
+									"            hasEmail1 = true;\r",
+									"        }\r",
+									"        if (user.email === \"email5@example.com\") {\r",
+									"            hasEmail5 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    // Expect DC2 and DS1 to be among the contacts of DC1\r",
+									"    pm.expect(hasEmail1).to.be.true;\r",
+									"    pm.expect(hasEmail5).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/users/contacts",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"contacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Delete Given Consent By User, Home, Consent - Unexisting Home",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(`Message is equal to 'Smart Home with uuid unexistinguuid not found among the owned smart homes of user with uuid ${pm.environment.get(\"data_subject1_uuid\")}!'`, function () {\r",
+									"    pm.expect(responseData.message).to.eql(`Smart Home with uuid unexistinguuid not found among the owned smart homes of user with uuid ${pm.environment.get(\"data_subject1_uuid\")}!`);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Get user from environment\r",
+									"const data_subject1_uuid = pm.environment.get(\"data_subject1_uuid\");\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (data_subject1_uuid) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUIDs into the body\r",
+									"      body.user_uuid = data_subject1_uuid;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject user into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"smart_home_uuid\": \"unexistinguuid\",\r\n    \"available_consent_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Delete Given Consent By User, Home, Consent - Unexisting Consent",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(`Message is equal to 'Available Consent with uuid ebb94e4a-0043-4348-b5f4-7f5d7db4c295 not found!'`, function () {\r",
+									"    pm.expect(responseData.message).to.eql(`Available Consent with uuid ebb94e4a-0043-4348-b5f4-7f5d7db4c295 not found!`);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Get user from environment\r",
+									"const data_subject1_uuid = pm.environment.get(\"data_subject1_uuid\");\r",
+									"const smart_home_uuid = pm.environment.get(\"smart_home1_uuid\");\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (data_subject1_uuid && smart_home_uuid) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUIDs into the body\r",
+									"      body.user_uuid = data_subject1_uuid;\r",
+									"      body.smart_home_uuid = smart_home_uuid;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject user or smart home into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"available_consent_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Delete Given Consent By User, Home, Consent - Consent 2 In Home 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has no body\", function () {\r",
+									"    // Check using raw text (including whitespace-only cases)\r",
+									"    const rawText = pm.response.text();\r",
+									"    pm.expect(typeof rawText === 'string' ? rawText.trim().length : 0).to.eql(0);\r",
+									"\r",
+									"    // Check using the response size metadata\r",
+									"    const size = pm.response.size();\r",
+									"    pm.expect(size && typeof size.body === 'number' ? size.body : 0).to.eql(0);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Get user from environment\r",
+									"const data_subject1_uuid = pm.environment.get(\"data_subject1_uuid\");\r",
+									"const smart_home_uuid = pm.environment.get(\"smart_home1_uuid\");\r",
+									"const available_consent2_uuid = pm.environment.get(\"available_consent2_uuid\");\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (data_subject1_uuid && smart_home_uuid && available_consent2_uuid) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUIDs into the body\r",
+									"      body.user_uuid = data_subject1_uuid;\r",
+									"      body.smart_home_uuid = smart_home_uuid;\r",
+									"      body.available_consent_uuid = available_consent2_uuid;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject user or smart home into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Delete Given Consent By User, Home, Consent - Consent 3 In Home 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has no body\", function () {\r",
+									"    // Check using raw text (including whitespace-only cases)\r",
+									"    const rawText = pm.response.text();\r",
+									"    pm.expect(typeof rawText === 'string' ? rawText.trim().length : 0).to.eql(0);\r",
+									"\r",
+									"    // Check using the response size metadata\r",
+									"    const size = pm.response.size();\r",
+									"    pm.expect(size && typeof size.body === 'number' ? size.body : 0).to.eql(0);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Get user from environment\r",
+									"const data_subject1_uuid = pm.environment.get(\"data_subject1_uuid\");\r",
+									"const smart_home_uuid = pm.environment.get(\"smart_home2_uuid\");\r",
+									"const available_consent3_uuid = pm.environment.get(\"available_consent3_uuid\");\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (data_subject1_uuid && smart_home_uuid && available_consent3_uuid) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUIDs into the body\r",
+									"      body.user_uuid = data_subject1_uuid;\r",
+									"      body.smart_home_uuid = smart_home_uuid;\r",
+									"      body.available_consent_uuid = available_consent3_uuid;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject user or smart home into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DS Login - DS1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forbidden Delete Given Consent By User, Home, Consent",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 403\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\",\r\n    \"smart_home_uuid\": \"some content\",\r\n    \"available_consent_uuid\": \"ebb94e4a-0043-4348-b5f4-7f5d7db4c295\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/given-consent",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"given-consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Given Consents By SmartHome - SmartHome 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of one object\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(1);\r",
+									"\r",
+									"    let data_subject1_home1_consent2 = false;\r",
+									"    let data_subject1_home1_consent3 = false;\r",
+									"    let data_subject1_home1_consent4 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"available_consent\", \"application_name\", \"given_at\");\r",
+									"        pm.expect(element.available_consent).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.available_consent).to.have.all.keys(\"uuid\", \"content\");\r",
+									"        if (element.available_consent.uuid === pm.environment.get(\"available_consent2_uuid\")) {\r",
+									"            data_subject1_home1_consent2 = true;\r",
+									"        }\r",
+									"        if (element.available_consent.uuid === pm.environment.get(\"available_consent3_uuid\")) {\r",
+									"            data_subject1_home1_consent3 = true;\r",
+									"        }\r",
+									"        if (element.available_consent.uuid === pm.environment.get(\"available_consent4_uuid\")) {\r",
+									"            data_subject1_home1_consent4 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_subject1_home1_consent2).to.be.false;\r",
+									"    pm.expect(data_subject1_home1_consent3).to.be.false;\r",
+									"    pm.expect(data_subject1_home1_consent4).to.be.false;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const smart_home_uuid = pm.environment.get(\"smart_home1_uuid\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (smart_home_uuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":smart_home_uuid\", smart_home_uuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/home/:smart_home_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"home",
+								":smart_home_uuid"
+							],
+							"variable": [
+								{
+									"key": "smart_home_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Given Consents By SmartHome - SmartHome 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(2);\r",
+									"\r",
+									"    let data_subject1_home1_consent3 = false;\r",
+									"    let data_subject1_home1_consent4 = false;\r",
+									"\r",
+									"    responseBody.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"available_consent\", \"application_name\", \"given_at\");\r",
+									"        pm.expect(element.available_consent).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.available_consent).to.have.all.keys(\"uuid\", \"content\");\r",
+									"        if (element.available_consent.uuid === pm.environment.get(\"available_consent3_uuid\")) {\r",
+									"            data_subject1_home1_consent3 = true;\r",
+									"        }\r",
+									"        if (element.available_consent.uuid === pm.environment.get(\"available_consent4_uuid\")) {\r",
+									"            data_subject1_home1_consent4 = true;\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(data_subject1_home1_consent3).to.be.false;\r",
+									"    pm.expect(data_subject1_home1_consent4).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const smart_home_uuid = pm.environment.get(\"smart_home2_uuid\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (smart_home_uuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":smart_home_uuid\", smart_home_uuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/available-consents/home/:smart_home_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"available-consents",
+								"home",
+								":smart_home_uuid"
+							],
+							"variable": [
+								{
+									"key": "smart_home_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
