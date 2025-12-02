@@ -25,6 +25,9 @@ def mock_owl_service():
     mock_action.details = []
     service.get_action_by_url.return_value = mock_action
     
+    # Mock _get_entities_by_service to return empty list
+    service._get_entities_by_service.return_value = []
+    
     return service
 
 
@@ -43,7 +46,7 @@ def test_user():
         firstname="Test",
         lastname="User",
         email="test@example.com",
-        role=UserRole.USER
+        role=UserRole.DATA_SUBJECT
     )
     return user
 
@@ -72,83 +75,89 @@ class TestRuleService:
     """Test RuleService functionality"""
     
     @patch('app.services.rule_service.RuleRepository')
-    def test_save_rule_creates_db_rule(self, mock_repo_class, rule_service, test_user, sample_rule_data):
+    def test_save_rule_creates_db_rule(self, mock_repo_class, app, rule_service, test_user, sample_rule_data):
         """Test that save_rule creates a DbRule"""
-        mock_repo = Mock()
-        mock_repo_class.return_value = mock_repo
-        
-        saved_rule = Mock(spec=DbRule)
-        saved_rule.id = 123
-        mock_repo.save_rule.return_value = saved_rule
-        mock_repo.find_or_create_entity.return_value = None
-        
-        rule_service.rule_repo = mock_repo
-        
-        result = rule_service.save_rule(sample_rule_data, "sifis", test_user)
-        
-        assert result == 123
-        mock_repo.save_rule.assert_called_once()
+        with app.app_context():
+            mock_repo = Mock()
+            mock_repo_class.return_value = mock_repo
+            
+            saved_rule = Mock(spec=DbRule)
+            saved_rule.id = 123
+            mock_repo.save_rule.return_value = saved_rule
+            mock_repo.find_or_create_entity.return_value = None
+            
+            rule_service.rule_repo = mock_repo
+            
+            result = rule_service.save_rule(sample_rule_data, "sifis", test_user)
+            
+            assert result == 123
+            mock_repo.save_rule.assert_called_once()
     
     @patch('app.services.rule_service.RuleRepository')
-    def test_save_rule_with_timestamp(self, mock_repo_class, rule_service, test_user, sample_rule_data):
+    def test_save_rule_with_timestamp(self, mock_repo_class, app, rule_service, test_user, sample_rule_data):
         """Test that save_rule uses provided timestamp"""
-        mock_repo = Mock()
-        mock_repo_class.return_value = mock_repo
-        
-        saved_rule = Mock(spec=DbRule)
-        saved_rule.id = 123
-        mock_repo.save_rule.return_value = saved_rule
-        mock_repo.find_or_create_entity.return_value = None
-        
-        rule_service.rule_repo = mock_repo
-        
-        timestamp = sample_rule_data["timestamp"]
-        rule_service.save_rule(sample_rule_data, "sifis", test_user)
-        
-        call_args = mock_repo.save_rule.call_args[0][0]
-        assert call_args.timestamp == timestamp
+        with app.app_context():
+            mock_repo = Mock()
+            mock_repo_class.return_value = mock_repo
+            
+            saved_rule = Mock(spec=DbRule)
+            saved_rule.id = 123
+            mock_repo.save_rule.return_value = saved_rule
+            mock_repo.find_or_create_entity.return_value = None
+            
+            rule_service.rule_repo = mock_repo
+            
+            timestamp = sample_rule_data["timestamp"]
+            rule_service.save_rule(sample_rule_data, "sifis", test_user)
+            
+            call_args = mock_repo.save_rule.call_args[0][0]
+            assert call_args.timestamp == timestamp
     
     @patch('app.services.rule_service.RuleRepository')
-    def test_get_rules_by_type(self, mock_repo_class, rule_service, test_user, mock_owl_service):
+    def test_get_rules_by_type(self, mock_repo_class, app, rule_service, test_user, mock_owl_service):
         """Test getting rules by type"""
-        mock_repo = Mock()
-        mock_repo_class.return_value = mock_repo
-        
-        mock_db_rule = Mock(spec=DbRule)
-        mock_db_rule.id = 1
-        mock_db_rule.type = "sifis"
-        mock_db_rule.effect = "Permit"
-        mock_db_rule.subject = "test"
-        mock_db_rule.timestamp = 1234567890000
-        mock_db_rule.triggers = [Mock()]
-        mock_db_rule.actions = [Mock()]
-        mock_db_rule.triggers[0].url = "http://example.com/trigger1"
-        mock_db_rule.triggers[0].entity = None
-        mock_db_rule.triggers[0].details = []
-        mock_db_rule.actions[0].url = "http://example.com/action1"
-        mock_db_rule.actions[0].entity = None
-        mock_db_rule.actions[0].details = []
-        
-        mock_repo.get_rules_by_user_and_type.return_value = [mock_db_rule]
-        
-        rule_service.rule_repo = mock_repo
-        
-        result = rule_service.get_rules_by_type("sifis", test_user)
-        
-        assert len(result) == 1
-        assert result[0].db_id == 1
-        mock_repo.get_rules_by_user_and_type.assert_called_once_with(test_user, "sifis")
+        with app.app_context():
+            mock_repo = Mock()
+            mock_repo_class.return_value = mock_repo
+            
+            mock_db_rule = Mock(spec=DbRule)
+            mock_db_rule.id = 1
+            mock_db_rule.type = "sifis"
+            mock_db_rule.effect = "Permit"
+            mock_db_rule.subject = "test"
+            mock_db_rule.timestamp = 1234567890000
+            mock_db_rule.triggers = [Mock()]
+            mock_db_rule.actions = [Mock()]
+            mock_db_rule.triggers[0].url = "http://example.com/trigger1"
+            mock_db_rule.triggers[0].entity = None
+            mock_db_rule.triggers[0].details = []
+            mock_db_rule.actions[0].url = "http://example.com/action1"
+            mock_db_rule.actions[0].entity = None
+            mock_db_rule.actions[0].details = []
+            
+            mock_repo.get_rules_by_user_and_type.return_value = [mock_db_rule]
+            
+            rule_service.rule_repo = mock_repo
+            
+            result = rule_service.get_rules_by_type("sifis", test_user)
+            
+            assert len(result) == 1
+            assert result[0].db_id == 1
+            mock_repo.get_rules_by_user_and_type.assert_called_once_with(test_user, "sifis")
     
     @patch('app.services.rule_service.RuleRepository')
-    def test_delete_rule_not_found(self, mock_repo_class, rule_service):
-        """Test deleting a non-existent rule"""
-        mock_repo = Mock()
-        mock_repo_class.return_value = mock_repo
-        
-        mock_repo.get_rule_by_id.return_value = None
-        
-        rule_service.rule_repo = mock_repo
-        
-        rule_service.delete_rule(999)
-        
-        mock_repo.delete_rule.assert_not_called()
+    def test_delete_rule_not_found(self, mock_repo_class, app, rule_service, test_user):
+        """Test deleting a non-existent rule returns False"""
+        with app.app_context():
+            mock_repo = Mock()
+            mock_repo_class.return_value = mock_repo
+            
+            # Mock repository method to return False (rule not found)
+            mock_repo.delete_rule_by_id_and_user.return_value = False
+            
+            rule_service.rule_repo = mock_repo
+            
+            result = rule_service.delete_rule_by_user(999, test_user)
+            
+            assert result is False
+            mock_repo.delete_rule_by_id_and_user.assert_called_once_with(999, test_user.id)

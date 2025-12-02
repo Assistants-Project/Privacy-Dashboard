@@ -47,6 +47,15 @@ def app():
         )
         db.session.add(test_user)
         db.session.commit()
+        
+        # Create OWL ontology for test user
+        try:
+            from app.services.owl_service import OWLService
+            user_iri = OWLService.create_user_ontology(test_user.uuid)
+            test_user.ontology_iri = user_iri
+            db.session.commit()
+        except Exception as e:
+            print(f"Warning: Failed to create test user ontology: {e}")
     
     yield app
     
@@ -61,8 +70,14 @@ def client(app):
 
 
 @pytest.fixture(scope="function")
-def auth_headers():
+def auth_headers(app):
     """Get authorization headers for test user"""
-    import base64
-    credentials = base64.b64encode(b"ptp-demo:test-password").decode("utf-8")
-    return {"Authorization": f"Basic {credentials}"}
+    from flask_jwt_extended import create_access_token
+    from uuid import UUID as UUIDType
+    
+    with app.app_context():
+        # Create token for the test user (ptp-demo)
+        user_uuid = UUIDType("03af6091-280d-457f-a131-689449a144d8")
+        # Pass UUID as string to avoid SQLAlchemy type issues
+        access_token = create_access_token(identity=str(user_uuid), additional_claims={"role": "Data Subject"})
+        return {"Authorization": f"Bearer {access_token}"}
