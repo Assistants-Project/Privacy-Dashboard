@@ -34,15 +34,28 @@ class RuleRepository:
         return list(db.session.execute(stmt).scalars().unique().all())
 
     @staticmethod
-    def get_rule_by_id(rule_id: int) -> Optional[DbRule]:
-        """Get a rule by ID"""
-        return db.session.get(DbRule, rule_id)
-
-    @staticmethod
-    def delete_rule(rule: DbRule) -> None:
-        """Delete a rule"""
-        db.session.delete(rule)
+    def delete_rule_by_id_and_user(rule_id: int, user_id: int) -> bool:
+        """
+        Delete a rule if it belongs to the specified user.
+        
+        Args:
+            rule_id: ID of the rule to delete
+            user_id: ID of the user who must own the rule
+            
+        Returns:
+            True if rule was found and deleted, False otherwise
+        """
+        from sqlalchemy import delete
+        
+        stmt = delete(DbRule).where(
+            DbRule.id == rule_id,
+            DbRule.user_id == user_id
+        )
+        result = db.session.execute(stmt)
         db.session.commit()
+        
+        # Returns True if a row was deleted, False if no matching rule found
+        return result.rowcount > 0
 
     @staticmethod
     def find_or_create_entity(url: str, user: User) -> DbEntity:

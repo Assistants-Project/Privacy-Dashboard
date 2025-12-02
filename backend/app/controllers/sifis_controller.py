@@ -8,6 +8,7 @@ import os
 import shutil
 import yaml
 from pathlib import Path
+from uuid import UUID
 
 from ..services import OWLService, XACMLService, DHTService
 from ..services.rule_service import RuleService
@@ -57,6 +58,7 @@ except Exception as e:
 
 
 @sifis_bp.route("/trigger-services", methods=["GET"])
+@jwt_required()
 def get_trigger_services():
     """Get all services that offer triggers"""
     if not owl_service:
@@ -71,13 +73,15 @@ def get_trigger_services():
 
 
 @sifis_bp.route("/trigger-services/<service_id>/triggers", methods=["GET"])
+@jwt_required()
 def get_triggers(service_id):
     """Get triggers for a specific service"""
     if not owl_service:
         return jsonify({"error": "OWL Service not available"}), 500
 
     try:
-        triggers = owl_service.get_triggers(service_id)
+        user_uuid = get_jwt_identity()
+        triggers = owl_service.get_triggers(service_id, str(user_uuid))
         return jsonify([trigger.to_dict() for trigger in triggers])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -86,19 +90,22 @@ def get_triggers(service_id):
 @sifis_bp.route(
     "/trigger-services/<service_id>/triggers/<trigger_id>/details", methods=["GET"]
 )
+@jwt_required()
 def get_trigger_details(service_id, trigger_id):
     """Get details for a specific trigger"""
     if not owl_service:
         return jsonify({"error": "OWL Service not available"}), 500
 
     try:
-        details = owl_service.get_trigger_details(service_id, trigger_id)
+        user_uuid = get_jwt_identity()
+        details = owl_service.get_trigger_details(service_id, trigger_id, str(user_uuid))
         return jsonify([detail.to_dict() for detail in details])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
 @sifis_bp.route("/action-services", methods=["GET"])
+@jwt_required()
 def get_action_services():
     """Get all services that offer actions"""
     if not owl_service:
@@ -112,13 +119,15 @@ def get_action_services():
 
 
 @sifis_bp.route("/action-services/<service_id>/actions", methods=["GET"])
+@jwt_required()
 def get_actions(service_id):
     """Get actions for a specific service"""
     if not owl_service:
         return jsonify({"error": "OWL Service not available"}), 500
 
     try:
-        actions = owl_service.get_actions(service_id)
+        user_uuid = get_jwt_identity()
+        actions = owl_service.get_actions(service_id, str(user_uuid))
         return jsonify([action.to_dict() for action in actions])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -127,13 +136,15 @@ def get_actions(service_id):
 @sifis_bp.route(
     "/action-services/<service_id>/actions/<action_id>/details", methods=["GET"]
 )
+@jwt_required()
 def get_action_details(service_id, action_id):
     """Get details for a specific action"""
     if not owl_service:
         return jsonify({"error": "OWL Service not available"}), 500
 
     try:
-        details = owl_service.get_action_details(service_id, action_id)
+        user_uuid = get_jwt_identity()
+        details = owl_service.get_action_details(service_id, action_id, str(user_uuid))
         return jsonify([detail.to_dict() for detail in details])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -154,17 +165,15 @@ def health_check():
 
 
 @sifis_bp.route("/rule", methods=["GET"])
-# @jwt_required() TODO: Uncomment when auth is ready
+@jwt_required()
 def get_rules():
     """Get all rules for the current user"""
     if not rule_service:
         return jsonify({"error": "Rule service not available"}), 500
 
     try:
-        # username = get_jwt_identity()
-        # user = user_repo.find_user_by_username(username)
-        user = user_repo.get_user_by_uuid("03af6091-280d-457f-a131-689449a144d8")
-        user.email = "ptp-demo"
+        user_uuid = get_jwt_identity()
+        user = user_repo.get_user_by_uuid(UUID(user_uuid))
 
         if not user:
             return jsonify({"error": "User not found"}), 404
@@ -192,16 +201,16 @@ def get_rules():
 
 
 @sifis_bp.route("/rule", methods=["POST"])
-# @jwt_required() TODO: Uncomment when auth is ready
+@jwt_required()
 def save_rule():
     """Save a new rule"""
     if not rule_service:
         return jsonify({"error": "Rule service not available"}), 500
 
     try:
-        # username = get_jwt_identity()
-        user = user_repo.get_user_by_uuid("03af6091-280d-457f-a131-689449a144d8")
-        user.email = "ptp-demo"
+        user_uuid = get_jwt_identity()
+        user = user_repo.get_user_by_uuid(UUID(user_uuid))
+        
         if not user:
             return jsonify({"error": "User not found"}), 404
 
@@ -226,14 +235,25 @@ def save_rule():
 
 
 @sifis_bp.route("/rule/<int:rule_id>", methods=["DELETE"])
-# @jwt_required() TODO: Uncomment when auth is ready
+@jwt_required()
 def delete_rule(rule_id):
     """Delete a rule by ID"""
     if not rule_service:
         return jsonify({"error": "Rule service not available"}), 500
 
     try:
-        rule_service.delete_rule(rule_id)
+        # Get authenticated user
+        user_uuid = get_jwt_identity()
+        user = user_repo.get_user_by_uuid(UUID(user_uuid))
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Delete rule through service layer (proper architecture)
+        deleted = rule_service.delete_rule_by_user(rule_id, user)
+        
+        if not deleted:
+            return jsonify({"error": "Rule not found or access denied"}), 404
+        
         return jsonify({"id": rule_id}), 200
     except Exception as e:
         logging.error(f"Error deleting rule: {e}")
@@ -248,8 +268,8 @@ def get_defined_triggers():
         return jsonify({"error": "Rule service not available"}), 500
 
     try:
-        username = get_jwt_identity()
-        user = user_repo.find_user_by_username(username)
+        user_uuid = get_jwt_identity()
+        user = user_repo.get_user_by_uuid(UUID(user_uuid))
 
         if not user:
             return jsonify({"error": "User not found"}), 404
@@ -262,16 +282,15 @@ def get_defined_triggers():
 
 
 @sifis_bp.route("/translate", methods=["POST"])
-# @jwt_required() TODO: Uncomment when auth is ready
+@jwt_required()
 def translate_rule():
     """Translate a rule into XACML policies and publish to DHT"""
     if not xacml_service or not dht_service:
         return jsonify({"error": "XACML or DHT service not available"}), 500
 
     try:
-        # username = get_jwt_identity()
-        user = user_repo.get_user_by_uuid("03af6091-280d-457f-a131-689449a144d8")
-        user.email = "ptp-demo"
+        user_uuid = get_jwt_identity()
+        user = user_repo.get_user_by_uuid(UUID(user_uuid))
 
         if not user:
             return jsonify({"error": "User not found"}), 404
@@ -325,7 +344,7 @@ def translate_rule():
 
 
 @sifis_bp.route("/download", methods=["GET"])
-# @jwt_required() TODO: Uncomment when auth is ready
+@jwt_required()
 def download_policies():
     """Download all policies as a ZIP file"""
     try:
@@ -356,7 +375,7 @@ def download_policies():
 
 
 @sifis_bp.route("/check", methods=["POST"])
-# @jwt_required() TODO: Uncomment when auth is ready
+@jwt_required()
 def check_rule():
     """Check a rule for loops, inconsistencies, and redundancies"""
     if not rule_service or not petrinet_service:
@@ -364,8 +383,9 @@ def check_rule():
 
     try:
         # Get user
-        user = user_repo.get_user_by_uuid("03af6091-280d-457f-a131-689449a144d8")
-        user.email = "ptp-demo"
+        user_uuid = get_jwt_identity()
+        user = user_repo.get_user_by_uuid(UUID(user_uuid))
+        
         if not user:
             return jsonify({"error": "User not found"}), 404
 
@@ -431,7 +451,7 @@ def check_rule():
                     break
 
         # Build Petri Net
-        net = petrinet_service.get_net(user.email, rules_after, refresh=True)
+        net = petrinet_service.get_net(str(user.uuid), rules_after, refresh=True)
 
         # Search for loops
         cycles = net.get_cycle(rule, rules_after)
@@ -556,16 +576,16 @@ def check_rule():
 
 
 @sifis_bp.route("/simulation/start", methods=["POST"])
-# @jwt_required() TODO: Uncomment when auth is ready
+@jwt_required()
 def start_simulation():
     """Start a step-by-step simulation"""
     if not petrinet_service or not rule_service:
         return jsonify({"error": "Services not available"}), 500
 
     try:
-        # user = user_repo.find_user_by_username(get_jwt_identity())
-        user = user_repo.get_user_by_uuid("03af6091-280d-457f-a131-689449a144d8")
-        user.email = "ptp-demo"
+        user_uuid = get_jwt_identity()
+        user = user_repo.get_user_by_uuid(UUID(user_uuid))
+        
         if not user:
             return jsonify({"error": "User not found"}), 404
 
@@ -590,7 +610,7 @@ def start_simulation():
              return jsonify({"error": "Invalid trigger"}), 400
 
         # Start simulation
-        result_rule = petrinet_service.start_rest_simulation(trigger, rules, user.email)
+        result_rule = petrinet_service.start_rest_simulation(trigger, rules, str(user.uuid))
         
         if result_rule:
             return jsonify(result_rule.to_dict()), 200
@@ -603,18 +623,20 @@ def start_simulation():
 
 
 @sifis_bp.route("/simulation/step", methods=["POST"])
-# @jwt_required() TODO: Uncomment when auth is ready
+@jwt_required()
 def step_simulation():
     """Execute next step in simulation"""
     if not petrinet_service:
         return jsonify({"error": "Services not available"}), 500
 
     try:
-        # user = user_repo.find_user_by_username(get_jwt_identity())
-        user = user_repo.get_user_by_uuid("03af6091-280d-457f-a131-689449a144d8")
-        user.email = "ptp-demo"
+        user_uuid = get_jwt_identity()
+        user = user_repo.get_user_by_uuid(UUID(user_uuid))
         
-        rule = petrinet_service.step_rest_simulation(user.email)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        rule = petrinet_service.step_rest_simulation(str(user.uuid))
         
         if rule:
             return jsonify(rule.to_dict()), 200
@@ -627,18 +649,20 @@ def step_simulation():
 
 
 @sifis_bp.route("/simulation/stop", methods=["POST"])
-# @jwt_required() TODO: Uncomment when auth is ready
+@jwt_required()
 def stop_simulation():
     """Stop the simulation"""
     if not petrinet_service:
         return jsonify({"error": "Services not available"}), 500
 
     try:
-        # user = user_repo.find_user_by_username(get_jwt_identity())
-        user = user_repo.get_user_by_uuid("03af6091-280d-457f-a131-689449a144d8")
-        user.email = "ptp-demo"
+        user_uuid = get_jwt_identity()
+        user = user_repo.get_user_by_uuid(UUID(user_uuid))
         
-        petrinet_service.stop_rest_simulator(user.email)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        petrinet_service.stop_rest_simulator(str(user.uuid))
         return jsonify({"message": "Simulation stopped"}), 200
 
     except Exception as e:

@@ -167,7 +167,7 @@ class OWLService:
             self.logger.error(f"Error getting action services: {e}")
             return []
 
-    def get_triggers(self, service_id: str) -> List[Trigger]:
+    def get_triggers(self, service_id: str, username: Optional[str] = None) -> List[Trigger]:
         """Get all triggers for a specific service"""
         triggers = []
 
@@ -200,7 +200,7 @@ class OWLService:
                 )
 
                 trigger.details = self._get_details_for_instance(
-                    trigger_instance, service_id
+                    trigger_instance, service_id, username
                 )
                 triggers.append(trigger)
 
@@ -447,7 +447,7 @@ class OWLService:
             self.logger.debug(f"Error getting property {property_name}: {e}")
             return None
 
-    def get_actions(self, service_id: str) -> List[Action]:
+    def get_actions(self, service_id: str, username: Optional[str] = None) -> List[Action]:
         """Get all actions for a specific service"""
         actions = []
 
@@ -479,7 +479,7 @@ class OWLService:
                 )
 
                 action.details = self._get_details_for_instance(
-                    action_instance, service_id
+                    action_instance, service_id, username
                 )
                 actions.append(action)
 

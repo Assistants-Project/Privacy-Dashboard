@@ -34,7 +34,8 @@ from .services import UserService
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
     try:
-        return UserService.get_user_by_uuid(jwt_data["sub"])
+        from uuid import UUID
+        return UserService.get_user_by_uuid(UUID(jwt_data["sub"]))
     except UserNotFoundException:
         return None
 

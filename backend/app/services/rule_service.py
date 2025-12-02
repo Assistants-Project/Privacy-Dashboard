@@ -127,7 +127,7 @@ class RuleService:
             service_id = action_data.get("service", {}).get("id")
             if service_id:
                 entities = self.owl_service._get_entities_by_service(
-                    service_id, user.email
+                    service_id, str(user.uuid)
                 )
                 if entities:
                     entity = self.rule_repo.find_or_create_entity(
@@ -244,12 +244,19 @@ class RuleService:
                 continue
 
         return rules
-
-    def delete_rule(self, rule_id: int) -> None:
-        """Delete a rule by ID"""
-        rule = self.rule_repo.get_rule_by_id(rule_id)
-        if rule:
-            self.rule_repo.delete_rule(rule)
+    
+    def delete_rule_by_user(self, rule_id: int, user: User) -> bool:
+        """
+        Delete a rule if it belongs to the specified user.
+        
+        Args:
+            rule_id: ID of the rule to delete
+            user: User who must own the rule
+            
+        Returns:
+            True if rule was found and deleted, False otherwise
+        """
+        return self.rule_repo.delete_rule_by_id_and_user(rule_id, user.id)
 
     def get_defined_triggers_by_type(self, rule_type: str, user: User) -> Set[Trigger]:
         """Get all unique triggers used in rules"""
