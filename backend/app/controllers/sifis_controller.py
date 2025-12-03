@@ -196,8 +196,9 @@ def get_rules(current_user):
 
 
 @sifis_bp.route("/rule", methods=["POST"])
+@sifis_bp.arguments(RuleRequestSchema, as_kwargs=True)
 @ds_required()
-def save_rule(current_user):
+def save_rule(current_user, **rule_data):
     """Save a new rule"""
     if not rule_service:
         return jsonify({"error": "Rule service not available"}), 500
@@ -208,19 +209,7 @@ def save_rule(current_user):
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        rule_data = request.get_json()
-
-        if not rule_data:
-            return jsonify({"error": "No data provided"}), 400
-
-        # Validate request with schema (DTO pattern)
-        schema = RuleRequestSchema()
-        try:
-            validated_data = schema.load(rule_data)
-        except ValidationError as err:
-            return jsonify({"error": "Validation failed", "details": err.messages}), 400
-
-        rule_id = rule_service.save_rule(validated_data, "sifis", user)
+        rule_id = rule_service.save_rule(rule_data, "sifis", user)
 
         return jsonify({"id": rule_id}), 200
     except Exception as e:
@@ -274,8 +263,9 @@ def get_defined_triggers(current_user):
 
 
 @sifis_bp.route("/translate", methods=["POST"])
+@sifis_bp.arguments(RuleRequestSchema, as_kwargs=True)
 @ds_required()
-def translate_rule(current_user):
+def translate_rule(current_user, **rule_data):
     """Translate a rule into XACML policies and publish to DHT"""
     if not xacml_service or not dht_service:
         return jsonify({"error": "XACML or DHT service not available"}), 500
@@ -286,16 +276,7 @@ def translate_rule(current_user):
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        rule_data = request.get_json()
-        if not rule_data:
-            return jsonify({"error": "No data provided"}), 400
-
-        # Validate request with schema (DTO pattern)
-        schema = RuleRequestSchema()
-        try:
-            validated_data = schema.load(rule_data)
-        except ValidationError as err:
-            return jsonify({"error": "Validation failed", "details": err.messages}), 400
+        validated_data = rule_data
 
         # Get policies directory from config
         policies_dir = Path(config["policies"]["directory"])
@@ -366,8 +347,9 @@ def download_policies(current_user):
 
 
 @sifis_bp.route("/check", methods=["POST"])
+@sifis_bp.arguments(RuleRequestSchema, as_kwargs=True)
 @ds_required()
-def check_rule(current_user):
+def check_rule(current_user, **rule_data):
     """Check a rule for loops, inconsistencies, and redundancies"""
     if not rule_service or not petrinet_service:
         return jsonify({"error": "Services not available"}), 500
@@ -379,16 +361,7 @@ def check_rule(current_user):
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        rule_data = request.get_json()
-        if not rule_data:
-            return jsonify({"error": "No data provided"}), 400
-
-        # Validate request with schema (DTO pattern)
-        schema = RuleRequestSchema()
-        try:
-            validated_data = schema.load(rule_data)
-        except ValidationError as err:
-            return jsonify({"error": "Validation failed", "details": err.messages}), 400
+        validated_data = rule_data
 
         # Get Trigger and Action from OWL to ensure full details
         trigger = owl_service.get_trigger_by_url(
