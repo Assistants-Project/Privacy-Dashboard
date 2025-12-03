@@ -70,14 +70,22 @@ def client(app):
 
 
 @pytest.fixture(scope="function")
-def auth_headers(app):
-    """Get authorization headers for test user"""
+def set_auth_cookie(app, client):
+    """Set authentication cookie for test user"""
     from flask_jwt_extended import create_access_token
     from uuid import UUID as UUIDType
     
     with app.app_context():
         # Create token for the test user (ptp-demo)
         user_uuid = UUIDType("03af6091-280d-457f-a131-689449a144d8")
-        # Pass UUID as string to avoid SQLAlchemy type issues
-        access_token = create_access_token(identity=str(user_uuid), additional_claims={"role": "Data Subject"})
-        return {"Authorization": f"Bearer {access_token}"}
+        access_token = create_access_token(identity=str(user_uuid), additional_claims={"role": "DATA_SUBJECT"})
+        
+        # Set the cookie in the test client
+        client.set_cookie(
+            domain='localhost',
+            key='st_access_token',
+            value=access_token,
+            path='/'
+        )
+    
+    return client
