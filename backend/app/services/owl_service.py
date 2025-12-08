@@ -631,8 +631,9 @@ class OWLService:
         try:
             ont_config = self.config["ontology"]
             ontology_dir = Path(ont_config["directory"])
-            user_ontology_path = ontology_dir / f"{username}.owl"
-
+            
+            user_ontology_path = ontology_dir / "users" / f"{username}.owl" 
+                       
             if not user_ontology_path.exists():
                 return None
 
@@ -714,6 +715,24 @@ class OWLService:
             # Get commands via reproduceBy property (direct) or allowTo property (inverse)
             reproduce_by_commands = getattr(user_action, "reproduceBy", [])
 
+            # Fallback: Manually search for commands that allowTo this action (if inference missed some)
+            if not reproduce_by_commands or len(reproduce_by_commands) < 2:
+                manual_commands = []
+                for ind in user_world.individuals():
+                    if ind == user_action: continue
+                    allow_to = getattr(ind, "allowTo", [])
+                    
+                    # Compare by IRI strings to be safe
+                    for allowed_action in allow_to:
+                        if str(allowed_action.iri) == str(user_action.iri):
+                            manual_commands.append(ind)
+                            break
+                
+                # Merge lists avoiding duplicates
+                for cmd in manual_commands:
+                    if cmd not in reproduce_by_commands:
+                        reproduce_by_commands.append(cmd)
+            
             for command_individual in reproduce_by_commands:
                 # Get the service this command belongs to
                 command_services = getattr(command_individual, "commandIsOfService", [])
