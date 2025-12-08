@@ -83,37 +83,62 @@ class XACMLService:
         trigger_data = rule.get("trigger")
 
         # Handle entire home vs specific location
-        if location["name"] == "Entire Home" and commands:
-            # Get device type from first command
-            command = commands[0]
-            device_type = command.entity.get("type") if command.entity else None
+        if location["name"] == "Entire Home":
+            # GENERALIZED POLICY for Entire Home
+            # We take the device type from the first command to determine the generic type
+            device_type = None
+            if commands:
+                command = commands[0]
+                device_type = command.entity.get("type") if command.entity else None
+            
+            # Fallback for when no devices exist yet but we want to install a general policy
+            if not device_type:
+                 service = action_data.get("service", {})
+                 service_id = service.get("id", "").lower()
+                 if "lighting" in service_id or "lamp" in service_id or "light" in service_id:
+                     device_type = "lighting"
+                 elif "heating" in service_id or "radiator" in service_id:
+                     device_type = "heating"
+                 elif "window" in service_id:
+                     device_type = "smart-window"
+                 elif "speaker" in service_id or "audio" in service_id:
+                     device_type = "speaker"
+                 elif "camera" in service_id or "video" in service_id:
+                     device_type = "camera"
 
             # Check if action applies to all actions
             all_actions = action_data.get("id") == "Action"
 
             if subject == "marketplace":
                 policy_xml = self._create_installation_policy(
-                    effect, subject, trigger_data, command, device_type, all_actions
+                    effect, subject, trigger_data, None, device_type, all_actions
                 )
             else:
                 policy_xml = self._create_execution_policy(
-                    effect, subject, trigger_data, command, device_type, all_actions
+                    effect, subject, trigger_data, None, device_type, all_actions
                 )
             policies.append(policy_xml)
+
         else:
-            # Create policy for each command
+            # SPECIFIC POLICIES for Specific Locations
+            # We must iterate over commands because we generally target specific resource-ids
             all_actions = action_data.get("id") == "Action"
 
-            for command in commands if commands else [None]:
+            for command in commands if commands else []:
                 if subject == "marketplace":
                     policy_xml = self._create_installation_policy(
                         effect, subject, trigger_data, command, None, all_actions
                     )
+                    policies.append(policy_xml)
+                    break
                 else:
                     policy_xml = self._create_execution_policy(
                         effect, subject, trigger_data, command, None, all_actions
                     )
-                policies.append(policy_xml)
+                    policies.append(policy_xml)
+
+        if not policies:
+            raise Exception(f"No policies generated.")
 
         return policies
 
