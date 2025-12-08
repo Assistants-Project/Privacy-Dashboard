@@ -303,7 +303,9 @@ def translate_rule(current_user, **rule_data):
                 f.write(policy_xml)
 
             # Publish to DHT
-            dht_service.publish_policy(policy_xml, policy_id)
+            pub_result = dht_service.publish_policy(policy_xml, policy_id)
+            if pub_result is None:
+                raise Exception(f"Failed to publish policy {policy_id} to DHT")
 
         return (
             jsonify({"message": "Policies translated and published successfully"}),
