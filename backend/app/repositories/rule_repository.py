@@ -45,17 +45,18 @@ class RuleRepository:
         Returns:
             True if rule was found and deleted, False otherwise
         """
-        from sqlalchemy import delete
-        
-        stmt = delete(DbRule).where(
+        stmt = select(DbRule).where(
             DbRule.id == rule_id,
             DbRule.user_id == user_id
         )
-        result = db.session.execute(stmt)
-        db.session.commit()
+        rule = db.session.execute(stmt).scalars().first()
         
-        # Returns True if a row was deleted, False if no matching rule found
-        return result.rowcount > 0
+        if rule:
+            db.session.delete(rule)
+            db.session.commit()
+            return True
+            
+        return False
 
     @staticmethod
     def find_or_create_entity(url: str, user: User) -> DbEntity:
