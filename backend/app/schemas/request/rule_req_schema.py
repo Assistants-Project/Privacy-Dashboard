@@ -49,7 +49,7 @@ class RuleRequestSchema(Schema):
     class Meta:
         unknown = EXCLUDE
 
-    db_id = fields.Int(required=True)
+    db_id = fields.Int(allow_none=True)
     type = fields.Str(allow_none=True)
     trigger = fields.Nested(RuleTriggerSchema, required=True)
     action = fields.Nested(RuleActionSchema, required=True)
