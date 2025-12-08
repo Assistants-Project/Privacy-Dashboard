@@ -5,6 +5,7 @@ from .request.application_uuid_req_schema import ApplicationUuidReqSchema
 from .request.auth_req_schema import AuthReqSchema
 from .request.available_consents_req_schema import AvailableConsentsReqSchema
 from .request.message_req_schema import MessageReqSchema
+from .request.privacy_notice_req_schema import PrivacyNoticeReqSchema
 from .request.registration_req_schema import RegistrationReqSchema
 from .request.request_handling_req_schema import RequestHandlingReqSchema
 from .request.request_req_schema import RequestReqSchema
@@ -38,6 +39,7 @@ __all__ = [
     "AuthReqSchema",
     "AvailableConsentsReqSchema",
     "MessageReqSchema",
+    "PrivacyNoticeReqSchema",
     "RegistrationReqSchema",
     "RequestHandlingReqSchema",
     "RequestReqSchema",

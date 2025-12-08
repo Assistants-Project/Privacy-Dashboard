@@ -15,7 +15,10 @@ from .entities.home_exception import (
     SmartHomeForbiddenException,
     SmartHomeNotFoundException,
 )
-from .entities.privacy_notice_exceptions import PrivacyNoticeNotFoundException
+from .entities.privacy_notice_exceptions import (
+    PrivacyNoticeAlreadyExists,
+    PrivacyNoticeNotFoundException,
+)
 from .entities.request_exceptions import RequestNotFoundException
 from .entities.room_exceptions import RoomNotFoundException, RoomSyncException
 from .entities.smartotum_exceptions import SmartotumSyncException
@@ -42,6 +45,7 @@ __all__ = [
     "AvailableConsentEmptyListException",
     "AvailableConsentNotFoundException",
     "AvailableConsentWrongListException",
+    "PrivacyNoticeAlreadyExists",
     "PrivacyNoticeNotFoundException",
     "RequestNotFoundException",
     "UserNotFoundException",

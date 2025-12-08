@@ -2,7 +2,11 @@ from uuid import UUID
 
 from flask_smorest import Blueprint
 
-from ..schemas import ApplicationUuidReqSchema, PrivacyNoticeResSchema
+from ..schemas import (
+    ApplicationUuidReqSchema,
+    PrivacyNoticeReqSchema,
+    PrivacyNoticeResSchema,
+)
 from ..services import PrivacyNoticeService
 from ..utils import dc_or_dpo_required
 
@@ -18,7 +22,24 @@ privacy_notice_bp = Blueprint(
 @privacy_notice_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
 @privacy_notice_bp.response(200, PrivacyNoticeResSchema)
 @dc_or_dpo_required()
-def get_privacy_notice_by_managed_application_uuid(application_uuid: UUID, current_user):
+def get_privacy_notice_by_managed_application_uuid(
+    application_uuid: UUID, current_user
+):
     return PrivacyNoticeService.get_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
         current_user.id, application_uuid
+    )
+
+
+@privacy_notice_bp.route("/managed-application/<application_uuid>", methods=["POST"])
+@privacy_notice_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
+@privacy_notice_bp.arguments(PrivacyNoticeReqSchema, location="json", as_kwargs=True)
+@privacy_notice_bp.response(201, PrivacyNoticeResSchema)
+@dc_or_dpo_required()
+def write_privacy_notice_by_managed_application_uuid(
+    application_uuid: UUID, content: str, current_user
+):
+    return (
+        PrivacyNoticeService.write_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
+            current_user.id, application_uuid, content
+        )
     )
