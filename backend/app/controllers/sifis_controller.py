@@ -287,7 +287,7 @@ def translate_rule(current_user, **rule_data):
             file.unlink()
 
         # Translate rule to XACML policies
-        policies_xml = xacml_service.translate(validated_data, user.email)
+        policies_xml = xacml_service.translate(validated_data, str(user.uuid))
 
         # Save policies to files and publish to DHT
         for i, policy_xml in enumerate(policies_xml):
