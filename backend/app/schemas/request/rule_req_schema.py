@@ -12,7 +12,7 @@ class RuleDetailSchema(Schema):
     name = fields.Str(required=True)
     type = fields.Str(required=True)
     value = fields.Raw(allow_none=True)
-    alternatives = fields.List(fields.Raw(), dump_default=[])
+    alternatives = fields.List(fields.Raw(), allow_none=True, dump_default=[])
 
 
 class RuleTriggerSchema(Schema):
