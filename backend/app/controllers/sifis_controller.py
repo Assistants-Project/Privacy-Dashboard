@@ -373,6 +373,14 @@ def check_rule(current_user, **rule_data):
 
         validated_data = rule_data
 
+        # Verify rule ownership if db_id is provided
+        db_id = validated_data.get("db_id")
+        if not db_id:
+             return jsonify({"error": "Missing db_id"}), 400
+             
+        if not rule_service.verify_rule_ownership(db_id, user):
+             return jsonify({"error": "Rule not found or access denied"}), 404
+
         # Get Trigger and Action from OWL to ensure full details
         trigger = owl_service.get_trigger_by_url(
             validated_data["trigger"]["url"], user.email
@@ -415,13 +423,14 @@ def check_rule(current_user, **rule_data):
         # Get all existing rules for Petri Net analysis
         rules_after = rule_service.get_rules_by_type("sifis", user)
 
-        # If rule has db_id, find it in rules_after and use that version
-        rule_problems.rule = rule  # Default to request rule
+        # Ensure the rule being checked is included (and replaces old version if exists)
         if rule.db_id:
-            for r in rules_after:
-                if r.db_id == rule.db_id:
-                    rule_problems.rule = r
-                    break
+            # Remove existing version if present
+            rules_after = [r for r in rules_after if r.db_id != rule.db_id]
+        
+        # Add the current rule state to the list
+        rules_after.append(rule)
+        rule_problems.rule = rule
 
         # Build Petri Net
         net = petrinet_service.get_net(str(user.uuid), rules_after, refresh=True)
@@ -494,9 +503,10 @@ def check_rule(current_user, **rule_data):
 
                         # Check if actions are equivalent
                         if owl_service.equals_ml(a1, a2):
-                            redundant.append(r2)
-                        else:
-                            inconsistent.append(r2)
+                            if r1.effect == r2.effect:
+                                redundant.append(r2)
+                            else:
+                                inconsistent.append(r2)
 
                 # Only add if we found redundancies (more than just r1)
                 if len(redundant) > 1 and not rule_problems.contains_redundancy(
