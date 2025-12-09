@@ -199,6 +199,18 @@ class TestRuleEndpoints:
     
     def test_check_rule(self, client, sample_rule, set_auth_cookie):
         """Test POST /api/sifis/check"""
+        # First save the rule to get a valid ID
+        save_resp = client.post(
+            "/api/sifis/rule",
+            data=json.dumps(sample_rule),
+            content_type="application/json"
+        )
+        saved_data = save_resp.get_json()
+        rule_id = saved_data.get("id") or saved_data.get("db_id")
+        
+        # Update sample rule with the real ID
+        sample_rule["db_id"] = rule_id
+        
         response = client.post(
             "/api/sifis/check",
             data=json.dumps(sample_rule),
@@ -236,12 +248,35 @@ class TestPolicyEndpoints:
                 "id": "sifis_stop_record_video_action",
                 "name": "Stop Recording Video",
                 "service": {"id": "sifis_video"},
-                "details": []
+                "details": [
+                    {
+                        "url": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail",
+                        "id": "sifis_location_detail",
+                        "name": "Location",
+                        "type": "location",
+                        "value": {
+                            "name": "Living Room",
+                            "url": "http://elite.polito.it/ontologies/sifis-home.owl/03af6091-280d-457f-a131-689449a144d8#location-livingroom"
+                        }
+                    }
+                ]
             }
         }
     
     def test_translate_rule(self, client, sample_rule, set_auth_cookie):
         """Test POST /api/sifis/translate"""
+        # First save the rule to get a valid ID
+        save_resp = client.post(
+            "/api/sifis/rule",
+            data=json.dumps(sample_rule),
+            content_type="application/json"
+        )
+        saved_data = save_resp.get_json()
+        rule_id = saved_data.get("id") or saved_data.get("db_id")
+        
+        # Update sample rule with the real ID
+        sample_rule["db_id"] = rule_id
+        
         response = client.post(
             "/api/sifis/translate",
             data=json.dumps(sample_rule),
