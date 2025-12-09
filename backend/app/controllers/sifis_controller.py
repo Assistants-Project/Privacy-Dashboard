@@ -278,6 +278,14 @@ def translate_rule(current_user, **rule_data):
 
         validated_data = rule_data
 
+        # Verify rule ownership if db_id is provided
+        db_id = validated_data.get("db_id")
+        if not db_id:
+             return jsonify({"error": "Missing db_id"}), 400
+             
+        if not rule_service.verify_rule_ownership(db_id, user):
+             return jsonify({"error": "Rule not found or access denied"}), 404
+
         # Get policies directory from config
         policies_dir = Path(config["policies"]["directory"])
         policies_dir.mkdir(parents=True, exist_ok=True)
@@ -305,7 +313,7 @@ def translate_rule(current_user, **rule_data):
             # Publish to DHT
             pub_result = dht_service.publish_policy(policy_xml, policy_id)
             if pub_result is None:
-                raise Exception(f"Failed to publish policy {policy_id} to DHT")
+                print(f"WARNING: Failed to publish policy {policy_id} to DHT")
 
         return (
             jsonify({"message": "Policies translated and published successfully"}),

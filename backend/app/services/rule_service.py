@@ -258,6 +258,11 @@ class RuleService:
         """
         return self.rule_repo.delete_rule_by_id_and_user(rule_id, user.id)
 
+    def verify_rule_ownership(self, rule_id: int, user: User) -> bool:
+        """Check if a rule exists and belongs to the user"""
+        rule = self.rule_repo.get_rule_by_id_and_user(rule_id, user.id)
+        return rule is not None
+
     def get_defined_triggers_by_type(self, rule_type: str, user: User) -> Set[Trigger]:
         """Get all unique triggers used in rules"""
         rules = self.get_rules_by_type(rule_type, user)

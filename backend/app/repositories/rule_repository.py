@@ -59,6 +59,15 @@ class RuleRepository:
         return False
 
     @staticmethod
+    def get_rule_by_id_and_user(rule_id: int, user_id: int) -> Optional[DbRule]:
+        """Get a rule by ID ensuring it belongs to the user"""
+        stmt = select(DbRule).where(
+            DbRule.id == rule_id,
+            DbRule.user_id == user_id
+        )
+        return db.session.execute(stmt).scalars().first()
+
+    @staticmethod
     def find_or_create_entity(url: str, user: User) -> DbEntity:
         """Find entity by URL and user or create new one"""
         entity = db.session.execute(
