@@ -58,3 +58,15 @@ def edit_privacy_notice_by_managed_application_uuid(
             current_user.id, application_uuid, content
         )
     )
+
+
+@privacy_notice_bp.route("/managed-application/<application_uuid>", methods=["DELETE"])
+@privacy_notice_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
+@dc_or_dpo_required()
+def remove_privacy_notice_by_managed_application_uuid(
+    application_uuid: UUID, current_user
+):
+    PrivacyNoticeService.remove_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
+        current_user.id, application_uuid
+    )
+    return "", 204

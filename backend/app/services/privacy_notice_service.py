@@ -18,7 +18,7 @@ class PrivacyNoticeService:
         exists and is managed by the given `DATA_CONTROLLER` or `DPO` user.
 
         Args:
-            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the applications.
+            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the application.
             application_uuid: The `UUID` of the `Application` to retrieve the `PrivacyNotice` of.
 
         Returns:
@@ -53,7 +53,7 @@ class PrivacyNoticeService:
         exists and is managed by the given `DATA_CONTROLLER` or `DPO` user.
 
         Args:
-            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the applications.
+            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the application.
             application_uuid: The `UUID` of the `Application` to write the `PrivacyNotice` of.
             content: The content of the `PrivacyNotice` to be created.
 
@@ -88,10 +88,10 @@ class PrivacyNoticeService:
     ) -> PrivacyNotice:
         """Edits an existing `PrivacyNotice` for an `Application` if the `Application` with the given `UUID`
         exists and is managed by the given `DATA_CONTROLLER` or `DPO` user. It creates a new `PrivacyNotice`
-        instance with the updated content and links it to the `Application`, overwriting the previous one.
+        instance with the updated content and links it to the given `Application`, overwriting the previous one.
 
         Args:
-            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the applications.
+            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the application.
             application_uuid: The `UUID` of the `Application` to edit the `PrivacyNotice` of.
             content: The content of the `PrivacyNotice` to be edited.
 
@@ -119,3 +119,38 @@ class PrivacyNoticeService:
         return PrivacyNoticeRepository.create_privacy_notice_by_application_id(
             content, application.id
         )
+
+    @staticmethod
+    def remove_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
+        user_id: int, application_uuid: UUID
+    ) -> None:
+        """Removes an existing `PrivacyNotice` from an `Application` if the `Application` with the given `UUID`
+        exists and is managed by the given `DATA_CONTROLLER` or `DPO` user. It removes the link between the `Application` and the `PrivacyNotice`,
+        but does not delete the `PrivacyNotice` instance itself.
+
+        Args:
+            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the application.
+            application_uuid: The `UUID` of the `Application` to remove the `PrivacyNotice` from.
+
+        Returns:
+            `None`
+
+        Raises:
+            `ApplicationNotFoundException`: If the `Application` with the given `UUID` is not found among the applications managed by the given `DATA_CONTROLLER` or `DPO` user.
+            `PrivacyNoticeNotFoundException`: If no existing `PrivacyNotice` is found for the managed `Application` with the given `UUID`.
+        """
+
+        application = (
+            ApplicationRepository.get_application_by_user_id_and_application_uuid(
+                user_id, application_uuid
+            )
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among the managed applications!"
+            )
+        if not application.privacy_notice:
+            raise PrivacyNoticeNotFoundException(
+                f"No Privacy Notice found for the application with uuid {application_uuid}"
+            )
+        PrivacyNoticeRepository.delete_privacy_notice_by_application_id(application.id)

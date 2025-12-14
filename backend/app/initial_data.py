@@ -128,9 +128,9 @@ def init_data(app: Flask) -> None:
                     available_consent4,
                 ]
             )
-            # Privacy Notice 1 is associated with Application 1 and 3
+            # Privacy Notice 1 is associated with Application 1 and 2
             privacy_notice1.applications.append(application1)
-            privacy_notice1.applications.append(application3)
+            privacy_notice1.applications.append(application2)
             # Application 1 has Consents 1 and 2, Application 2 has Consents 3 and 4
             application1.available_consents.append(available_consent1)
             application1.available_consents.append(available_consent2)

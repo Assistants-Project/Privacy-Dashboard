@@ -16,3 +16,11 @@ class PrivacyNoticeRepository:
         db.session.refresh(privacy_notice)
         db.session.refresh(application)
         return application.privacy_notice
+
+    @staticmethod
+    def delete_privacy_notice_by_application_id(
+        application_id: int,
+    ) -> None:
+        application = db.session.get(Application, application_id)
+        application.privacy_notice = None
+        db.session.commit()
