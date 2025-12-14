@@ -4,7 +4,7 @@ from ..models import Application, PrivacyNotice
 
 class PrivacyNoticeRepository:
     @staticmethod
-    def create_privacy_notice(
+    def create_privacy_notice_by_application_id(
         content: str,
         application_id: int,
     ) -> PrivacyNotice:

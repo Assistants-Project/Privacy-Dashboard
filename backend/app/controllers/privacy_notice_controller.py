@@ -43,3 +43,18 @@ def write_privacy_notice_by_managed_application_uuid(
             current_user.id, application_uuid, content
         )
     )
+
+
+@privacy_notice_bp.route("/managed-application/<application_uuid>", methods=["PUT"])
+@privacy_notice_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
+@privacy_notice_bp.arguments(PrivacyNoticeReqSchema, location="json", as_kwargs=True)
+@privacy_notice_bp.response(200, PrivacyNoticeResSchema)
+@dc_or_dpo_required()
+def edit_privacy_notice_by_managed_application_uuid(
+    application_uuid: UUID, content: str, current_user
+):
+    return (
+        PrivacyNoticeService.edit_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
+            current_user.id, application_uuid, content
+        )
+    )
