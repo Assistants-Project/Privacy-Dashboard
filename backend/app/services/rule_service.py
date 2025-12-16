@@ -83,7 +83,7 @@ class RuleService:
             service_id = trigger_data.get("service", {}).get("id")
             if service_id:
                 entities = self.owl_service._get_entities_by_service(
-                    service_id, user.email
+                    service_id, str(user.uuid)
                 )
                 if entities:
                     entity = self.rule_repo.find_or_create_entity(
@@ -155,7 +155,7 @@ class RuleService:
             List of Rule objects with populated trigger/action details
         """
         self.logger.info(
-            f"Fetching rules of type '{rule_type}' for user '{user.email}'"
+            f"Fetching rules of type '{rule_type}' for user '{str(user.uuid)}'"
         )
         db_rules = self.rule_repo.get_rules_by_user_and_type(user, rule_type)
         rules = []
@@ -170,7 +170,7 @@ class RuleService:
 
                 # Get trigger from OWL
                 trigger = self.owl_service.get_trigger_by_url(
-                    db_trigger.url, user.email
+                    db_trigger.url, str(user.uuid)
                 )
                 if not trigger:
                     continue
@@ -179,7 +179,7 @@ class RuleService:
                 for detail in trigger.details:
                     if detail.type == "entity" and db_trigger.entity:
                         detail.value = self.owl_service.get_entity_by_url(
-                            db_trigger.entity.url, user.email
+                            db_trigger.entity.url, str(user.uuid)
                         )
                     elif detail.type == "location":
                         for db_detail in db_trigger.details:
@@ -197,7 +197,7 @@ class RuleService:
                                 detail.value = db_detail.value
 
                 # Get action from OWL
-                action = self.owl_service.get_action_by_url(db_action.url, user.email)
+                action = self.owl_service.get_action_by_url(db_action.url, str(user.uuid))
                 if not action:
                     continue
 
@@ -205,7 +205,7 @@ class RuleService:
                 for detail in action.details:
                     if detail.type == "entity" and db_action.entity:
                         detail.value = self.owl_service.get_entity_by_url(
-                            db_action.entity.url, user.email
+                            db_action.entity.url, str(user.uuid)
                         )
                     elif detail.type == "location":
                         for db_detail in db_action.details:
