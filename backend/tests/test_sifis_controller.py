@@ -211,16 +211,14 @@ class TestRuleEndpoints:
         # Update sample rule with the real ID
         sample_rule["db_id"] = rule_id
         
-        response = client.post(
-            "/api/sifis/check",
-            data=json.dumps(sample_rule),
-            content_type="application/json",
-            
+        response = client.get(
+            f"/api/sifis/rule/{rule_id}/check",
+            content_type="application/json"
         )
         assert response.status_code == 200
         data = response.get_json()
         assert isinstance(data, dict), "Should return a dictionary"
-        assert "loops" in data or "inconsistencies" in data or "redundancies" in data, \
+        assert "inconsistentRules" in data or "redundantRules" in data or "loops" in data, \
             "Should return RuleProblems structure with at least one problem type"
 
 
@@ -278,10 +276,8 @@ class TestPolicyEndpoints:
         sample_rule["db_id"] = rule_id
         
         response = client.post(
-            "/api/sifis/translate",
-            data=json.dumps(sample_rule),
-            content_type="application/json",
-            
+            f"/api/sifis/rule/{rule_id}/translate",
+            content_type="application/json"
         )
         assert response.status_code == 200
     

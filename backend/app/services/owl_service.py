@@ -305,7 +305,10 @@ class OWLService:
             return []
 
     def _get_entities_by_service(
-        self, service_id: str, username: Optional[str] = "ptp-demo"
+        self,
+        service_id: str,
+        username: Optional[str] = "ptp-demo",
+        location_url: Optional[str] = None,
     ) -> List[Dict]:
         """Get IoT entities/devices that provide a specific service."""
         if not username:
@@ -326,6 +329,13 @@ class OWLService:
                 services = getattr(individual, "hasService", [])
                 for service in services:
                     if str(service.iri) == service_iri:
+                        # If location filtering is requested, check position
+                        if location_url:
+                            positions = getattr(individual, "position", [])
+                            # Check if any of the positions matches the location_url
+                            if not any(str(pos.iri) == location_url for pos in positions):
+                                continue
+
                         entities.append(
                             {
                                 "url": str(individual.iri),
@@ -753,7 +763,11 @@ class OWLService:
                     entity_locations = getattr(entity_individual, "position", [])
                     if entity_locations:
                         entity_location = entity_locations[0]
-                        if str(entity_location.iri) != location.get("url"):
+                        # Compare fragments (IDs) to avoid base URL/UUID mismatch
+                        loc_id = str(entity_location.iri).split("#")[-1]
+                        target_id = location.get("url", "").split("#")[-1]
+                        
+                        if loc_id != target_id:
                             # Entity not in specified location, skip
                             continue
 
@@ -941,7 +955,7 @@ class OWLService:
             # 3. Create Content
             OWLService._create_user_individual(onto, base_onto, user_uuid)
             locations = OWLService._create_locations(onto, base_onto)
-            OWLService._create_triggers(onto, base_onto)
+
             OWLService._create_notifications(onto, base_onto)
             OWLService._create_commands(onto, base_onto)
             OWLService._create_services(onto, base_onto)
@@ -1125,11 +1139,7 @@ class OWLService:
         
         return locations
 
-    @staticmethod
-    def _create_triggers(onto, base_onto):
-        # Triggers are referenced in allowTo but defined in sifis-home.owl
-        # We don't need to create them, just reference them.
-        pass 
+ 
 
     @staticmethod
     def _create_notifications(onto, base_onto):

@@ -519,16 +519,23 @@ class XACMLService:
             QName(XACML_NS, "Condition"), {"DecisionTime": decision_time}
         )
 
-        # Root Apply (and) - contains one-and-only Apply and AttributeValue as siblings
+        # Root Apply (and)
         root_apply = SubElement(
             condition,
             QName(XACML_NS, "Apply"),
             {"FunctionId": "urn:oasis:names:tc:xacml:1.0:function:and"},
         )
 
-        # One-and-only Apply (sibling to AttributeValue under 'and')
-        one_only_apply = SubElement(
+        # String Equal Apply (Child of AND)
+        equal_apply = SubElement(
             root_apply,
+            QName(XACML_NS, "Apply"),
+            {"FunctionId": "urn:oasis:names:tc:xacml:1.0:function:string-equal"},
+        )
+
+        # One-and-only Apply (Child of String Equal)
+        one_only_apply = SubElement(
+            equal_apply,
             QName(XACML_NS, "Apply"),
             {"FunctionId": "urn:oasis:names:tc:xacml:1.0:function:string-one-and-only"},
         )
@@ -545,9 +552,9 @@ class XACMLService:
             },
         )
 
-        # AttributeValue (sibling to one-and-only Apply under 'and')
+        # AttributeValue (Child of String Equal)
         attr_value = SubElement(
-            root_apply,
+            equal_apply,
             QName(XACML_NS, "AttributeValue"),
             {"DataType": "http://www.w3.org/2001/XMLSchema#string"},
         )

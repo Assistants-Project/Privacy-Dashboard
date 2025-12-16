@@ -20,6 +20,8 @@ from ..models.entities.sifis.owl.rule import Rule
 from ..models.entities.sifis.owl.trigger import Trigger
 from ..models.entities.sifis.owl.action import Action
 from ..models.entities.sifis.owl.detail import Detail
+from ..models.entities.sifis.owl.detail import Detail
+from ..models.entities.sifis.owl.rule_problems import RuleProblems
 from .owl_service import OWLService
 
 
@@ -110,6 +112,96 @@ class PetriNetService:
             return simulator.step()
         return None
 
+
+    def check_rule(self, target_rule: Rule, existing_rules: List[Rule], user_uuid: str) -> Dict:
+        """
+        Check a rule for loops using Petri Nets.
+        
+        Args:
+            target_rule: The rule to check
+            existing_rules: List of all user's rules
+            user_uuid: User UUID string
+            
+        Returns:
+            Dictionary containing rule problems (loops, etc.)
+        """
+        # Initialize RuleProblems
+        rule_problems = RuleProblems()
+        rule_problems.rule = target_rule
+
+        # Prepare rules list for analysis
+        rules_after = existing_rules.copy()
+        
+        # If target rule updates an existing one (same DB ID), remove the old version
+        if target_rule.db_id:
+            rules_after = [r for r in rules_after if r.db_id != target_rule.db_id]
+        
+        # Add the target rule to the set
+        rules_after.append(target_rule)
+
+        for existing_rule in existing_rules:
+            # Skip comparing rule to itself (by ID)
+            if existing_rule.db_id == target_rule.db_id:
+                continue
+                
+            # Trigger Equality Check
+            triggers_match = (
+                target_rule.trigger.url == existing_rule.trigger.url
+                and target_rule.trigger.details == existing_rule.trigger.details
+            )
+            
+            if triggers_match:
+                # Actions Equality Check
+                actions_match = (
+                    target_rule.action.url == existing_rule.action.url
+                    and target_rule.action.details == existing_rule.action.details
+                )
+                
+                if actions_match:
+                    # Check Effect (Permit vs Deny)
+                    if target_rule.effect == existing_rule.effect:
+                        # Exact duplicate: Same T, Same A, Same E
+                        rule_problems.add_redundant_rules([target_rule, existing_rule])
+                    else:
+                        # Conflict: Same T, Same A, Different E (Permit vs Deny)
+                        rule_problems.add_inconsistent_rules([target_rule, existing_rule])
+
+
+
+        # Build Petri Net
+        net = self.get_net(user_uuid, rules_after, refresh=True)
+
+        # Search for loops
+        cycles = net.get_cycle(target_rule, rules_after)
+
+        if cycles and len(cycles) > 0:
+            for cycle in cycles:
+                current_loop_rules = []
+                
+                # Iterate through the cycle to find Rules corresponding to transitions
+                num_places = len(cycle)
+                for i in range(num_places):
+                    current_place = cycle[i]
+                    next_place = cycle[(i + 1) % num_places] # Wrap around
+                    
+                    if isinstance(current_place, TriggerPlace) and isinstance(next_place, ActionPlace):
+                        trigger = current_place.get_trigger()
+                        action = next_place.get_action()
+                        
+                        # Find matching rule in existing set
+                        for rule in rules_after:
+                            if (rule.trigger.url == trigger.url and 
+                                rule.action.url == action.url):
+                                current_loop_rules.append(rule)
+                                break
+                
+                if current_loop_rules:
+                    rule_problems.add_loop(current_loop_rules)
+                else:
+                    # Fallback: report the target rule to alert the user if we couldn't extract rules.
+                    rule_problems.add_loop([target_rule])
+
+        return rule_problems.to_dict()
     def stop_rest_simulator(self, username: str) -> None:
         """
         Stop the simulation for a user.
@@ -365,3 +457,5 @@ class PetriNetService:
                         rules.append(executed_rule)
 
         return rules
+
+

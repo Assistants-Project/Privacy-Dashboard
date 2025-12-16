@@ -262,10 +262,9 @@ def get_defined_triggers(current_user):
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/translate", methods=["POST"])
-@sifis_bp.arguments(RuleRequestSchema, as_kwargs=True)
+@sifis_bp.route("/rule/<int:rule_id>/translate", methods=["POST"])
 @ds_required()
-def translate_rule(current_user, **rule_data):
+def translate_rule(rule_id, current_user):
     """Translate a rule into XACML policies and publish to DHT"""
     if not xacml_service or not dht_service:
         return jsonify({"error": "XACML or DHT service not available"}), 500
@@ -276,14 +275,9 @@ def translate_rule(current_user, **rule_data):
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        validated_data = rule_data
-
-        # Verify rule ownership if db_id is provided
-        db_id = validated_data.get("db_id")
-        if not db_id:
-             return jsonify({"error": "Missing db_id"}), 400
-             
-        if not rule_service.verify_rule_ownership(db_id, user):
+        # Verify rule ownership and get rehydrated rule
+        rule = rule_service.get_rule_by_id(rule_id, user)
+        if not rule:
              return jsonify({"error": "Rule not found or access denied"}), 404
 
         # Get policies directory from config
@@ -295,7 +289,8 @@ def translate_rule(current_user, **rule_data):
             file.unlink()
 
         # Translate rule to XACML policies
-        policies_xml = xacml_service.translate(validated_data, str(user.uuid))
+        # Pass rule dict (rehydrated) to translation service
+        policies_xml = xacml_service.translate(rule.to_dict(), str(user.uuid))
 
         # Save policies to files and publish to DHT
         for i, policy_xml in enumerate(policies_xml):
@@ -356,10 +351,9 @@ def download_policies(current_user):
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/check", methods=["POST"])
-@sifis_bp.arguments(RuleRequestSchema, as_kwargs=True)
+@sifis_bp.route("/rule/<int:rule_id>/check", methods=["GET"])
 @ds_required()
-def check_rule(current_user, **rule_data):
+def check_rule(rule_id, current_user):
     """Check a rule for loops, inconsistencies, and redundancies"""
     if not rule_service or not petrinet_service:
         return jsonify({"error": "Services not available"}), 500
@@ -371,187 +365,18 @@ def check_rule(current_user, **rule_data):
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        validated_data = rule_data
-
-        # Verify rule ownership if db_id is provided
-        db_id = validated_data.get("db_id")
-        if not db_id:
-             return jsonify({"error": "Missing db_id"}), 400
-             
-        if not rule_service.verify_rule_ownership(db_id, user):
+        # Verify rule ownership and get rehydrated rule
+        rule = rule_service.get_rule_by_id(rule_id, user)
+        if not rule:
              return jsonify({"error": "Rule not found or access denied"}), 404
 
-        # Get Trigger and Action from OWL to ensure full details
-        trigger = owl_service.get_trigger_by_url(
-            validated_data["trigger"]["url"], user.email
-        )
-        action = owl_service.get_action_by_url(
-            validated_data["action"]["url"], user.email
-        )
+        # Get all existing rules
+        rules = rule_service.get_rules_by_type("sifis", user)
 
-        if not trigger or not action:
-            return jsonify({"error": "Invalid trigger or action URL"}), 400
+        # Check rule using PetriNet service logic
+        result = petrinet_service.check_rule(rule, rules, str(user.uuid))
 
-        # Populate details from validated data if present
-        if "details" in validated_data.get("trigger", {}):
-            for detail_data in validated_data["trigger"]["details"]:
-                for detail in trigger.details:
-                    if detail.url == detail_data.get("url"):
-                        detail.value = detail_data.get("value")
-
-        if "details" in validated_data.get("action", {}):
-            for detail_data in validated_data["action"]["details"]:
-                for detail in action.details:
-                    if detail.url == detail_data.get("url"):
-                        detail.value = detail_data.get("value")
-
-        # Create Rule object
-        from ..models.entities.sifis.owl.rule import Rule
-
-        rule = Rule(
-            db_id=validated_data.get("db_id"),
-            effect=validated_data.get("effect"),
-            subject=validated_data.get("subject"),
-            timestamp=validated_data.get("timestamp"),
-            trigger=trigger,
-            action=action,
-        )
-
-        # Initialize RuleProblems
-        rule_problems = RuleProblems()
-
-        # Get all existing rules for Petri Net analysis
-        rules_after = rule_service.get_rules_by_type("sifis", user)
-
-        # Ensure the rule being checked is included (and replaces old version if exists)
-        if rule.db_id:
-            # Remove existing version if present
-            rules_after = [r for r in rules_after if r.db_id != rule.db_id]
-        
-        # Add the current rule state to the list
-        rules_after.append(rule)
-        rule_problems.rule = rule
-
-        # Build Petri Net
-        net = petrinet_service.get_net(str(user.uuid), rules_after, refresh=True)
-
-        # Search for loops
-        cycles = net.get_cycle(rule, rules_after)
-
-        if cycles and len(cycles) > 0:
-            # There are cycles!
-            for cycle in cycles:
-                loop = []
-                cycle.reverse()
-
-                i = 0
-                while i < len(cycle):
-                    if isinstance(cycle[i], TriggerPlace):
-                        trigger_place = cycle[i]
-                        if i + 1 < len(cycle) and isinstance(cycle[i + 1], ActionPlace):
-                            action_place = cycle[i + 1]
-
-                            # Create rule from trigger and action
-                            r = Rule(
-                                trigger=trigger_place.trigger,
-                                action=action_place.action,
-                            )
-
-                            # Find matching rule in rules_after
-                            for ra in rules_after:
-                                if ra.trigger == r.trigger and ra.action == r.action:
-                                    loop.append(ra)
-                                    break
-                        i += 2
-                    else:
-                        i += 1
-
-                # Only add loop if the checked rule is involved
-                if any(
-                    r.trigger == rule.trigger and r.action == rule.action for r in loop
-                ):
-                    rule_problems.add_loop(loop)
-
-        # If no loops, check for inconsistencies and redundancies
-        if not rule_problems.loops:
-            # Get root trigger
-            start_trigger = net.get_root(rule)
-            if not start_trigger:
-                start_trigger = rule.trigger
-
-            rule_problems.start_trigger = start_trigger
-
-            # Simulate the Petri Net to get rules that would execute
-            # Call the method on the net itself
-            simulated_rules = net.get_simulated_rules(start_trigger)
-
-            # Limit to 40 rules like Java
-            if len(simulated_rules) > 40:
-                simulated_rules = simulated_rules[:40]
-
-            # Compare ALL rules against ALL rules
-            for i in range(len(simulated_rules)):
-                r1 = simulated_rules[i]
-                a1 = r1.action
-                redundant = [r1]
-                inconsistent = [r1]
-
-                for j in range(min(len(simulated_rules), 100)):  # j<100 check
-                    if j != i:
-                        r2 = simulated_rules[j]
-                        a2 = r2.action
-
-                        # Check if actions are equivalent
-                        if owl_service.equals_ml(a1, a2):
-                            if r1.effect == r2.effect:
-                                redundant.append(r2)
-                            else:
-                                inconsistent.append(r2)
-
-                # Only add if we found redundancies (more than just r1)
-                if len(redundant) > 1 and not rule_problems.contains_redundancy(
-                    redundant
-                ):
-                    # Check if the rule being validated is in this redundant group
-                    rule_involved = any(
-                        r.trigger.url == rule.trigger.url
-                        and r.action.url == rule.action.url
-                        for r in redundant
-                    )
-                    if rule_involved:
-                        rule_problems.add_redundant_rules(redundant)
-
-                # Only add if we found inconsistencies (more than just r1)
-                if len(inconsistent) > 1 and not rule_problems.contains_inconsistency(
-                    inconsistent
-                ):
-                    # Check if the rule being validated is in this inconsistent group
-                    rule_involved = any(
-                        r.trigger.url == rule.trigger.url
-                        and r.action.url == rule.action.url
-                        for r in inconsistent
-                    )
-                    if rule_involved:
-                        rule_problems.add_inconsistent_rules(inconsistent)
-
-            # Set parents for rules based on triggers
-            last_trigger = simulated_rules[0].trigger if simulated_rules else None
-            temp = []
-
-            for simulated_rule in simulated_rules:
-                if simulated_rule.trigger == last_trigger:
-                    temp.append(simulated_rule)
-                    continue
-
-                simulated_rule.parents = petrinet_service.get_parents(
-                    simulated_rule, temp
-                )
-                temp.append(simulated_rule)
-                last_trigger = simulated_rule.trigger
-
-            rule_problems.executed_rules = simulated_rules
-
-        return jsonify(rule_problems.to_dict()), 200
+        return jsonify(result), 200
 
     except Exception as e:
         logging.error(f"Error checking rule: {e}", exc_info=True)
@@ -580,10 +405,7 @@ def start_simulation(current_user):
 
         # Parse trigger from request
         trigger_data = data["trigger"]
-        # We need to reconstruct the Trigger object. 
-        # Ideally we should use a schema, but for now we'll rely on OWL service to hydrate it
-        # or construct it manually if it's a simple object.
-        # Let's try to get it from OWL service if URL is present
+  
         trigger = None
         if "url" in trigger_data:
             trigger = owl_service.get_trigger_by_url(trigger_data["url"], user.email)

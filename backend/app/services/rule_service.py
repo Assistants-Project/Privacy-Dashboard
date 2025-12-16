@@ -1,5 +1,5 @@
 import logging
-from typing import List, Set, Dict, Any
+from typing import List, Set, Dict, Any, Optional
 import time
 
 from ..models.entities.sifis.db import DbRule, DbTrigger, DbAction, DbDetail
@@ -52,6 +52,7 @@ class RuleService:
         db_trigger = DbTrigger(url=trigger_data["url"])
 
         # Process trigger details
+        location_url = None
         for detail in trigger_data.get("details", []):
             if detail["type"] == "entity":
                 entity_value = detail.get("value", {})
@@ -63,6 +64,7 @@ class RuleService:
             elif detail["type"] == "location":
                 location_value = detail.get("value", {})
                 if location_value:
+                    location_url = location_value.get("url")
                     db_detail = DbDetail(
                         url=detail.get("url"),
                         type=detail["type"],
@@ -80,10 +82,19 @@ class RuleService:
 
         # If no entity specified, try to find default entity for service
         if not db_trigger.entity:
+            # Derive Service ID from OWL if not in payload
             service_id = trigger_data.get("service", {}).get("id")
+            if not service_id:
+                # Fetch trigger definition from OWL to find its service
+                owl_trigger = self.owl_service.get_trigger_by_url(
+                     trigger_data["url"], str(user.uuid)
+                )
+                if owl_trigger and owl_trigger.service:
+                    service_id = owl_trigger.service.id 
+
             if service_id:
                 entities = self.owl_service._get_entities_by_service(
-                    service_id, str(user.uuid)
+                    service_id, str(user.uuid), location_url=location_url
                 )
                 if entities:
                     entity = self.rule_repo.find_or_create_entity(
@@ -96,6 +107,7 @@ class RuleService:
         db_action = DbAction(url=action_data["url"])
 
         # Process action details
+        location_url = None
         for detail in action_data.get("details", []):
             if detail["type"] == "entity":
                 entity_value = detail.get("value", {})
@@ -105,15 +117,16 @@ class RuleService:
                     )
                     db_action.entity = entity
             elif detail["type"] == "location":
-                location_value = detail.get("value", {})
-                if location_value:
-                    db_detail = DbDetail(
-                        url=detail.get("url"),
-                        type=detail["type"],
-                        value=location_value.get("name"),
-                        value_url=location_value.get("url"),
-                    )
-                    db_action.details.append(db_detail)
+                 location_value = detail.get("value", {})
+                 if location_value:
+                     location_url = location_value.get("url")
+                     db_detail = DbDetail(
+                         url=detail.get("url"),
+                         type=detail["type"],
+                         value=location_value.get("name"),
+                         value_url=location_value.get("url"),
+                     )
+                     db_action.details.append(db_detail)
             elif detail.get("value"):
                 db_detail = DbDetail(
                     url=detail.get("url"),
@@ -124,10 +137,17 @@ class RuleService:
 
         # If no entity specified, try to find default entity for service
         if not db_action.entity:
-            service_id = action_data.get("service", {}).get("id")
-            if service_id:
+             service_id = action_data.get("service", {}).get("id")
+             if not service_id:
+                 owl_action = self.owl_service.get_action_by_url(
+                     action_data["url"], str(user.uuid)
+                 )
+                 if owl_action and owl_action.service:
+                     service_id = owl_action.service.id
+
+             if service_id:
                 entities = self.owl_service._get_entities_by_service(
-                    service_id, str(user.uuid)
+                    service_id, str(user.uuid), location_url=location_url
                 )
                 if entities:
                     entity = self.rule_repo.find_or_create_entity(
@@ -162,82 +182,9 @@ class RuleService:
 
         for db_rule in db_rules:
             try:
-                db_trigger = db_rule.triggers[0] if db_rule.triggers else None
-                db_action = db_rule.actions[0] if db_rule.actions else None
-
-                if not db_trigger or not db_action:
-                    continue
-
-                # Get trigger from OWL
-                trigger = self.owl_service.get_trigger_by_url(
-                    db_trigger.url, str(user.uuid)
-                )
-                if not trigger:
-                    continue
-
-                # Populate trigger detail values
-                for detail in trigger.details:
-                    if detail.type == "entity" and db_trigger.entity:
-                        detail.value = self.owl_service.get_entity_by_url(
-                            db_trigger.entity.url, str(user.uuid)
-                        )
-                    elif detail.type == "location":
-                        for db_detail in db_trigger.details:
-                            if detail.url == db_detail.url:
-                                detail.value = {
-                                    "name": db_detail.value,
-                                    "url": db_detail.value_url,
-                                }
-                    else:
-                        for db_detail in db_trigger.details:
-                            if detail.url == db_detail.url and detail.type not in [
-                                "entity",
-                                "location",
-                            ]:
-                                detail.value = db_detail.value
-
-                # Get action from OWL
-                action = self.owl_service.get_action_by_url(db_action.url, str(user.uuid))
-                if not action:
-                    continue
-
-                # Populate action detail values
-                for detail in action.details:
-                    if detail.type == "entity" and db_action.entity:
-                        detail.value = self.owl_service.get_entity_by_url(
-                            db_action.entity.url, str(user.uuid)
-                        )
-                    elif detail.type == "location":
-                        for db_detail in db_action.details:
-                            if detail.url == db_detail.url:
-                                detail.value = {
-                                    "name": db_detail.value,
-                                    "url": db_detail.value_url,
-                                }
-                    else:
-                        for db_detail in db_action.details:
-                            if detail.url == db_detail.url and detail.type not in [
-                                "entity",
-                                "location",
-                            ]:
-                                detail.value = db_detail.value
-
-                # Sort details by name
-                trigger.details.sort(key=lambda d: d.name)
-                action.details.sort(key=lambda d: d.name)
-
-                rule = Rule(
-                    db_id=db_rule.id,
-                    type=db_rule.type,
-                    effect=db_rule.effect,
-                    subject=db_rule.subject,
-                    timestamp=db_rule.timestamp,
-                    trigger=trigger,
-                    action=action,
-                )
-
-                rules.append(rule)
-
+                rule = self._rehydrate_rule(db_rule, str(user.uuid))
+                if rule:
+                    rules.append(rule)
             except Exception as e:
                 # Log error but continue processing other rules
                 print(f"Error processing rule {db_rule.id}: {e}")
@@ -270,3 +217,96 @@ class RuleService:
         for rule in rules:
             triggers.add(rule["trigger"])
         return triggers
+        
+    def get_rule_by_id(self, rule_id: int, user: User) -> Optional[Rule]:
+        """Get a single fully rehydrated rule by ID"""
+        db_rule = self.rule_repo.get_rule_by_id_and_user(rule_id, user.id)
+        if not db_rule:
+            return None
+            
+        return self._rehydrate_rule(db_rule, str(user.uuid))
+
+    def _rehydrate_rule(self, db_rule: DbRule, user_uuid: str) -> Optional[Rule]:
+        """
+        Helper to rehydrate a DbRule into a full Rule object using OWL data.
+        """
+        try:
+             db_trigger = db_rule.triggers[0] if db_rule.triggers else None
+             db_action = db_rule.actions[0] if db_rule.actions else None
+
+             if not db_trigger or not db_action:
+                 return None
+
+             # Get trigger from OWL
+             trigger = self.owl_service.get_trigger_by_url(
+                 db_trigger.url, user_uuid
+             )
+             if not trigger:
+                 return None
+
+             # Populate trigger detail values
+             for detail in trigger.details:
+                 if detail.type == "entity" and db_trigger.entity:
+                     detail.value = self.owl_service.get_entity_by_url(
+                         db_trigger.entity.url, user_uuid
+                     )
+                 elif detail.type == "location":
+                     for db_detail in db_trigger.details:
+                         if detail.url == db_detail.url:
+                             detail.value = {
+                                 "name": db_detail.value,
+                                 "url": db_detail.value_url,
+                             }
+                 else:
+                     for db_detail in db_trigger.details:
+                         if detail.url == db_detail.url and detail.type not in [
+                             "entity",
+                             "location",
+                             "service", # Exclude service detail if present
+                         ]:
+                             detail.value = db_detail.value
+
+             # Get action from OWL
+             action = self.owl_service.get_action_by_url(db_action.url, user_uuid)
+             if not action:
+                 return None
+
+             # Populate action detail values
+             for detail in action.details:
+                 if detail.type == "entity" and db_action.entity:
+                     detail.value = self.owl_service.get_entity_by_url(
+                         db_action.entity.url, user_uuid
+                     )
+                 elif detail.type == "location":
+                     for db_detail in db_action.details:
+                         if detail.url == db_detail.url:
+                             detail.value = {
+                                 "name": db_detail.value,
+                                 "url": db_detail.value_url,
+                             }
+                 else:
+                     for db_detail in db_action.details:
+                         if detail.url == db_detail.url and detail.type not in [
+                             "entity",
+                             "location",
+                             "service"
+                         ]:
+                             detail.value = db_detail.value
+
+             # Sort details by name
+             trigger.details.sort(key=lambda d: d.name)
+             action.details.sort(key=lambda d: d.name)
+
+             return Rule(
+                 db_id=db_rule.id,
+                 type=db_rule.type,
+                 effect=db_rule.effect,
+                 subject=db_rule.subject,
+                 timestamp=db_rule.timestamp,
+                 trigger=trigger,
+                 action=action,
+             )
+
+        except Exception as e:
+             self.logger.error(f"Error rehydrating rule {db_rule.id}: {e}")
+             return None
