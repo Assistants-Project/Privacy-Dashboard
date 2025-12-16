@@ -1,3 +1,6 @@
+from .request.application_and_privacy_notice_uuid_req_schema import (
+    ApplicationAndPrivacyNoticeUuidReqSchema,
+)
 from .request.application_and_user_uuid_req_schema import (
     ApplicationAndUserUuidReqSchema,
 )
@@ -34,6 +37,7 @@ from .response.room_res_schema import RoomResSchema
 from .response.user_res_schema import UserResSchema
 
 __all__ = [
+    "ApplicationAndPrivacyNoticeUuidReqSchema",
     "ApplicationAndUserUuidReqSchema",
     "ApplicationUuidReqSchema",
     "AuthReqSchema",

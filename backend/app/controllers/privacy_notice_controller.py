@@ -3,6 +3,7 @@ from uuid import UUID
 from flask_smorest import Blueprint
 
 from ..schemas import (
+    ApplicationAndPrivacyNoticeUuidReqSchema,
     ApplicationUuidReqSchema,
     PrivacyNoticeReqSchema,
     PrivacyNoticeResSchema,
@@ -42,6 +43,23 @@ def write_privacy_notice_by_managed_application_uuid(
         PrivacyNoticeService.write_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
             current_user.id, application_uuid, content
         )
+    )
+
+
+@privacy_notice_bp.route(
+    "/managed-application/<application_uuid>/privacy-notice/<privacy_notice_uuid>",
+    methods=["PUT"],
+)
+@privacy_notice_bp.arguments(
+    ApplicationAndPrivacyNoticeUuidReqSchema, location="path", as_kwargs=True
+)
+@privacy_notice_bp.response(201, PrivacyNoticeResSchema)
+@dc_or_dpo_required()
+def associate_privacy_notice_by_managed_application_uuid(
+    application_uuid: UUID, privacy_notice_uuid: UUID, current_user
+):
+    return PrivacyNoticeService.associate_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
+        current_user.id, application_uuid, privacy_notice_uuid
     )
 
 

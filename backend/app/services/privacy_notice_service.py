@@ -83,6 +83,51 @@ class PrivacyNoticeService:
         )
 
     @staticmethod
+    def associate_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
+        user_id: int, application_uuid: UUID, privacy_notice_uuid: UUID
+    ) -> PrivacyNotice:
+        """Associates an existing `PrivacyNotice` with an `Application` if the `Application` with the given `UUID`
+        exists and is managed by the given `DATA_CONTROLLER` or `DPO` user.
+
+        Args:
+            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the application.
+            application_uuid: The `UUID` of the `Application` to associate the `PrivacyNotice` to.
+            privacy_notice_uuid: The `UUID` of the `PrivacyNotice` to be associated.
+
+        Returns:
+            The `PrivacyNotice` associated to the managed `Application` with the given `UUID`.
+
+        Raises:
+            `ApplicationNotFoundException`: If the `Application` with the given `UUID` is not found among the applications managed by the given `DATA_CONTROLLER` or `DPO` user.
+            `PrivacyNoticeAlreadyExists`: If an already existing `PrivacyNotice` is found for the managed `Application` with the given `UUID`.
+            `PrivacyNoticeNotFoundException`: If no existing `PrivacyNotice` is found with the given `UUID`.
+        """
+
+        application = (
+            ApplicationRepository.get_application_by_user_id_and_application_uuid(
+                user_id, application_uuid
+            )
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among the managed applications!"
+            )
+        if application.privacy_notice:
+            raise PrivacyNoticeAlreadyExists(
+                f"Privacy Notice already exists for the application with uuid {application_uuid}"
+            )
+        privacy_notice = PrivacyNoticeRepository.get_privacy_notice_by_uuid(
+            privacy_notice_uuid
+        )
+        if not privacy_notice:
+            raise PrivacyNoticeNotFoundException(
+                f"Privacy Notice with uuid {privacy_notice_uuid} not found!"
+            )
+        return PrivacyNoticeRepository.associate_privacy_notice_by_application_id_and_privacy_notice_id(
+            application.id, privacy_notice.id
+        )
+
+    @staticmethod
     def edit_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
         user_id: int, application_uuid: UUID, content: str
     ) -> PrivacyNotice:
