@@ -32,6 +32,7 @@ from .response.device_res_schema import DeviceResSchema
 from .response.home_res_schema import HomeResSchema
 from .response.message_res_schema import MessageResSchema
 from .response.privacy_notice_res_schema import PrivacyNoticeResSchema
+from .response.question_res_schema import QuestionResSchema
 from .response.request_res_schema import RequestResSchema, RequestSchema
 from .response.room_res_schema import RoomResSchema
 from .response.user_res_schema import UserResSchema
@@ -61,6 +62,7 @@ __all__ = [
     "HomeResSchema",
     "MessageResSchema",
     "PrivacyNoticeResSchema",
+    "QuestionResSchema",
     "RequestResSchema",
     "RequestSchema",
     "RoomResSchema",

@@ -10,6 +10,8 @@ from .models import (
     AvailableConsent,
     Message,
     PrivacyNotice,
+    Question,
+    QuestionType,
     Request,
     RightType,
     SmartHome,
@@ -322,7 +324,23 @@ def init_data(app: Flask) -> None:
             data_subject1_request3.user_smart_home_application_relation = (
                 data_subject1_smart_home2_application2
             )
-
+            # Questions for Questionnaire
+            question1 = Question(
+                content="Have you identified all the personal data that are going to be processed?",
+                type=QuestionType.QUESTIONNAIRE,
+                choices="Yes,No,I don't know",
+            )
+            question2 = Question(
+                content="For how long are the data going to be stored?",
+                type=QuestionType.QUESTIONNAIRE,
+                choices="Less than 1 month,Between 1 month and 6 months,Between 6 months and 2 years,More than 2 years,I don't know",
+            )
+            question3 = Question(
+                content="Do you store passwords in plain text or do you encrypt them?",
+                type=QuestionType.QUESTIONNAIRE,
+                choices="I don't store passwords,I encrypt them,Plain text,I don't know",
+            )
+            db.session.add_all([question1, question2, question3])
             db.session.commit()
         else:
             print(

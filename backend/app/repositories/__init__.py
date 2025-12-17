@@ -2,6 +2,7 @@ from .application_repository import ApplicationRepository
 from .available_consent_repository import AvailableConsentRepository
 from .message_repository import MessageRepository
 from .privacy_notice_repository import PrivacyNoticeRepository
+from .question_repository import QuestionRepository
 from .request_repository import RequestRepository
 from .smart_home_repository import SmartHomeRepository
 from .user_repository import UserRepository
@@ -11,6 +12,7 @@ __all__ = [
     "AvailableConsentRepository",
     "MessageRepository",
     "PrivacyNoticeRepository",
+    "QuestionRepository",
     "RequestRepository",
     "SmartHomeRepository",
     "UserRepository",

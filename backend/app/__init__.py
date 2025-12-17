@@ -13,6 +13,7 @@ from .controllers import (
     homes_bp,
     message_bp,
     privacy_notice_bp,
+    question_bp,
     request_bp,
     user_bp,
 )
@@ -55,6 +56,7 @@ def create_app(env_name: Optional[str] = None) -> Flask:
         homes_bp,
         message_bp,
         privacy_notice_bp,
+        question_bp,
         request_bp,
         user_bp,
     ]:

@@ -29,6 +29,7 @@ def upgrade():
     op.create_table(
         "questions",
         sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("uuid", sa.Uuid(), nullable=False),
         sa.Column("content", sa.Text(), nullable=False),
         sa.Column("choices", sa.Text(), nullable=True),
         sa.Column(
@@ -37,6 +38,7 @@ def upgrade():
             nullable=False,
         ),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("uuid"),
     )
     op.create_table(
         "smart_homes",
@@ -157,6 +159,11 @@ def upgrade():
         sa.Column("question_id", sa.Integer(), nullable=False),
         sa.Column("application_id", sa.Integer(), nullable=False),
         sa.Column("answer_content", sa.Text(), nullable=False),
+        sa.Column(
+            "evaluation",
+            sa.Enum("GREEN", "ORANGE", "RED", name="evaluation"),
+            nullable=True,
+        ),
         sa.ForeignKeyConstraint(
             ["application_id"], ["applications.id"], ondelete="CASCADE"
         ),
