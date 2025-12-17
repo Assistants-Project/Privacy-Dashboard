@@ -17,7 +17,11 @@ from .entities.room_exceptions import RoomNotFoundException, RoomSyncException
 from .entities.home_exception import SmartHomeNotFoundException
 from .entities.home_exception import SmartHomeForbiddenException
 from .entities.device_exceptions import DeviceSyncException
-from .entities.smartotum_exceptions import SmartotumSyncException
+from .entities.smartotum_exceptions import (
+    SmartotumSyncException,
+    SmartotumServiceUnavailableException,
+    SmartotumTimeoutException,
+)
 
 __all__ = [
     "ExpiredJWTException",
@@ -37,5 +41,7 @@ __all__ = [
     "SmartHomeForbiddenException",
     "DeviceSyncException",
     "SmartotumSyncException",
+    "SmartotumServiceUnavailableException",
+    "SmartotumTimeoutException",
 
 ]
