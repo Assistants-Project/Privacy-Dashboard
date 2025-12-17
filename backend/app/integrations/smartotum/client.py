@@ -1,10 +1,17 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
-from ...exceptions import WrongUserCredentialsException
+from ...exceptions import (
+    WrongUserCredentialsException,
+    SmartotumServiceUnavailableException,
+    SmartotumTimeoutException,
+)
 from requests import RequestException
+from requests.exceptions import Timeout
 from uuid import UUID
 import requests
 from flask import current_app
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 @dataclass
 class SmartotumLoginResult:
@@ -49,15 +56,37 @@ class SmartotumRule:
 class SmartotumClient:
 
     #initialize env variables
-    def __init__(self, session: Optional[requests.Session] = None) -> None:
+    def __init__(self, session: Optional[requests.Session] = None, session_retry: Optional[requests.Session] = None) -> None:
         cfg = current_app.config
         self._base_url = cfg["SMARTOTUM_BASE_URL"].rstrip("/")
         self._base_dht_url = cfg["SMARTOTUM_DHT_URL"].rstrip("/")
         self._api_base_path = cfg["SMARTOTUM_API_BASE_PATH"].strip("/")
         self._smartotum_device_topics = cfg["SMARTOTUM_DEVICE_TOPICS"]
         self._rule_topic = cfg["SMARTOTUM_RULE_TOPIC"]
-        self._timeout = cfg.get("SMARTOTUM_TIMEOUT", 10)
+        self._timeout = cfg.get("SMARTOTUM_TIMEOUT", 1)
         self._session = session or requests.Session()
+
+        if session_retry is None:
+
+            self._session_retry = requests.Session()
+
+            retry_strategy = Retry(
+            total=4,
+            status_forcelist=[429,500,502,503,504], 
+            read=3,
+            connect=3,
+            backoff_factor=0.5,
+            allowed_methods=frozenset({"GET", "POST"})
+            )
+        
+            retry_adapter = HTTPAdapter(max_retries=retry_strategy)
+
+            self._session_retry.mount("http://", retry_adapter)
+            self._session_retry.mount("https://", retry_adapter)
+        
+        else:
+            self._session_retry = session_retry 
+        
         self._rid = cfg["SMARTOTUM_RID"]
         self._auth_mode = cfg["SMARTOTUM_AUTH_MODE"]
 
@@ -135,7 +164,7 @@ class SmartotumClient:
         complete_url=self.smartotum_dht_api_url(f"/topic_name/{self._rule_topic}", system_uuid)
 
         try:
-            response = self._session.get(
+            response = self._session_retry.get(
                 complete_url, headers=headers, timeout=self._timeout
             )
             response.raise_for_status()
@@ -187,7 +216,7 @@ class SmartotumClient:
             complete_url=self.smartotum_dht_api_url(f"/topic_name/{topic_name}", system_uuid)
 
             try:
-                response = self._session.get(
+                response = self._session_retry.get(
                     complete_url, headers=headers, timeout=self._timeout
                 )
                 response.raise_for_status()
@@ -226,7 +255,7 @@ class SmartotumClient:
         complete_url=self.smartotum_dht_api_url(f"/topic_name/domo_room", system_uuid)
 
         try:
-            response = self._session.get(
+            response = self._session_retry.get(
                 complete_url, headers=headers, timeout=self._timeout
             )
             response.raise_for_status()
@@ -270,18 +299,21 @@ class SmartotumClient:
             "Content-Type": "application/json",
         }
 
+
         try:
-            response = self._session.post(
+            response = self._session_retry.post(
                 self.smartotum_api_url(f"{self._api_base_path}/signin"),
                 json=payload,
                 headers=headers,
                 timeout=self._timeout,
             )
             response.raise_for_status()
+        except Timeout as exc:
+            raise SmartotumTimeoutException("Smartotum login timed out") from exc
         except RequestException as exc:
-            raise WrongUserCredentialsException("Error occurred during Smartotum login") from exc
+            raise SmartotumServiceUnavailableException("Smartotum service unavailable") from exc
     
-
+        #think if it's needed a try except also here if smartotum doesn't respond with a json
         data = response.json()
         
         if data.get("status") == "WRONG_CREDENTIALS_ERROR" or "user" not in data:
@@ -291,7 +323,11 @@ class SmartotumClient:
         refresh_token = response.headers.get("st-refresh-token")
 
         if not access_token or not refresh_token:
-            raise WrongUserCredentialsException("Smartotum login missing tokens")
+
+            print(response.status_code)
+            print(response.headers)
+            print(data)
+            raise SmartotumServiceUnavailableException("missing tokens from login response Smartotum")
         
         return SmartotumLoginResult(
             user=data.get("user", {}),
@@ -313,7 +349,7 @@ class SmartotumClient:
         }
 
         try:
-            response = self._session.get(
+            response = self._session_retry.get(
                 self.smartotum_api_url("service/systems"), headers=headers, params=params, timeout=self._timeout
             )
             response.raise_for_status()
