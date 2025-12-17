@@ -21625,29 +21625,88 @@
 			]
 		},
 		{
-			"name": "Smartotum Integration",
+			"name": "Questions API",
 			"item": [
 				{
-					"name": "DataSubject-Login",
+					"name": "Unauthorized Questionnaire",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 401\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unauthorized');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/questions/questionnaire",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"questionnaire"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful DS Login - DS1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"type": "text",
-								"disabled": true
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"s312192@studenti.polito.it\",\n    \"password\": \"Smartotum2025\"\n}",
+							"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -21669,192 +21728,82 @@
 					"response": []
 				},
 				{
-					"name": "DataSubject-Login-NotSmartotum",
+					"name": "Forbidden Questionnaire",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 403\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"email2@example.com\",\n    \"password\": \"password4\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
+						"method": "GET",
+						"header": [],
 						"url": {
-							"raw": "{{baseURL}}/api/auth/login",
+							"raw": "{{baseURL}}/api/questions/questionnaire",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
-								"auth",
-								"login"
+								"questions",
+								"questionnaire"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "DataController-Registration",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"type": "text",
-								"disabled": true
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"firstname\": \"Alberto\",\n    \"lastname\": \"Hugonin\",\n    \"email\": \"s312196@studenti.polito.it\",\n    \"password\": \"Smartotum2025\",\n    \"role\": \"DATA_CONTROLLER\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseURL}}/api/auth/register",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"register"
-							]
 						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataSubject-Registration",
+					],
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"firstname\": \"Alberto\",\n    \"lastname\": \"Hugonin\",\n    \"email\": \"s312196@studenti.polito.it\",\n    \"password\": \"Smartotum2025\",\n    \"role\": \"DATA_SUBJECT\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseURL}}/api/auth/register",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataController-Login",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"email2@example.com\",\n    \"password\": \"password2\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseURL}}/api/auth/login",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Logout",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"s312192@studenti.polito.it\",\n    \"password\": \"Smartotum2025\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
+						"header": [],
 						"url": {
 							"raw": "{{baseURL}}/api/auth/logout",
 							"host": [
@@ -21870,142 +21819,654 @@
 					"response": []
 				},
 				{
-					"name": "Homes",
+					"name": "Successful DC Login - DC1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email2@example.com\",\r\n    \"password\": \"password2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{baseURL}}/api/homes",
+							"raw": "{{baseURL}}/api/auth/login",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
-								"homes"
+								"auth",
+								"login"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Rooms",
+					"name": "Successful Questionnaire",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of three objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(3);\r",
+									"\r",
+									"    responseBody.forEach(function(question) {\r",
+									"        pm.expect(question).to.have.all.keys(\"question\", \"choices\");\r",
+									"        pm.expect(question).to.not.have.property(\"id\");\r",
+									"        pm.expect(question.question).to.have.all.keys(\"uuid\", \"content\");\r",
+									"        pm.expect(question.question).to.not.have.property(\"id\");\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseURL}}/api/homes/fixissuesbpoyqq/rooms",
+							"raw": "{{baseURL}}/api/questions/questionnaire",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
-								"homes",
-								"fixissuesbpoyqq",
-								"rooms"
+								"questions",
+								"questionnaire"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Refresh",
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{baseURL}}/api/homes/refresh",
+							"raw": "{{baseURL}}/api/auth/logout",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
-								"homes",
-								"refresh"
+								"auth",
+								"logout"
 							]
 						}
 					},
 					"response": []
+				}
+			]
+		},
+		{
+			"name": "Smartotum Integration",
+			"item": [
+				{
+					"name": "Data Subject",
+					"item": [
+						{
+							"name": "Registration-DS",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test: Response should be valid JSON",
+											"pm.test(\"Response is valid JSON\", function () {",
+											"    pm.response.json();",
+											"});",
+											"",
+											"// Test: Status code is one of the expected values",
+											"pm.test(\"Status code is expected (404 or 403)\", function () {",
+											"    pm.expect(pm.response.code).to.be.oneOf([404, 403]);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "*/*",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstname\": \"Alberto\",\n    \"lastname\": \"Hugonin\",\n    \"email\": \"s312192@studenti.polito.it\",\n    \"password\": \"Smartotum2025\",\n    \"role\": \"DATA_SUBJECT\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/auth/register",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login-DS",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Parse JSON safely",
+											"let jsonData;",
+											"pm.test(\"Response body is valid JSON\", function () {",
+											"    jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.be.an(\"object\");",
+											"});",
+											"",
+											"// Basic status and performance",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// Content-Type header",
+											"pm.test(\"Content-Type is application/json\", function () {",
+											"    pm.response.to.have.header(\"Content-Type\");",
+											"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+											"});",
+											"",
+											"// Schema / structure tests",
+											"pm.test(\"Login response has required fields\", function () {",
+											"    pm.expect(jsonData).to.have.property(\"email\");",
+											"    pm.expect(jsonData).to.have.property(\"firstname\");",
+											"    pm.expect(jsonData).to.have.property(\"lastname\");",
+											"    pm.expect(jsonData).to.have.property(\"role\");",
+											"    pm.expect(jsonData).to.have.property(\"uuid\");",
+											"});",
+											"",
+											"// Type checks",
+											"pm.test(\"Fields have correct types\", function () {",
+											"    pm.expect(jsonData.email).to.be.a(\"string\");",
+											"    pm.expect(jsonData.firstname).to.be.a(\"string\");",
+											"    pm.expect(jsonData.lastname).to.be.a(\"string\");",
+											"    pm.expect(jsonData.role).to.be.a(\"string\");",
+											"    pm.expect(jsonData.uuid).to.be.a(\"string\");",
+											"});",
+											"",
+											"// Optional/nullable fields",
+											"pm.test(\"profile_picture is present (can be null)\", function () {",
+											"    pm.expect(jsonData).to.have.property(\"profile_picture\");",
+											"    // allow null or string/URL later if you add it",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "*/*",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"s312192@studenti.polito.it\",\n    \"password\": \"Smartotum2025\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/auth/login",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Refresh",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/api/homes/refresh",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"homes",
+										"refresh"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Homes",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/api/homes",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"homes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Rooms",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/api/homes/fixissuesbpoyqq/rooms",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"homes",
+										"fixissuesbpoyqq",
+										"rooms"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Room Devices",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/api/homes/fixissuesbpoyqq/rooms/00000000-0000-0000-0000-000000000000/devices",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"homes",
+										"fixissuesbpoyqq",
+										"rooms",
+										"00000000-0000-0000-0000-000000000000",
+										"devices"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Devices",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/api/homes/fixissuesbpoyqq/devices",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"homes",
+										"fixissuesbpoyqq",
+										"devices"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete House Database",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/api/homes/debug/clear",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"homes",
+										"debug",
+										"clear"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"s312192@studenti.polito.it\",\n    \"password\": \"Smartotum2025\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/auth/logout",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login-WrongCredentials",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "*/*",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"email2@example.com\",\n    \"password\": \"password4\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/auth/login",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				},
 				{
-					"name": "Delete House Database",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseURL}}/api/homes/debug/clear",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"homes",
-								"debug",
-								"clear"
-							]
+					"name": "Data Controller",
+					"item": [
+						{
+							"name": "Login-DC",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"email2@example.com\",\n    \"password\": \"password2\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/auth/login",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Registration-DC",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "*/*",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstname\": \"Alberto\",\n    \"lastname\": \"Hugonin\",\n    \"email\": \"s312196@studenti.polito.it\",\n    \"password\": \"Smartotum2025\",\n    \"role\": \"DATA_CONTROLLER\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/auth/register",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Contacts",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/api/users/contacts",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"contacts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"s312192@studenti.polito.it\",\n    \"password\": \"Smartotum2025\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/auth/logout",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
-				},
-				{
-					"name": "Devices",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseURL}}/api/homes/fixissuesbpoyqq/devices",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"homes",
-								"fixissuesbpoyqq",
-								"devices"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Room Devices",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseURL}}/api/homes/fixissuesbpoyqq/rooms/00000000-0000-0000-0000-000000000000/devices",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"homes",
-								"fixissuesbpoyqq",
-								"rooms",
-								"00000000-0000-0000-0000-000000000000",
-								"devices"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Contacts",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseURL}}/api/users/contacts",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"users",
-								"contacts"
-							]
-						}
-					},
-					"response": []
+					]
 				}
 			]
 		},
