@@ -24,6 +24,8 @@ class Question(db.Model):
         id: An auto-incremented integer identifier, used as the primary key.
         uuid: A unique randomly generated UUID that identifies the question.
         content: A text field that represents the content of the question.
+        additional_information: An optional text field that represents any additional information
+            that may be relevant to the question.
         choices: An optional text field that represents the choices of a multiple choice question,
             assuming that the choices are stored as a single delimiter-separated string.
         type: An enum that represents whether the question belongs to a questionnaire or
@@ -37,6 +39,7 @@ class Question(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
     content = mapped_column(Text, nullable=False)
+    additional_information = mapped_column(Text, nullable=True)
     # In case of multiple choice questions, the choices are stored here as a delimiter-separated string
     choices = mapped_column(Text, nullable=True)
     type = mapped_column(Enum(QuestionType, validate_strings=True), nullable=False)

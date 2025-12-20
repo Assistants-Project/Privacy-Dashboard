@@ -31,6 +31,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("uuid", sa.Uuid(), nullable=False),
         sa.Column("content", sa.Text(), nullable=False),
+        sa.Column("additional_information", sa.Text(), nullable=True),
         sa.Column("choices", sa.Text(), nullable=True),
         sa.Column(
             "type",
