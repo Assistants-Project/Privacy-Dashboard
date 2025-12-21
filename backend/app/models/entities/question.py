@@ -26,7 +26,11 @@ class Question(db.Model):
         content: A text field that represents the content of the question.
         additional_information: An optional text field that represents any additional information
             that may be relevant to the question.
-        choices: An optional text field that represents the choices of a multiple choice question,
+        green_choices: An optional text field that represents the possibile 'good' choices of a multiple choice question,
+            assuming that the choices are stored as a single delimiter-separated string.
+        orange_choices: An optional text field that represents the possibile 'mediocre' choices of a multiple choice question,
+            assuming that the choices are stored as a single delimiter-separated string.
+        red_choices: An optional text field that represents the possibile 'bad' choices of a multiple choice question,
             assuming that the choices are stored as a single delimiter-separated string.
         type: An enum that represents whether the question belongs to a questionnaire or
             a privacy impact assessment.
@@ -41,7 +45,9 @@ class Question(db.Model):
     content = mapped_column(Text, nullable=False)
     additional_information = mapped_column(Text, nullable=True)
     # In case of multiple choice questions, the choices are stored here as a delimiter-separated string
-    choices = mapped_column(Text, nullable=True)
+    green_choices = mapped_column(Text, nullable=True)
+    orange_choices = mapped_column(Text, nullable=True)
+    red_choices = mapped_column(Text, nullable=True)
     type = mapped_column(Enum(QuestionType, validate_strings=True), nullable=False)
 
     answers: Mapped[List["QuestionApplication"]] = relationship(  # noqa: F821 # type: ignore

@@ -331,55 +331,67 @@ def init_data(app: Flask) -> None:
                 content="Have you identified all the personal data that are going to be processed?",
                 additional_information="According to the GDPR, personal data has to be processed in a particular and restricted way, so it it important to identify which are the personal dara that are going to be processed",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             question2 = Question(
                 content="Are the personal data processed limited and used only for the purposes for which they are processed?",
                 additional_information="GDPR Article 5: Personal data shall be: ... collected for specified, explicit and legitimate purposes and not further processed in a manner that is incompatible with those purposes ... adequate, relevant and limited to what is necessary in relation to the purposes for which they are processed",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             question3 = Question(
                 content="For how long are the data going to be stored?",
                 additional_information="GDPR Article 13: the controller shall, at the time when personal data are obtained, provide the data subject with the following further information... the period for which the personal data will be stored",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="less than 1 month,between 1 month and 6 months,between 6 months and 2 years,more than 2 years,I don't know",
+                green_choices="less than 1 month",
+                orange_choices="between 1 month and 6 months,between 6 months and 2 years",
+                red_choices="more than 2 years,I don't know",
             )
             question4 = Question(
                 content="Do you have an automatic mechanism that deletes the personal data after the chosen period of time?",
                 additional_information="GDPR Article 13: the controller shall, at the time when personal data are obtained, provide the data subject with the following further information... the period for which the personal data will be stored",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             question5 = Question(
                 content="Does the app transfer data to a third party?",
                 additional_information="GDPR Article 13: Where personal data relating to a data subject are collected from the data subject, the controller shall, at the time when personal data are obtained, provide the data subject with... the fact that the controller intends to transfer personal data to a third country or international organisation",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="No,Yes - only in European Union,Yes - also outside of European Union,I don't know",
+                green_choices="No,Yes - only in European Union",
+                orange_choices="Yes - also outside of European Union",
+                red_choices="I don't know",
             )
-            question6 = Question(
+            question6 = Question(  # Optional, only if the answer to question5 is "Yes - also outside of European Union"
                 content="Does the Commission have decided that these countries have an adequate level of protection?",
                 additional_information="GDPR Article 45: A transfer of personal data to a third country or an international organisation may take place where the Commission has decided that the third country, a territory or one or more specified sectors within that third country, or the international organisation in question ensures an adequate level of protection",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes - for all of them,Not for all of them,For none of them,I don't know",
+                green_choices="Yes - for all of them",
+                red_choices="Not for all of them,For none of them,I don't know",
             )
             question7 = Question(
                 content="If you use external servers, where are they located?",
                 additional_information="GDPR Article 13: Where personal data relating to a data subject are collected from the data subject, the controller shall, at the time when personal data are obtained, provide the data subject with... the fact that the controller intends to transfer personal data to a third country or international organisation",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="I don't use external servers,They're located only in European Union,They're located also outside of European Union,I don't know",
+                green_choices="I don't use external servers,They're located only in European Union",
+                red_choices="They're located also outside of European Union,I don't know",
             )
             question8 = Question(
                 content="Is there an automated decision-making, including profiling?",
                 additional_information="GDPR Article 13: the controller shall, at the time when personal data are obtained, provide the data subject with the following further information... the existence of automated decision-making, including profiling",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="No",
+                orange_choices="Yes",
+                red_choices="I don't know",
             )
             question9 = Question(
                 content="Are the data stored in a way that they're easily accessible to its legitimate owner when needed?",
                 additional_information="GDPR Article 12: The controller shall facilitate the exercise of data subject rights",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
 
             # SEZIONE 2: SICUREZZA
@@ -387,67 +399,81 @@ def init_data(app: Flask) -> None:
                 content="Do you store passwords in plain text or do you encrypt them?",
                 additional_information="GDPR Article 32: The controller and the processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="I don't store passwords,I encrypt them,Plain text,I don't know",
+                green_choices="I don't store passwords,I encrypt them",
+                red_choices="Plain text,I don't know",
             )
-            question11 = Question(
+            question11 = Question(  # Optional, only if the answer to question10 is "I encrypt them"
                 content="Which hash algorithm do you use to encrypt the passwords?",
                 additional_information="GDPR Article 32: The controller and the processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="SHA-3,SHA-2,SHA-1,MD-5,other",
+                green_choices="SHA-3",
+                orange_choices="SHA-2,other",
+                red_choices="SHA-1,MD5",
             )
             question12 = Question(
                 content="Do you have any password constraints?",
                 additional_information="GDPR Article 32: the controller and the processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             question13 = Question(
                 content="Does your app guarantee confidentiality?",
                 additional_information="GDPR Article 32: The controller and the processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             question14 = Question(
                 content="Does your app guarantee integrity?",
                 additional_information="GDPR Article 32: The controller and the processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             question15 = Question(
                 content="Do you pseudonymize the personal data?",
                 additional_information="GDPR Article 25: The controller shall, both at the time of the determination of the means for processing and at the time of the processing itself, implement appropriate technical and organisational measures, such as pseudonymisation, which are designed to implement data-protection principles",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             question16 = Question(
                 content="Do you encrypt the personal data?",
                 additional_information="GDPR Article 32: The controller and the processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk, including inter alia as appropriate: ... encryption of personal data;",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             question17 = Question(
                 content="Which cryptographic protocol are you using for communication?",
                 additional_information="GDPR Article 32: The controller and the processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="My app doesn't need communication,TLS 1.2 or 1.3,TLS < 1.2,SSL,I don't use any,I don't know",
+                green_choices="My app doesn't need communication,TLS 1.2 or 1.3",
+                orange_choices="TLS < 1.2",
+                red_choices="SSL,I don't use any,I don't know",
             )
             question18 = Question(
                 content="Do you limit the communication ports to the strictly necessary? (ex: only port 443 and 80 for https)",
                 additional_information="GDPR Article 32: The controller and the processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             question19 = Question(
                 content="How often do you regularly make backups?",
                 additional_information="GDPR Article 32: The controller and the processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="every week,between a week and a month,between a month and a year,more than a year,never,I don't know",
+                green_choices="every week",
+                orange_choices="between a week and a month,between a month and a year",
+                red_choices="more than a year,never,I don't know",
             )
             question20 = Question(
                 content="Have you identified some procedures the availability and access to personal data in case of an incident?",
                 additional_information="GDPR Article 32: The controller and the processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk, including inter alia as appropriate: ... the ability to restore the availability and access to personal data in a timely manner in the event of a physical or technical incident;",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
 
             # SEZIONE 3: OPEN SOURCE
@@ -455,7 +481,8 @@ def init_data(app: Flask) -> None:
                 content="Did you follow OpenChain specification or other public specification for licensing compliance?",
                 additional_information="It is easier to find if a software if compliant to the GDPR if it is open source",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes - OpenChain,Yes - other,No,I don't know",
+                green_choices="Yes - OpenChain,Yes - other",
+                orange_choices="No, I don't know",
             )
             question22 = Question(
                 content="Did you perform a Privacy Impact Assessment for at least a standard use case?",
@@ -465,9 +492,11 @@ def init_data(app: Flask) -> None:
                 + "    processing on a large scale of special categories of data \n"
                 + "    a systematic monitoring of a publicly accessible area on a large scale",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No but it wasn't necessary,No,I don't know",
+                green_choices="Yes",
+                orange_choices="No but it wasn't necessary",
+                red_choices="No,I don't know",
             )
-            question23 = Question(
+            question23 = Question(  # Optional, only if the answer to question22 is "Yes"
                 content="Is the Privacy Impact Assessment easily available at request?",
                 additional_information="GDPR Article 35: The controller shall, prior to the processing, carry out an assessment of the impact of the envisaged processing operations on the protection of personal data ... A data protection impact assessment referred to in paragraph 1 shall in particular be required in the case of:\n"
                 + "\n"
@@ -475,49 +504,58 @@ def init_data(app: Flask) -> None:
                 + "    processing on a large scale of special categories of data \n"
                 + "    a systematic monitoring of a publicly accessible area on a large scale",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             question24 = Question(
                 content="Do you use any static analysis tool for code quality?",
                 additional_information="Static analysis tools can help find vulnerabilities and reduce the complexity of the software",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                orange_choices="No,I don't know",
             )
             question25 = Question(
                 content="Do you have any certifications to demonstrate compliance with security requirements?",
                 additional_information="GDPR Article 25: An approved certification mechanism pursuant to Article 42 may be used as an element to demonstrate compliance with the requirements set out in paragraphs 1 and 2 of this Article",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                orange_choices="No,I don't know",
             )
             question26 = Question(
                 content="Do you use third party libraries?",
                 additional_information="Third party libraries may reduce the security of the software, pay attention to what you include in your project",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes, No",
+                red_choices="I don't know",
             )
-            question27 = Question(
+            question27 = Question(  # Optional, only if the answer to question26 is "Yes"
                 content="Have you checked if these libraries comply with the current regulation about personal data?",
                 additional_information="Third party libraries may reduce the security of the software, pay attention to what you include in your project",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             question28 = Question(
                 content="Did you successfully perform any test on the software functionalities (unit test, integration test...)?",
                 additional_information="It is important to test your app to prevent any unintentional and possibly dangerous behaviour",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
-            question29 = Question(
+            question29 = Question(  # Optional, only if the answer to question28 is "Yes"
                 content="Did you perform a code coverage analysis of your test?",
                 additional_information="It is important to test your app to prevent any unintentional and possibly dangerous behaviour",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes: >=90%,Yes: >=75% <90%,Yes: >=50% <75%,Yes: <50%,No,I don't know",
+                green_choices="Yes: >=90%",
+                orange_choices="Yes: >=75% <90%,Yes: >=50% <75%",
+                red_choices="Yes: <50%,No,I don't know",
             )
             question30 = Question(
                 content="Do you regularly test the effectiveness of your measures for ensuring the security of the process?",
                 additional_information="GDPR Article 32: The controller and the processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk, including inter alia as appropriate: ... a process for regularly testing, assessing and evaluating the effectiveness of technical and organisational measures for ensuring the security of the processing.",
                 type=QuestionType.QUESTIONNAIRE,
-                choices="Yes,No,I don't know",
+                green_choices="Yes",
+                red_choices="No,I don't know",
             )
             db.session.add_all(
                 [
