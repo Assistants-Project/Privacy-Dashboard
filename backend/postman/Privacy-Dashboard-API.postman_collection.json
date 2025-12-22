@@ -6240,7 +6240,11 @@
 									"    pm.expect(responseBody[0]).to.have.property('installed_at');\r",
 									"\r",
 									"    // Save the uuid of the first application to a variable\r",
-									"    pm.environment.set(\"application_uuid1\", responseBody[0].application.uuid);\r",
+									"    if (responseBody[0].application.name == \"Application 1\") {\r",
+									"        pm.environment.set(\"application_uuid1\", responseBody[0].application.uuid);\r",
+									"    } else if (responseBody[0].application.name == \"Application 2\") {\r",
+									"        pm.environment.set(\"application_uuid2\", responseBody[0].application.uuid);\r",
+									"    }\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Second object contains expected application attributes\", function () {\r",
@@ -6253,12 +6257,17 @@
 									"    pm.expect(responseBody[1]).to.have.property('installed_at');\r",
 									"    \r",
 									"    // Save the uuid of the second application to a variable\r",
-									"    pm.environment.set(\"application_uuid2\", responseBody[1].application.uuid);\r",
+									"    if (responseBody[1].application.name == \"Application 1\") {\r",
+									"        pm.environment.set(\"application_uuid1\", responseBody[1].application.uuid);\r",
+									"    } else if (responseBody[1].application.name == \"Application 2\") {\r",
+									"        pm.environment.set(\"application_uuid2\", responseBody[1].application.uuid);\r",
+									"    }\r",
 									"});\r",
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -6268,7 +6277,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -10826,7 +10836,11 @@
 									"    pm.expect(responseBody[0]).to.have.property('installed_at');\r",
 									"\r",
 									"    // Save the uuid of the first application to a variable\r",
-									"    pm.environment.set(\"application_uuid1\", responseBody[0].application.uuid);\r",
+									"    if (responseBody[0].application.name == \"Application 1\") {\r",
+									"        pm.environment.set(\"application_uuid1\", responseBody[0].application.uuid);\r",
+									"    } else if (responseBody[0].application.name == \"Application 2\") {\r",
+									"        pm.environment.set(\"application_uuid2\", responseBody[0].application.uuid);\r",
+									"    }\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Second object contains expected application attributes\", function () {\r",
@@ -10839,12 +10853,17 @@
 									"    pm.expect(responseBody[1]).to.have.property('installed_at');\r",
 									"    \r",
 									"    // Save the uuid of the second application to a variable\r",
-									"    pm.environment.set(\"application_uuid2\", responseBody[1].application.uuid);\r",
+									"    if (responseBody[1].application.name == \"Application 1\") {\r",
+									"        pm.environment.set(\"application_uuid1\", responseBody[1].application.uuid);\r",
+									"    } else if (responseBody[1].application.name == \"Application 2\") {\r",
+									"        pm.environment.set(\"application_uuid2\", responseBody[1].application.uuid);\r",
+									"    }\r",
 									"});\r",
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -10854,7 +10873,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -21681,6 +21701,1546 @@
 					"response": []
 				},
 				{
+					"name": "Successful DC Login - DC1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email2@example.com\",\r\n    \"password\": \"password2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful List Of Managed Apps",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of two objects\", function () {\r",
+									"    pm.expect(pm.response.json()).to.be.an('array').that.has.lengthOf(2);\r",
+									"});\r",
+									"\r",
+									"const responseBody = pm.response.json();\r",
+									"pm.test(\"First object contains expected application attributes\", function () {\r",
+									"    pm.expect(responseBody[0]).to.have.property('application');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('uuid');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('name');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('description');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('evaluation');\r",
+									"    pm.expect(responseBody[0].application).to.have.property('questionnaire_summary');\r",
+									"    pm.expect(responseBody[0]).to.have.property('installed_at');\r",
+									"\r",
+									"    // Save the uuid of the first application to a variable\r",
+									"    if (responseBody[0].application.name == \"Application 1\") {\r",
+									"        pm.environment.set(\"application_uuid1\", responseBody[0].application.uuid);\r",
+									"    } else if (responseBody[0].application.name == \"Application 2\") {\r",
+									"        pm.environment.set(\"application_uuid2\", responseBody[0].application.uuid);\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Second object contains expected application attributes\", function () {\r",
+									"    pm.expect(responseBody[1]).to.have.property('application');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('uuid');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('name');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('description');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('evaluation');\r",
+									"    pm.expect(responseBody[1].application).to.have.property('questionnaire_summary');\r",
+									"    pm.expect(responseBody[1]).to.have.property('installed_at');\r",
+									"    \r",
+									"    // Save the uuid of the second application to a variable\r",
+									"    if (responseBody[1].application.name == \"Application 1\") {\r",
+									"        pm.environment.set(\"application_uuid1\", responseBody[1].application.uuid);\r",
+									"    } else if (responseBody[1].application.name == \"Application 2\") {\r",
+									"        pm.environment.set(\"application_uuid2\", responseBody[1].application.uuid);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/applications/managed",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"managed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Questionnaire",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is an array of three objects\", function () {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(30);\r",
+									"\r",
+									"    responseBody.forEach(function(question) {\r",
+									"        pm.expect(question).to.have.all.keys(\"question\", \"choices\");\r",
+									"        pm.expect(question).to.not.have.property(\"id\");\r",
+									"        pm.expect(question.question).to.have.all.keys(\"uuid\", \"content\", \"additional_information\");\r",
+									"        pm.expect(question.question).to.not.have.property(\"id\");\r",
+									"        pm.expect(question.choices).to.be.an('array');\r",
+									"    });\r",
+									"\r",
+									"    let i = 1;\r",
+									"    responseBody.forEach(function(question) {\r",
+									"        pm.environment.set(`question_uuid${i}`, question.question.uuid);\r",
+									"        pm.environment.set(`question_choices${i}`, question.choices);\r",
+									"        i++;\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/questions/questionnaire",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"questionnaire"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Submit Questionnaire By Managed Application - Empty UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'application_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('application_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"answers = [];\r",
+									"for (let i = 1; i <= 30; i++) {\r",
+									"    question_choices = pm.environment.get(`question_choices${i}`); // Get the question choices from the environment variable\r",
+									"    answers.push({\r",
+									"        question_uuid: pm.environment.get(`question_uuid${i}`),\r",
+									"        answer_content: question_choices[Math.floor(Math.random() * question_choices.length)], // Randomly select an answer choice\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (answers.length >= 30) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUID into the body\r",
+									"      body.answers = answers;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject answers into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_required\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Submit Questionnaire By Managed Application - Wrong UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'application_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('application_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"answers = [];\r",
+									"for (let i = 1; i <= 30; i++) {\r",
+									"    question_choices = pm.environment.get(`question_choices${i}`); // Get the question choices from the environment variable\r",
+									"    answers.push({\r",
+									"        question_uuid: pm.environment.get(`question_uuid${i}`),\r",
+									"        answer_content: question_choices[Math.floor(Math.random() * question_choices.length)], // Randomly select an answer choice\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (answers.length >= 30) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUID into the body\r",
+									"      body.answers = answers;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject answers into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_required\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "somethingwrong"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Submit Questionnaire By Managed Application - Empty Body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'json' having an object with key 'check_required'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('json').that.is.an('object').that.has.property('check_required');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'json' having an object with key 'answers'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('json').that.is.an('object').that.has.property('answers');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable Submit Questionnaire By Managed Application - Empty Answers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'json' having an object with key 'answers'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('json').that.is.an('object').that.has.property('answers');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_required\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Submit Questionnaire By Managed Application - Unexisting Application",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Application with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found among the managed applications!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Application with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found among the managed applications!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"answers = [];\r",
+									"for (let i = 1; i <= 30; i++) {\r",
+									"    question_choices = pm.environment.get(`question_choices${i}`); // Get the question choices from the environment variable\r",
+									"    answers.push({\r",
+									"        question_uuid: pm.environment.get(`question_uuid${i}`),\r",
+									"        answer_content: question_choices[Math.floor(Math.random() * question_choices.length)], // Randomly select an answer choice\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (answers.length >= 30) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUID into the body\r",
+									"      body.answers = answers;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject answers into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_required\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found Submit Questionnaire By Managed Application - Unexisting Question",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Question with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Question with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_required\": false,\r\n    \"answers\": [\r\n        {\r\n            \"question_uuid\": \"34b4d951-c339-4004-a2c5-5e7e824973c3\",\r\n            \"answer_content\": \"some content\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bad Request Submit Questionnaire By Managed Application - Wrong Answer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 400\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(400);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 400\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(`Message is equal to 'Invalid answer content 'something wrong' for question with uuid ${pm.environment.get('question_uuid1')}!'`, function () {\r",
+									"    pm.expect(responseData.message).to.eql(`Invalid answer content 'something wrong' for question with uuid ${pm.environment.get('question_uuid1')}!`);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Bad Request'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Bad Request');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									"\r",
+									"answers = [];\r",
+									"for (let i = 1; i <= 30; i++) {\r",
+									"    question_choices = pm.environment.get(`question_choices${i}`); // Get the question choices from the environment variable\r",
+									"    answers.push({\r",
+									"        question_uuid: pm.environment.get(`question_uuid${i}`),\r",
+									"        answer_content: \"something wrong\"\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (applicationUuid && answers.length >= 30) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUID into the body\r",
+									"      body.answers = answers;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject answers into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_required\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bad Request Submit Questionnaire By Managed Application - Missing Answers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 400\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(400);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 400\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(`Message is equal to 'Not all required questions have been answered!'`, function () {\r",
+									"    pm.expect(responseData.message).to.eql(`Not all required questions have been answered!`);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Bad Request'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Bad Request');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									"\r",
+									"answers = [];\r",
+									"for (let i = 1; i <= 10; i++) {\r",
+									"    question_choices = pm.environment.get(`question_choices${i}`); // Get the question choices from the environment variable\r",
+									"    answers.push({\r",
+									"        question_uuid: pm.environment.get(`question_uuid${i}`),\r",
+									"        answer_content: question_choices[Math.floor(Math.random() * question_choices.length)], // Randomly select an answer choice\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (applicationUuid && answers.length >= 10) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUID into the body\r",
+									"      body.answers = answers;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject answers into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_required\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Submit Questionnaire By Managed Application - Application 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const responseBody = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response is an object with two properties\", function () {\r",
+									"    pm.expect(responseBody).to.have.all.keys(\"application_evaluation\", \"given_answers\");\r",
+									"    pm.expect(responseBody.given_answers).to.be.an('array').that.has.lengthOf(30);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has expected structure for each answer\", function () {\r",
+									"    responseBody.given_answers.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"question\", \"answer\");\r",
+									"        pm.expect(element.question).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.question).to.have.all.keys(\"uuid\", \"content\", \"additional_information\");\r",
+									"        pm.expect(element.answer).to.not.have.property(\"question_id\");\r",
+									"        pm.expect(element.answer).to.not.have.property(\"application_id\");\r",
+									"        pm.expect(element.answer).to.have.all.keys(\"answer_content\", \"evaluation\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Application evaluation is set correctly based on answers\", function () {\r",
+									"    let evaluations = responseBody.given_answers.map(element => element.answer.evaluation);\r",
+									"    if (evaluations.includes('RED')) {\r",
+									"        pm.expect(responseBody.application_evaluation).to.equal('RED');\r",
+									"    } else if (evaluations.includes('ORANGE')) {\r",
+									"        pm.expect(responseBody.application_evaluation).to.equal('ORANGE');\r",
+									"    } else {\r",
+									"        pm.expect(responseBody.application_evaluation).to.equal('GREEN');\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid1\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									"\r",
+									"answers = [];\r",
+									"for (let i = 1; i <= 30; i++) {\r",
+									"    question_choices = pm.environment.get(`question_choices${i}`); // Get the question choices from the environment variable\r",
+									"    answers.push({\r",
+									"        question_uuid: pm.environment.get(`question_uuid${i}`),\r",
+									"        answer_content: question_choices[Math.floor(Math.random() * question_choices.length)], // Randomly select an answer choice\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (applicationUuid && answers.length >= 30) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUID into the body\r",
+									"      body.answers = answers;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject answers into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_required\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Submit Questionnaire By Managed Application - Application 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const responseBody = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response is an object with two properties\", function () {\r",
+									"    pm.expect(responseBody).to.have.all.keys(\"application_evaluation\", \"given_answers\");\r",
+									"    pm.expect(responseBody.given_answers).to.be.an('array').that.has.lengthOf(30);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has expected structure for each answer\", function () {\r",
+									"    responseBody.given_answers.forEach(function(element) {\r",
+									"        pm.expect(element).to.have.all.keys(\"question\", \"answer\");\r",
+									"        pm.expect(element.question).to.not.have.property(\"id\");\r",
+									"        pm.expect(element.question).to.have.all.keys(\"uuid\", \"content\", \"additional_information\");\r",
+									"        pm.expect(element.answer).to.not.have.property(\"question_id\");\r",
+									"        pm.expect(element.answer).to.not.have.property(\"application_id\");\r",
+									"        pm.expect(element.answer).to.have.all.keys(\"answer_content\", \"evaluation\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Application evaluation is set correctly based on answers\", function () {\r",
+									"    let evaluations = responseBody.given_answers.map(element => element.answer.evaluation);\r",
+									"    if (evaluations.includes('RED')) {\r",
+									"        pm.expect(responseBody.application_evaluation).to.equal('RED');\r",
+									"    } else if (evaluations.includes('ORANGE')) {\r",
+									"        pm.expect(responseBody.application_evaluation).to.equal('ORANGE');\r",
+									"    } else {\r",
+									"        pm.expect(responseBody.application_evaluation).to.equal('GREEN');\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									"\r",
+									"answers = [];\r",
+									"for (let i = 1; i <= 30; i++) {\r",
+									"    question_choices = pm.environment.get(`question_choices${i}`); // Get the question choices from the environment variable\r",
+									"    answers.push({\r",
+									"        question_uuid: pm.environment.get(`question_uuid${i}`),\r",
+									"        answer_content: question_choices[Math.floor(Math.random() * question_choices.length)], // Randomly select an answer choice\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (applicationUuid && answers.length >= 30) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUID into the body\r",
+									"      body.answers = answers;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject answers into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_required\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 204\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"});\r",
+									"\r",
+									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
+									"pm.environment.set('csrfToken', csrfToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized Submit Questionnaire By Managed Application",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 401\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unauthorized');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									"\r",
+									"answers = [];\r",
+									"for (let i = 1; i <= 30; i++) {\r",
+									"    question_choices = pm.environment.get(`question_choices${i}`); // Get the question choices from the environment variable\r",
+									"    answers.push({\r",
+									"        question_uuid: pm.environment.get(`question_uuid${i}`),\r",
+									"        answer_content: question_choices[Math.floor(Math.random() * question_choices.length)], // Randomly select an answer choice\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (applicationUuid && answers.length >= 30) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUID into the body\r",
+									"      body.answers = answers;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject answers into request body:', e);\r",
+									"  }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_required\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"questions",
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Successful DS Login - DS1",
 					"event": [
 						{
@@ -21782,111 +23342,33 @@
 					"response": []
 				},
 				{
-					"name": "Successful Logout",
+					"name": "Forbidden Submit Questionnaire By Managed Application",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 204\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(204);\r",
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(403);\r",
 									"});\r",
 									"\r",
-									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
-									"pm.environment.set('csrfToken', csrfToken);\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{baseURL}}/api/auth/logout",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"logout"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Successful DC Login - DC1",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
 									"});\r",
 									"\r",
-									"const csrfToken = pm.cookies.get('csrf_access_token');\r",
-									"pm.environment.set('csrfToken', csrfToken);\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"email2@example.com\",\r\n    \"password\": \"password2\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseURL}}/api/auth/login",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Successful Questionnaire",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"pm.test(\"Code is equal to 403\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(403);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Response is an array of three objects\", function () {\r",
-									"    const responseBody = pm.response.json();\r",
-									"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(30);\r",
+									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
+									"});\r",
 									"\r",
-									"    responseBody.forEach(function(question) {\r",
-									"        pm.expect(question).to.have.all.keys(\"question\", \"choices\");\r",
-									"        pm.expect(question).to.not.have.property(\"id\");\r",
-									"        pm.expect(question.question).to.have.all.keys(\"uuid\", \"content\", \"additional_information\");\r",
-									"        pm.expect(question.question).to.not.have.property(\"id\");\r",
-									"        pm.expect(question.choices).to.be.an('array');\r",
-									"    });\r",
+									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
 									"});\r",
 									""
 								],
@@ -21899,7 +23381,54 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									""
+									"// Retrieve the application_uuid from the environment variable\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");\r",
+									"\r",
+									"// Check if application_uuid is available\r",
+									"if (applicationUuid) {\r",
+									"    // Set the request URL with the application_uuid path variable\r",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);\r",
+									"}\r",
+									"\r",
+									"answers = [];\r",
+									"for (let i = 1; i <= 30; i++) {\r",
+									"    question_choices = pm.environment.get(`question_choices${i}`); // Get the question choices from the environment variable\r",
+									"    answers.push({\r",
+									"        question_uuid: pm.environment.get(`question_uuid${i}`),\r",
+									"        answer_content: question_choices[Math.floor(Math.random() * question_choices.length)], // Randomly select an answer choice\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Only proceed if we have a value\r",
+									"if (applicationUuid && answers.length >= 30) {\r",
+									"  try {\r",
+									"    // Ensure body mode is raw JSON\r",
+									"    const mode = pm.request.body?.mode;\r",
+									"    if (mode === 'raw') {\r",
+									"      // Read current raw body\r",
+									"      const raw = pm.request.body.raw || '{}';\r",
+									"\r",
+									"      // Parse existing JSON (fallback to empty object)\r",
+									"      let body;\r",
+									"      try {\r",
+									"        body = JSON.parse(raw);\r",
+									"      } catch (e) {\r",
+									"        body = {};\r",
+									"      }\r",
+									"\r",
+									"      // Insert the UUID into the body\r",
+									"      body.answers = answers;\r",
+									"\r",
+									"      // Write back to the request\r",
+									"      pm.request.body.update(JSON.stringify(body));\r",
+									"      \r",
+									"      // Ensure header is set to JSON\r",
+									"      pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    console.warn('Failed to inject answers into request body:', e);\r",
+									"  }\r",
+									"}"
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -21908,17 +23437,34 @@
 						}
 					],
 					"request": {
-						"method": "GET",
+						"method": "PUT",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_required\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{baseURL}}/api/questions/questionnaire",
+							"raw": "{{baseURL}}/api/questions/submit-questionnaire/application/:application_uuid",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
 								"questions",
-								"questionnaire"
+								"submit-questionnaire",
+								"application",
+								":application_uuid"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
 							]
 						}
 					},
