@@ -1,4 +1,4 @@
-from .entities.application import Application
+from .entities.application import Application, Evaluation
 from .entities.available_consent import AvailableConsent
 from .entities.device import Device
 from .entities.message import Message
@@ -17,6 +17,7 @@ from .relations.user_smart_home_available_consent import UserSmartHomeAvailableC
 
 __all__ = [
     "Application",
+    "Evaluation",
     "AvailableConsent",
     "Message",
     "Notification",

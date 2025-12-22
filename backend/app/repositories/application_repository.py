@@ -3,7 +3,7 @@ from typing import Iterator, Tuple
 from uuid import UUID
 
 from ..extensions import db
-from ..models import Application, UserSmartHomeApplication
+from ..models import Application, Evaluation, UserSmartHomeApplication
 
 
 class ApplicationRepository:
@@ -65,3 +65,11 @@ class ApplicationRepository:
             UserSmartHomeApplication.application_id == application_id,
         )
         return db.session.scalar(statement)
+
+    @staticmethod
+    def update_application_evaluation(
+        application_id: int, evaluation: Evaluation
+    ) -> None:
+        application = db.session.get(Application, application_id)
+        application.evaluation = evaluation
+        db.session.commit()

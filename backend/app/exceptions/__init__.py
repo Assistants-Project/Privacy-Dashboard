@@ -19,6 +19,11 @@ from .entities.privacy_notice_exceptions import (
     PrivacyNoticeAlreadyExists,
     PrivacyNoticeNotFoundException,
 )
+from .entities.question_exceptions import (
+    InvalidAnswerContentException,
+    MissingRequiredAnswerException,
+    QuestionNotFoundException,
+)
 from .entities.request_exceptions import RequestNotFoundException
 from .entities.room_exceptions import RoomNotFoundException, RoomSyncException
 from .entities.smartotum_exceptions import SmartotumSyncException
@@ -30,6 +35,7 @@ from .entities.user_exceptions import (
     WrongUserRoleException,
     WrongUserUuidException,
 )
+from .relations.question_application_exceptions import QuestionnaireSubmissionException
 from .relations.user_smart_home_available_consent_exceptions import (
     UserSmartHomeAvailableConsentAlreadyCreatedException,
     UserSmartHomeAvailableConsentCreationException,
@@ -47,6 +53,9 @@ __all__ = [
     "AvailableConsentWrongListException",
     "PrivacyNoticeAlreadyExists",
     "PrivacyNoticeNotFoundException",
+    "InvalidAnswerContentException",
+    "MissingRequiredAnswerException",
+    "QuestionNotFoundException",
     "RequestNotFoundException",
     "UserNotFoundException",
     "WrongUserCredentialsException",
@@ -60,6 +69,7 @@ __all__ = [
     "SmartHomeForbiddenException",
     "DeviceSyncException",
     "SmartotumSyncException",
+    "QuestionnaireSubmissionException",
     "UserSmartHomeAvailableConsentAlreadyCreatedException",
     "UserSmartHomeAvailableConsentCreationException",
     "UserSmartHomeAvailableConsentDeletionException",

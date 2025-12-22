@@ -187,6 +187,7 @@ class RequestService:
         Raises:
             `RequestNotFoundException`: If the `Request` with the given `UUID` is not found among the requests of the managed applications.
         """
+
         request = RequestRepository.get_request_by_dc_or_dpo_id_and_request_uuid(
             current_user_id, request_uuid
         )

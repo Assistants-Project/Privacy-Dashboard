@@ -2,7 +2,7 @@ from sqlalchemy import Enum, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...extensions import db
-from ..entities.application import Evaluation
+from ...models import Evaluation
 
 
 class QuestionApplication(db.Model):
