@@ -5,10 +5,11 @@ from ..exceptions import (
     ApplicationNotFoundException,
     InvalidAnswerContentException,
     MissingRequiredAnswerException,
+    QuestionnaireNotFoundException,
     QuestionnaireSubmissionException,
     QuestionNotFoundException,
 )
-from ..models import Evaluation, Question, QuestionType
+from ..models import Evaluation, Question, QuestionApplication, QuestionType
 from ..repositories import ApplicationRepository, QuestionRepository
 
 
@@ -28,6 +29,16 @@ class QuestionAnsweredDict(TypedDict):
     evaluation: Evaluation | None
 
 
+class GivenAnswerDict(TypedDict):
+    question: Question
+    answer: QuestionApplication
+
+
+class QuestionnaireResDict(TypedDict):
+    application_evaluation: Evaluation | None
+    given_answers: List[GivenAnswerDict]
+
+
 class QuestionService:
     @staticmethod
     def get_all_choices(question: Question) -> List[str]:
@@ -45,7 +56,7 @@ class QuestionService:
         return green + orange + red
 
     @staticmethod
-    def get_questionnaire() -> List[QuestionResDict]:
+    def get_questionnaire_questions() -> List[QuestionResDict]:
         """Returns a list of questions representing all the questions in the questionnaire each `Application` can be subject to.
 
         Returns:
@@ -67,7 +78,7 @@ class QuestionService:
         application_uuid: UUID,
         answers: List[AnswerReqDict],
         check_required: bool,
-    ) -> dict:
+    ) -> QuestionnaireResDict:
         """Submits a questionnaire for an `Application` if the `Application` with the given `UUID`
         exists and is managed by the given `DATA_CONTROLLER` or `DPO` user.
 
@@ -137,8 +148,8 @@ class QuestionService:
                     application.id
                 )
             )
-            given_answers = [
-                {"question": question, "answer": question_application}
+            given_answers: List[GivenAnswerDict] = [
+                GivenAnswerDict(question=question, answer=question_application)
                 for question_application, question in questionnaire_summary_iterator
             ]
             answers_evaluation = [
@@ -158,13 +169,56 @@ class QuestionService:
                 )
             else:
                 application_evaluation = None
-            return {
-                "application_evaluation": ApplicationRepository.get_application_by_user_id_and_application_uuid(
+            return QuestionnaireResDict(
+                application_evaluation=ApplicationRepository.get_application_by_user_id_and_application_uuid(
                     current_user_id, application_uuid
                 ).evaluation,
-                "given_answers": given_answers,
-            }
+                given_answers=given_answers,
+            )
         except Exception:
             raise QuestionnaireSubmissionException(
                 "An error occurred while submitting the questionnaire!"
             )
+
+    @staticmethod
+    def view_questionnaire_by_managed_application_uuid(
+        current_user_id: int,
+        application_uuid: UUID,
+    ) -> QuestionnaireResDict:
+        """Retrieves a summary of the submitted questionnaire for an `Application` if the `Application` with the given `UUID`
+        exists and is managed by the given `DATA_CONTROLLER` or `DPO` user.
+
+        Args:
+            current_user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the application.
+            application_uuid: The UUID of the managed application.
+
+        Returns:
+            A dictionary containing the result of the view request, with keys `application_evaluation` and `given_answers`, where `application_evaluation` is the
+            overall evaluation of the application based on the questionnaire answers, and `given_answers` is a list of dictionaries each containing a `question` and the corresponding `answer`.
+        """
+
+        application = (
+            ApplicationRepository.get_application_by_user_id_and_application_uuid(
+                current_user_id, application_uuid
+            )
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among the managed applications!"
+            )
+        questionnaire_summary_iterator = (
+            QuestionRepository.get_questionnaire_summary_by_application_id(
+                application.id
+            )
+        )
+        given_answers: List[GivenAnswerDict] = [
+            GivenAnswerDict(question=question, answer=question_application)
+            for question_application, question in questionnaire_summary_iterator
+        ]
+        if not given_answers:
+            raise QuestionnaireNotFoundException(
+                f"No questionnaire was submitted for application with uuid {application_uuid}!"
+            )
+        return QuestionnaireResDict(
+            application_evaluation=application.evaluation, given_answers=given_answers
+        )

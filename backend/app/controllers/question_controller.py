@@ -23,8 +23,8 @@ question_bp = Blueprint(
 @question_bp.route("/questionnaire", methods=["GET"])
 @question_bp.response(200, QuestionResSchema(many=True))
 @dc_or_dpo_required()
-def get_questionnaire(current_user):
-    return QuestionService.get_questionnaire()
+def get_questionnaire_questions(current_user):
+    return QuestionService.get_questionnaire_questions()
 
 
 @question_bp.route(
@@ -42,4 +42,19 @@ def submit_questionnaire_by_managed_application_uuid(
 ):
     return QuestionService.submit_questionnaire_by_managed_application_uuid(
         current_user.id, application_uuid, answers, check_required
+    )
+
+
+@question_bp.route(
+    "/view-questionnaire/application/<application_uuid>", methods=["GET"]
+)
+@question_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
+@question_bp.response(200, QuestionnaireResSchema)
+@dc_or_dpo_required()
+def view_questionnaire_by_managed_application_uuid(
+    application_uuid: UUID,
+    current_user,
+):
+    return QuestionService.view_questionnaire_by_managed_application_uuid(
+        current_user.id, application_uuid
     )

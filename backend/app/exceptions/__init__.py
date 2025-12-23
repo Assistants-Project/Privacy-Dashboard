@@ -35,7 +35,10 @@ from .entities.user_exceptions import (
     WrongUserRoleException,
     WrongUserUuidException,
 )
-from .relations.question_application_exceptions import QuestionnaireSubmissionException
+from .relations.question_application_exceptions import (
+    QuestionnaireNotFoundException,
+    QuestionnaireSubmissionException,
+)
 from .relations.user_smart_home_available_consent_exceptions import (
     UserSmartHomeAvailableConsentAlreadyCreatedException,
     UserSmartHomeAvailableConsentCreationException,
@@ -69,6 +72,7 @@ __all__ = [
     "SmartHomeForbiddenException",
     "DeviceSyncException",
     "SmartotumSyncException",
+    "QuestionnaireNotFoundException",
     "QuestionnaireSubmissionException",
     "UserSmartHomeAvailableConsentAlreadyCreatedException",
     "UserSmartHomeAvailableConsentCreationException",
