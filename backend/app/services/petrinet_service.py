@@ -35,13 +35,13 @@ class PetriNetService:
         self.logger = logging.getLogger()
 
     def get_net(
-        self, username: str, rules: List[Rule], refresh: bool = False
+        self, home_uuid: str, rules: List[Rule], refresh: bool = False
     ) -> ExtendedPetriNet:
         """
-        Get or build a Petri Net for a user's rules.
+        Get or build a Petri Net for a home's rules.
 
         Args:
-            username: Username to get net for
+            home_uuid: Home UUID to get net for
             rules: List of rules
             refresh: Force rebuild of net
 
@@ -49,23 +49,23 @@ class PetriNetService:
             ExtendedPetriNet for the rules
         """
         if refresh:
-            petri_net = self._build_net(username, rules)
-            self.nets[username] = petri_net
+            petri_net = self._build_net(home_uuid, rules)
+            self.nets[home_uuid] = petri_net
             return petri_net
 
-        petri_net = self.nets.get(username)
+        petri_net = self.nets.get(home_uuid)
         if petri_net is None:
-            petri_net = self._build_net(username, rules)
-            self.nets[username] = petri_net
+            petri_net = self._build_net(home_uuid, rules)
+            self.nets[home_uuid] = petri_net
 
         return petri_net
 
-    def get_rest_simulator(self, username: str) -> Optional[RestSimulator]:
-        """Get the active simulator for a user."""
-        return self.simulators.get(username)
+    def get_rest_simulator(self, home_uuid: str) -> Optional[RestSimulator]:
+        """Get the active simulator for a home."""
+        return self.simulators.get(home_uuid)
 
     def start_rest_simulation(
-        self, trigger: Trigger, rules: List[Rule], username: str
+        self, trigger: Trigger, rules: List[Rule], home_uuid: str
     ) -> Optional[Rule]:
         """
         Start a step-by-step simulation.
@@ -73,12 +73,12 @@ class PetriNetService:
         Args:
             trigger: The initial trigger to fire
             rules: List of rules to simulate
-            username: User starting the simulation
+            home_uuid: Home context
             
         Returns:
             The first rule executed, or None
         """
-        net = self.get_net(username, rules, refresh=False)
+        net = self.get_net(home_uuid, rules, refresh=False)
         
         # Add the token for the simulation
         net.remove_all_tokens()
@@ -93,34 +93,34 @@ class PetriNetService:
         trigger_place.add_token(TokenSet(token))
         
         simulator = RestSimulator(net)
-        self.simulators[username] = simulator
+        self.simulators[home_uuid] = simulator
         
         return simulator.step()
 
-    def step_rest_simulation(self, username: str) -> Optional[Rule]:
+    def step_rest_simulation(self, home_uuid: str) -> Optional[Rule]:
         """
         Execute the next step in the simulation.
         
         Args:
-            username: User running the simulation
+            home_uuid: Home context
             
         Returns:
             The next rule executed, or None
         """
-        simulator = self.simulators.get(username)
+        simulator = self.simulators.get(home_uuid)
         if simulator:
             return simulator.step()
         return None
 
 
-    def check_rule(self, target_rule: Rule, existing_rules: List[Rule], user_uuid: str) -> Dict:
+    def check_rule(self, target_rule: Rule, existing_rules: List[Rule], home_uuid: str) -> Dict:
         """
         Check a rule for loops using Petri Nets.
         
         Args:
             target_rule: The rule to check
             existing_rules: List of all user's rules
-            user_uuid: User UUID string
+            home_uuid: Home UUID string
             
         Returns:
             Dictionary containing rule problems (loops, etc.)
@@ -169,7 +169,7 @@ class PetriNetService:
 
 
         # Build Petri Net
-        net = self.get_net(user_uuid, rules_after, refresh=True)
+        net = self.get_net(home_uuid, rules_after, refresh=True)
 
         # Search for loops
         cycles = net.get_cycle(target_rule, rules_after)
@@ -202,29 +202,29 @@ class PetriNetService:
                     rule_problems.add_loop([target_rule])
 
         return rule_problems.to_dict()
-    def stop_rest_simulator(self, username: str) -> None:
+    def stop_rest_simulator(self, home_uuid: str) -> None:
         """
-        Stop the simulation for a user.
+        Stop the simulation for a home.
         
         Args:
-            username: User stopping the simulation
+            home_uuid: Home context
         """
-        if username in self.simulators:
-            del self.simulators[username]
+        if home_uuid in self.simulators:
+            del self.simulators[home_uuid]
 
-    def _build_net(self, username: str, rules: List[Rule]) -> ExtendedPetriNet:
+    def _build_net(self, home_uuid: str, rules: List[Rule]) -> ExtendedPetriNet:
         """
         Build a Petri Net from a list of rules.
 
         Args:
-            username: Username building net for
+            home_uuid: Home UUID building net for
             rules: List of rules to build net from
 
         Returns:
             ExtendedPetriNet representing the rules
         """
         petri_net = ExtendedPetriNet()
-        petri_net.set_label(username)
+        petri_net.set_label(home_uuid)
 
         # Loading unique places
         for rule in rules:

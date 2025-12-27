@@ -103,15 +103,6 @@ class AuthService:
             password_hash=generate_password_hash(password)
             user = UserRepository.register_user(email,role,firstname,lastname,password_hash,None)
 
-        # Create OWL file for the user
-        try:
-            from .owl_service import OWLService
-            from ..extensions import db
-            iri = OWLService.create_user_ontology(user.uuid)
-            user.ontology_iri = iri
-            db.session.commit()
-        except Exception as e:
-            # Log error but don't fail registration
-            print(f"Failed to create OWL ontology: {e}")
+
 
         return user

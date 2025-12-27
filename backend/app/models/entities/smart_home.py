@@ -47,6 +47,9 @@ class SmartHome(db.Model):
     rooms: Mapped[List["Room"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="smart_home", cascade="all, delete-orphan", passive_deletes=True
     )
+    devices: Mapped[List["Device"]] = relationship(  # noqa: F821 # type: ignore
+        backref="smart_home", cascade="all, delete-orphan", passive_deletes=True
+    )
 
     def __repr__(self) -> str:
         return f"SmartHome(id={self.id}, uuid={self.uuid}, name={self.name}, address={self.address})"

@@ -94,3 +94,26 @@ class SmartHomeService:
             raise RoomNotFoundException("Room not found")
 
         return DeviceRepository.get_device_by_home_id_room_id(system.id,room.room_id)
+
+    @staticmethod
+    def verify_home_access(home_uuid: str, current_user: User) -> SmartHome:
+        """
+        Verify that the user has access to the specified SmartHome UUID.
+        Returns the SmartHome object if authorized.
+        Raises SmartHomeNotFoundException if home not found.
+        Raises SmartHomeForbiddenException if user is not an owner/member.
+        """
+        if not home_uuid:
+             raise SmartHomeNotFoundException("Home UUID is required")
+
+        system = SmartHomeRepository.get_home_by_uuid(home_uuid)
+
+        if system is None:
+            raise SmartHomeNotFoundException(f"Smart Home {home_uuid} not found")
+
+        owners: list[int] = SmartHomeRepository.get_home_owners_by_home_id(system.id)
+        
+        if current_user.id not in owners:
+            raise SmartHomeForbiddenException("User does not have access to this smart home")
+
+        return system

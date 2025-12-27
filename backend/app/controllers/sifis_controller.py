@@ -14,10 +14,12 @@ from ..services import OWLService, XACMLService, DHTService
 from ..services.rule_service import RuleService
 from ..services.petrinet_service import PetriNetService
 from ..repositories.user_repository import UserRepository
-from ..schemas.request.rule_req_schema import RuleRequestSchema
 from ..models.entities.sifis.owl.rule_problems import RuleProblems
 from ..models.entities.petrinet import TriggerPlace, ActionPlace
 from marshmallow import ValidationError
+from ..services.home_service import SmartHomeService
+from ..exceptions.entities.home_exception import SmartHomeNotFoundException, SmartHomeForbiddenException
+from ..schemas.request.rule_req_schema import RuleRequestSchema
 
 import logging
 
@@ -57,91 +59,112 @@ except Exception as e:
     petrinet_service = None
 
 
-@sifis_bp.route("/trigger-services", methods=["GET"])
+
+@sifis_bp.route("/homes/<home_uuid>/trigger-services", methods=["GET"])
 @ds_required()
-def get_trigger_services(current_user):
+def get_trigger_services(current_user, home_uuid):
     """Get all services that offer triggers"""
     if not owl_service:
         return jsonify({"error": "OWL Service not available"}), 500
 
     try:
+        SmartHomeService.verify_home_access(home_uuid, current_user)
+        
         services = owl_service.get_trigger_services()
         return jsonify([service.to_dict() for service in services])
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error getting trigger services: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/trigger-services/<service_id>/triggers", methods=["GET"])
+
+@sifis_bp.route("/homes/<home_uuid>/trigger-services/<service_id>/triggers", methods=["GET"])
 @ds_required()
-def get_triggers(service_id, current_user):
+def get_triggers(home_uuid, service_id, current_user):
     """Get triggers for a specific service"""
     if not owl_service:
         return jsonify({"error": "OWL Service not available"}), 500
 
     try:
-        triggers = owl_service.get_triggers(service_id, str(current_user.uuid))
+        SmartHomeService.verify_home_access(home_uuid, current_user)
+        triggers = owl_service.get_triggers(service_id, str(home_uuid))
         return jsonify([trigger.to_dict() for trigger in triggers])
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
 @sifis_bp.route(
-    "/trigger-services/<service_id>/triggers/<trigger_id>/details", methods=["GET"]
+    "/homes/<home_uuid>/trigger-services/<service_id>/triggers/<trigger_id>/details", methods=["GET"]
 )
 @ds_required()
-def get_trigger_details(service_id, trigger_id, current_user):
+def get_trigger_details(home_uuid, service_id, trigger_id, current_user):
     """Get details for a specific trigger"""
     if not owl_service:
         return jsonify({"error": "OWL Service not available"}), 500
 
     try:
-        details = owl_service.get_trigger_details(service_id, trigger_id, str(current_user.uuid))
+        SmartHomeService.verify_home_access(home_uuid, current_user)
+        details = owl_service.get_trigger_details(service_id, trigger_id, str(home_uuid))
         return jsonify([detail.to_dict() for detail in details])
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/action-services", methods=["GET"])
+@sifis_bp.route("/homes/<home_uuid>/action-services", methods=["GET"])
 @ds_required()
-def get_action_services(current_user):
+def get_action_services(current_user, home_uuid):
     """Get all services that offer actions"""
     if not owl_service:
         return jsonify({"error": "OWL Service not available"}), 500
 
     try:
+        SmartHomeService.verify_home_access(home_uuid, current_user)
         services = owl_service.get_action_services()
         return jsonify([service.to_dict() for service in services])
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/action-services/<service_id>/actions", methods=["GET"])
+@sifis_bp.route("/homes/<home_uuid>/action-services/<service_id>/actions", methods=["GET"])
 @ds_required()
-def get_actions(service_id, current_user):
+def get_actions(home_uuid, service_id, current_user):
     """Get actions for a specific service"""
     if not owl_service:
         return jsonify({"error": "OWL Service not available"}), 500
 
     try:
-        actions = owl_service.get_actions(service_id, str(current_user.uuid))
+        SmartHomeService.verify_home_access(home_uuid, current_user)
+        actions = owl_service.get_actions(service_id, str(home_uuid))
         return jsonify([action.to_dict() for action in actions])
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
 @sifis_bp.route(
-    "/action-services/<service_id>/actions/<action_id>/details", methods=["GET"]
+    "/homes/<home_uuid>/action-services/<service_id>/actions/<action_id>/details", methods=["GET"]
 )
 @ds_required()
-def get_action_details(service_id, action_id, current_user):
+def get_action_details(home_uuid, service_id, action_id, current_user):
     """Get details for a specific action"""
     if not owl_service:
         return jsonify({"error": "OWL Service not available"}), 500
 
     try:
-        details = owl_service.get_action_details(service_id, action_id, str(current_user.uuid))
+        SmartHomeService.verify_home_access(home_uuid, current_user)
+        details = owl_service.get_action_details(service_id, action_id, str(home_uuid))
         return jsonify([detail.to_dict() for detail in details])
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -160,20 +183,20 @@ def health_check():
 # ========== RULE ENDPOINTS ==========
 
 
-@sifis_bp.route("/rule", methods=["GET"])
+@sifis_bp.route("/homes/<home_uuid>/rules", methods=["GET"])
 @ds_required()
-def get_rules(current_user):
-    """Get all rules for the current user"""
+def get_rules(current_user, home_uuid):
+    """Get all rules for the current user in a specific home"""
     if not rule_service:
         return jsonify({"error": "Rule service not available"}), 500
 
     try:
         user = current_user
-
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        rules = rule_service.get_rules_by_type("sifis", user)
+        home = SmartHomeService.verify_home_access(home_uuid, user)
+        rules = rule_service.get_rules_by_type("sifis", user, str(home.uuid))
 
         # Convert Rule objects to dict for JSON serialization
         rules_data = []
@@ -191,14 +214,18 @@ def get_rules(current_user):
 
         return jsonify(rules_data)
     except Exception as e:
+        return jsonify(rules_data)
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
+    except Exception as e:
         logging.error(f"Error getting rules: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/rule", methods=["POST"])
+@sifis_bp.route("/homes/<home_uuid>/rules", methods=["POST"])
 @sifis_bp.arguments(RuleRequestSchema, as_kwargs=True)
 @ds_required()
-def save_rule(current_user, **rule_data):
+def save_rule(current_user, home_uuid, **rule_data):
     """Save a new rule"""
     if not rule_service:
         return jsonify({"error": "Rule service not available"}), 500
@@ -209,17 +236,20 @@ def save_rule(current_user, **rule_data):
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        rule_id = rule_service.save_rule(rule_data, "sifis", user)
+        home = SmartHomeService.verify_home_access(home_uuid, user)
+        rule_id = rule_service.save_rule(rule_data, "sifis", user, str(home.uuid))
 
         return jsonify({"id": rule_id}), 200
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error saving rule: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/rule/<int:rule_id>", methods=["DELETE"])
+@sifis_bp.route("/homes/<home_uuid>/rules/<int:rule_id>", methods=["DELETE"])
 @ds_required()
-def delete_rule(rule_id, current_user):
+def delete_rule(home_uuid, rule_id, current_user):
     """Delete a rule by ID"""
     if not rule_service:
         return jsonify({"error": "Rule service not available"}), 500
@@ -230,6 +260,8 @@ def delete_rule(rule_id, current_user):
         if not user:
             return jsonify({"error": "User not found"}), 404
         
+        SmartHomeService.verify_home_access(home_uuid, user)
+        
         # Delete rule through service layer (proper architecture)
         deleted = rule_service.delete_rule_by_user(rule_id, user)
         
@@ -237,14 +269,16 @@ def delete_rule(rule_id, current_user):
             return jsonify({"error": "Rule not found or access denied"}), 404
         
         return jsonify({"id": rule_id}), 200
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error deleting rule: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/rule/trigger", methods=["GET"])
+@sifis_bp.route("/homes/<home_uuid>/rules/triggers", methods=["GET"])
 @ds_required()
-def get_defined_triggers(current_user):
+def get_defined_triggers(current_user, home_uuid):
     """Get all triggers defined in rules"""
     if not rule_service:
         return jsonify({"error": "Rule service not available"}), 500
@@ -255,28 +289,31 @@ def get_defined_triggers(current_user):
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        triggers = rule_service.get_defined_triggers_by_type("sifis", user)
+        home = SmartHomeService.verify_home_access(home_uuid, user)
+        triggers = rule_service.get_defined_triggers_by_type("sifis", user, str(home.uuid))
         return jsonify([trigger.to_dict() for trigger in triggers])
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error getting defined triggers: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/rule/<int:rule_id>/translate", methods=["POST"])
+@sifis_bp.route("/homes/<home_uuid>/rules/<int:rule_id>/translate", methods=["POST"])
 @ds_required()
-def translate_rule(rule_id, current_user):
+def translate_rule(home_uuid, rule_id, current_user):
     """Translate a rule into XACML policies and publish to DHT"""
     if not xacml_service or not dht_service:
         return jsonify({"error": "XACML or DHT service not available"}), 500
 
     try:
         user = current_user
-
         if not user:
             return jsonify({"error": "User not found"}), 404
 
         # Verify rule ownership and get rehydrated rule
-        rule = rule_service.get_rule_by_id(rule_id, user)
+        home = verify_home_access(user, home_uuid)
+        rule = rule_service.get_rule_by_id(rule_id, user, str(home.uuid))
         if not rule:
              return jsonify({"error": "Rule not found or access denied"}), 404
 
@@ -290,7 +327,7 @@ def translate_rule(rule_id, current_user):
 
         # Translate rule to XACML policies
         # Pass rule dict (rehydrated) to translation service
-        policies_xml = xacml_service.translate(rule.to_dict(), str(user.uuid))
+        policies_xml = xacml_service.translate(rule.to_dict(), str(home.uuid))
 
         # Save policies to files and publish to DHT
         for i, policy_xml in enumerate(policies_xml):
@@ -315,16 +352,20 @@ def translate_rule(rule_id, current_user):
             200,
         )
 
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error translating rule: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/download", methods=["GET"])
+@sifis_bp.route("/homes/<home_uuid>/download", methods=["GET"])
 @ds_required()
-def download_policies(current_user):
+def download_policies(current_user, home_uuid):
     """Download all policies as a ZIP file"""
     try:
+        SmartHomeService.verify_home_access(home_uuid, current_user)
+        
         # Get policies directory
         policies_dir = Path(config["policies"]["directory"])
 
@@ -346,14 +387,16 @@ def download_policies(current_user):
             download_name="policies.zip",
         )
 
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error downloading policies: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/rule/<int:rule_id>/check", methods=["GET"])
+@sifis_bp.route("/homes/<home_uuid>/rules/<int:rule_id>/check", methods=["GET"])
 @ds_required()
-def check_rule(rule_id, current_user):
+def check_rule(home_uuid, rule_id, current_user):
     """Check a rule for loops, inconsistencies, and redundancies"""
     if not rule_service or not petrinet_service:
         return jsonify({"error": "Services not available"}), 500
@@ -366,107 +409,116 @@ def check_rule(rule_id, current_user):
             return jsonify({"error": "User not found"}), 404
 
         # Verify rule ownership and get rehydrated rule
-        rule = rule_service.get_rule_by_id(rule_id, user)
+        home = SmartHomeService.verify_home_access(home_uuid, user)
+        rule = rule_service.get_rule_by_id(rule_id, user, str(home.uuid))
         if not rule:
              return jsonify({"error": "Rule not found or access denied"}), 404
 
         # Get all existing rules
-        rules = rule_service.get_rules_by_type("sifis", user)
+        rules = rule_service.get_rules_by_type("sifis", user, str(home.uuid))
 
         # Check rule using PetriNet service logic
-        result = petrinet_service.check_rule(rule, rules, str(user.uuid))
+        result = petrinet_service.check_rule(rule, rules, str(home.uuid))
 
         return jsonify(result), 200
 
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error checking rule: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/simulation/start", methods=["POST"])
+@sifis_bp.route("/homes/<home_uuid>/simulation/start", methods=["POST"])
 @ds_required()
-def start_simulation(current_user):
+def start_simulation(current_user, home_uuid):
     """Start a step-by-step simulation"""
     if not petrinet_service or not rule_service:
         return jsonify({"error": "Services not available"}), 500
 
     try:
         user = current_user
-        
         if not user:
             return jsonify({"error": "User not found"}), 404
 
+        home = SmartHomeService.verify_home_access(home_uuid, user)
         data = request.get_json()
         if not data or "trigger" not in data:
             return jsonify({"error": "Trigger data required"}), 400
 
         # Get rules for user
-        rules = rule_service.get_rules_by_type("sifis", user)
+        rules = rule_service.get_rules_by_type("sifis", user, str(home.uuid))
 
         # Parse trigger from request
         trigger_data = data["trigger"]
   
         trigger = None
         if "url" in trigger_data:
-            trigger = owl_service.get_trigger_by_url(trigger_data["url"], user.email)
+            trigger = owl_service.get_trigger_by_url(trigger_data["url"], str(home.uuid))
         
         if not trigger:
              return jsonify({"error": "Invalid trigger"}), 400
 
         # Start simulation
-        result_rule = petrinet_service.start_rest_simulation(trigger, rules, str(user.uuid))
+        result_rule = petrinet_service.start_rest_simulation(trigger, rules, str(home.uuid))
         
         if result_rule:
-            return jsonify(result_rule.to_dict()), 200
+             return jsonify(result_rule.to_dict()), 200
         else:
-            return jsonify({"message": "Simulation started, no rule executed immediately"}), 200
+             return jsonify({"message": "Simulation started, no rule executed immediately"}), 200
 
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error starting simulation: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/simulation/step", methods=["POST"])
+@sifis_bp.route("/homes/<home_uuid>/simulation/step", methods=["POST"])
 @ds_required()
-def step_simulation(current_user):
+def step_simulation(current_user, home_uuid):
     """Execute next step in simulation"""
     if not petrinet_service:
         return jsonify({"error": "Services not available"}), 500
 
     try:
         user = current_user
-        
         if not user:
             return jsonify({"error": "User not found"}), 404
         
-        rule = petrinet_service.step_rest_simulation(str(user.uuid))
+        home = SmartHomeService.verify_home_access(home_uuid, user)
+        rule = petrinet_service.step_rest_simulation(str(home.uuid))
         
         if rule:
-            return jsonify(rule.to_dict()), 200
+             return jsonify(rule.to_dict()), 200
         else:
-            return jsonify({"message": "No rule executed in this step or simulation finished"}), 200
+             return jsonify({"message": "No rule executed in this step or simulation finished"}), 200
 
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error stepping simulation: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/simulation/stop", methods=["POST"])
+@sifis_bp.route("/homes/<home_uuid>/simulation/stop", methods=["POST"])
 @ds_required()
-def stop_simulation(current_user):
+def stop_simulation(current_user, home_uuid):
     """Stop the simulation"""
     if not petrinet_service:
         return jsonify({"error": "Services not available"}), 500
 
     try:
         user = current_user
-        
         if not user:
             return jsonify({"error": "User not found"}), 404
         
-        petrinet_service.stop_rest_simulator(str(user.uuid))
+        home = SmartHomeService.verify_home_access(home_uuid, user)
+        petrinet_service.stop_rest_simulator(str(home.uuid))
         return jsonify({"message": "Simulation stopped"}), 200
 
+    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error stopping simulation: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500

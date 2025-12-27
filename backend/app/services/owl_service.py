@@ -307,25 +307,25 @@ class OWLService:
     def _get_entities_by_service(
         self,
         service_id: str,
-        username: Optional[str] = "ptp-demo",
+        home_uuid: Optional[str] = None,
         location_url: Optional[str] = None,
     ) -> List[Dict]:
         """Get IoT entities/devices that provide a specific service."""
-        if not username:
+        if not home_uuid:
             return []
 
         try:
-            # Load user world
-            user_world = self._get_user_world(username)
-            if not user_world:
+            # Load home world
+            home_world = self._get_home_world(home_uuid)
+            if not home_world:
                 return []
 
             # Build service IRI
-            service_iri = f"http://elite.polito.it/ontologies/sifis-home.owl/{username}#{service_id}"
+            service_iri = f"http://elite.polito.it/ontologies/sifis-home.owl/{home_uuid}#{service_id}"
 
             # Find all individuals that have this service
             entities = []
-            for individual in user_world.individuals():
+            for individual in home_world.individuals():
                 services = getattr(individual, "hasService", [])
                 for service in services:
                     if str(service.iri) == service_iri:
@@ -352,50 +352,49 @@ class OWLService:
             self.logger.error(f"Error getting entities for service {service_id}: {e}")
             return []
 
-    def _get_locations(self, username: Optional[str] = "ptp-demo") -> List[Dict]:
-        """Get locations from user's ontology."""
-        if not username:
+    def _get_locations(self, home_uuid: Optional[str] = None) -> List[Dict]:
+        """Get locations from home's ontology."""
+        if not home_uuid:
             return []
 
         # Check cache first
-        if username in self._locations_cache:
-            return self._locations_cache[username]
+        if home_uuid in self._locations_cache:
+            return self._locations_cache[home_uuid]
 
         try:
-            ont_config = self.config["ontology"]
-            ontology_dir = Path(ont_config["directory"])
-            user_ontology_path = ontology_dir / f"{username}.owl"
+            ontology_dir = Path(self._get_ontology_dir())
+            home_ontology_path = ontology_dir / "homes" / f"{home_uuid}.owl"
 
-            if not user_ontology_path.exists():
+            if not home_ontology_path.exists():
                 return []
 
-            # Load user ontology in separate world
+            # Load home ontology in separate world
             from owlready2 import World
 
-            user_world = World()
+            home_world = World()
 
             # Pre-load imported ontologies to avoid web downloads
             eupont_path = ontology_dir / "eupont.owl"
             sifis_path = ontology_dir / "sifis-home.owl"
 
             if eupont_path.exists():
-                user_world.get_ontology(f"file://{eupont_path.absolute()}").load()
+                home_world.get_ontology(f"file://{eupont_path.absolute()}").load()
             if sifis_path.exists():
-                user_world.get_ontology(f"file://{sifis_path.absolute()}").load(
+                home_world.get_ontology(f"file://{sifis_path.absolute()}").load(
                     only_local=True
                 )
 
-            # Load user ontology
-            user_onto = user_world.get_ontology(
-                f"file://{user_ontology_path.absolute()}"
+            # Load home ontology
+            home_onto = home_world.get_ontology(
+                f"file://{home_ontology_path.absolute()}"
             ).load()
 
             # Run reasoner
-            sync_reasoner_hermit(user_world, infer_property_values=True)
+            sync_reasoner_hermit(home_world, infer_property_values=True)
 
             # Find Location class
             Location = None
-            for cls in user_world.classes():
+            for cls in home_world.classes():
                 if cls.name == "Location":
                     Location = cls
                     break
@@ -405,7 +404,7 @@ class OWLService:
 
             # Get location instances
             locations = []
-            for loc_instance in Location.instances(user_world):
+            for loc_instance in Location.instances(home_world):
                 locations.append(
                     {
                         "url": str(loc_instance.iri),
@@ -415,7 +414,7 @@ class OWLService:
                 )
 
             # Cache the result
-            self._locations_cache[username] = locations
+            self._locations_cache[home_uuid] = locations
 
             return locations
 
@@ -456,6 +455,28 @@ class OWLService:
         except Exception as e:
             self.logger.debug(f"Error getting property {property_name}: {e}")
             return None
+
+    @staticmethod
+    def _safe_set_localized_property(onto, instance, property_name: str, value: str, lang: str = "en"):
+        """Safely set a localized property on an instance using Owlready's internal API.
+        
+        This method avoids conflicts with Owlready's special handling of 'name' as an IRI identifier.
+        """
+        try:
+            # Search for the property in the ontology world
+            props = list(onto.world.search(iri=f"*#{property_name}"))
+            if props:
+                prop = props[0]
+                # Use internal Owlready API to set the value with language tag
+                from owlready2 import locstr
+                localized_value = locstr(value, lang)
+                # Set the value by directly assigning the list
+                setattr(instance, prop.python_name, [localized_value])
+                return True
+            return False
+        except Exception as e:
+            print(f"Error setting property {property_name} on {instance}: {e}")
+            return False
 
     def get_actions(self, service_id: str, username: Optional[str] = None) -> List[Action]:
         """Get all actions for a specific service"""
@@ -533,7 +554,7 @@ class OWLService:
         except (ValueError, TypeError, IndexError):
             return None
 
-    def get_trigger_by_url(self, url: str, username: str) -> Optional[Trigger]:
+    def get_trigger_by_url(self, url: str, home_uuid: str) -> Optional[Trigger]:
         """Get trigger by url"""
         try:
             # Extract trigger ID from url
@@ -564,7 +585,7 @@ class OWLService:
             trigger.details = self._get_details_for_instance(
                 trigger_instance,
                 service_instance.name if service_instance else "",
-                username,
+                home_uuid,
             )
 
             return trigger
@@ -572,7 +593,7 @@ class OWLService:
             self.logger.error(f"Error getting trigger by url {url}: {e}")
             return None
 
-    def get_action_by_url(self, url: str, username: str) -> Optional[Action]:
+    def get_action_by_url(self, url: str, home_uuid: str) -> Optional[Action]:
         """Get action by url"""
         try:
             # Extract action ID from url
@@ -602,7 +623,7 @@ class OWLService:
             action.details = self._get_details_for_instance(
                 action_instance,
                 service_instance.name if service_instance else "",
-                username,
+                home_uuid,
             )
 
             return action
@@ -610,19 +631,19 @@ class OWLService:
             self.logger.error(f"Error getting action by url {url}: {e}")
             return None
 
-    def get_entity_by_url(self, url: str, username: str) -> Optional[Dict]:
+    def get_entity_by_url(self, url: str, home_uuid: str) -> Optional[Dict]:
         """Get IoT entity by url"""
         try:
             # Extract entity ID from url
             entity_id = url.split("#")[-1]
 
-            # Try to find in user ontology
-            user_world = self._get_user_world(username)
-            if not user_world:
+            # Try to find in home ontology
+            home_world = self._get_home_world(home_uuid)
+            if not home_world:
                 return None
 
             # Search for the entity
-            for individual in user_world.individuals():
+            for individual in home_world.individuals():
                 if str(individual.iri) == url:
                     return {
                         "url": url,
@@ -636,51 +657,50 @@ class OWLService:
             self.logger.error(f"Error getting entity by url {url}: {e}")
             return None
 
-    def _get_user_world(self, username: str):
-        """Helper to load user world (can be cached later if needed)"""
+    def _get_home_world(self, home_uuid: str):
+        """Helper to load home world (can be cached later if needed)"""
         try:
-            ont_config = self.config["ontology"]
-            ontology_dir = Path(ont_config["directory"])
+            ontology_dir = Path(self._get_ontology_dir())
             
-            user_ontology_path = ontology_dir / "users" / f"{username}.owl" 
+            home_ontology_path = ontology_dir / "homes" / f"{home_uuid}.owl" 
                        
-            if not user_ontology_path.exists():
+            if not home_ontology_path.exists():
                 return None
 
             from owlready2 import World
 
-            user_world = World()
+            home_world = World()
 
             # Pre-load imported ontologies
             eupont_path = ontology_dir / "eupont.owl"
             sifis_path = ontology_dir / "sifis-home.owl"
 
             if eupont_path.exists():
-                user_world.get_ontology(f"file://{eupont_path.absolute()}").load()
+                home_world.get_ontology(f"file://{eupont_path.absolute()}").load()
             if sifis_path.exists():
-                user_world.get_ontology(f"file://{sifis_path.absolute()}").load(
+                home_world.get_ontology(f"file://{sifis_path.absolute()}").load(
                     only_local=True
                 )
 
-            user_world.get_ontology(f"file://{user_ontology_path.absolute()}").load()
+            home_world.get_ontology(f"file://{home_ontology_path.absolute()}").load()
 
-            return user_world
+            return home_world
         except Exception as e:
-            self.logger.error(f"Error loading user world for {username}: {e}")
+            self.logger.error(f"Error loading user world for {home_uuid}: {e}")
             return None
 
     def get_commands(
-        self, action: Action, location: Dict, username: str
+        self, action: Action, location: Dict, home_uuid: str
     ) -> List[Command]:
         """Get commands for an action based on location.
 
-        This queries the user's ontology to find all commands that can reproduce the given action,
+        This queries the home's ontology to find all commands that can reproduce the given action,
         filtering by location if specified (and not "Entire Home").
 
         Args:
             action: Action object
             location: Location dictionary with 'name' and 'url'
-            username: Username for context
+            home_uuid: Home UUID for context
 
         Returns:
             List of Command objects
@@ -688,14 +708,14 @@ class OWLService:
         commands = []
 
         try:
-            # Load user world
-            user_world = self._get_user_world(username)
-            if not user_world:
-                self.logger.warning(f"Could not load user world for {username}")
+            # Load home world
+            home_world = self._get_home_world(home_uuid)
+            if not home_world:
+                self.logger.warning(f"Could not load home world for {home_uuid}")
                 return commands
 
             # Re-run reasoner with inferences
-            sync_reasoner_hermit(user_world, infer_property_values=True)
+            sync_reasoner_hermit(home_world, infer_property_values=True)
 
             # Find the action individual in the base ontology
             action_individual = None
@@ -710,31 +730,31 @@ class OWLService:
                 )
                 return commands
 
-            # Get commands that reproduce this action (from user world)
-            # Find the action in user world that corresponds to the base action
-            user_action = None
-            for ind in user_world.individuals():
+            # Get commands that reproduce this action (from home world)
+            # Find the action in home world that corresponds to the base action
+            home_action = None
+            for ind in home_world.individuals():
                 if str(ind.iri) == action.url:
-                    user_action = ind
+                    home_action = ind
                     break
 
-            if not user_action:
-                self.logger.warning(f"Action {action.url} not found in user world")
+            if not home_action:
+                self.logger.warning(f"Action {action.url} not found in home world")
                 return commands
 
             # Get commands via reproduceBy property (direct) or allowTo property (inverse)
-            reproduce_by_commands = getattr(user_action, "reproduceBy", [])
+            reproduce_by_commands = getattr(home_action, "reproduceBy", [])
 
             # Fallback: Manually search for commands that allowTo this action (if inference missed some)
             if not reproduce_by_commands or len(reproduce_by_commands) < 2:
                 manual_commands = []
-                for ind in user_world.individuals():
-                    if ind == user_action: continue
+                for ind in home_world.individuals():
+                    if ind == home_action: continue
                     allow_to = getattr(ind, "allowTo", [])
                     
                     # Compare by IRI strings to be safe
                     for allowed_action in allow_to:
-                        if str(allowed_action.iri) == str(user_action.iri):
+                        if str(allowed_action.iri) == str(home_action.iri):
                             manual_commands.append(ind)
                             break
                 
@@ -801,7 +821,7 @@ class OWLService:
 
                 # Get entity details
                 command.entity = self.get_entity_by_url(
-                    str(entity_individual.iri), username
+                    str(entity_individual.iri), home_uuid
                 )
 
                 commands.append(command)
@@ -927,18 +947,25 @@ class OWLService:
         return os.path.join(current_app.root_path, "ontologies")
 
     @staticmethod
-    def create_user_ontology(user_uuid: UUID) -> str:
+    def create_home_ontology(home_uuid: UUID) -> str:
         """
-        Creates a new OWL file for the user with default locations, devices, services, and rules.
-        Returns the user's Ontology IRI.
+        Creates a new OWL file for the Smart Home with its specific locations, devices, and rules.
+        Returns the Home's Ontology IRI.
         """
-        ontology_dir = OWLService._get_ontology_dir()
-        users_dir = os.path.join(ontology_dir, "users")
-        os.makedirs(users_dir, exist_ok=True)
+        from app.models.entities.smart_home import SmartHome
+        
+        # Fetch Home from DB
+        home = SmartHome.query.filter_by(uuid=str(home_uuid)).first()
+        if not home:
+            raise ValueError(f"SmartHome with UUID {home_uuid} not found")
 
-        user_iri = f"{OWLService.BASE_IRI}/{user_uuid}"
-        filename = f"{user_uuid}.owl"
-        file_path = os.path.join(users_dir, filename)
+        ontology_dir = OWLService._get_ontology_dir()
+        homes_dir = os.path.join(ontology_dir, "homes")
+        os.makedirs(homes_dir, exist_ok=True)
+
+        home_iri = f"{OWLService.BASE_IRI}/{home_uuid}"
+        filename = f"{home_uuid}.owl"
+        file_path = os.path.join(homes_dir, filename)
 
         # 1. Load Base Ontology
         import owlready2
@@ -948,18 +975,16 @@ class OWLService:
         base_onto = get_ontology("http://elite.polito.it/ontologies/sifis-home.owl").load()
         
         # 2. Create new ontology
-        onto = get_ontology(user_iri)
+        onto = get_ontology(home_iri)
         onto.imported_ontologies.append(base_onto)
         
         with onto:
             # 3. Create Content
-            OWLService._create_user_individual(onto, base_onto, user_uuid)
-            locations = OWLService._create_locations(onto, base_onto)
+            OWLService._create_home_individuals(onto, base_onto, home)
+            locations = OWLService._create_locations(onto, base_onto, home)
 
-            OWLService._create_notifications(onto, base_onto)
-            OWLService._create_commands(onto, base_onto)
-            OWLService._create_services(onto, base_onto)
-            OWLService._create_devices(onto, base_onto, locations)
+
+            OWLService._create_dynamic_devices(onto, base_onto, home, locations)
 
         # 4. Save to file
         onto.save(file=file_path)
@@ -1008,7 +1033,7 @@ class OWLService:
         with open(file_path, 'w') as f:
             f.write(content)
             
-        return user_iri
+        return home_iri
 
     @staticmethod
     def _get_class(base_onto, class_name, iri=None):
@@ -1106,19 +1131,24 @@ class OWLService:
                             setattr(ind, prop.python_name, [prop_value])
                     except Exception as e:
                         print(f"Error assigning property {prop_name} ({prop}) to {name}: {e}")
-                        # Re-raise to stop execution if needed, or continue
-                        raise e
                 
         return ind
 
     @staticmethod
-    def _create_user_individual(onto, base_onto, user_uuid):
+    def _create_home_individuals(onto, base_onto, home):
+        """Create individuals for all users in the home."""
         Person = OWLService._get_class(base_onto, "Person", "http://xmlns.com/foaf/0.1/Person")
-        if Person:
-            Person(f"{user_uuid}", namespace=onto)
+        if not Person:
+            return
+
+        # Add all owners
+        for user_home in home.owned_by_users:
+            user = user_home.user
+            if user.uuid:
+                 Person(f"{user.uuid}", namespace=onto)
 
     @staticmethod
-    def _create_locations(onto, base_onto):
+    def _create_locations(onto, base_onto, home):
         Location = OWLService._get_class(base_onto, "Location")
         Room = OWLService._get_class(base_onto, "Room")
         Building = OWLService._get_class(base_onto, "Building")
@@ -1127,91 +1157,79 @@ class OWLService:
 
         locations = {}
         
-        # Default Rooms - NOTE: omitting 'name' property to prevent IRI corruption by owlready2
-        rooms = ["bedroom", "livingroom", "kitchen", "bathroom", "office"]
-        for room_id in rooms:
-            loc_ind = OWLService._create_individual(onto, Location, f"location-{room_id}", [Room])
-            locations[f"location-{room_id}"] = loc_ind
-            
-        # Home
+        # Get the sifis-home ontology and the name property
+        sifis_home_onto = onto.world.get_ontology("http://elite.polito.it/ontologies/sifis-home.owl")
+        name_prop = sifis_home_onto.search_one(iri="http://elite.polito.it/ontologies/sifis-home.owl#name")
+        
+        # Alias the 'name' property to 'sifis_name' to avoid conflict with Owlready's built-in .name attribute (IRI).
+        if name_prop:
+            name_prop.python_name = "sifis_name"
+        
+        # Import locstr for localized strings
+        from owlready2 import locstr
+        
+        # Create Home Individual
         home_ind = OWLService._create_individual(onto, Location, "location-home", [Building])
+        if home_ind and home.name and name_prop:
+            home_ind.sifis_name = [locstr(home.name, "en")]
+            
         locations["location-home"] = home_ind
+        
+       # Dynamic Rooms from DB
+        for room in home.rooms:
+            if not room.room_uuid: continue
+            
+            loc_id = f"location-{room.room_uuid}"
+            loc_ind = OWLService._create_individual(onto, Location, loc_id, [Room])
+            
+            # Set name using the ALIASED property 'sifis_name' with language tag
+            if loc_ind and room.name and name_prop:
+                loc_ind.sifis_name = [locstr(room.name, "en")]
+                
+            locations[loc_id] = loc_ind
+            
+            # Map by ID as well for easy lookup
+            locations[str(room.room_id)] = loc_ind
         
         return locations
 
  
 
     @staticmethod
-    def _create_notifications(onto, base_onto):
-        TimeNotification = OWLService._get_class(base_onto, "TimeNotification")
-        CloseNotification = OWLService._get_class(base_onto, "CloseNotification")
-        OpenNotification = OWLService._get_class(base_onto, "OpenNotification")
+    def _create_dynamic_devices(onto, base_onto, home, locations):
+        """
+        Dynamically create devices, services, and commands based on DB models.
+        Infers device capabilities/class from the device name.
+        """
+        # 1. Get Classes
+        Camera = OWLService._get_class(base_onto, "Camera")
+        Lamp = OWLService._get_class(base_onto, "Lamp")
+        Heater = OWLService._get_class(base_onto, "Heater")
+        Speaker = OWLService._get_class(base_onto, "Speaker")
+        SmartWindow = OWLService._get_class(base_onto, "SmartWindow")
         
-        # Triggers (referenced by IRI)
-        triggers = {
-            "morning": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_morning_trigger",
-            "afternoon": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_afternoon_trigger",
-            "evening": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_evening_trigger",
-            "night": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_night_trigger",
-            "day": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_day_trigger",
-            "win_open": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_windows_open_trigger",
-            "win_close": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_windows_close_trigger"
-        }
+        # Service Classes
+        AudioRecordingService = OWLService._get_class(base_onto, "AudioRecordingService")
+        VideoRecordingService = OWLService._get_class(base_onto, "VideoRecordingService")
+        LightingService = OWLService._get_class(base_onto, "LightingService")
+        HeatingService = OWLService._get_class(base_onto, "HeatingService")
+        FrameService = OWLService._get_class(base_onto, "FrameService")
+        TimerService = OWLService._get_class(base_onto, "TimerService")
         
-        # Helper to get trigger objects safely
-        def get_trigger(key):
-            iri = triggers[key]
-            # Try searching in base_onto first
-            res = base_onto.search_one(iri=iri)
-            if not res:
-                 # Try world search
-                 res = onto.world.search_one(iri=iri)
-            return res
-
-        # Calendar Alarm
-        allow_to_list = [
-            get_trigger("morning"), get_trigger("afternoon"), 
-            get_trigger("evening"), get_trigger("night"), get_trigger("day")
-        ]
-        # Filter out None values
-        allow_to_list = [t for t in allow_to_list if t]
-        
-        n_cal = OWLService._create_individual(onto, TimeNotification, "n-calendar1-alarm", props={
-            "id": "calendar1-alarm",
-            "allowTo": allow_to_list
-        })
-        
-        # Window Notifications
-        t_win_close = get_trigger("win_close")
-        t_win_open = get_trigger("win_open")
-        
-        OWLService._create_individual(onto, CloseNotification, "n-window_1-close", props={
-            "id": "window_1-closed",
-            "allowTo": [t_win_close] if t_win_close else []
-        })
-        OWLService._create_individual(onto, OpenNotification, "n-window_1-open", props={
-            "id": "window_1-opened",
-            "allowTo": [t_win_open] if t_win_open else []
-        })
-        OWLService._create_individual(onto, CloseNotification, "n-window_2-close", props={
-            "id": "window_2-closed",
-            "allowTo": [t_win_close] if t_win_close else []
-        })
-        OWLService._create_individual(onto, OpenNotification, "n-window_2-open", props={
-            "id": "window_2-opened",
-            "allowTo": [t_win_open] if t_win_open else []
-        })
-
-    @staticmethod
-    def _create_commands(onto, base_onto):
+        # Command Classes
         StartCommand = OWLService._get_class(base_onto, "StartCommand")
         StopCommand = OWLService._get_class(base_onto, "StopCommand")
         TurnOnCommand = OWLService._get_class(base_onto, "TurnOnCommand")
         TurnOffCommand = OWLService._get_class(base_onto, "TurnOffCommand")
         OpenCommand = OWLService._get_class(base_onto, "OpenCommand")
         CloseCommand = OWLService._get_class(base_onto, "CloseCommand")
+        
+        # Notification Classes
+        TimeNotification = OWLService._get_class(base_onto, "TimeNotification")
+        CloseNotification = OWLService._get_class(base_onto, "CloseNotification")
+        OpenNotification = OWLService._get_class(base_onto, "OpenNotification")
 
-        # Actions (referenced by IRI)
+        # 2. Setup Actions Dictionary (for AllowTo linking)
         actions = {
             "all_audio": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_audio_actions",
             "rec_audio": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_record_audio_action",
@@ -1229,216 +1247,152 @@ class OWLService:
             "open_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_windows_action",
             "close_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_windows_action"
         }
-        
+
+        # Triggers (referenced by IRI)
+        triggers = {
+             "win_open": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_windows_open_trigger",
+             "win_close": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_windows_close_trigger",
+             "morning": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_morning_trigger",
+             "afternoon": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_afternoon_trigger",
+             "evening": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_evening_trigger",
+             "night": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_night_trigger",
+             "day": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_day_trigger"
+        }
+
         def get_action(key):
-            iri = actions[key]
+            iri = actions.get(key)
+            if not iri: return None
             res = base_onto.search_one(iri=iri)
-            if not res:
-                res = onto.world.search_one(iri=iri)
+            if not res: res = onto.world.search_one(iri=iri)
             return res
 
-        # Helper to create list safely
-        def safe_list(*args):
-            return [a for a in args if a]
-
-        # Camera Commands
-        for i in range(1, 4):
-            OWLService._create_individual(onto, StartCommand, f"c-camera{i}-start-audio", props={
-                "id": f"camera{i}-start-audio", "type": "turn_on",
-                "allowTo": safe_list(get_action("all_audio"), get_action("rec_audio"))
-            })
-            OWLService._create_individual(onto, StopCommand, f"c-camera{i}-stop-audio", props={
-                "id": f"camera{i}-stop-audio", "type": "turn_off",
-                "allowTo": safe_list(get_action("all_audio"), get_action("stop_audio"))
-            })
-            OWLService._create_individual(onto, StartCommand, f"c-camera{i}-start-video", props={
-                "id": f"camera{i}-start-video", "type": "turn_on",
-                "allowTo": safe_list(get_action("all_video"), get_action("rec_video"))
-            })
-            OWLService._create_individual(onto, StopCommand, f"c-camera{i}-stop-video", props={
-                "id": f"camera{i}-stop-video", "type": "turn_off",
-                "allowTo": safe_list(get_action("all_video"), get_action("stop_video"))
-            })
-
-        # Speaker Commands
-        for i in range(1, 3):
-            OWLService._create_individual(onto, StartCommand, f"c-speaker{i}-start-audio", props={
-                "id": f"speaker{i}-start-audio", "type": "turn_on",
-                "allowTo": safe_list(get_action("all_audio"), get_action("rec_audio"))
-            })
-            OWLService._create_individual(onto, StopCommand, f"c-speaker{i}-stop-audio", props={
-                "id": f"speaker{i}-stop-audio", "type": "turn_off",
-                "allowTo": safe_list(get_action("all_audio"), get_action("stop_audio"))
-            })
-
-        # Lamp Commands
-        for i in range(1, 4):
-            OWLService._create_individual(onto, TurnOnCommand, f"c-lamp_{i}-turn-on", props={
-                "id": f"lamp_{i}-turn-on", "type": "turn_on",
-                "allowTo": safe_list(get_action("all_light"), get_action("on_light"))
-            })
-            OWLService._create_individual(onto, TurnOffCommand, f"c-lamp_{i}-turn-off", props={
-                "id": f"lamp_{i}-turn-off", "type": "turn_off",
-                "allowTo": safe_list(get_action("all_light"), get_action("off_light"))
-            })
-
-        # Radiator Commands
-        for i in range(1, 3):
-            OWLService._create_individual(onto, TurnOnCommand, f"c-radiator_{i}-turn-on", props={
-                "id": f"radiator_{i}-turn-on", "type": "turn_on",
-                "allowTo": safe_list(get_action("all_heat"), get_action("on_heat"))
-            })
-            OWLService._create_individual(onto, TurnOffCommand, f"c-radiator_{i}-turn-off", props={
-                "id": f"radiator_{i}-turn-off", "type": "turn_off",
-                "allowTo": safe_list(get_action("all_heat"), get_action("off_heat"))
-            })
-
-        # Window Commands
-        for i in range(1, 3):
-            OWLService._create_individual(onto, OpenCommand, f"c-window_{i}-open", props={
-                "id": f"window_{i}-open", "type": "unlock",
-                "allowTo": safe_list(get_action("all_win"), get_action("open_win"))
-            })
-            OWLService._create_individual(onto, CloseCommand, f"c-window_{i}-close", props={
-                "id": f"window_{i}-close", "type": "lock",
-                "allowTo": safe_list(get_action("all_win"), get_action("close_win"))
-            })
-
-    @staticmethod
-    def _create_services(onto, base_onto):
-        AudioRecordingService = OWLService._get_class(base_onto, "AudioRecordingService")
-        VideoRecordingService = OWLService._get_class(base_onto, "VideoRecordingService")
-        LightingService = OWLService._get_class(base_onto, "LightingService")
-        HeatingService = OWLService._get_class(base_onto, "HeatingService")
-        FrameService = OWLService._get_class(base_onto, "FrameService")
-        TimerService = OWLService._get_class(base_onto, "TimerService")
-
-        # Camera Services
-        for i in range(1, 4):
-            s_audio = OWLService._create_individual(onto, AudioRecordingService, f"s-camera{i}-record-audio")
-            s_video = OWLService._create_individual(onto, VideoRecordingService, f"s-camera{i}-record-video")
+        def get_trigger(key):
+            iri = triggers.get(key)
+            if not iri: return None
+            res = base_onto.search_one(iri=iri)
+            if not res: res = onto.world.search_one(iri=iri)
+            return res
             
-            # Link commands
-            if s_audio:
-                s_audio.hasCommand.append(onto[f"c-camera{i}-start-audio"])
-                s_audio.hasCommand.append(onto[f"c-camera{i}-stop-audio"])
-            if s_video:
-                s_video.hasCommand.append(onto[f"c-camera{i}-start-video"])
-                s_video.hasCommand.append(onto[f"c-camera{i}-stop-video"])
+        def safe_list(*args):
+             return [a for a in args if a]
 
-        # Speaker Services
-        for i in range(1, 3):
-            s_audio = OWLService._create_individual(onto, AudioRecordingService, f"s-speaker{i}-record-audio")
-            if s_audio:
-                s_audio.hasCommand.append(onto[f"c-speaker{i}-start-audio"])
-                s_audio.hasCommand.append(onto[f"c-speaker{i}-stop-audio"])
-
-        # Lamp Services
-        for i in range(1, 4):
-            s_light = OWLService._create_individual(onto, LightingService, f"s-lamp_{i}-lighting")
-            if s_light:
-                s_light.hasCommand.append(onto[f"c-lamp_{i}-turn-on"])
-                s_light.hasCommand.append(onto[f"c-lamp_{i}-turn-off"])
-
-        # Radiator Services
-        for i in range(1, 3):
-            s_heat = OWLService._create_individual(onto, HeatingService, f"s-radiator_{i}-heating")
-            if s_heat:
-                s_heat.hasCommand.append(onto[f"c-radiator_{i}-turn-on"])
-                s_heat.hasCommand.append(onto[f"c-radiator_{i}-turn-off"])
-
-        # Window Services
-        for i in range(1, 3):
-            s_frame = OWLService._create_individual(onto, FrameService, f"s-window_{i}-opening")
-            if s_frame:
-                s_frame.hasCommand.append(onto[f"c-window_{i}-open"])
-                s_frame.hasCommand.append(onto[f"c-window_{i}-close"])
-                s_frame.hasNotification.append(onto[f"n-window_{i}-open"])
-                s_frame.hasNotification.append(onto[f"n-window_{i}-close"])
-
-        # Timer Service
-        s_timer = OWLService._create_individual(onto, TimerService, "s-caledar-alarm")
+        # 3. Global System Services (e.g. Timer/Calendar) - One per home
+        # Assuming one global timer for now
+        s_timer = OWLService._create_individual(onto, TimerService, "s-calendar-alarm")
         if s_timer:
+            # Create notification
+            t_moments = [get_trigger(k) for k in ["morning", "afternoon", "evening", "night", "day"]]
+            t_moments = [t for t in t_moments if t]
+            
+            OWLService._create_individual(onto, TimeNotification, "n-calendar1-alarm", props={
+                "id": "calendar1-alarm",
+                "allowTo": t_moments
+            })
             s_timer.hasNotification.append(onto["n-calendar1-alarm"])
 
-    @staticmethod
-    def _create_devices(onto, base_onto, locations):
-        Camera = OWLService._get_class(base_onto, "Camera")
-        Lamp = OWLService._get_class(base_onto, "Lamp")
-        Heater = OWLService._get_class(base_onto, "Heater")
-        Speaker = OWLService._get_class(base_onto, "Speaker")
-        SmartWindow = OWLService._get_class(base_onto, "SmartWindow")
 
-        # Cameras
-        # Camera 1: Living Room
-        d_cam1 = OWLService._create_individual(onto, Camera, "d-camera1", props={"id": "camera-1"})
-        if d_cam1:
-            d_cam1.hasService.append(onto["s-camera1-record-audio"])
-            d_cam1.hasService.append(onto["s-camera1-record-video"])
-            d_cam1.position = [locations["location-livingroom"]]
-            
-        # Camera 2 & 3: Bedroom
-        for i in range(2, 4):
-            d_cam = OWLService._create_individual(onto, Camera, f"d-camera{i}", props={"id": f"camera-{i}"})
-            if d_cam:
-                d_cam.hasService.append(onto[f"s-camera{i}-record-audio"])
-                d_cam.hasService.append(onto[f"s-camera{i}-record-video"])
-                d_cam.position = [locations["location-bedroom"]]
 
-        # Lamps
-        # Lamp 1: Bedroom
-        d_lamp1 = OWLService._create_individual(onto, Lamp, "d-lamp_1", props={"id": "lamp_1"})
-        if d_lamp1:
-            d_lamp1.hasService.append(onto["s-lamp_1-lighting"])
-            d_lamp1.position = [locations["location-bedroom"]]
-            
-        # Lamp 2: Living Room
-        d_lamp2 = OWLService._create_individual(onto, Lamp, "d_lamp_2", props={"id": "lamp_2"}) # Note: ptp-demo uses d_lamp_2 not d-lamp_2
-        if d_lamp2:
-            d_lamp2.hasService.append(onto["s-lamp_2-lighting"])
-            d_lamp2.position = [locations["location-livingroom"]]
-            
-        # Lamp 3: Kitchen
-        d_lamp3 = OWLService._create_individual(onto, Lamp, "d_lamp_3", props={"id": "lamp_3"})
-        if d_lamp3:
-            d_lamp3.hasService.append(onto["s-lamp_3-lighting"])
-            d_lamp3.position = [locations["location-kitchen"]]
+        # 4. Iterate DB Devices
+        # --- MAPPING TABLE ---
+        # (TargetClass, ServiceClass, [CommandClass, ...], [ {ActionKey: ActionIRI}, ... ])
+        mapping = {
+             # Lighting
+             "domo_light": ("Lamp", "LightingService", ["TurnOnCommand", "TurnOffCommand"], 
+                            [("all_light", "on_light"), ("all_light", "off_light")]),
+             "domo_light_dimmable": ("Lamp", "LightingService", ["TurnOnCommand", "TurnOffCommand"],
+                                     [("all_light", "on_light"), ("all_light", "off_light")]),
+             "domo_rgbw_light": ("Lamp", "LightingService", ["TurnOnCommand", "TurnOffCommand"],
+                                 [("all_light", "on_light"), ("all_light", "off_light")]),
+             
+             # Camera
+             "domo_camera": ("Camera", "VideoRecordingService", ["StartCommand", "StopCommand"],
+                             [("all_video", "rec_video"), ("all_video", "stop_video")]),
+             
+             # HVAC
+             "domo_ac_unit": ("AirConditioner", "CoolingService", ["TurnOnCommand", "TurnOffCommand"],
+                              [("all_heat", "on_heat"), ("all_heat", "off_heat")]),
+                              
+             # Windows / Shutters -> Mapped to SmartWindow
+             "domo_roller_shutter": ("SmartWindow", "SmartEnvironmentService", ["OpenCommand", "CloseCommand"],
+                                     [("all_win", "open_win"), ("all_win", "close_win")]),
+                                     
+             # Switches / Plugs (Generic)
+             "domo_switch": ("Appliance", "PowerService", ["TurnOnCommand", "TurnOffCommand"],
+                             [("all_light", "on_light"), ("all_light", "off_light")]), 
+                             
+             # Sensors
+             "domo_window_sensor": ("Sensor", "SmartEnvironmentService", [], [], ["OpenNotification", "CloseNotification"], ["win_open", "win_close"]),
+             "domo_ble_contact": ("Sensor", "SmartEnvironmentService", [], []),
+             "domo_ble_thermometer": ("Sensor", "SmartEnvironmentService", [], []), 
+             "domo_ble_valve": ("Appliance", "SmartEnvironmentService", ["OpenCommand", "CloseCommand"],
+                                [("all_win", "open_win"), ("all_win", "close_win")]), 
+        }
 
-        # Radiators
-        # Rad 1: Bedroom
-        d_rad1 = OWLService._create_individual(onto, Heater, "d-radiator_1", props={"id": "radiator_valve_1"})
-        if d_rad1:
-            d_rad1.hasService.append(onto["s-radiator_1-heating"])
-            d_rad1.position = [locations["location-bedroom"]]
-            
-        # Rad 2: Kitchen
-        d_rad2 = OWLService._create_individual(onto, Heater, "d-radiator_2", props={"id": "radiator_valve_2"})
-        if d_rad2:
-            d_rad2.hasService.append(onto["s-radiator_2-heating"])
-            d_rad2.position = [locations["location-kitchen"]]
+        for device in home.devices:
+            d_name = device.name.lower()
+            d_uuid = str(device.device_uuid)
+            d_topic = device.topic_name if device.topic_name else f"topic-{d_uuid}"
 
-        # Speakers
-        # Speaker 1: Living Room
-        d_spk1 = OWLService._create_individual(onto, Speaker, "d-speaker1", props={"id": "speaker-1"})
-        if d_spk1:
-            d_spk1.hasService.append(onto["s-speaker1-record-audio"])
-            d_spk1.position = [locations["location-livingroom"]]
-            
-        # Speaker 2: Bedroom
-        d_spk2 = OWLService._create_individual(onto, Speaker, "d-speaker2", props={"id": "speaker-2"})
-        if d_spk2:
-            d_spk2.hasService.append(onto["s-speaker2-record-audio"])
-            d_spk2.position = [locations["location-bedroom"]]
+            matched_config = mapping.get(d_topic)
+            d_ind = None
+            if matched_config:
+                # Unpack config with optional notification support (backwards compatible)
+                d_class_str, s_class_str, cmd_class_strs, action_keys_list, *rest = matched_config
+                notif_class_strs = rest[0] if len(rest) > 0 else []
+                trigger_keys_list = rest[1] if len(rest) > 1 else []
+                
+                DevClass = locals().get(d_class_str) or OWLService._get_class(base_onto, d_class_str) or OWLService._get_class(onto, d_class_str)
+                if not DevClass: DevClass = OWLService._get_class(base_onto, "IoTEntity")
 
-        # Windows
-        # Window 1: Bedroom
-        d_win1 = OWLService._create_individual(onto, SmartWindow, "d-window_1", props={"id": "window_sensor_1"})
-        if d_win1:
-            d_win1.hasService.append(onto["s-window_1-opening"])
-            d_win1.position = [locations["location-bedroom"]]
-            
-        # Window 2: Living Room
-        d_win2 = OWLService._create_individual(onto, SmartWindow, "d-window_2", props={"id": "window_sensor_2"})
-        if d_win2:
-            d_win2.hasService.append(onto["s-window_2-opening"])
-            d_win2.position = [locations["location-livingroom"]]
+                # Use device UUID for unique ID instead of topic (which is shared by all devices of same type)
+                d_ind = OWLService._create_individual(onto, DevClass, f"d-{d_uuid}", props={"id": str(d_uuid)})
+                
+                if d_ind:
+                     ServClass = locals().get(s_class_str) or OWLService._get_class(base_onto, s_class_str)
+                     if ServClass:
+                         # Use device UUID for unique service ID
+                         s_ind = OWLService._create_individual(onto, ServClass, f"s-{d_uuid}", 
+                                                               props={"id": f"s-{d_uuid}", "isOfEntity": [d_ind]})
+                         if s_ind:
+                             d_ind.hasService.append(s_ind)
+                             
+                             # 1. Create Commands (Actions)
+                             for idx, cmd_str in enumerate(cmd_class_strs):
+                                 CmdClass = locals().get(cmd_str) or OWLService._get_class(base_onto, cmd_str)
+                                 if CmdClass and idx < len(action_keys_list):
+                                      allow_keys = action_keys_list[idx]
+                                      allow_iris = safe_list(get_action(allow_keys[0]), get_action(allow_keys[1]))
+                                      
+                                      cmd_type = "turn_on" if "On" in cmd_str or "Start" in cmd_str or "Open" in cmd_str else "turn_off"
+                                      
+                                      # Use device UUID for unique command ID
+                                      c_ind = OWLService._create_individual(onto, CmdClass, f"c-{d_uuid}-{idx}",
+                                          props={
+                                              "id": f"{d_uuid}-cmd-{idx}",
+                                              "type": cmd_type,
+                                              "allowTo": allow_iris,
+                                              "commandIsOfService": [s_ind]
+                                          })
+                                      s_ind.hasCommand.append(c_ind)
+
+                             # 2. Create Notifications (Triggers)
+                             for idx, notif_str in enumerate(notif_class_strs):
+                                 NotifClass = locals().get(notif_str) or OWLService._get_class(base_onto, notif_str)
+                                 if NotifClass and idx < len(trigger_keys_list):
+                                     trig_key = trigger_keys_list[idx]
+                                     trig_iri = get_trigger(trig_key)
+                                     
+                                     if trig_iri:
+                                         n_ind = OWLService._create_individual(onto, NotifClass, f"n-{d_uuid}-{idx}",
+                                            props={
+                                                "id": f"{d_uuid}-notif-{idx}",
+                                                "allowTo": [trig_iri],
+                                                "isOfService": [s_ind]
+                                            })
+                                         s_ind.hasNotification.append(n_ind)
+
+            # Link Location
+            if d_ind and device.room_id:
+                loc_ind = locations.get(str(device.room_id))
+                if loc_ind:
+                    d_ind.position = [loc_ind]

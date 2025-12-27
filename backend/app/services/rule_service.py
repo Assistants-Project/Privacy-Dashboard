@@ -22,7 +22,7 @@ class RuleService:
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
 
-    def save_rule(self, rule_data: Dict[str, Any], rule_type: str, user: User) -> int:
+    def save_rule(self, rule_data: Dict[str, Any], rule_type: str, user: User, home_uuid: str) -> int:
         """
         Save a rule to the database
 
@@ -87,14 +87,14 @@ class RuleService:
             if not service_id:
                 # Fetch trigger definition from OWL to find its service
                 owl_trigger = self.owl_service.get_trigger_by_url(
-                     trigger_data["url"], str(user.uuid)
+                     trigger_data["url"], home_uuid
                 )
                 if owl_trigger and owl_trigger.service:
                     service_id = owl_trigger.service.id 
 
             if service_id:
                 entities = self.owl_service._get_entities_by_service(
-                    service_id, str(user.uuid), location_url=location_url
+                    service_id, home_uuid, location_url=location_url
                 )
                 if entities:
                     entity = self.rule_repo.find_or_create_entity(
@@ -140,14 +140,14 @@ class RuleService:
              service_id = action_data.get("service", {}).get("id")
              if not service_id:
                  owl_action = self.owl_service.get_action_by_url(
-                     action_data["url"], str(user.uuid)
+                     action_data["url"], home_uuid
                  )
                  if owl_action and owl_action.service:
                      service_id = owl_action.service.id
 
              if service_id:
                 entities = self.owl_service._get_entities_by_service(
-                    service_id, str(user.uuid), location_url=location_url
+                    service_id, home_uuid, location_url=location_url
                 )
                 if entities:
                     entity = self.rule_repo.find_or_create_entity(
@@ -163,7 +163,7 @@ class RuleService:
         saved_rule = self.rule_repo.save_rule(db_rule)
         return saved_rule.id
 
-    def get_rules_by_type(self, rule_type: str, user: User) -> List[Rule]:
+    def get_rules_by_type(self, rule_type: str, user: User, home_uuid: str) -> List[Rule]:
         """
         Get all rules for a user by type
 
@@ -175,14 +175,14 @@ class RuleService:
             List of Rule objects with populated trigger/action details
         """
         self.logger.info(
-            f"Fetching rules of type '{rule_type}' for user '{str(user.uuid)}'"
+            f"Fetching rules of type '{rule_type}' for user '{str(user.uuid)}' home '{home_uuid}'"
         )
         db_rules = self.rule_repo.get_rules_by_user_and_type(user, rule_type)
         rules = []
 
         for db_rule in db_rules:
             try:
-                rule = self._rehydrate_rule(db_rule, str(user.uuid))
+                rule = self._rehydrate_rule(db_rule, home_uuid)
                 if rule:
                     rules.append(rule)
             except Exception as e:
@@ -210,23 +210,23 @@ class RuleService:
         rule = self.rule_repo.get_rule_by_id_and_user(rule_id, user.id)
         return rule is not None
 
-    def get_defined_triggers_by_type(self, rule_type: str, user: User) -> Set[Trigger]:
+    def get_defined_triggers_by_type(self, rule_type: str, user: User, home_uuid: str) -> Set[Trigger]:
         """Get all unique triggers used in rules"""
-        rules = self.get_rules_by_type(rule_type, user)
+        rules = self.get_rules_by_type(rule_type, user, home_uuid)
         triggers = set()
         for rule in rules:
             triggers.add(rule["trigger"])
         return triggers
         
-    def get_rule_by_id(self, rule_id: int, user: User) -> Optional[Rule]:
+    def get_rule_by_id(self, rule_id: int, user: User, home_uuid: str) -> Optional[Rule]:
         """Get a single fully rehydrated rule by ID"""
         db_rule = self.rule_repo.get_rule_by_id_and_user(rule_id, user.id)
         if not db_rule:
             return None
             
-        return self._rehydrate_rule(db_rule, str(user.uuid))
+        return self._rehydrate_rule(db_rule, home_uuid)
 
-    def _rehydrate_rule(self, db_rule: DbRule, user_uuid: str) -> Optional[Rule]:
+    def _rehydrate_rule(self, db_rule: DbRule, home_uuid: str) -> Optional[Rule]:
         """
         Helper to rehydrate a DbRule into a full Rule object using OWL data.
         """
@@ -239,7 +239,7 @@ class RuleService:
 
              # Get trigger from OWL
              trigger = self.owl_service.get_trigger_by_url(
-                 db_trigger.url, user_uuid
+                 db_trigger.url, home_uuid
              )
              if not trigger:
                  return None
@@ -248,7 +248,7 @@ class RuleService:
              for detail in trigger.details:
                  if detail.type == "entity" and db_trigger.entity:
                      detail.value = self.owl_service.get_entity_by_url(
-                         db_trigger.entity.url, user_uuid
+                         db_trigger.entity.url, home_uuid
                      )
                  elif detail.type == "location":
                      for db_detail in db_trigger.details:
@@ -267,7 +267,7 @@ class RuleService:
                              detail.value = db_detail.value
 
              # Get action from OWL
-             action = self.owl_service.get_action_by_url(db_action.url, user_uuid)
+             action = self.owl_service.get_action_by_url(db_action.url, home_uuid)
              if not action:
                  return None
 
@@ -275,7 +275,7 @@ class RuleService:
              for detail in action.details:
                  if detail.type == "entity" and db_action.entity:
                      detail.value = self.owl_service.get_entity_by_url(
-                         db_action.entity.url, user_uuid
+                         db_action.entity.url, home_uuid
                      )
                  elif detail.type == "location":
                      for db_detail in db_action.details:

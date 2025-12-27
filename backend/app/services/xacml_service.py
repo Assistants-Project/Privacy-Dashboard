@@ -42,12 +42,12 @@ class XACMLService:
         self.owl_service = owl_service
         self.logger = logging.getLogger(__name__)
 
-    def translate(self, rule: Dict[str, Any], username: str) -> List[str]:
+    def translate(self, rule: Dict[str, Any], home_uuid: str) -> List[str]:
         """Translate a rule into XACML policy XML strings.
 
         Args:
             rule: Rule dictionary containing trigger, action, effect, and subject
-            username: Username for context
+            home_uuid: Home UUID for context
 
         Returns:
             List of XACML policy XML strings
@@ -73,7 +73,7 @@ class XACMLService:
         # Get commands from OWL service
         try:
             action_obj = self._dict_to_action(action_data)
-            commands = self.owl_service.get_commands(action_obj, location, username)
+            commands = self.owl_service.get_commands(action_obj, location, home_uuid)
         except Exception as e:
             self.logger.error(f"Error getting commands: {e}", exc_info=True)
             commands = []
