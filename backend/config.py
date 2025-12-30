@@ -37,7 +37,8 @@ class BaseConfig:
     SMARTOTUM_JWKS_URL = os.getenv("SMARTOTUM_JWKS_URL","https://api.smartotum.com/auth/jwt/jwks.json")
     SMARTOTUM_ISSUER = os.getenv("SMARTOTUM_ISSUER", "https://api.smartotum.com/auth")
     SMARTOTUM_TIMEOUT = float(os.getenv("SMARTOTUM_TIMEOUT", "1")) #max time a http request to smartotum api can last
-
+    # If set, Smartotum applications are loaded from this local JSON file instead of calling the remote API.
+    SMARTOTUM_APPLICATIONS_JSON = os.getenv("SMARTOTUM_APPLICATIONS_JSON", None)
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.getenv("DEV_DATABASE_URI")

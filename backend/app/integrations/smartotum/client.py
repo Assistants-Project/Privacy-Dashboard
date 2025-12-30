@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+import json
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 from ...exceptions import (
     WrongUserCredentialsException,
@@ -12,6 +14,7 @@ import requests
 from flask import current_app
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
+import uuid
 
 @dataclass
 class SmartotumLoginResult:
@@ -34,6 +37,12 @@ class SmartotumHomeRoomResult:
     room_uuid: UUID
     name: str
     category: str | None = None
+
+@dataclass
+class SmartotumApplicationResult:
+    application_uuid: UUID
+    name: str
+    description: str | None = None
 
 @dataclass
 class SmartotumDeviceResult:
@@ -64,6 +73,8 @@ class SmartotumClient:
         self._smartotum_device_topics = cfg["SMARTOTUM_DEVICE_TOPICS"]
         self._rule_topic = cfg["SMARTOTUM_RULE_TOPIC"]
         self._timeout = cfg.get("SMARTOTUM_TIMEOUT", 1)
+        self._applications_file = cfg.get("SMARTOTUM_APPLICATIONS_JSON")
+
         self._session = session or requests.Session()
 
         if session_retry is None:
@@ -279,6 +290,94 @@ class SmartotumClient:
             )
 
         return rooms
+    
+    def get_home_applications(self, access_token: str, system_uuid: str) -> List[SmartotumApplicationResult]:
+
+        if self._applications_file:
+
+            path = Path(str(self._applications_file))
+
+            #supports both absolute and relative path from the backend folder
+            if not path.is_absolute():
+                if not path.exists():
+                    backend_root = Path(current_app.root_path).parent
+                    path = backend_root / path
+                path = path.resolve()
+
+            with path.open("r", encoding="utf-8") as fh:
+                payload = json.load(fh)
+
+            if not isinstance(payload, list):
+                raise ValueError("SMARTOTUM_APPLICATIONS_JSON must be an array")
+
+            applications: List[SmartotumApplicationResult] = []
+
+            for i,item in enumerate(payload):
+
+                if not isinstance(item, dict):
+                    
+                    if not isinstance(item, dict):
+                        raise ValueError(f"apps[{i}] must be an object")
+
+                    name = item.get("name")
+                    if not isinstance(name, str) or not name.strip():
+                        raise ValueError(f"apps[{i}].name is required and must not be empty")
+
+                    description = item.get("description")
+                    if description is not None and not isinstance(description, str):
+                        raise ValueError(f"apps[{i}].description must be a string or null")
+
+                applications.append(
+                    SmartotumApplicationResult(
+                        application_uuid = UUID(str(uuid.uuid4())),
+                        name=str(name),
+                        description=str(description),
+                    )
+                )
+
+            return applications
+       
+
+        # Fallback to Smartotum api when the mock is not enabled
+        # for now we don't know how is done so we guess
+
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+
+        complete_url=self.smartotum_dht_api_url(f"/topic_name/domo_app", system_uuid)
+
+        try:
+            response = self._session_retry.get(
+                complete_url, headers=headers, timeout=self._timeout
+            )
+            response.raise_for_status()
+        except RequestException as exc:
+            raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+
+        items: List[Dict[str, Any]] = response.json()
+        applications: List[SmartotumApplicationResult] = []
+
+
+        for item in items:
+            #we assume that the topic_uuid is a vaid UUID
+            topic_uuid = UUID(item.get("topic_uuid"))
+            value = item.get("value", {})
+            name = value.get("name")
+            #there is also a field called id in value, for using it an idea is to edit the application table to show for every home the applications for that home
+            #so the value.id can be unique in a home 
+            description = None
+
+            applications.append(
+                SmartotumApplicationResult(
+                    application_uuid=topic_uuid,
+                    name=str(name),
+                    description=description,
+                )
+            )
+
+        return applications
 
     
 
@@ -323,10 +422,6 @@ class SmartotumClient:
         refresh_token = response.headers.get("st-refresh-token")
 
         if not access_token or not refresh_token:
-
-            print(response.status_code)
-            print(response.headers)
-            print(data)
             raise SmartotumServiceUnavailableException("missing tokens from login response Smartotum")
         
         return SmartotumLoginResult(
