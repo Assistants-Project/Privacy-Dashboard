@@ -81,7 +81,7 @@ class SmartotumService:
 
                 for device in devices:
                 
-                    #if the device does not have a room for now we don't save it
+                    #if the device does not have a room we save it in a special room
                     if not device.room_uuid:
 
                         new_device = Device(
