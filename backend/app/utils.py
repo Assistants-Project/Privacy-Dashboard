@@ -9,7 +9,6 @@ from flask_jwt_extended import (
     decode_token,
     get_jwt,
     set_access_cookies,
-    verify_jwt_in_request,
 )
 from flask_jwt_extended.exceptions import JWTExtendedException
 from jwt import ExpiredSignatureError, InvalidTokenError, PyJWKClientError, PyJWTError
@@ -42,23 +41,18 @@ def user_lookup_callback(_jwt_header, jwt_data) -> User | None:
 # https://flask-jwt-extended.readthedocs.io/en/stable/changing_default_behavior.html
 @jwt.expired_token_loader
 def expired_token_callback(jwt_header, jwt_payload):
-    return global_error_handler(
-        ExpiredJWTException("The JSON Web Token has expired!")
-    )
+    return global_error_handler(ExpiredJWTException("The JSON Web Token has expired!"))
 
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
-    return global_error_handler(
-        InvalidJWTException("The JSON Web Token is invalid!")
-    )
+    return global_error_handler(InvalidJWTException("The JSON Web Token is invalid!"))
 
 
 @jwt.unauthorized_loader
 def missing_token_callback(error):
-    return global_error_handler(
-        MissingJWTException("The JSON Web Token is missing!")
-    )
+    return global_error_handler(MissingJWTException("The JSON Web Token is missing!"))
+
 
 # https://flask-jwt-extended.readthedocs.io/en/stable/refreshing_tokens.html#implicit-refreshing-with-cookies
 def refresh_expiring_jwts(response):
@@ -121,9 +115,9 @@ def _ensure_smartotum_claims() -> dict[str, Any]:
     g.smartotum_claims = claims
     return claims
 
-#modular function that retrieves the information of the user
-def get_current_user_from_claims() -> User:
 
+# modular function that retrieves the information of the user
+def get_current_user_from_claims() -> User:
     cached_user = getattr(g, "current_user", None)
     if cached_user:
         return cached_user
@@ -136,7 +130,13 @@ def get_current_user_from_claims() -> User:
         try:
             claims = decode_token(token)
             user_uuid = UUID(claims["sub"])
-        except (JWTExtendedException, PyJWTError, RuntimeError, KeyError, ValueError) as exc:
+        except (
+            JWTExtendedException,
+            PyJWTError,
+            RuntimeError,
+            KeyError,
+            ValueError,
+        ) as exc:
             raise InvalidJWTException("The JSON Web Token is invalid!") from exc
     else:
         claims = _ensure_smartotum_claims()
@@ -150,7 +150,7 @@ def get_current_user_from_claims() -> User:
     return user
 
 
-#for now not used
+# for now not used
 def smartotum_required():
     def wrapper(fn):
         @wraps(fn)
@@ -161,6 +161,7 @@ def smartotum_required():
         return decorator
 
     return wrapper
+
 
 def dc_or_dpo_required():
     def wrapper(fn):
@@ -195,17 +196,17 @@ def ds_required():
     return wrapper
 
 
-#simple, used for logout
+# simple, used for logout
 def logged_in_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
             token = request.cookies.get("st_access_token")
             if not token:
-                raise UnloggedUserException("User not logged in!")
-
+                raise UnloggedUserException("Authentication token missing")
+            user = get_current_user_from_claims()
             if _has_smartotum_session(token) or _has_internal_session(token):
-                return fn(*args, **kwargs)
+                return fn(*args, **kwargs, current_user=user)
 
             raise UnloggedUserException("User not logged in!")
 
@@ -225,7 +226,9 @@ def unlogged_required():
         @wraps(fn)
         def decorator(*args, **kwargs):
             token = request.cookies.get("st_access_token")
-            if token and (_has_smartotum_session(token) or _has_internal_session(token)):
+            if token and (
+                _has_smartotum_session(token) or _has_internal_session(token)
+            ):
                 raise WrongUserRoleException("User already logged in!")
             return fn(*args, **kwargs)
 

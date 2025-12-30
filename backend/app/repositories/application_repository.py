@@ -3,7 +3,7 @@ from typing import Iterator, Tuple
 from uuid import UUID
 
 from ..extensions import db
-from ..models import Application, UserSmartHomeApplication
+from ..models import Application, Evaluation, UserSmartHomeApplication
 
 
 class ApplicationRepository:
@@ -19,7 +19,7 @@ class ApplicationRepository:
         return db.session.execute(statement)
 
     @staticmethod
-    def get_application_by_dc_or_dpo_id_and_application_uuid(
+    def get_application_by_user_id_and_application_uuid(
         user_id: int, application_uuid: UUID
     ) -> Application | None:
         statement = db.select(Application).join(
@@ -29,3 +29,47 @@ class ApplicationRepository:
             )
         )
         return db.session.scalar(statement)
+
+    @staticmethod
+    def get_applications_by_ds_id_and_smart_home_id(
+        user_id: int, smart_home_id: int
+    ) -> Iterator[Tuple[Application, datetime]]:
+        statement = db.select(Application, UserSmartHomeApplication.installed_at).join(
+            Application.installed_by_user_smart_home_combinations.and_(
+                UserSmartHomeApplication.user_id == user_id,
+                UserSmartHomeApplication.smart_home_id == smart_home_id,
+            )
+        )
+        return db.session.execute(statement)
+
+    @staticmethod
+    def get_user_smart_home_application_by_ds_id_and_smart_home_id_and_application_uuid(
+        user_id: int, smart_home_id: int, application_uuid: UUID
+    ) -> UserSmartHomeApplication | None:
+        statement = db.select(UserSmartHomeApplication).join(
+            UserSmartHomeApplication.application.and_(
+                UserSmartHomeApplication.user_id == user_id,
+                UserSmartHomeApplication.smart_home_id == smart_home_id,
+                Application.uuid == application_uuid,
+            )
+        )
+        return db.session.scalar(statement)
+
+    @staticmethod
+    def get_user_smart_home_application_by_ds_id_and_smart_home_id_and_application_id(
+        user_id: int, smart_home_id: int, application_id: int
+    ) -> UserSmartHomeApplication | None:
+        statement = db.select(UserSmartHomeApplication).where(
+            UserSmartHomeApplication.user_id == user_id,
+            UserSmartHomeApplication.smart_home_id == smart_home_id,
+            UserSmartHomeApplication.application_id == application_id,
+        )
+        return db.session.scalar(statement)
+
+    @staticmethod
+    def update_application_evaluation(
+        application_id: int, evaluation: Evaluation
+    ) -> None:
+        application = db.session.get(Application, application_id)
+        application.evaluation = evaluation
+        db.session.commit()
