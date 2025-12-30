@@ -51,3 +51,10 @@ def list_home_room_devices(system_uuid: str, room_uuid: str, current_user):
 def clear_all_homes():
     SmartHomeService.delete_all_homes()
     return "Deleted all the homes", 204
+
+
+@homes_bp.route("/debug/reset", methods=["POST"])
+@homes_bp.response(204, description="Database reset to initial data (debug only)")
+def reset_database_to_initial_data():
+    SmartHomeService.reset_database_to_initial_data()
+    return "Database reset to initial data", 204

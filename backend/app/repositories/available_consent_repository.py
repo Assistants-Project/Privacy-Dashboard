@@ -107,3 +107,15 @@ class AvailableConsentRepository:
         db.session.execute(statement)
         db.session.commit()
         return
+    
+    #no commit at the end so the update_database_smartotum can do it at the end if the process is succefull
+    @staticmethod
+    def delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id(
+        user_id: int, smart_home_id: int
+    ) -> None:
+        statement = db.delete(UserSmartHomeAvailableConsent).where(
+            UserSmartHomeAvailableConsent.user_id == user_id,
+            UserSmartHomeAvailableConsent.smart_home_id == smart_home_id,
+        )
+        db.session.execute(statement)
+        return

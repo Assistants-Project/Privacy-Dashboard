@@ -313,19 +313,17 @@ class SmartotumClient:
             applications: List[SmartotumApplicationResult] = []
 
             for i,item in enumerate(payload):
-
-                if not isinstance(item, dict):
                     
-                    if not isinstance(item, dict):
-                        raise ValueError(f"apps[{i}] must be an object")
+                if not isinstance(item, dict):
+                    raise ValueError(f"apps[{i}] must be an object")
 
-                    name = item.get("name")
-                    if not isinstance(name, str) or not name.strip():
-                        raise ValueError(f"apps[{i}].name is required and must not be empty")
+                name = item.get("name")
+                if not isinstance(name, str) or not name.strip():
+                    raise ValueError(f"apps[{i}].name is required and must not be empty")
 
-                    description = item.get("description")
-                    if description is not None and not isinstance(description, str):
-                        raise ValueError(f"apps[{i}].description must be a string or null")
+                description = item.get("description")
+                if description is not None and not isinstance(description, str):
+                    raise ValueError(f"apps[{i}].description must be a string or null")
 
                 applications.append(
                     SmartotumApplicationResult(

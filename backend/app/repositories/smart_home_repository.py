@@ -45,6 +45,18 @@ class SmartHomeRepository:
             db.session.add(relation)
 
         return relation
+    
+    @staticmethod
+    def unassign_home(home_id: int, user_id: int) -> None:
+        """Remove the ownership relation between a user and a smart home, if present."""
+        statement = (
+            db.select(UserSmartHome)
+            .where(UserSmartHome.smart_home_id == home_id)
+            .where(UserSmartHome.user_id == user_id)
+        )
+        relation = db.session.scalar(statement)
+        if relation is not None:
+            db.session.delete(relation)
 
     @staticmethod
     def delete_home(home: SmartHome) -> None:

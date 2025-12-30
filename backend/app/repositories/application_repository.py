@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Iterator, Tuple
+from typing import Iterator, List, Tuple
 from uuid import UUID
 
 from ..extensions import db
@@ -73,3 +73,62 @@ class ApplicationRepository:
         application = db.session.get(Application, application_id)
         application.evaluation = evaluation
         db.session.commit()
+
+    @staticmethod
+    def update_applications_for_home(
+        user_id: int, smart_home_id: int, applications: List[Application]
+    ) -> None:
+        """Upserts applications by name and syncs user-home installed applications relations."""
+
+        applications_by_name: dict[str, Application] = {}
+        for application in applications:
+            name = (application.name or "").strip()
+            if not name:
+                continue
+            application.name = name
+            applications_by_name[name] = application
+
+        input_names = set(applications_by_name.keys())
+        existing_by_name: dict[str, Application] = {}
+        if input_names:
+            statement = db.select(Application).where(Application.name.in_(input_names))
+            existing_by_name = {
+                application.name: application
+                for application in db.session.scalars(statement).all()
+            }
+
+        desired_application_ids: set[int] = set()
+
+        for name, application in applications_by_name.items():
+            present = existing_by_name.get(name)
+            if present is None:
+                db.session.add(application)
+                db.session.flush()
+                present = application
+                existing_by_name[name] = present
+            else:
+                if application.description is not None:
+                    present.description = application.description
+
+            desired_application_ids.add(present.id)
+
+        rel_statement = db.select(UserSmartHomeApplication).where(
+            UserSmartHomeApplication.user_id == user_id,
+            UserSmartHomeApplication.smart_home_id == smart_home_id,
+        )
+        relations_present = list(db.session.scalars(rel_statement).all())
+        relations_by_app_id = {rel.application_id: rel for rel in relations_present}
+
+        for application_id in desired_application_ids:
+            if application_id in relations_by_app_id:
+                continue
+            relation = UserSmartHomeApplication()
+            relation.user_id = user_id
+            relation.smart_home_id = smart_home_id
+            relation.application_id = application_id
+            relation.installed_at = datetime.now()
+            db.session.add(relation)
+
+        for rel in relations_present:
+            if rel.application_id not in desired_application_ids:
+                db.session.delete(rel)

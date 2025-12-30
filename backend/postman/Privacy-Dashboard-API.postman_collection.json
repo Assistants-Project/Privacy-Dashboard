@@ -3,8 +3,8 @@
 		"_postman_id": "e9ff8fa3-2a94-4e73-b966-df442d7be92b",
 		"name": "Privacy Dashboard API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "49801020",
-		"_collection_link": "https://albertohugonin-907717.postman.co/workspace/Alberto-Hugonin's-Workspace~998ac536-7fa1-47fb-817b-e4b685e1c1df/collection/49801020-e9ff8fa3-2a94-4e73-b966-df442d7be92b?action=share&source=collection_link&creator=49801020"
+		"_exporter_id": "48631079",
+		"_collection_link": "https://albertohugonin-907717.postman.co/workspace/Alberto-Hugonin's-Workspace~998ac536-7fa1-47fb-817b-e4b685e1c1df/collection/49801020-e9ff8fa3-2a94-4e73-b966-df442d7be92b?action=share&source=collection_link&creator=48631079"
 	},
 	"item": [
 		{
@@ -24291,6 +24291,47 @@
 					"name": "Data Subject",
 					"item": [
 						{
+							"name": "Login-WrongCredentials",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "*/*",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"email2@example.com\",\n    \"password\": \"password4\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/auth/login",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Registration-DS",
 							"event": [
 								{
@@ -24546,6 +24587,93 @@
 							"response": []
 						},
 						{
+							"name": "Succefull Installed Apps",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 200\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response is an array of one object\", function () {\r",
+											"    const responseBody = pm.response.json();\r",
+											"    pm.expect(responseBody).to.be.an('array').that.has.lengthOf(1);\r",
+											"\r",
+											"    let has_application1 = false;\r",
+											"\r",
+											"    responseBody.forEach(function(application) {\r",
+											"        pm.expect(application).to.have.all.keys(\"application\", \"installed_at\");\r",
+											"        pm.expect(application).to.not.have.property(\"password_hash\");\r",
+											"        pm.expect(application.application).to.have.all.keys(\"uuid\", \"name\", \"description\", \"evaluation\", \"questionnaire_summary\");\r",
+											"\r",
+											"        if (application.application.name === \"Application 1\") {\r",
+											"            has_application1 = true\r",
+											"        }\r",
+											"    });\r",
+											"\r",
+											"    // Expect DS1 to have installed Application 1 in Smart Home 1\r",
+											"    pm.expect(has_application1).to.be.true;\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Retrieve the smart_home1_uuid from the environment variable\r",
+											"const smart_home1_uuid = pm.environment.get(\"smart_home1_uuid\");\r",
+											"\r",
+											"// Check if smart_home1_uuid is available\r",
+											"if (smart_home1_uuid) {\r",
+											"    // Set the request URL with the smart_home_uuid path variable\r",
+											"    pm.request.url = pm.request.url.toString().replace(\":smart_home_uuid\", smart_home1_uuid);\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/applications/home/fixissuesbpoyqq",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"applications",
+										"home",
+										"fixissuesbpoyqq"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Delete House Database",
 							"request": {
 								"method": "DELETE",
@@ -24560,6 +24688,30 @@
 										"homes",
 										"debug",
 										"clear"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RestoreData",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}"
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/homes/debug/reset",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"homes",
+										"debug",
+										"reset"
 									]
 								}
 							},
@@ -24599,47 +24751,6 @@
 										"api",
 										"auth",
 										"logout"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Login-WrongCredentials",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text",
-										"disabled": true
-									},
-									{
-										"key": "Accept",
-										"value": "*/*",
-										"type": "text",
-										"disabled": true
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"email\": \"email2@example.com\",\n    \"password\": \"password4\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseURL}}/api/auth/login",
-									"host": [
-										"{{baseURL}}"
-									],
-									"path": [
-										"api",
-										"auth",
-										"login"
 									]
 								}
 							},
@@ -24875,6 +24986,30 @@
 					],
 					"path": [
 						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "RestoreData",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"s312192@studenti.polito.it\",\r\n    \"password\": \"Smartotum2025\"\r\n}"
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/homes/debug/reset",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"homes",
+						"debug",
+						"reset"
 					]
 				}
 			},
