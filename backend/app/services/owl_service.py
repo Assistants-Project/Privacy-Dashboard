@@ -17,10 +17,9 @@ from ..models.entities.sifis.owl.detail import Detail
 
 
 class OWLService:
-    def __init__(self, config_path: str = "config.yaml"):
+    def __init__(self, config: Dict = None):
         # Load configuration
-        with open(config_path, "r") as f:
-            self.config = yaml.safe_load(f)
+        self.config = config or {}
 
         self.logger = self._setup_logging()
 
@@ -32,7 +31,7 @@ class OWLService:
 
     def _setup_logging(self) -> logging.Logger:
         """Setup logging configuration"""
-        level = self.config.get("logging", {}).get("level", "INFO")
+        level = self.config.get("LOGGING_LEVEL", "INFO")
 
         # Create logger
         logger = logging.getLogger(__name__)
@@ -51,9 +50,8 @@ class OWLService:
 
     def _initialize_ontology(self):
         """Load ontology and initialize reasoner"""
-        ont_config = self.config["ontology"]
-        ontology_dir = Path(ont_config["directory"])
-        ontology_path = ontology_dir / ont_config["sifis_file"]
+        ontology_dir = Path(self.config.get("ONTOLOGY_DIRECTORY", "app/ontologies/"))
+        ontology_path = ontology_dir / self.config.get("ONTOLOGY_SIFIS_FILE", "sifis-home.owl")
 
         if not ontology_path.exists():
             raise FileNotFoundError(

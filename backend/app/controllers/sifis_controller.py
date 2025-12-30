@@ -6,7 +6,7 @@ from io import BytesIO
 import zipfile
 import os
 import shutil
-import yaml
+import shutil
 from pathlib import Path
 from uuid import UUID
 
@@ -20,8 +20,10 @@ from marshmallow import ValidationError
 from ..services.home_service import SmartHomeService
 from ..exceptions.entities.home_exception import SmartHomeNotFoundException, SmartHomeForbiddenException
 from ..schemas.request.rule_req_schema import RuleRequestSchema
+from config import BaseConfig
 
 import logging
+
 
 sifis_bp = Blueprint(
     "SIFIS API",
@@ -30,22 +32,17 @@ sifis_bp = Blueprint(
     description="Endpoints for SIFIS",
 )
 
-# Load configuration
-try:
-    with open("config.yaml", "r") as f:
-        config = yaml.safe_load(f)
-except Exception as e:
-    logging.error(f"Failed to load config: {e}")
-    config = {
-        "dht": {"endpoint": "http://host.docker.internal:3000/"},
-        "policies": {"directory": "data/policies/"},
-    }
-
 # Initialize Services
 try:
-    owl_service = OWLService()
+
+    owl_config = {
+        "ONTOLOGY_DIRECTORY": BaseConfig.ONTOLOGY_DIRECTORY,
+        "ONTOLOGY_SIFIS_FILE": BaseConfig.ONTOLOGY_SIFIS_FILE,
+        "LOGGING_LEVEL": BaseConfig.LOGGING_LEVEL
+    }
+    owl_service = OWLService(owl_config)
     xacml_service = XACMLService(owl_service)
-    dht_service = DHTService(config["dht"]["endpoint"])
+    dht_service = DHTService(BaseConfig.DHT_ENDPOINT)
     rule_service = RuleService(owl_service)
     petrinet_service = PetriNetService(owl_service)
     user_repo = UserRepository()
@@ -318,7 +315,7 @@ def translate_rule(home_uuid, rule_id, current_user):
              return jsonify({"error": "Rule not found or access denied"}), 404
 
         # Get policies directory from config
-        policies_dir = Path(config["policies"]["directory"])
+        policies_dir = Path(BaseConfig.POLICIES_DIRECTORY)
         policies_dir.mkdir(parents=True, exist_ok=True)
 
         # Clean directory
@@ -367,7 +364,7 @@ def download_policies(current_user, home_uuid):
         SmartHomeService.verify_home_access(home_uuid, current_user)
         
         # Get policies directory
-        policies_dir = Path(config["policies"]["directory"])
+        policies_dir = Path(BaseConfig.POLICIES_DIRECTORY)
 
         if not policies_dir.exists() or not any(policies_dir.glob("*.xml")):
             return jsonify({"error": "No policies available for download"}), 404
