@@ -3,8 +3,8 @@
 		"_postman_id": "e9ff8fa3-2a94-4e73-b966-df442d7be92b",
 		"name": "Privacy Dashboard API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "48631079",
-		"_collection_link": "https://albertohugonin-907717.postman.co/workspace/Alberto-Hugonin's-Workspace~998ac536-7fa1-47fb-817b-e4b685e1c1df/collection/49801020-e9ff8fa3-2a94-4e73-b966-df442d7be92b?action=share&source=collection_link&creator=48631079"
+		"_exporter_id": "49801020",
+		"_collection_link": "https://albertohugonin-907717.postman.co/workspace/Alberto-Hugonin's-Workspace~998ac536-7fa1-47fb-817b-e4b685e1c1df/collection/49801020-e9ff8fa3-2a94-4e73-b966-df442d7be92b?action=share&source=collection_link&creator=49801020"
 	},
 	"item": [
 		{
@@ -1721,6 +1721,59 @@
 					"response": []
 				},
 				{
+					"name": "Unauthorized Privacy Notice Template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 401\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unauthorized');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/privacy-notices/template",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"privacy-notices",
+								"template"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Unprocessable Edit Privacy Notice By Managed Application - Empty UUID",
 					"event": [
 						{
@@ -2360,6 +2413,67 @@
 					"response": []
 				},
 				{
+					"name": "Forbidden Privacy Notice Template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 403\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/privacy-notices/template",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"privacy-notices",
+								"template"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Forbidden Edit Privacy Notice By Managed Application",
 					"event": [
 						{
@@ -2905,6 +3019,66 @@
 								{
 									"key": "application_uuid",
 									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Privacy Notice Template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"pm.test(\"Response body is an object with string attribute 'content'\", function () {",
+									"    const responseBody = pm.response.json();",
+									"    ",
+									"    pm.expect(responseBody).to.be.an('object');",
+									"    pm.expect(responseBody).to.have.property('content');    ",
+									"    pm.expect(responseBody.content).to.be.a('string');",
+									"    pm.expect(responseBody.content.trim()).to.not.be.empty;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/privacy-notices/template",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"privacy-notices",
+								"template"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
 								}
 							]
 						}
