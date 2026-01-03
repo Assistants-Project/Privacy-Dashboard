@@ -7,6 +7,7 @@ from ..schemas import (
     ApplicationUuidReqSchema,
     PrivacyNoticeReqSchema,
     PrivacyNoticeResSchema,
+    PrivacyNoticeTemplateResSchema,
 )
 from ..services import PrivacyNoticeService
 from ..utils import dc_or_dpo_required
@@ -29,6 +30,13 @@ def get_privacy_notice_by_managed_application_uuid(
     return PrivacyNoticeService.get_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
         current_user.id, application_uuid
     )
+
+
+@privacy_notice_bp.route("/template", methods=["GET"])
+@privacy_notice_bp.response(200, PrivacyNoticeTemplateResSchema)
+@dc_or_dpo_required()
+def get_privacy_notice_template(current_user):
+    return PrivacyNoticeService.get_privacy_notice_template()
 
 
 @privacy_notice_bp.route("/managed-application/<application_uuid>", methods=["POST"])

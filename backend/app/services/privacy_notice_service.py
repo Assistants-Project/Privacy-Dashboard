@@ -5,6 +5,7 @@ from ..exceptions import (
     PrivacyNoticeAlreadyExists,
     PrivacyNoticeNotFoundException,
 )
+from ..initial_data import get_privacy_notice_template
 from ..models import PrivacyNotice
 from ..repositories import ApplicationRepository, PrivacyNoticeRepository
 
@@ -44,6 +45,15 @@ class PrivacyNoticeService:
                 f"No Privacy Notice found for the application with uuid {application_uuid}"
             )
         return privacy_notice
+
+    @staticmethod
+    def get_privacy_notice_template() -> str:
+        """Returns the privacy notice template to be used by a `DATA_CONTROLLER` or `DPO` user to write a new privacy notice starting from such template.
+
+        Returns:
+            A dictionary containing the privacy notice template as a string, formatted as HTML code to be rendered in the frontend.
+        """
+        return {"content": get_privacy_notice_template()}
 
     @staticmethod
     def write_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
