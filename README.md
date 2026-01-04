@@ -39,6 +39,9 @@ SMARTOTUM_RULE_TOPIC=privacy_rule
 SMARTOTUM_DEVICE_TOPICS=domo_light,domo_light_dimmable,domo_rgbw_light,domo_switch,domo_roller_shutter,domo_camera
 SMARTOTUM_TIMEOUT=1 #starting timeout in seconds when communicating with Smartotum
 SMARTOTUM_APPLICATIONS_JSON=./config/smartotum-apps.json
+
+#VITE
+VITE_API_BASE_URL=http://localhost:5050/api/ #same port of backend
 ```
 
 ### 2. Start PostgreSQL via Docker
@@ -72,11 +75,11 @@ flask db upgrade
 export FLASK_APP=run.py   # run this in every new shell session
 flask run --debug --port 5050 #use 5050 to avoid airplay port collision on mac os
 ```
-The service is now reachable at `http://localhost:5000`.
+The backend is now reachable at `http://localhost:5050`.
 
 ## Endpoints
 
-- **Swagger UI / OpenAPI docs:** `http://localhost:5000/docs/swagger`
+- **Swagger UI / OpenAPI docs:** `http://localhost:5050/docs/swagger`
 - **Login:** `POST /api/auth/login` (sets `st_access_token` / `st_refresh_token` cookies)
 - **Smartotum homes:** `GET /api/homes` (requires the access-token cookie; maps data from Smartotum’s `/service/systems` endpoint)
 
