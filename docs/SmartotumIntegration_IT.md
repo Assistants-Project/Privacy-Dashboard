@@ -1,4 +1,4 @@
-## DOCUMENTAZIONE INTEGRAZIONE CON SMARTOTUM - ALBERTO HUGONIN (Vers 0.2) 
+## DOCUMENTAZIONE INTEGRAZIONE CON SMARTOTUM - ALBERTO HUGONIN (Vers 0.5) 
 
 ### FUNZIONAMENTO SISTEMA DOMOTICA SMARTOTUM
 
@@ -6,11 +6,11 @@
     - `POST https://api.smartotum.com/auth/signin`: effettua il log-in con nome utente e password.
     - `GET https://api.smartotum.com/service/systems/?offset=0&limit=100`: passando il suo access token riceve tutte le informazioni dei sistemi di cui è responsabile e che è possibile controllare compreso l'ID univoco. 
     - `GET https://fixissuesbpoyqq.pods.smartotum.com/.dht/get_all`: fornendo l'ID univoco del sistema (POD interno alla casa) a cui intende collegarsi ad es `fixissuesbpoyqq` restituisce tutti i topic della casa che includono: dispositivi, applicazioni, regole, camere, utenti, pianificazione orari, impostazioni e molto altro.
-    - È possibile ottenere elementi dello stesso topic sostituendo il parametro `get_all` con il topic scelto.
+    - È possibile ottenere elementi dello stesso topic sostituendo il parametro `get_all` con  `topic_name/<topic_scelto>`.
 - Segue una lista non esaustiva dei topic presenti:
     - Ambienti/stanze: **domo_room**
     - App della casa: **domo_app**
-    - Regole/policy: **domo_rule**
+    - Regole/policy: **privacy_rule**
     - Utenti/metadati: **domo_user**
     - Gateway/diagnostica: gateway (presente anche nei dispositivi smartotum)
     - Pianificazione/Orari: domo_schedule, domo_temperature_scheduling
@@ -45,31 +45,31 @@
           - le telecamere devono essere disattivate dalle 14:00 alle 20:00
     -   **Gestione delle applicazioni**:
         - la smart home può avere delle applicazioni installate che utilizzano e elaborano i dati dell'utente e che quindi devono rispondere al GDPR
-        - Il flusso segue solo in una direzione: applicazioni della casa vengono automaticamente importate nella Privacy Dashboard (da implementare quando disponibile modello app a livello di Smartotum)
+        - Il flusso segue solo in una direzione: applicazioni della casa vengono automaticamente importate nella Privacy Dashboard
         - eventuali applicazioni create a livello della privacy dashboard per il momento non possono essere legate ad una casa
 
 - Il **Data Subject** è l'utente dell'applicazione che vuole gestire i suoi dati personali in relazione alla sua smart home personale o di terzi di cui ha accesso:
-    - per potersi registrare e accedere alla privacy dashboard deve essere possessore di un account smartotum
+    - per potersi registrare e accedere alla privacy dashboard deve essere possessore di un account Smartotum
     - Durante la registrazione vengono chieste informazioni base e l'autenticazione al suo account Smartotum
-    - In seguito ad ogni log-in vengono recuperate e salvate / sincronizzate le seguenti informazioni dal sistema smartotum:
+    - In seguito al log-in il client lanciando l'endpoint di refresh vengono recuperate e salvate / sincronizzate le seguenti informazioni dal sistema Smartotum:
         - tutte le case di cui l'utente ha accesso che comprende recupero delle case e assegnazione di ciascuna casa all'utente
         - per ciascuna casa tutte le sue stanze e viene creata anche una stanza fittizia non presente nel sistema smartotum per raggruppare tutti i dispositivi senza una stanza assegnata
         - per ciascuna casa si recuperano tutti i dispositivi compatibili secondo una allow list nel file env chiamata SMARTOTUM_DEVICE_TOPICS e si assegna ciascun dispositivo alla sua stanza che si collega di conseguenza ad una determinata casa
-        - per il momento il sistema si concentra solo sui dispositivi per cui si possono definire regole, quindi non vengono prese in considerazione le app, in futuro deve essere gestito il recupero delle stesse da Smartotum e assegnazione ad un Data Controller che potrà poi assegnarle ad un DPO. 
+        - per il momento viene recuperata la lista delle applicazioni da un file JSON ma il codice presenta già una buona parte di logica per il recupero da Smartotum. Si può in seguito  assegnare la app ad un Data Controller che potrà poi assegnarle ad un DPO. 
         - Le regole vengono per il momento solo recuperate da Smartotum ma non memorizzate perchè manca ancora il modello delle regole a livello del database.
 
-Il sistema di sincronizzazione parte ad ogni log-in del data subject o attraverso end point di refresh perché il sistema non memorizza l'access token di Smartotum ma utilizza quello ritornato dall'utente ad ogni chiamata all'API.
+Il sistema di sincronizzazione parte ad ogni chiamata dell' endpoint di refresh perché il sistema non memorizza l'access token di Smartotum ma utilizza quello ritornato dall'utente ad ogni chiamata all'API.
 
 ### API IMPORTANTI PER GESTIONE DISPOSITIVI
 
-Queste API operano direttamente sul database della Privacy Dashboard e restituiscono quindi una snapshot dei dati sincronizzati durante l'ultimo log-in del data subject o dopo un refresh manuale.
+Queste API operano direttamente sul database della Privacy Dashboard e restituiscono quindi una snapshot dei dati sincronizzati dall' ultimo refresh manuale.
 
 **Prerequisiti**
 - l'utente deve essersi registrato alla Privacy Dashboard utilizzando il suo account Smartotum (è un Data Subject)
 - l'utente deve fornire il cookie contenente un access token Smartotum valido che deve essere legato all'account con cui si è registrato alla Privacy Dashboard. L'access token verrà poi validato dalla @ds_required tramite il procedimento spiegato in seguito.
 
 **Consistenza dei Dati**
-- i dati restano invariati finché l'utente non effettua un nuovo log-in o invoca l'endpoint di refresh `POST /api/homes/refresh`
+- i dati restano invariati finché l'utente non invoca l'endpoint di refresh `POST /api/homes/refresh`
 
 #### GET /api/homes
 - **Scopo**: elenco delle smart home associate all'utente.
@@ -149,7 +149,7 @@ Queste API operano direttamente sul database della Privacy Dashboard e restituis
 ]
 ```
 
-#### POST /api/home/refresh
+#### POST /api/homes/refresh
 - **Scopo**: forza la sincronizzazione con Smartotum prima di consultare i dati.
 - **Parametri/Body**: nessuno (fa fede il token nel cookie).
 - **Uso suggerito**: invocarlo quando l'utente sa che la configurazione della smart home è stata aggiornata da fuori la Privacy Dashboard.
@@ -222,3 +222,82 @@ Attraverso la chiamata `POST http://privacydashboard.com/api/auth/login` fornend
 - se Smartotum è offline il Data Subject non può accedere alla Privacy Dashboard
 - non è possibile aggiornare i dati in background per tutti gli utenti perché il server non memorizza l'access token ma fa solo da intermediario tra Data Subject e Smartotum
 - quando il token scade dopo 1h dall'accesso o se il backend va offline l'utente deve fare di nuovo il log-in 
+
+---
+
+## GESTIONE ERRORI E RETRY
+
+SmartotumClient quando effettua una chiamata all’API di Smartotum in caso di risposta con codice serie 500 o 429 (troppe richieste) riprova dopo un certo backoff timer gestito dalla libreria Retry. Il tempo massimo della singola richiesta HTTP è configurabile attraverso `SMARTOTUM_TIMEOUT`
+
+
+## GESTIONE APPLICAZIONI
+
+Le applicazioni per il momento vengono recuperate da un file JSON all’interno di della cartella /backend/config, il cui path può essere configurato attraverso il file di configurazione (env).
+
+Il JSON per il momento è così strutturato:
+
+```json
+[
+ { "name": "appdaemon", "description": "for managing automations" },
+ { "name": "domo-ir-controller", "description": "for managing air conditioning devices with a fake IR remote controller"},
+ { "name": "domo-mosquitto", "description": "for managing MQTT connections" },
+ { "name": "domo-scheduler", "description": "for managing the schedule of different gateways"},
+ { "name": "domo-shelly-stock-manager", "description": "for managing actuators" },
+ { "name": "esphome-updater", "description": "for managing updates of esphome devices" },
+ { "name": "file-sync", "description": "to sync remote and local dht" },
+ { "name": "homeassistant", "description": "for managing the ui and the home system" },
+ { "name": "smartotum-asterisk", "description": "for managing video doorbell voip calls" },
+ { "name": "smartotum-camera-manager", "description": "for managing cameras" },
+ { "name": "smartotum-certbot", "description": "for managing SSL HTTPS certificates" },
+ { "name": "domo-vpn", "description": "for managing vpn connections with the cloud" }
+]
+```
+
+
+Il nome viene utilizzato all’interno della Privacy Dashboard come nome univoco che identifica l’applicazione.
+Per tanto se più case utilizzano una stessa applicazione nella tabella Application è presente una sola entry, mentre la relazione tra l’applicazione e la casa è contenuta all’interno di un altra tabella e viene aggiornata di conseguenza.
+Ne deriva il fatto che se un’applicazione non è più presente nella casa di un utente viene cancellata solo la relazione.
+Per il momento non è supportata la cancellazione di un’applicazione dopo che è stata aggiunta.
+Il backend ha già il codice che permette il recupero delle app da Smartotum, tenendo in mente questo possibile format:
+
+```json
+[
+  {
+    "topic_name": "domo_app",
+    "topic_uuid": "u9392-388....",
+    "value": { "id": "com.smartotum.homeassistant", "name": "Home Assistant" }
+  },
+  {
+    "topic_name": "domo_app",
+    "topic_uuid": "u9392-389....",
+    "value": { "id": "com.smartotum.appdaemon", "name": "Appdaemon" }
+  }
+]
+```
+
+
+## PARAMETRI DI CONFIGURAZION ENV
+
+```dotenv
+POSTGRES_USER=<postgres_username>
+POSTGRES_PASSWORD=<postgres_password>
+POSTGRES_DB=<db_name>
+POSTGRES_PORT=<5434>
+FLASK_ENV=<development> 
+DEV_DATABASE_URI=postgresql+psycopg2://<postgres_username>:<postgres_password>@localhost:5434/privacy_db
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+
+
+SMARTOTUM_BASE_URL=https://api.smartotum.com
+SMARTOTUM_API_BASE_PATH=/auth
+SMARTOTUM_JWKS_URL=https://api.smartotum.com/auth/jwt/jwks.json
+SMARTOTUM_ISSUER=https://api.smartotum.com/auth
+
+SMARTOTUM_TIMEOUT=<integer_number>
+SMARTOTUM_RID=emailpassword
+SMARTOTUM_AUTH_MODE=header
+
+SMARTOTUM_DEVICE_TOPICS=domo_light,domo_light_dimmable,domo_rgbw_light,domo_switch,domo_roller_shutter,domo_camera
+
+SMARTOTUM_APPLICATIONS_JSON=./config/smartotum-apps.json
+```

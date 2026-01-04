@@ -64,7 +64,6 @@ class RoomRepository:
         for existing_uuid, existing_room in rooms_dict_present.items():
             if existing_uuid not in rooms_input_uuid:
                 #also sets to null the room_id of all the devices in that room
-                #TODO: set a special room fo the devices that don't have it 
                 db.session.delete(existing_room)
                 rooms_to_delete.append(existing_uuid)
 

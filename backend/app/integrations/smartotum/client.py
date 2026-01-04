@@ -1,10 +1,20 @@
 from dataclasses import dataclass
+import json
+from pathlib import Path
 from typing import Any, Dict, List, Optional
-from ...exceptions import WrongUserCredentialsException
+from ...exceptions import (
+    WrongUserCredentialsException,
+    SmartotumServiceUnavailableException,
+    SmartotumTimeoutException,
+)
 from requests import RequestException
+from requests.exceptions import Timeout
 from uuid import UUID
 import requests
 from flask import current_app
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
+import uuid
 
 @dataclass
 class SmartotumLoginResult:
@@ -29,6 +39,12 @@ class SmartotumHomeRoomResult:
     category: str | None = None
 
 @dataclass
+class SmartotumApplicationResult:
+    application_uuid: UUID
+    name: str
+    description: str | None = None
+
+@dataclass
 class SmartotumDeviceResult:
     device_uuid: UUID
     name: str
@@ -49,15 +65,39 @@ class SmartotumRule:
 class SmartotumClient:
 
     #initialize env variables
-    def __init__(self, session: Optional[requests.Session] = None) -> None:
+    def __init__(self, session: Optional[requests.Session] = None, session_retry: Optional[requests.Session] = None) -> None:
         cfg = current_app.config
         self._base_url = cfg["SMARTOTUM_BASE_URL"].rstrip("/")
         self._base_dht_url = cfg["SMARTOTUM_DHT_URL"].rstrip("/")
         self._api_base_path = cfg["SMARTOTUM_API_BASE_PATH"].strip("/")
         self._smartotum_device_topics = cfg["SMARTOTUM_DEVICE_TOPICS"]
         self._rule_topic = cfg["SMARTOTUM_RULE_TOPIC"]
-        self._timeout = cfg.get("SMARTOTUM_TIMEOUT", 10)
+        self._timeout = cfg.get("SMARTOTUM_TIMEOUT", 1)
+        self._applications_file = cfg.get("SMARTOTUM_APPLICATIONS_JSON")
+
         self._session = session or requests.Session()
+
+        if session_retry is None:
+
+            self._session_retry = requests.Session()
+
+            retry_strategy = Retry(
+            total=4,
+            status_forcelist=[429,500,502,503,504], 
+            read=3,
+            connect=3,
+            backoff_factor=0.5,
+            allowed_methods=frozenset({"GET", "POST"})
+            )
+        
+            retry_adapter = HTTPAdapter(max_retries=retry_strategy)
+
+            self._session_retry.mount("http://", retry_adapter)
+            self._session_retry.mount("https://", retry_adapter)
+        
+        else:
+            self._session_retry = session_retry 
+        
         self._rid = cfg["SMARTOTUM_RID"]
         self._auth_mode = cfg["SMARTOTUM_AUTH_MODE"]
 
@@ -135,7 +175,7 @@ class SmartotumClient:
         complete_url=self.smartotum_dht_api_url(f"/topic_name/{self._rule_topic}", system_uuid)
 
         try:
-            response = self._session.get(
+            response = self._session_retry.get(
                 complete_url, headers=headers, timeout=self._timeout
             )
             response.raise_for_status()
@@ -187,7 +227,7 @@ class SmartotumClient:
             complete_url=self.smartotum_dht_api_url(f"/topic_name/{topic_name}", system_uuid)
 
             try:
-                response = self._session.get(
+                response = self._session_retry.get(
                     complete_url, headers=headers, timeout=self._timeout
                 )
                 response.raise_for_status()
@@ -226,7 +266,7 @@ class SmartotumClient:
         complete_url=self.smartotum_dht_api_url(f"/topic_name/domo_room", system_uuid)
 
         try:
-            response = self._session.get(
+            response = self._session_retry.get(
                 complete_url, headers=headers, timeout=self._timeout
             )
             response.raise_for_status()
@@ -250,6 +290,92 @@ class SmartotumClient:
             )
 
         return rooms
+    
+    def get_home_applications(self, access_token: str, system_uuid: str) -> List[SmartotumApplicationResult]:
+
+        if self._applications_file:
+
+            path = Path(str(self._applications_file))
+
+            #supports both absolute and relative path from the backend folder
+            if not path.is_absolute():
+                if not path.exists():
+                    backend_root = Path(current_app.root_path).parent
+                    path = backend_root / path
+                path = path.resolve()
+
+            with path.open("r", encoding="utf-8") as fh:
+                payload = json.load(fh)
+
+            if not isinstance(payload, list):
+                raise ValueError("SMARTOTUM_APPLICATIONS_JSON must be an array")
+
+            applications: List[SmartotumApplicationResult] = []
+
+            for i,item in enumerate(payload):
+                    
+                if not isinstance(item, dict):
+                    raise ValueError(f"apps[{i}] must be an object")
+
+                name = item.get("name")
+                if not isinstance(name, str) or not name.strip():
+                    raise ValueError(f"apps[{i}].name is required and must not be empty")
+
+                description = item.get("description")
+                if description is not None and not isinstance(description, str):
+                    raise ValueError(f"apps[{i}].description must be a string or null")
+
+                applications.append(
+                    SmartotumApplicationResult(
+                        application_uuid = UUID(str(uuid.uuid4())),
+                        name=str(name),
+                        description=str(description),
+                    )
+                )
+
+            return applications
+       
+
+        # Fallback to Smartotum api when the mock is not enabled
+        # for now we don't know how is done so we guess
+
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+
+        complete_url=self.smartotum_dht_api_url(f"/topic_name/domo_app", system_uuid)
+
+        try:
+            response = self._session_retry.get(
+                complete_url, headers=headers, timeout=self._timeout
+            )
+            response.raise_for_status()
+        except RequestException as exc:
+            raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+
+        items: List[Dict[str, Any]] = response.json()
+        applications: List[SmartotumApplicationResult] = []
+
+
+        for item in items:
+            #we assume that the topic_uuid is a vaid UUID
+            topic_uuid = UUID(item.get("topic_uuid"))
+            value = item.get("value", {})
+            name = value.get("name")
+            #there is also a field called id in value, for using it an idea is to edit the application table to show for every home the applications for that home
+            #so the value.id can be unique in a home 
+            description = None
+
+            applications.append(
+                SmartotumApplicationResult(
+                    application_uuid=topic_uuid,
+                    name=str(name),
+                    description=description,
+                )
+            )
+
+        return applications
 
     
 
@@ -270,18 +396,21 @@ class SmartotumClient:
             "Content-Type": "application/json",
         }
 
+
         try:
-            response = self._session.post(
+            response = self._session_retry.post(
                 self.smartotum_api_url(f"{self._api_base_path}/signin"),
                 json=payload,
                 headers=headers,
                 timeout=self._timeout,
             )
             response.raise_for_status()
+        except Timeout as exc:
+            raise SmartotumTimeoutException("Smartotum login timed out") from exc
         except RequestException as exc:
-            raise WrongUserCredentialsException("Error occurred during Smartotum login") from exc
+            raise SmartotumServiceUnavailableException("Smartotum service unavailable") from exc
     
-
+        #think if it's needed a try except also here if smartotum doesn't respond with a json
         data = response.json()
         
         if data.get("status") == "WRONG_CREDENTIALS_ERROR" or "user" not in data:
@@ -291,7 +420,7 @@ class SmartotumClient:
         refresh_token = response.headers.get("st-refresh-token")
 
         if not access_token or not refresh_token:
-            raise WrongUserCredentialsException("Smartotum login missing tokens")
+            raise SmartotumServiceUnavailableException("missing tokens from login response Smartotum")
         
         return SmartotumLoginResult(
             user=data.get("user", {}),
@@ -313,7 +442,7 @@ class SmartotumClient:
         }
 
         try:
-            response = self._session.get(
+            response = self._session_retry.get(
                 self.smartotum_api_url("service/systems"), headers=headers, params=params, timeout=self._timeout
             )
             response.raise_for_status()

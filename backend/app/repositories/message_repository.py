@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Iterator
 
 from ..extensions import db
@@ -28,3 +29,19 @@ class MessageRepository:
             .order_by(Message.sent_at)
         )
         return db.session.scalars(statement)
+
+    @staticmethod
+    def create_message(
+        content: str, attachment: str | None, sender_id: int, receiver_id: int
+    ) -> Message:
+        message = Message(
+            content=content,
+            attachment=attachment,
+            sender_id=sender_id,
+            receiver_id=receiver_id,
+            sent_at=datetime.now(),
+        )
+        db.session.add(message)
+        db.session.commit()
+        db.session.refresh(message)
+        return message

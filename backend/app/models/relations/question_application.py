@@ -1,7 +1,8 @@
-from sqlalchemy import ForeignKey, Text
+from sqlalchemy import Enum, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...extensions import db
+from ...models import Evaluation
 
 
 class QuestionApplication(db.Model):
@@ -17,6 +18,8 @@ class QuestionApplication(db.Model):
         question_id: A foreign key ID of the question that was answered.
         application_id: A foreign key ID of the application that answered the question.
         answer_content: A text field that represents the content of the answer.
+        evaluation: An Enum evaluation of the given answer that represents the
+            level of compliancy to the GDPR regulations.
         question: A question that was answered.
             Represents a many-to-one relationship with the `Question` class.
         application: An application that answered the question.
@@ -32,6 +35,7 @@ class QuestionApplication(db.Model):
         ForeignKey("applications.id", ondelete="CASCADE"), primary_key=True
     )
     answer_content = mapped_column(Text, nullable=False)
+    evaluation = mapped_column(Enum(Evaluation, validate_strings=True), nullable=True)
 
     question: Mapped["Question"] = relationship(  # noqa: F821 # type: ignore
         back_populates="answers"

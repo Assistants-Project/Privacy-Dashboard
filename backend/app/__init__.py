@@ -8,11 +8,22 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 
-from .controllers import application_bp, auth_bp, message_bp, privacy_notice_bp, user_bp, homes_bp
+from .controllers import (
+    application_bp,
+    auth_bp,
+    available_consent_bp,
+    homes_bp,
+    message_bp,
+    privacy_notice_bp,
+    question_bp,
+    request_bp,
+    user_bp,
+)
 from .error_handler import global_error_handler
-from .extensions import api, db, ma, migrate, jwt
+from .extensions import api, db, jwt, ma, migrate
 from .initial_data import init_data
 from .utils import refresh_expiring_jwts
+
 
 def create_app(env_name: Optional[str] = None) -> Flask:
     """
@@ -56,7 +67,17 @@ def create_app(env_name: Optional[str] = None) -> Flask:
     api.init_app(app)
     jwt.init_app(app)
 
-    for blueprint in [application_bp, auth_bp, message_bp, privacy_notice_bp, user_bp, homes_bp]:
+    for blueprint in [
+        application_bp,
+        auth_bp,
+        available_consent_bp,
+        homes_bp,
+        message_bp,
+        privacy_notice_bp,
+        question_bp,
+        request_bp,
+        user_bp,
+    ]:
         api.register_blueprint(blueprint)
 
     app.after_request(refresh_expiring_jwts)

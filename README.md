@@ -10,13 +10,23 @@
 Create a `.env` file in the repository root. Adjust the credentials and ports if needed.
 
 ```ini
+#PROTECTIONS
+#SET ALL OF THIS TO TRUE IN PRODUCTION
+JWT_COOKIE_SECURE=False #Flask over plain HTTP in development
+JWT_COOKIE_CSRF_PROTECT=False
+
+#FLASK
+FLASK_ENV=development
+
+#POSTGRES
 POSTGRES_USER=<your_postgres_user>
 POSTGRES_PASSWORD=<your_postgres_password>
 POSTGRES_DB=privacy_db
 POSTGRES_PORT=5434
-FLASK_ENV=development
 DEV_DATABASE_URI=postgresql+psycopg2://<user>:<password>@localhost:5434/privacy_db
 CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+
+#SMARTOTUM
 SMARTOTUM_BASE_URL=https://api.smartotum.com
 SMARTOTUM_DHT_URL=http://house_name.pods.smartotum.com/.dht/
 SMARTOTUM_API_BASE_PATH=/auth
@@ -24,16 +34,18 @@ SMARTOTUM_RID=emailpassword
 SMARTOTUM_AUTH_MODE=header
 SMARTOTUM_JWKS_URL=https://api.smartotum.com/auth/jwt/jwks.json
 SMARTOTUM_ISSUER=https://api.smartotum.com/auth
-SMARTOTUM_DEVICE_TOPICS=domo_light,domo_light_dimmable,domo_rgbw_light,domo_switch,domo_button,domo_bistable_button,domo_window_sensor,domo_siren,domo_ble_thermometer,domo_ble_valve,domo_ble_contact,domo_roller_shutter,domo_ac_unit,domo_floor_valve,domo_camera
 SMARTOTUM_RULE_TOPIC=privacy_rule
-SMARTOTUM_TIMEOUT=10
-# Set to False if you run Flask over plain HTTP in development
-JWT_COOKIE_SECURE=False
+#supported smartotum devices for rules mapping
+SMARTOTUM_DEVICE_TOPICS=domo_light,domo_light_dimmable,domo_rgbw_light,domo_switch,domo_roller_shutter,domo_camera
+SMARTOTUM_TIMEOUT=1 #starting timeout in seconds when communicating with Smartotum
+SMARTOTUM_APPLICATIONS_JSON=./config/smartotum-apps.json
 ```
 
 ### 2. Start PostgreSQL via Docker
 ```bash
-docker compose up -d postgres
+docker compose up -d --build
+#stop when finished (it will delete the container,network,volume)
+docker compose down -v 
 ```
 
 ### 3. Create and activate the virtual environment
