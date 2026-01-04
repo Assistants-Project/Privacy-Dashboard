@@ -207,7 +207,7 @@ def logged_in_required():
             user = get_current_user_from_claims()
             if _has_smartotum_session(token) or _has_internal_session(token):
                 user = get_current_user_from_claims()
-                return fn(*args, **kwargs, current_user=user, current_user=user)
+                return fn(*args, **kwargs, current_user=user)
 
             raise UnloggedUserException("User not logged in!")
 
