@@ -37,6 +37,7 @@ SMARTOTUM_RULE_TOPIC=privacy_rule
 #supported smartotum devices for rules mapping
 SMARTOTUM_DEVICE_TOPICS=domo_light,domo_light_dimmable,domo_rgbw_light,domo_switch,domo_roller_shutter,domo_camera
 SMARTOTUM_TIMEOUT=1 #starting timeout in seconds when communicating with Smartotum
+SMARTOTUM_APPLICATIONS_JSON=./config/smartotum-apps.json
 ```
 
 ### 2. Start PostgreSQL via Docker

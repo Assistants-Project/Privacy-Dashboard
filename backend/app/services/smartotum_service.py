@@ -5,8 +5,11 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from ..exceptions import MissingJWTException, SmartotumSyncException
 from ..integrations.smartotum import SmartotumClient
+from ..repositories.application_repository import ApplicationRepository
+from ..repositories.available_consent_repository import AvailableConsentRepository
 from ..repositories.room_repository import RoomRepository
 from ..repositories.smart_home_repository import SmartHomeRepository
+from ..models import Application
 from ..models import Room
 from ..models import User
 from ..models import SmartHome
@@ -21,7 +24,7 @@ class SmartotumService:
 
     @staticmethod
     def update_database_smartotum(access_token: str, user: User):
-        #for now it doesn't update rules and application, waiting for a database implementation for rules by the PTP app
+        #for now it doesn't update rules, waiting for a database implementation for rules by the PTP app
         session = db.session
         try:
             client = SmartotumClient()
@@ -81,7 +84,7 @@ class SmartotumService:
 
                 for device in devices:
                 
-                    #if the device does not have a room for now we don't save it
+                    #if the device does not have a room we save it in a special room
                     if not device.room_uuid:
 
                         new_device = Device(
@@ -119,11 +122,46 @@ class SmartotumService:
                 #update all the devices of the home, even if there are none
                 DeviceRepository.update_device_for_home(home.id, updated_devices)
 
+                # update installed applications for the home
+                smartotum_applications = client.get_home_applications(
+                    access_token, system.home_uuid
+                )
+                applications_payload: list[Application] = []
+                for smartotum_application in smartotum_applications:
+                    applications_payload.append(
+                        Application(
+                            name=smartotum_application.name,
+                            description=smartotum_application.description,
+                        )
+                    )
+
+                ApplicationRepository.update_applications_for_home(
+                    user_id=user.id,
+                    smart_home_id=home.id,
+                    applications=applications_payload,
+                )
+
             existing_home: list[SmartHome] = SmartHomeRepository.get_homes_by_user_id(user.id)
 
             for home in existing_home:
                 if home.uuid not in new_homes_uuid:
-                    SmartHomeRepository.delete_home(home)
+                    # The home might be shared with other users
+                    # we remove only the relation and delete the home only if no ones shares it.
+                    ApplicationRepository.update_applications_for_home(
+                        user_id=user.id,
+                        smart_home_id=home.id,
+                        applications=[],
+                    )
+                    AvailableConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id(
+                        user_id=user.id,
+                        smart_home_id=home.id,
+                    )
+                    SmartHomeRepository.unassign_home(home.id, user.id)
+                    session.flush()
+
+                    owners = SmartHomeRepository.get_home_owners_by_home_id(home.id)
+                    if not owners:
+                        SmartHomeRepository.delete_home(home)
             
             session.commit()
 

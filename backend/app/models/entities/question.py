@@ -1,5 +1,6 @@
 import enum
 from typing import List
+from uuid import UUID, uuid4
 
 from sqlalchemy import Enum, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -21,8 +22,15 @@ class Question(db.Model):
 
     Attributes:
         id: An auto-incremented integer identifier, used as the primary key.
+        uuid: A unique randomly generated UUID that identifies the question.
         content: A text field that represents the content of the question.
-        choices: An optional text field that represents the choices of a multiple choice question,
+        additional_information: An optional text field that represents any additional information
+            that may be relevant to the question.
+        green_choices: An optional text field that represents the possibile 'good' choices of a multiple choice question,
+            assuming that the choices are stored as a single delimiter-separated string.
+        orange_choices: An optional text field that represents the possibile 'mediocre' choices of a multiple choice question,
+            assuming that the choices are stored as a single delimiter-separated string.
+        red_choices: An optional text field that represents the possibile 'bad' choices of a multiple choice question,
             assuming that the choices are stored as a single delimiter-separated string.
         type: An enum that represents whether the question belongs to a questionnaire or
             a privacy impact assessment.
@@ -33,9 +41,13 @@ class Question(db.Model):
     __tablename__ = "questions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
     content = mapped_column(Text, nullable=False)
+    additional_information = mapped_column(Text, nullable=True)
     # In case of multiple choice questions, the choices are stored here as a delimiter-separated string
-    choices = mapped_column(Text, nullable=True)
+    green_choices = mapped_column(Text, nullable=True)
+    orange_choices = mapped_column(Text, nullable=True)
+    red_choices = mapped_column(Text, nullable=True)
     type = mapped_column(Enum(QuestionType, validate_strings=True), nullable=False)
 
     answers: Mapped[List["QuestionApplication"]] = relationship(  # noqa: F821 # type: ignore

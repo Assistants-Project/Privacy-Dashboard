@@ -1,7 +1,9 @@
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 from flask import request
+from flask import current_app
+from flask import Flask
 
 from ..exceptions import MissingJWTException, WrongUserCredentialsException
 from ..exceptions.entities.home_exception import SmartHomeNotFoundException
@@ -18,7 +20,7 @@ from ..repositories.device_repository import DeviceRepository
 from ..exceptions.entities.room_exceptions import RoomNotFoundException
 from .smartotum_service import SmartotumService
 from ..extensions import db
-from sqlalchemy import delete
+from sqlalchemy import delete, inspect, text
 
 
 class SmartHomeService:
@@ -27,6 +29,31 @@ class SmartHomeService:
         session = db.session
         session.execute(delete(SmartHome))
         session.commit()
+
+    @staticmethod
+    def reset_database_to_initial_data() -> None:
+        """Restores the database to initial_data.py"""
+
+        session = db.session
+        dialect = db.engine.dialect.name
+
+        if dialect == "postgresql":
+            inspector = inspect(db.engine)
+            tables = [
+                t for t in inspector.get_table_names() if t and t != "alembic_version"
+            ]
+            if tables:
+                quoted = ", ".join(f'"{t}"' for t in tables)
+                session.execute(text(f"TRUNCATE TABLE {quoted} RESTART IDENTITY CASCADE"))
+        else:
+            for table in reversed(db.metadata.sorted_tables):
+                session.execute(table.delete())
+
+        session.commit()
+
+        from ..initial_data import init_data
+
+        init_data(cast(Flask, current_app))
 
     @staticmethod
     def update_database_for_user(current_user: User):

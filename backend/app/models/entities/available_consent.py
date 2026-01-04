@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID, uuid4
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -14,6 +15,7 @@ class AvailableConsent(db.Model):
 
     Attributes:
         id: An auto-incremented integer identifier, used as the primary key.
+        uuid: A unique randomly generated UUID that identifies the available consent.
         content: A string that represents the content of the consent.
         application_id: A foreign key ID of the application which the available consent is associated to.
         application: An application which the available consent is associated to.
@@ -25,6 +27,7 @@ class AvailableConsent(db.Model):
     __tablename__ = "available_consents"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
     content: Mapped[str]
     application_id: Mapped[int] = mapped_column(
         ForeignKey("applications.id", ondelete="CASCADE")
@@ -45,4 +48,4 @@ class AvailableConsent(db.Model):
     )
 
     def __repr__(self) -> str:
-        return f"AvailableConsent(id={self.id}, content={self.content})"
+        return f"AvailableConsent(id={self.id}, uuid={self.uuid!r}, content={self.content})"

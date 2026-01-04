@@ -56,6 +56,9 @@ class BaseConfig:
     # --- Logging ---
     LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "INFO")
 
+    # If set, Smartotum applications are loaded from this local JSON file instead of calling the remote API.
+    SMARTOTUM_APPLICATIONS_JSON = os.getenv("SMARTOTUM_APPLICATIONS_JSON", None)
+
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.getenv("DEV_DATABASE_URI")
     # SQLALCHEMY_ECHO = True  # Commented out to reduce log verbosity

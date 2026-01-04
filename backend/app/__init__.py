@@ -9,14 +9,17 @@ from flask import Flask
 from .controllers import (
     application_bp,
     auth_bp,
+    available_consent_bp,
+    homes_bp,
     message_bp,
     privacy_notice_bp,
-    sifis_bp,
+    question_bp,
+    request_bp,
     user_bp,
-    homes_bp,
+    sifis_bp,
 )
 from .error_handler import global_error_handler
-from .extensions import api, db, ma, migrate, jwt
+from .extensions import api, db, jwt, ma, migrate
 from .initial_data import init_data
 from .utils import refresh_expiring_jwts
 
@@ -50,11 +53,14 @@ def create_app(env_name: Optional[str] = None) -> Flask:
     for blueprint in [
         application_bp,
         auth_bp,
+        available_consent_bp,
+        homes_bp,
         message_bp,
         privacy_notice_bp,
-        sifis_bp,
+        question_bp,
+        request_bp,
         user_bp,
-        homes_bp,
+        sifis_bp,
     ]:
         api.register_blueprint(blueprint)
 
