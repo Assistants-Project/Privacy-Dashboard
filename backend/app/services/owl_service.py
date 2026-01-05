@@ -101,13 +101,27 @@ class OWLService:
             with target:
                 sync_reasoner_hermit(infer_property_values=True)
 
-    def get_trigger_services(self) -> List[Service]:
-        """Get all services that offer triggers"""
+    def get_trigger_services(self, home_uuid: Optional[str] = None) -> List[Service]:
+        """Get all services that offer triggers, optionally filtered by home capabilities"""
         services = []
 
         try:
             if not self.onto or not self.eupont_ns:
                 return services
+            
+            # Setup filtering if home_uuid is provided
+            allowed_uris = set()
+            if home_uuid:
+                home_world = self._get_home_world(str(home_uuid))
+                if home_world:
+                    # Collect all allowTo targets from all individuals in the home
+                    for ind in home_world.individuals():
+                        # allowTo is an ObjectProperty, so it returns a list of individuals
+                        allowed_targets = getattr(ind, "allowTo", [])
+                        for target in allowed_targets:
+                            # Use .iri to get the full URI string
+                            if hasattr(target, "iri"):
+                                allowed_uris.add(str(target.iri))
 
             Channel = getattr(self.eupont_ns, "Channel", None)
             if not Channel:
@@ -118,11 +132,22 @@ class OWLService:
                 has_triggers = False
 
                 for instance in subclass.instances():
-                    if getattr(instance, "offerTrigger", []):
+                    offered_triggers = getattr(instance, "offerTrigger", [])
+                    if offered_triggers:
+                        # If filtering is enabled, check if any offered trigger is in the allowed set
+                        if home_uuid:
+                            is_allowed = False
+                            for trigger in offered_triggers:
+                                if str(trigger.iri) in allowed_uris:
+                                    is_allowed = True
+                                    break
+                            if not is_allowed:
+                                continue
+
                         has_triggers = True
-                    temp_services.append(
-                        self._create_service_from_instance(instance, "Triggers")
-                    )
+                        temp_services.append(
+                            self._create_service_from_instance(instance, "Triggers")
+                        )
 
                 if has_triggers:
                     services.extend(temp_services)
@@ -133,13 +158,25 @@ class OWLService:
             self.logger.error(f"Error getting trigger services: {e}")
             return []
 
-    def get_action_services(self) -> List[Service]:
-        """Get all services that offer actions"""
+    def get_action_services(self, home_uuid: Optional[str] = None) -> List[Service]:
+        """Get all services that offer actions, optionally filtered by home capabilities"""
         services = []
 
         try:
             if not self.onto or not self.eupont_ns:
                 return services
+
+            # Setup filtering if home_uuid is provided
+            allowed_uris = set()
+            if home_uuid:
+                home_world = self._get_home_world(str(home_uuid))
+                if home_world:
+                     # Collect all allowTo targets from all individuals in the home
+                    for ind in home_world.individuals():
+                        allowed_targets = getattr(ind, "allowTo", [])
+                        for target in allowed_targets:
+                            if hasattr(target, "iri"):
+                                allowed_uris.add(str(target.iri))
 
             Channel = getattr(self.eupont_ns, "Channel", None)
             if not Channel:
@@ -150,11 +187,22 @@ class OWLService:
                 has_actions = False
 
                 for instance in subclass.instances():
-                    if getattr(instance, "offerAction", []):
+                    offered_actions = getattr(instance, "offerAction", [])
+                    if offered_actions:
+                         # If filtering is enabled, check if any offered action is in the allowed set
+                        if home_uuid:
+                            is_allowed = False
+                            for action in offered_actions:
+                                if str(action.iri) in allowed_uris:
+                                    is_allowed = True
+                                    break
+                            if not is_allowed:
+                                continue
+
                         has_actions = True
-                    temp_services.append(
-                        self._create_service_from_instance(instance, "Actions")
-                    )
+                        temp_services.append(
+                            self._create_service_from_instance(instance, "Actions")
+                        )
 
                 if has_actions:
                     services.extend(temp_services)

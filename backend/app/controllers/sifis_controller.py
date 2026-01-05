@@ -67,7 +67,7 @@ def get_trigger_services(current_user, home_uuid):
     try:
         SmartHomeService.verify_home_access(home_uuid, current_user)
         
-        services = owl_service.get_trigger_services()
+        services = owl_service.get_trigger_services(home_uuid)
         return jsonify([service.to_dict() for service in services])
     except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
         return jsonify({"error": str(e)}), e.code
@@ -122,7 +122,7 @@ def get_action_services(current_user, home_uuid):
 
     try:
         SmartHomeService.verify_home_access(home_uuid, current_user)
-        services = owl_service.get_action_services()
+        services = owl_service.get_action_services(home_uuid)
         return jsonify([service.to_dict() for service in services])
     except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
         return jsonify({"error": str(e)}), e.code
