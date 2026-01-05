@@ -993,7 +993,7 @@ class OWLService:
         return os.path.join(current_app.root_path, "ontologies")
 
     @staticmethod
-    def create_home_ontology(home_uuid: UUID) -> str:
+    def create_home_ontology(home_uuid: str) -> str:
         """
         Creates a new OWL file for the Smart Home with its specific locations, devices, and rules.
         Returns the Home's Ontology IRI.
