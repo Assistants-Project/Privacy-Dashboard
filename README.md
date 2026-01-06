@@ -39,6 +39,7 @@ SMARTOTUM_RULE_TOPIC=privacy_rule
 SMARTOTUM_DEVICE_TOPICS=domo_light,domo_light_dimmable,domo_rgbw_light,domo_switch,domo_roller_shutter,domo_camera
 SMARTOTUM_TIMEOUT=1 #starting timeout in seconds when communicating with Smartotum
 SMARTOTUM_APPLICATIONS_JSON=./config/smartotum-apps.json
+PIA_TEMPLATE_PATH=./config/privacy-impact-assessment-template.json
 
 #VITE
 VITE_API_BASE_URL=http://localhost:5050/api/ #same port of backend
