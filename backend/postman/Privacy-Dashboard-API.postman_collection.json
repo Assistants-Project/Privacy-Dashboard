@@ -544,6 +544,59 @@
 					"response": []
 				},
 				{
+					"name": "Unauthorized PIA Template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 401\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unauthorized');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/applications/pia-template",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"pia-template"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Successful DS Login - DS1",
 					"event": [
 						{
@@ -650,6 +703,72 @@
 								"api",
 								"applications",
 								"managed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forbidden PIA Template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 403\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/applications/pia-template",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"pia-template"
 							]
 						}
 					},
@@ -815,6 +934,87 @@
 								"api",
 								"applications",
 								"managed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful PIA Template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Response body is a JSON object\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+									"    pm.response.to.be.json;",
+									"    pm.expect(pm.response.json()).to.be.an('object');",
+									"});",
+									"",
+									"pm.test(\"template_id is a string\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('template_id');",
+									"    pm.expect(jsonData.template_id).to.be.a('string');",
+									"});",
+									"",
+									"pm.test(\"sections is an array of exactly four objects\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('sections');",
+									"    pm.expect(jsonData.sections).to.be.an('array').with.lengthOf(4);",
+									"    jsonData.sections.forEach(function(section) {",
+									"        pm.expect(section).to.have.property('section_key').that.is.a('string');",
+									"        pm.expect(section).to.have.property('label').that.is.a('string');",
+									"        pm.expect(section).to.have.property('subsections').that.is.an('array');",
+									"        section.subsections.forEach(function(subsection) {",
+									"            pm.expect(subsection).to.be.an('object');",
+									"            pm.expect(subsection).to.have.property('subsection_key').that.is.a('string');",
+									"            pm.expect(subsection).to.have.property('label').that.is.a('string');",
+									"            pm.expect(subsection).to.have.property('tables').that.is.an('array');",
+									"            subsection.tables.forEach(function(table) {",
+									"                pm.expect(table).to.be.an('object');",
+									"                pm.expect(table).to.have.property('table_key').that.is.a('string');",
+									"                pm.expect(table).to.have.property('title').that.is.a('string');",
+									"                pm.expect(table).to.have.property('columns').that.is.a('array');",
+									"                pm.expect(table).to.have.property('initial_rows').that.is.a('array');",
+									"            });",
+									"        });",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/applications/pia-template",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"pia-template"
 							]
 						}
 					},
