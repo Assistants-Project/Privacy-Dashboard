@@ -1,3 +1,4 @@
+import os
 from uuid import UUID
 
 from flask import Flask
@@ -21,6 +22,8 @@ from .models import (
     UserSmartHomeApplication,
     UserSmartHomeAvailableConsent,
 )
+
+pia_template = None
 
 
 def init_data(app: Flask) -> None:
@@ -739,3 +742,14 @@ def get_privacy_notice_template() -> str:
 <p>
     <br>
 </p>"""
+
+
+def load_pia_template():
+    pia_template_path = os.getenv("PIA_TEMPLATE_PATH", "pia_template.json")
+    if os.path.exists(pia_template_path):
+        with open(pia_template_path, "r", encoding="utf-8") as f:
+            global pia_template
+            pia_template = f.read()
+            print(f"[INFO] Loaded PIA template from: {pia_template_path}")
+    else:
+        print(f"[WARNING] PIA template file not found: {pia_template_path}")

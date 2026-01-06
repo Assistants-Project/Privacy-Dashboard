@@ -1,5 +1,7 @@
+from flask import Response
 from flask_smorest import Blueprint
 
+from .. import initial_data
 from ..schemas import ApplicationResSchema, SmartHomeUuidReqSchema
 from ..services import ApplicationService
 from ..utils import dc_or_dpo_required, ds_required
@@ -27,3 +29,11 @@ def get_installed_applications(smart_home_uuid: str, current_user):
     return ApplicationService.get_applications_by_ds_id_and_smart_home_uuid(
         current_user.id, smart_home_uuid
     )
+
+
+@application_bp.route("/pia-template", methods=["GET"])
+@dc_or_dpo_required()
+def get_pia_template(current_user):
+    if initial_data.pia_template is None:
+        return {"message": "Template of Privacy Impact Assessment not found!"}, 404
+    return Response(initial_data.pia_template, mimetype="application/json", status=200)
