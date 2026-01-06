@@ -4,19 +4,12 @@ from flask_smorest import Blueprint
 from ..utils import ds_required
 from io import BytesIO
 import zipfile
-import os
-import shutil
-import shutil
 from pathlib import Path
-from uuid import UUID
 
 from ..services import OWLService, XACMLService, DHTService
 from ..services.rule_service import RuleService
 from ..services.petrinet_service import PetriNetService
 from ..repositories.user_repository import UserRepository
-from ..models.entities.sifis.owl.rule_problems import RuleProblems
-from ..models.entities.petrinet import TriggerPlace, ActionPlace
-from marshmallow import ValidationError
 from ..services.home_service import SmartHomeService
 from ..exceptions.entities.home_exception import SmartHomeNotFoundException, SmartHomeForbiddenException
 from ..schemas.request.rule_req_schema import RuleRequestSchema
@@ -300,54 +293,31 @@ def get_defined_triggers(current_user, home_uuid):
 @ds_required()
 def translate_rule(home_uuid, rule_id, current_user):
     """Translate a rule into XACML policies and publish to DHT"""
-    if not xacml_service or not dht_service:
-        return jsonify({"error": "XACML or DHT service not available"}), 500
+    if not rule_service or not xacml_service or not dht_service:
+        return jsonify({"error": "Services not available"}), 500
 
     try:
         user = current_user
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        # Verify rule ownership and get rehydrated rule
-        home = verify_home_access(user, home_uuid)
-        rule = rule_service.get_rule_by_id(rule_id, user, str(home.uuid))
-        if not rule:
+        # Verify rule ownership
+        home = SmartHomeService.verify_home_access(home_uuid, user)
+        if not rule_service.verify_rule_ownership(rule_id, user):
              return jsonify({"error": "Rule not found or access denied"}), 404
 
-        # Get policies directory from config
-        policies_dir = Path(BaseConfig.POLICIES_DIRECTORY)
-        policies_dir.mkdir(parents=True, exist_ok=True)
-
-        # Clean directory
-        for file in policies_dir.glob("*.xml"):
-            file.unlink()
-
-        # Translate rule to XACML policies
-        # Pass rule dict (rehydrated) to translation service
-        policies_xml = xacml_service.translate(rule.to_dict(), str(home.uuid))
-
-        # Save policies to files and publish to DHT
-        for i, policy_xml in enumerate(policies_xml):
-            # Extract policy ID from XML (simplified - just use timestamp-based)
-            from datetime import datetime
-
-            timestamp = int(datetime.now().timestamp() * 1000)
-            policy_id = f"policy_{timestamp}_{i}"
-
-            # Save to file
-            policy_file = policies_dir / f"{policy_id}.xml"
-            with open(policy_file, "w", encoding="utf-8") as f:
-                f.write(policy_xml)
-
-            # Publish to DHT
-            pub_result = dht_service.publish_policy(policy_xml, policy_id)
-            if pub_result is None:
-                print(f"WARNING: Failed to publish policy {policy_id} to DHT")
-
-        return (
-            jsonify({"message": "Policies translated and published successfully"}),
-            200,
+        # Use new service method
+        success = rule_service.translate_and_publish_rule(
+            rule_id, user, str(home.uuid), xacml_service, dht_service
         )
+        
+        if success:
+            return (
+                jsonify({"message": "Policies translated and published successfully"}),
+                200,
+            )
+        else:
+             return jsonify({"error": "Failed to translate or publish rule"}), 500
 
     except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
         return jsonify({"error": str(e)}), e.code

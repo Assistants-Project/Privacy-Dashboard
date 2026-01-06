@@ -20,7 +20,6 @@ from ..models.entities.sifis.owl.rule import Rule
 from ..models.entities.sifis.owl.trigger import Trigger
 from ..models.entities.sifis.owl.action import Action
 from ..models.entities.sifis.owl.detail import Detail
-from ..models.entities.sifis.owl.detail import Detail
 from ..models.entities.sifis.owl.rule_problems import RuleProblems
 from .owl_service import OWLService
 
