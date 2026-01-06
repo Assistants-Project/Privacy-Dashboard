@@ -1,13 +1,14 @@
 from uuid import UUID
 
+from flask import Response
 from flask_smorest import Blueprint
 
+from .. import initial_data
 from ..schemas import (
     ApplicationAndPrivacyNoticeUuidReqSchema,
     ApplicationUuidReqSchema,
     PrivacyNoticeReqSchema,
     PrivacyNoticeResSchema,
-    PrivacyNoticeTemplateResSchema,
 )
 from ..services import PrivacyNoticeService
 from ..utils import dc_or_dpo_required
@@ -33,10 +34,13 @@ def get_privacy_notice_by_managed_application_uuid(
 
 
 @privacy_notice_bp.route("/template", methods=["GET"])
-@privacy_notice_bp.response(200, PrivacyNoticeTemplateResSchema)
 @dc_or_dpo_required()
 def get_privacy_notice_template(current_user):
-    return PrivacyNoticeService.get_privacy_notice_template()
+    if initial_data.privacy_notice_template is None:
+        return {"message": "Template of Privacy Notice not found!"}, 404
+    return Response(
+        initial_data.privacy_notice_template, mimetype="application/json", status=200
+    )
 
 
 @privacy_notice_bp.route("/managed-application/<application_uuid>", methods=["POST"])

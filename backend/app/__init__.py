@@ -20,7 +20,7 @@ from .controllers import (
 )
 from .error_handler import global_error_handler
 from .extensions import api, db, jwt, ma, migrate
-from .initial_data import init_data, load_pia_template
+from .initial_data import init_data, load_pia_template, load_privacy_notice_template
 from .utils import refresh_expiring_jwts
 
 
@@ -85,6 +85,9 @@ def create_app(env_name: Optional[str] = None) -> Flask:
     # Add dummy initial data only in development
     if env_name == "development":
         init_data(app)
+
+    # Load template of Privacy Notice
+    load_privacy_notice_template()
 
     # Load template of Privacy Impact Assessment
     load_pia_template()
