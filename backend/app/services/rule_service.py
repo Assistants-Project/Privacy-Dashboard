@@ -8,7 +8,6 @@ from ..models.entities.sifis.db import DbRule, DbTrigger, DbAction, DbDetail
 from ..models.entities.user import User
 from ..models.entities.sifis.owl.trigger import Trigger
 from ..models.entities.sifis.owl.action import Action
-from ..models.entities.sifis.owl.detail import Detail
 from ..models.entities.sifis.owl.rule import Rule
 from ..repositories.rule_repository import RuleRepository
 from ..services.owl_service import OWLService
