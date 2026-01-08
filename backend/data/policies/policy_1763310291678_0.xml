@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="installation_turn_on_d_lamp_2_1763310291676" Version="3.0" RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny">
+  <Description>XACML policy for SIFIS-Home - 1763310291676</Description>
+  <Target>
+    <AnyOf>
+      <AllOf>
+        <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">marketplace</AttributeValue>
+          <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+        </Match>
+        <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">install</AttributeValue>
+          <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+        </Match>
+      </AllOf>
+    </AnyOf>
+  </Target>
+  <Rule RuleId="1763310291676" Effect="Permit">
+    <Target/>
+    <Condition DecisionTime="pre">
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+          <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+        </Apply>
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">turn_on</AttributeValue>
+      </Apply>
+    </Condition>
+    <Condition DecisionTime="ongoing">
+      <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:time-in-range">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-one-and-only">
+          <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:environment:current-time" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:environment" DataType="http://www.w3.org/2001/XMLSchema#time" MustBePresent="true"/>
+        </Apply>
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#time">01:00:00+01:00</AttributeValue>
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#time">02:00:00+01:00</AttributeValue>
+      </Apply>
+    </Condition>
+    <Condition DecisionTime="post">
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+          <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+        </Apply>
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">marketplace</AttributeValue>
+      </Apply>
+    </Condition>
+  </Rule>
+  <Rule RuleId="default-permit" Effect="Permit">
+    <Description>Default Permit</Description>
+    <Target/>
+  </Rule>
+</Policy>

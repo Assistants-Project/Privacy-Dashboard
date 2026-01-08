@@ -99,9 +99,10 @@ class AuthService:
                 raise UserAlreadyRegisteredException("User already registered!")
             
             user = UserRepository.register_user(email,role,firstname,lastname,None,user_uuid)
-            return user
         else:
-
             password_hash=generate_password_hash(password)
             user = UserRepository.register_user(email,role,firstname,lastname,password_hash,None)
-            return user
+
+
+
+        return user
