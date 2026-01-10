@@ -57,7 +57,7 @@ class User(db.Model):
     password_hash: Mapped[str]
     role = mapped_column(Enum(UserRole, validate_strings=True), nullable=False)
     profile_picture: Mapped[str | None]
-    ontology_iri: Mapped[str | None] = mapped_column(nullable=True)
+
 
     owned_smart_homes: Mapped[List["UserSmartHome"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
