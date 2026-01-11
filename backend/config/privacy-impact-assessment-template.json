@@ -1334,51 +1334,51 @@
               "initial_rows": [
                 {
                   "controls_compliance_fundamental_principles": "Purpose(s): specified, explicit and legitimate",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_compliance_fundamental_principles": "Basis: lawfulness of processing, prohibition of misuse",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_compliance_fundamental_principles": "Data minimization: adequate, relevant and limited",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_compliance_fundamental_principles": "Quality of data: accurate and kept up-to-date",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_compliance_fundamental_principles": "Storage durations: limited",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_compliance_fundamental_principles": "Information for the data subjects (fair and transparent processing)",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_compliance_fundamental_principles": "Obtaining consent",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_compliance_fundamental_principles": "Exercising the right of access and right to data portability",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_compliance_fundamental_principles": "Exercising the rights to rectification and erasure",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_compliance_fundamental_principles": "Exercising the rights to restriction of processing and to object",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_compliance_fundamental_principles": "Processors: identified and governed by a contract",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_compliance_fundamental_principles": "Transfers: compliance with the obligations bearing on transfer of data outside the European Union",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 }
               ]
             },
@@ -1405,115 +1405,115 @@
               "initial_rows": [
                 {
                   "controls_risks_data_security": "Encryption",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Anonymization",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Data partitioning (in relation to the rest of the information system)",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Logical access control",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Traceability (logging)",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Integrity monitoring",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Archiving",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Paper document security",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Operating security",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Clamping down on malicious software",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Managing workstations",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Website security",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Backups",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Maintenance",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Security of computer channels (networks)",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Monitoring",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Physical access control",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Hardware security",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Avoiding sources of risk",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Protecting against non-human sources of risks",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Organization",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Policy (management of rules)",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Risk management",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Project management",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Management of incidents and data breaches",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Personnel management",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Relations with third parties",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 },
                 {
                   "controls_risks_data_security": "Supervision",
-                  "assessment": ""
+                  "assessment": "Unsatisfactory"
                 }
               ]
             },

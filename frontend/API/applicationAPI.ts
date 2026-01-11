@@ -18,4 +18,22 @@ async function getManagedApplications() {
   }
 }
 
-export { getManagedApplications };
+async function getPiaTemplate() {
+  let response = await fetch(baseURL + "/applications/pia-template", {
+    method: "GET",
+    credentials: "include",
+  });
+  if (response.ok) {
+    const piaTemplate = await response.json();
+    return piaTemplate;
+  } else {
+    const errDetail = await response.json();
+    if (errDetail?.message) {
+      throw new Error(errDetail.message);
+    }
+
+    throw new Error("Something went wrong");
+  }
+}
+
+export { getManagedApplications, getPiaTemplate };

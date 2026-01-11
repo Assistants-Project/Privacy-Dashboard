@@ -5,7 +5,7 @@ import { Login } from "./Authentication/Login";
 import { useUser } from "./Authentication/UserContext";
 import { Role, User } from "../models/user";
 import authentication from "../API/User/authentication";
-import { getManagedApplications } from "../API/applicationAPI";
+import { getManagedApplications, getPiaTemplate } from "../API/applicationAPI";
 import {
   getPrivacyNoticeTemplate,
   getPrivacyNoticeByManagedApplicationUuid,
@@ -13,6 +13,7 @@ import {
   removePrivacyNoticeByManagedApplicationUuid,
 } from "../API/privacyNoticeAPI";
 import { TestPrivacyNotice } from "./TestPrivacyNotice";
+import { TestPrivacyImpactAssessment } from "./TestPrivacyImpactAssessment";
 import { Home } from "./Home";
 
 function PrivacyDashboard() {
@@ -152,6 +153,17 @@ function PrivacyDashboard() {
     }
   };
 
+  const fetchPiaTemplate = async () => {
+    try {
+      console.log("Trying to get Privacy Impact Assessment Template");
+      const result = await getPiaTemplate();
+      console.log("Privacy Impact Assessment Template retrieved successfully");
+      return result;
+    } catch (err) {
+      console.error("Error getting privacy impact assessment template:", err);
+    }
+  };
+
   return (
     <Container fluid style={{ padding: 0, height: "100%" }}>
       <Routes>
@@ -190,6 +202,19 @@ function PrivacyDashboard() {
                 handleGetPrivacyNotice={handleGetPrivacyNotice}
                 handleSubmitPrivacyNotice={handleSubmitPrivacyNotice}
                 handleRemovePrivacyNotice={handleRemovePrivacyNotice}
+              />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/test-privacy-impact-assessment"
+          element={
+            user ? (
+              <TestPrivacyImpactAssessment
+                onLogout={doLogout}
+                fetchPiaTemplate={fetchPiaTemplate}
               />
             ) : (
               <Navigate to="/login" replace />

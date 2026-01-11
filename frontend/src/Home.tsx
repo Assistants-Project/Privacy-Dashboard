@@ -1,6 +1,6 @@
-import { Button } from 'react-bootstrap';
-import { useUser } from './Authentication/UserContext';
-import { useNavigate } from 'react-router-dom';
+import { Button } from "react-bootstrap";
+import { useUser } from "./Authentication/UserContext";
+import { useNavigate } from "react-router-dom";
 
 type HomeProps = {
   onLogout: () => void;
@@ -14,7 +14,7 @@ function Home({ onLogout }: HomeProps) {
     <div className="app-shell">
       <header className="app-header">
         <h1>Privacy Dashboard</h1>
-        <p>Benvenuto{user ? `, ${user.firstname}` : ''}</p>
+        <p>Benvenuto{user ? `, ${user.firstname}` : ""}</p>
       </header>
       <main className="app-main">
         <section>
@@ -32,10 +32,17 @@ function Home({ onLogout }: HomeProps) {
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => navigate('/test-privacy-notice')}
+                onClick={() => navigate("/test-privacy-notice")}
                 className="mt-3 ms-3"
               >
                 Test Privacy Notice
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => navigate("/test-privacy-impact-assessment")}
+                className="mt-3 ms-3"
+              >
+                Test Privacy Impact Assessment
               </Button>
             </>
           ) : (

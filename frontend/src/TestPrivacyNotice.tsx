@@ -6,7 +6,6 @@ import {
 } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 
 function TestPrivacyNotice(props: any) {
   const [value, setValue] = useState("");
@@ -76,7 +75,7 @@ function TestPrivacyNotice(props: any) {
 
   return (
     <div className="d-flex flex-column align-items-center p-4">
-      <h1>Privacy Dashboard</h1>
+      <h1>Privacy Notice</h1>
       <div className="w-50">
         <p>Choose a managed application to submit a privacy notice for:</p>
         <FormSelect
