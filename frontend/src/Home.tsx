@@ -1,5 +1,6 @@
 import { Button } from 'react-bootstrap';
 import { useUser } from './Authentication/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 type HomeProps = {
   onLogout: () => void;
@@ -7,6 +8,7 @@ type HomeProps = {
 
 function Home({ onLogout }: HomeProps) {
   const { user } = useUser();
+  const navigate = useNavigate();
 
   return (
     <div className="app-shell">
@@ -28,6 +30,13 @@ function Home({ onLogout }: HomeProps) {
               <Button variant="secondary" onClick={onLogout} className="mt-3">
                 Logout
               </Button>
+              <Button
+                variant="secondary"
+                onClick={() => navigate('/test-privacy-notice')}
+                className="mt-3 ms-3"
+              >
+                Test Privacy Notice
+              </Button>
             </>
           ) : (
             <p>Utente non disponibile. Effettua il login.</p>
@@ -38,4 +47,4 @@ function Home({ onLogout }: HomeProps) {
   );
 }
 
-export { Home }
+export { Home };
