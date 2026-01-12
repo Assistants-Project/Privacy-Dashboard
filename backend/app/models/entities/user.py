@@ -58,6 +58,7 @@ class User(db.Model):
     role = mapped_column(Enum(UserRole, validate_strings=True), nullable=False)
     profile_picture: Mapped[str | None]
 
+
     owned_smart_homes: Mapped[List["UserSmartHome"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )

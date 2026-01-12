@@ -37,12 +37,31 @@ class BaseConfig:
     SMARTOTUM_JWKS_URL = os.getenv("SMARTOTUM_JWKS_URL","https://api.smartotum.com/auth/jwt/jwks.json")
     SMARTOTUM_ISSUER = os.getenv("SMARTOTUM_ISSUER", "https://api.smartotum.com/auth")
     SMARTOTUM_TIMEOUT = float(os.getenv("SMARTOTUM_TIMEOUT", "1")) #max time a http request to smartotum api can last
+
+    # --- Ontology ---
+    ONTOLOGY_DIRECTORY = os.getenv("ONTOLOGY_DIRECTORY", "app/ontologies/")
+    ONTOLOGY_BASE_ENDPOINT = os.getenv("ONTOLOGY_BASE_ENDPOINT", "https://elite.polito.it/ontologies/eupont.owl")
+    ONTOLOGY_SIFIS_FILE = os.getenv("ONTOLOGY_SIFIS_FILE", "sifis-home.owl")
+
+    # --- Reasoner ---
+    REASONER_TYPE = os.getenv("REASONER_TYPE", "hermit")
+    REASONER_PRECOMPUTE_INFERENCES = os.getenv("REASONER_PRECOMPUTE_INFERENCES", "True").lower() == "true"
+
+    # --- DHT ---
+    DHT_ENDPOINT = os.getenv("DHT_ENDPOINT", "http://localhost:3000/")
+
+    # --- Policies ---
+    POLICIES_DIRECTORY = os.getenv("POLICIES_DIRECTORY", "data/policies/")
+
+    # --- Logging ---
+    LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "INFO")
+
     # If set, Smartotum applications are loaded from this local JSON file instead of calling the remote API.
     SMARTOTUM_APPLICATIONS_JSON = os.getenv("SMARTOTUM_APPLICATIONS_JSON", None)
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.getenv("DEV_DATABASE_URI")
-    SQLALCHEMY_ECHO = True
+    # SQLALCHEMY_ECHO = True  # Commented out to reduce log verbosity
 
 
 class TestingConfig(BaseConfig):

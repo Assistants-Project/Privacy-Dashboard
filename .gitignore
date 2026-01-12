@@ -133,6 +133,10 @@ venv.bak/
 appunti.txt
 
 
+ontologies/**/*.tmp
+ontologies/**/*.bak
+ontologies/**/*_backup.*
+
 node_modules
 dist
 .vite

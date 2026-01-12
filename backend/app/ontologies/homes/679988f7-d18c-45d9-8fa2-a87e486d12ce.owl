@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xml:base="http://elite.polito.it/ontologies/sifis-home.owl/679988f7-d18c-45d9-8fa2-a87e486d12ce"
+         xmlns="http://elite.polito.it/ontologies/sifis-home.owl/679988f7-d18c-45d9-8fa2-a87e486d12ce#"
+         xmlns:owlr="http://www.lesfleursdunormal.fr/static/_downloads/owlready_ontology.owl#"
+         xmlns:x_0.1="http://xmlns.com/foaf/0.1/"
+         xmlns:eupont="http://elite.polito.it/ontologies/eupont.owl#"
+         xmlns:sifis-home="http://elite.polito.it/ontologies/sifis-home.owl#">
+<owl:Ontology rdf:about="http://elite.polito.it/ontologies/sifis-home.owl/679988f7-d18c-45d9-8fa2-a87e486d12ce">
+  <owl:imports rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl"/>
+</owl:Ontology>
+<owl:Ontology rdf:about="http://xmlns.com/foaf/0.1"/>
+<rdf:Description rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#name">
+  <owlr:python_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">sifis_name</owlr:python_name>
+</rdf:Description>
+<x_0.1:Person rdf:about="#03af6091-280d-457f-a131-689449a144d8">
+</x_0.1:Person>
+<owl:NamedIndividual rdf:about="#location-home">
+  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
+  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Building"/>
+  <sifis-home:name xml:lang="en">Test Home</sifis-home:name>
+</owl:NamedIndividual>
+<owl:NamedIndividual rdf:about="#location-99776b8a-e4ce-42be-b4c7-007158827f93">
+  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
+  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
+  <sifis-home:name xml:lang="en">Living Room</sifis-home:name>
+</owl:NamedIndividual>
+<owl:NamedIndividual rdf:about="#s-calendar-alarm">
+  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TimerService"/>
+  <eupont:hasNotification rdf:resource="#n-calendar1-alarm"/>
+</owl:NamedIndividual>
+<owl:NamedIndividual rdf:about="#n-calendar1-alarm">
+  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TimeNotification"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_afternoon_trigger"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_morning_trigger"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_day_trigger"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_night_trigger"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_evening_trigger"/>
+  <sifis-home:id>calendar1-alarm</sifis-home:id>
+</owl:NamedIndividual>
+</rdf:RDF>
