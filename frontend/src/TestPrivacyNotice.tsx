@@ -20,7 +20,7 @@ function TestPrivacyNotice(props: any) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const applications = await props.fecthManagedApplications();
+      const applications = await props.fetchManagedApplications();
       setManagedApplications(applications || []);
     };
     fetchData();

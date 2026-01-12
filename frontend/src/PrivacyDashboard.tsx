@@ -5,7 +5,11 @@ import { Login } from "./Authentication/Login";
 import { useUser } from "./Authentication/UserContext";
 import { Role, User } from "../models/user";
 import authentication from "../API/User/authentication";
-import { getManagedApplications, getPiaTemplate } from "../API/applicationAPI";
+import {
+  getManagedApplications,
+  getPiaTemplate,
+  submitPiaByManagedApplicationUuid,
+} from "../API/applicationAPI";
 import {
   getPrivacyNoticeTemplate,
   getPrivacyNoticeByManagedApplicationUuid,
@@ -83,7 +87,7 @@ function PrivacyDashboard() {
     }
   };
 
-  const fecthManagedApplications = async () => {
+  const fetchManagedApplications = async () => {
     try {
       const applications = await getManagedApplications();
       return applications;
@@ -164,6 +168,22 @@ function PrivacyDashboard() {
     }
   };
 
+  const submitPiaTemplate = async (
+    applicationUuid: string,
+    piaTemplate: any
+  ) => {
+    try {
+      const result = await submitPiaByManagedApplicationUuid(
+        applicationUuid,
+        piaTemplate
+      );
+      console.log("Privacy Impact Assessment submitted successfully: ", result);
+      return result;
+    } catch (err) {
+      console.error("Error submitting privacy impact assessment:", err);
+    }
+  };
+
   return (
     <Container fluid style={{ padding: 0, height: "100%" }}>
       <Routes>
@@ -198,7 +218,7 @@ function PrivacyDashboard() {
               <TestPrivacyNotice
                 onLogout={doLogout}
                 fetchPrivacyNoticeTemplate={fetchPrivacyNoticeTemplate}
-                fecthManagedApplications={fecthManagedApplications}
+                fetchManagedApplications={fetchManagedApplications}
                 handleGetPrivacyNotice={handleGetPrivacyNotice}
                 handleSubmitPrivacyNotice={handleSubmitPrivacyNotice}
                 handleRemovePrivacyNotice={handleRemovePrivacyNotice}
@@ -215,6 +235,8 @@ function PrivacyDashboard() {
               <TestPrivacyImpactAssessment
                 onLogout={doLogout}
                 fetchPiaTemplate={fetchPiaTemplate}
+                fetchManagedApplications={fetchManagedApplications}
+                submitPiaTemplate={submitPiaTemplate}
               />
             ) : (
               <Navigate to="/login" replace />
