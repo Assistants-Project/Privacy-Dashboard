@@ -3,6 +3,7 @@ from typing import List
 from uuid import UUID, uuid4
 
 from sqlalchemy import Enum, ForeignKey, Text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...extensions import db
@@ -29,6 +30,8 @@ class Application(db.Model):
             level of compliancy to the GDPR regulations.
         questionnaire_summary: A textual summary of the answers to the questionnaire,
             if it was carried out, to be automatically generated.
+        privacy_impact_assessment: A JSONB field that stores the privacy impact assessment
+            of the application, if it was carried out, as a JSON object.
         privacy_notice_id: A foreign key ID of the privacy notice associated to the application, if any.
         privacy_notice: A privacy notice associated to the application, if any.
             Represents a many-to-one relationship with the `PrivacyNotice` class.
@@ -50,6 +53,7 @@ class Application(db.Model):
     description = mapped_column(Text, nullable=True)
     evaluation = mapped_column(Enum(Evaluation, validate_strings=True), nullable=True)
     questionnaire_summary = mapped_column(Text, nullable=True)
+    privacy_impact_assessment: Mapped[dict | None] = mapped_column(JSONB, default=None)
     privacy_notice_id: Mapped[int | None] = mapped_column(
         ForeignKey("privacy_notices.id", ondelete="SET NULL"), default=None
     )

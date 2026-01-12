@@ -8,6 +8,7 @@ Create Date: 2025-11-03 21:02:23.758244
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects.postgresql import JSONB
 
 # revision identifiers, used by Alembic.
 revision = "3388fe67c540"
@@ -88,6 +89,7 @@ def upgrade():
             nullable=True,
         ),
         sa.Column("questionnaire_summary", sa.Text(), nullable=True),
+        sa.Column("privacy_impact_assessment", JSONB, nullable=True),
         sa.Column("privacy_notice_id", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
             ["privacy_notice_id"], ["privacy_notices.id"], ondelete="SET NULL"

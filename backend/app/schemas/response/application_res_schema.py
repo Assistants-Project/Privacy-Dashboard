@@ -8,7 +8,7 @@ class ApplicationSchema(ma.SQLAlchemyAutoSchema):
         include_fk = False
         include_relationships = False
         load_instance = False
-        exclude = ("id",)
+        exclude = ("id", "privacy_impact_assessment")
 
 
 class ApplicationResSchema(ma.Schema):

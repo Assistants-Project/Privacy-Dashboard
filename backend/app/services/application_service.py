@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, TypedDict
 
-from ..exceptions import SmartHomeNotFoundException
+from ..exceptions import ApplicationNotFoundException, SmartHomeNotFoundException
 from ..models import Application
 from ..repositories import ApplicationRepository, SmartHomeRepository
 
@@ -60,3 +60,30 @@ class ApplicationService:
             user_id, smart_home.id
         )
         return [{"application": app, "installed_at": dt} for app, dt in iterator]
+
+    @staticmethod
+    def submit_pia_by_managed_application_uuid(
+        user_id: int, application_uuid: str, pia_data: dict
+    ) -> None:
+        """Submits a Privacy Impact Assessment (PIA) for an application managed by a `DATA_CONTROLLER` or `DPO`.
+
+        Args:
+            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the application.
+            application_uuid: The UUID of the application for which the PIA is being submitted.
+            pia_data: A dictionary containing the PIA data to be submitted.
+
+        Raises:
+            `ApplicationNotFoundException`: If the application with the given UUID is not found among the managed applications.
+        """
+
+        application = (
+            ApplicationRepository.get_application_by_user_id_and_application_uuid(
+                user_id, application_uuid
+            )
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among the managed applications!"
+            )
+        # TODO: add validation of pia_data json schema
+        ApplicationRepository.submit_pia_for_application(application.id, pia_data)

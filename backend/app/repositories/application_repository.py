@@ -132,3 +132,9 @@ class ApplicationRepository:
         for rel in relations_present:
             if rel.application_id not in desired_application_ids:
                 db.session.delete(rel)
+
+    @staticmethod
+    def submit_pia_for_application(application_id: int, pia_data: dict) -> None:
+        application = db.session.get(Application, application_id)
+        application.privacy_impact_assessment = pia_data
+        db.session.commit()
