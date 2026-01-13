@@ -645,7 +645,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia-template",
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
 							"host": [
 								"{{baseURL}}"
 							],
@@ -654,7 +654,7 @@
 								"applications",
 								"managed-application",
 								":application_uuid",
-								"pia-template"
+								"pia"
 							],
 							"variable": [
 								{
@@ -715,7 +715,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia-template",
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
 							"host": [
 								"{{baseURL}}"
 							],
@@ -724,7 +724,7 @@
 								"applications",
 								"managed-application",
 								":application_uuid",
-								"pia-template"
+								"pia"
 							],
 							"variable": [
 								{
@@ -785,7 +785,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia-template",
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
 							"host": [
 								"{{baseURL}}"
 							],
@@ -794,7 +794,204 @@
 								"applications",
 								"managed-application",
 								":application_uuid",
-								"pia-template"
+								"pia"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable PIA By Managed Application - Empty UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'application_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('application_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"managed-application",
+								":application_uuid",
+								"pia"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unprocessable PIA By Managed Application - Wrong UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 422\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, errors, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'errors', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 422\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains an object with key 'path' having an object with key 'application_uuid'\", function () {\r",
+									"    pm.expect(responseData.errors).to.be.an('object').that.has.property('path').that.is.an('object').that.has.property('application_uuid');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unprocessable Entity'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unprocessable Entity');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"managed-application",
+								":application_uuid",
+								"pia"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "somethingwrong"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized PIA By Managed Application",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 401\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Authentication token missing'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Authentication token missing');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Unauthorized'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Unauthorized');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"managed-application",
+								":application_uuid",
+								"pia"
 							],
 							"variable": [
 								{
@@ -1034,7 +1231,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia-template",
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
 							"host": [
 								"{{baseURL}}"
 							],
@@ -1043,7 +1240,69 @@
 								"applications",
 								"managed-application",
 								":application_uuid",
-								"pia-template"
+								"pia"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forbidden PIA By Managed Application",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 403\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'User is not a Data Controller or DPO!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('User is not a Data Controller or DPO!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Forbidden'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Forbidden');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"managed-application",
+								":application_uuid",
+								"pia"
 							],
 							"variable": [
 								{
@@ -1360,7 +1619,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia-template",
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
 							"host": [
 								"{{baseURL}}"
 							],
@@ -1369,7 +1628,7 @@
 								"applications",
 								"managed-application",
 								":application_uuid",
-								"pia-template"
+								"pia"
 							],
 							"variable": [
 								{
@@ -1430,7 +1689,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia-template",
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
 							"host": [
 								"{{baseURL}}"
 							],
@@ -1439,7 +1698,7 @@
 								"applications",
 								"managed-application",
 								":application_uuid",
-								"pia-template"
+								"pia"
 							],
 							"variable": [
 								{
@@ -1518,7 +1777,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia-template",
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
 							"host": [
 								"{{baseURL}}"
 							],
@@ -1527,7 +1786,7 @@
 								"applications",
 								"managed-application",
 								":application_uuid",
-								"pia-template"
+								"pia"
 							],
 							"variable": [
 								{
@@ -1607,7 +1866,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia-template",
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
 							"host": [
 								"{{baseURL}}"
 							],
@@ -1616,7 +1875,88 @@
 								"applications",
 								"managed-application",
 								":application_uuid",
-								"pia-template"
+								"pia"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found PIA By Managed Application - No PIA",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const applicationUuid = pm.environment.get(\"application_uuid1\");\r",
+									"pm.test(`Message is equal to 'No Privacy Impact Assessment found for the application with uuid ${applicationUuid}'`, function () {\r",
+									"    pm.expect(responseData.message).to.eql(`No Privacy Impact Assessment found for the application with uuid ${applicationUuid}`);\r",
+									"});\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable",
+									"const applicationUuid = pm.environment.get(\"application_uuid1\");",
+									"",
+									"// Check if application_uuid is available",
+									"if (applicationUuid) {",
+									"    // Set the request URL with the application_uuid path variable",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"managed-application",
+								":application_uuid",
+								"pia"
 							],
 							"variable": [
 								{
@@ -1696,7 +2036,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia-template",
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
 							"host": [
 								"{{baseURL}}"
 							],
@@ -1705,7 +2045,284 @@
 								"applications",
 								"managed-application",
 								":application_uuid",
-								"pia-template"
+								"pia"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not Found PIA By Managed Application - Unexisting Application",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has required fields: code, message, and status\", function () {   \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('code', 'message', 'status');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Code is equal to 404\", function () {\r",
+									"    pm.expect(responseData.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Message is equal to 'Application with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found among the managed applications!'\", function () {\r",
+									"    pm.expect(responseData.message).to.eql('Application with uuid 34b4d951-c339-4004-a2c5-5e7e824973c3 not found among the managed applications!');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is equal to 'Not Found'\", function () {\r",
+									"    pm.expect(responseData.status).to.eql('Not Found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"managed-application",
+								":application_uuid",
+								"pia"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": "34b4d951-c339-4004-a2c5-5e7e824973c3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful PIA By Managed Application - Application 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body is a JSON object\", function () {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+									"    pm.response.to.be.json;\r",
+									"    pm.expect(pm.response.json()).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"template_id is a string\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('template_id');\r",
+									"    pm.expect(jsonData.template_id).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"sections is an array of exactly four objects\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('sections');\r",
+									"    pm.expect(jsonData.sections).to.be.an('array').with.lengthOf(4);\r",
+									"    jsonData.sections.forEach(function(section) {\r",
+									"        pm.expect(section).to.have.property('section_key').that.is.a('string');\r",
+									"        pm.expect(section).to.have.property('label').that.is.a('string');\r",
+									"        pm.expect(section).to.have.property('subsections').that.is.an('array');\r",
+									"        section.subsections.forEach(function(subsection) {\r",
+									"            pm.expect(subsection).to.be.an('object');\r",
+									"            pm.expect(subsection).to.have.property('subsection_key').that.is.a('string');\r",
+									"            pm.expect(subsection).to.have.property('label').that.is.a('string');\r",
+									"            pm.expect(subsection).to.have.property('tables').that.is.an('array');\r",
+									"            subsection.tables.forEach(function(table) {\r",
+									"                pm.expect(table).to.be.an('object');\r",
+									"                pm.expect(table).to.have.property('table_key').that.is.a('string');\r",
+									"                pm.expect(table).to.have.property('title').that.is.a('string');\r",
+									"                pm.expect(table).to.have.property('columns').that.is.a('array');\r",
+									"                pm.expect(table).to.have.property('initial_rows').that.is.a('array');\r",
+									"            });\r",
+									"        });\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains the modified template'\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.sections[0].subsections[0].tables[0].initial_rows[0].description).to.eql('TEST APP 2');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable",
+									"const applicationUuid = pm.environment.get(\"application_uuid2\");",
+									"",
+									"// Check if application_uuid is available",
+									"if (applicationUuid) {",
+									"    // Set the request URL with the application_uuid path variable",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"managed-application",
+								":application_uuid",
+								"pia"
+							],
+							"variable": [
+								{
+									"key": "application_uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful PIA By Managed Application - Application 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body is a JSON object\", function () {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+									"    pm.response.to.be.json;\r",
+									"    pm.expect(pm.response.json()).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"template_id is a string\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('template_id');\r",
+									"    pm.expect(jsonData.template_id).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"sections is an array of exactly four objects\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('sections');\r",
+									"    pm.expect(jsonData.sections).to.be.an('array').with.lengthOf(4);\r",
+									"    jsonData.sections.forEach(function(section) {\r",
+									"        pm.expect(section).to.have.property('section_key').that.is.a('string');\r",
+									"        pm.expect(section).to.have.property('label').that.is.a('string');\r",
+									"        pm.expect(section).to.have.property('subsections').that.is.an('array');\r",
+									"        section.subsections.forEach(function(subsection) {\r",
+									"            pm.expect(subsection).to.be.an('object');\r",
+									"            pm.expect(subsection).to.have.property('subsection_key').that.is.a('string');\r",
+									"            pm.expect(subsection).to.have.property('label').that.is.a('string');\r",
+									"            pm.expect(subsection).to.have.property('tables').that.is.an('array');\r",
+									"            subsection.tables.forEach(function(table) {\r",
+									"                pm.expect(table).to.be.an('object');\r",
+									"                pm.expect(table).to.have.property('table_key').that.is.a('string');\r",
+									"                pm.expect(table).to.have.property('title').that.is.a('string');\r",
+									"                pm.expect(table).to.have.property('columns').that.is.a('array');\r",
+									"                pm.expect(table).to.have.property('initial_rows').that.is.a('array');\r",
+									"            });\r",
+									"        });\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains the modified template'\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.sections[0].subsections[0].tables[0].initial_rows[0].description).to.eql('TEST APP 1');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Retrieve the application_uuid from the environment variable",
+									"const applicationUuid = pm.environment.get(\"application_uuid1\");",
+									"",
+									"// Check if application_uuid is available",
+									"if (applicationUuid) {",
+									"    // Set the request URL with the application_uuid path variable",
+									"    pm.request.url = pm.request.url.toString().replace(\":application_uuid\", applicationUuid);",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/applications/managed-application/:application_uuid/pia",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"applications",
+								"managed-application",
+								":application_uuid",
+								"pia"
 							],
 							"variable": [
 								{
