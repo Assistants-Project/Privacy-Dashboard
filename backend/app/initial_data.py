@@ -1,3 +1,4 @@
+import json
 import os
 from uuid import UUID
 
@@ -23,8 +24,9 @@ from .models import (
     UserSmartHomeAvailableConsent,
 )
 
-pia_template = None
 privacy_notice_template = None
+pia_template = None
+pia_schema = None
 
 
 def init_data(app: Flask) -> None:
@@ -628,3 +630,20 @@ def load_pia_template():
             print(f"[INFO] Loaded PIA template from: {pia_template_path}")
     else:
         print(f"[WARNING] PIA template file not found: {pia_template_path}")
+
+
+def load_pia_schema():
+    pia_schema_path = os.getenv("PIA_SCHEMA_PATH", "pia_schema.json")
+    if os.path.exists(pia_schema_path):
+        with open(pia_schema_path, "r", encoding="utf-8") as f:
+            global pia_schema
+            try:
+                pia_schema = json.load(f)
+                print(f"[INFO] Loaded PIA schema from: {pia_schema_path}")
+            except json.JSONDecodeError as e:
+                pia_schema = None
+                print(
+                    f"[ERROR] Failed to parse PIA schema JSON ({pia_schema_path}): {e}"
+                )
+    else:
+        print(f"[WARNING] PIA schema file not found: {pia_schema_path}")

@@ -1,0 +1,313 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Generated schema for Root",
+  "type": "object",
+  "properties": {
+    "template_id": {
+      "type": "string"
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "section_key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "subsections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "subsection_key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "tables": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "table_key": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "columns": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "options": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": ["key", "label", "type"],
+                          "additionalProperties": false
+                        }
+                      },
+                      "initial_rows": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "description": {
+                              "type": "string"
+                            },
+                            "purposes": {
+                              "type": "string"
+                            },
+                            "stakes": {
+                              "type": "string"
+                            },
+                            "controller": {
+                              "type": "string"
+                            },
+                            "processor": {
+                              "type": "string"
+                            },
+                            "standards": {
+                              "type": "string"
+                            },
+                            "consideration": {
+                              "type": "string"
+                            },
+                            "legitimacy": {
+                              "type": "string"
+                            },
+                            "lawfulness_criteria": {
+                              "type": "string"
+                            },
+                            "applicable": {
+                              "type": "string"
+                            },
+                            "justification": {
+                              "type": "string"
+                            },
+                            "data_processed": {
+                              "type": "string"
+                            },
+                            "data_categories": {
+                              "type": "string"
+                            },
+                            "minimization_controls": {
+                              "type": "string"
+                            },
+                            "data_quality_controls": {
+                              "type": "string"
+                            },
+                            "data_types": {
+                              "type": "string"
+                            },
+                            "storage_duration": {
+                              "type": "string"
+                            },
+                            "justification_storage_duration": {
+                              "type": "string"
+                            },
+                            "erasure_mechanism": {
+                              "type": "string"
+                            },
+                            "controls_guaranteeing_proportionality_necessity": {
+                              "type": "string"
+                            },
+                            "acceptable": {
+                              "type": "string"
+                            },
+                            "corrective_controls": {
+                              "type": "string"
+                            },
+                            "controls_data_processed": {
+                              "type": "string"
+                            },
+                            "implementation_or_justification": {
+                              "type": "string"
+                            },
+                            "general_security_controls": {
+                              "type": "string"
+                            },
+                            "organizational_controls": {
+                              "type": "string"
+                            },
+                            "controls_risks_data_security": {
+                              "type": "string"
+                            },
+                            "assessment": {
+                              "type": "string"
+                            },
+                            "controls_compliance_fundamental_principles": {
+                              "type": "string"
+                            },
+                            "additional_controls_requested": {
+                              "type": "string"
+                            },
+                            "manager": {
+                              "type": "string"
+                            },
+                            "frequency": {
+                              "type": "string"
+                            },
+                            "difficulty": {
+                              "type": "string"
+                            },
+                            "cost": {
+                              "type": "string"
+                            },
+                            "progress": {
+                              "type": "string"
+                            },
+                            "content": {
+                              "type": "string"
+                            },
+                            "recipients": {
+                              "type": "string"
+                            },
+                            "processes": {
+                              "type": "string"
+                            },
+                            "process_description": {
+                              "type": "string"
+                            },
+                            "data_supporting_assets": {
+                              "type": "string"
+                            },
+                            "controls_right_to_information": {
+                              "type": "string"
+                            },
+                            "implementation": {
+                              "type": "string"
+                            },
+                            "controls_obtaining_consent": {
+                              "type": "string"
+                            },
+                            "controls_right_of_access": {
+                              "type": "string"
+                            },
+                            "internal_data": {
+                              "type": "string"
+                            },
+                            "external_data": {
+                              "type": "string"
+                            },
+                            "controls_right_of_portability": {
+                              "type": "string"
+                            },
+                            "controls_right_of_rectification_and_erasure": {
+                              "type": "string"
+                            },
+                            "controls_right_of_restriction_and_objection": {
+                              "type": "string"
+                            },
+                            "processor_name": {
+                              "type": "string"
+                            },
+                            "purpose": {
+                              "type": "string"
+                            },
+                            "scope": {
+                              "type": "string"
+                            },
+                            "contract_reference": {
+                              "type": "string"
+                            },
+                            "compliance_art28": {
+                              "type": "string"
+                            },
+                            "data_sets_storage_location": {
+                              "type": "string"
+                            },
+                            "france": {
+                              "type": "string"
+                            },
+                            "eu": {
+                              "type": "string"
+                            },
+                            "outside_eu_adequate_country": {
+                              "type": "string"
+                            },
+                            "other_country": {
+                              "type": "string"
+                            },
+                            "justification_supervision": {
+                              "type": "string"
+                            },
+                            "controls_right_data_subjects": {
+                              "type": "string"
+                            },
+                            "risk": {
+                              "type": "string"
+                            },
+                            "main_risk_sources": {
+                              "type": "string"
+                            },
+                            "main_threats": {
+                              "type": "string"
+                            },
+                            "main_potential_impacts": {
+                              "type": "string"
+                            },
+                            "main_controls": {
+                              "type": "string"
+                            },
+                            "severity": {
+                              "type": "string"
+                            },
+                            "likelihood": {
+                              "type": "string"
+                            },
+                            "risks": {
+                              "type": "string"
+                            },
+                            "residual_severity": {
+                              "type": "string"
+                            },
+                            "residual_likelihood": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "table_key",
+                      "title",
+                      "columns",
+                      "initial_rows"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": ["subsection_key", "label", "tables"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["section_key", "label", "subsections"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["template_id", "sections"],
+  "additionalProperties": false
+}

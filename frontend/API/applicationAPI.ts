@@ -41,9 +41,12 @@ async function submitPiaByManagedApplicationUuid(
   content: any
 ) {
   let response = await fetch(
-    baseURL + "applications/application/" + applicationUuid + "/pia-template",
+    baseURL +
+      "applications/managed-application/" +
+      applicationUuid +
+      "/pia-template",
     {
-      method: "POST",
+      method: "PUT",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",

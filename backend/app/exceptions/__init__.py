@@ -3,7 +3,13 @@ from .auth_exceptions import (
     InvalidJWTException,
     MissingJWTException,
 )
-from .entities.application_exceptions import ApplicationNotFoundException
+from .entities.application_exceptions import (
+    ApplicationNotFoundException,
+    InvalidPrivacyImpactAssessmentException,
+    MissingPrivacyImpactAssessmentException,
+    MissingTemplateException,
+    MissingValidationSchemaException,
+)
 from .entities.available_consent_exceptions import (
     AvailableConsentApplicationMismatchException,
     AvailableConsentEmptyListException,
@@ -26,7 +32,11 @@ from .entities.question_exceptions import (
 )
 from .entities.request_exceptions import RequestNotFoundException
 from .entities.room_exceptions import RoomNotFoundException, RoomSyncException
-from .entities.smartotum_exceptions import SmartotumSyncException
+from .entities.smartotum_exceptions import (
+    SmartotumServiceUnavailableException,
+    SmartotumSyncException,
+    SmartotumTimeoutException,
+)
 from .entities.user_exceptions import (
     UnloggedUserException,
     UserAlreadyRegisteredException,
@@ -34,8 +44,6 @@ from .entities.user_exceptions import (
     WrongUserCredentialsException,
     WrongUserRoleException,
     WrongUserUuidException,
-    UnloggedUserException,
-    UserAlreadyRegisteredException,
 )
 from .relations.question_application_exceptions import (
     QuestionnaireNotFoundException,
@@ -47,21 +55,15 @@ from .relations.user_smart_home_available_consent_exceptions import (
     UserSmartHomeAvailableConsentDeletionException,
 )
 
-from .entities.room_exceptions import RoomNotFoundException, RoomSyncException
-from .entities.home_exception import SmartHomeNotFoundException
-from .entities.home_exception import SmartHomeForbiddenException
-from .entities.device_exceptions import DeviceSyncException
-from .entities.smartotum_exceptions import (
-    SmartotumSyncException,
-    SmartotumServiceUnavailableException,
-    SmartotumTimeoutException,
-)
-
 __all__ = [
     "ExpiredJWTException",
     "InvalidJWTException",
     "MissingJWTException",
     "ApplicationNotFoundException",
+    "InvalidPrivacyImpactAssessmentException",
+    "MissingPrivacyImpactAssessmentException",
+    "MissingTemplateException",
+    "MissingValidationSchemaException",
     "AvailableConsentApplicationMismatchException",
     "AvailableConsentEmptyListException",
     "AvailableConsentNotFoundException",
@@ -91,5 +93,4 @@ __all__ = [
     "UserSmartHomeAvailableConsentDeletionException",
     "SmartotumServiceUnavailableException",
     "SmartotumTimeoutException",
-
 ]

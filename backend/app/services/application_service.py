@@ -1,7 +1,16 @@
 from datetime import datetime
 from typing import List, TypedDict
 
-from ..exceptions import ApplicationNotFoundException, SmartHomeNotFoundException
+from jsonschema import ValidationError, validate
+
+from .. import initial_data
+from ..exceptions import (
+    ApplicationNotFoundException,
+    InvalidPrivacyImpactAssessmentException,
+    MissingPrivacyImpactAssessmentException,
+    MissingValidationSchemaException,
+    SmartHomeNotFoundException,
+)
 from ..models import Application
 from ..repositories import ApplicationRepository, SmartHomeRepository
 
@@ -63,19 +72,36 @@ class ApplicationService:
 
     @staticmethod
     def submit_pia_by_managed_application_uuid(
-        user_id: int, application_uuid: str, pia_data: dict
+        user_id: int, application_uuid: str, submitted_pia_data: dict | None
     ) -> None:
         """Submits a Privacy Impact Assessment (PIA) for an application managed by a `DATA_CONTROLLER` or `DPO`.
 
         Args:
             user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the application.
             application_uuid: The UUID of the application for which the PIA is being submitted.
-            pia_data: A dictionary containing the PIA data to be submitted.
+            submitted_pia_data: A dictionary containing the PIA data to be submitted, or `None` if no data is provided.
 
         Raises:
+            `MissingPrivacyImpactAssessmentException`: If the `submitted_pia_data` is `None`.
+            `MissingValidationSchemaException`: If the PIA JSON schema is not defined in the initial data.
+            `InvalidPrivacyImpactAssessmentException`: If the submitted PIA data does not conform to the defined JSON schema.
             `ApplicationNotFoundException`: If the application with the given UUID is not found among the managed applications.
         """
 
+        if submitted_pia_data is None:
+            raise MissingPrivacyImpactAssessmentException(
+                "JSON body with required Privacy Impact Assessment data is missing!"
+            )
+        if initial_data.pia_schema is None:
+            raise MissingValidationSchemaException(
+                "Privacy Impact Assessment JSON validation schema is not found!"
+            )
+        try:
+            validate(instance=submitted_pia_data, schema=initial_data.pia_schema)
+        except ValidationError as ve:
+            raise InvalidPrivacyImpactAssessmentException(
+                f"Submitted Privacy Impact Assessment data is invalid: {ve.message}"
+            )
         application = (
             ApplicationRepository.get_application_by_user_id_and_application_uuid(
                 user_id, application_uuid
@@ -85,5 +111,6 @@ class ApplicationService:
             raise ApplicationNotFoundException(
                 f"Application with uuid {application_uuid} not found among the managed applications!"
             )
-        # TODO: add validation of pia_data json schema
-        ApplicationRepository.submit_pia_for_application(application.id, pia_data)
+        ApplicationRepository.submit_pia_for_application(
+            application.id, submitted_pia_data
+        )

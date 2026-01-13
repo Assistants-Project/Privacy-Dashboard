@@ -2,6 +2,7 @@ from flask import Response, request
 from flask_smorest import Blueprint
 
 from .. import initial_data
+from ..exceptions import MissingTemplateException
 from ..schemas import (
     ApplicationResSchema,
     ApplicationUuidReqSchema,
@@ -39,20 +40,19 @@ def get_installed_applications(smart_home_uuid: str, current_user):
 @dc_or_dpo_required()
 def get_pia_template(current_user):
     if initial_data.pia_template is None:
-        return {"message": "Template of Privacy Impact Assessment not found!"}, 404
+        raise MissingTemplateException(
+            "Template of Privacy Impact Assessment not found!"
+        )
     return Response(initial_data.pia_template, mimetype="application/json", status=200)
 
 
-@application_bp.route("/application/<application_uuid>/pia-template", methods=["POST"])
+@application_bp.route(
+    "/managed-application/<application_uuid>/pia-template", methods=["PUT"]
+)
 @application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
 @dc_or_dpo_required()
 def submit_pia_by_managed_application_uuid(application_uuid: str, current_user):
-    payload = request.get_json()
-    if payload is None:
-        return {
-            "message": "JSON body with required Privacy Impact Assessment data is missing!"
-        }, 400
     ApplicationService.submit_pia_by_managed_application_uuid(
-        current_user.id, application_uuid, payload
+        current_user.id, application_uuid, request.get_json(silent=True)
     )
-    return {"message": "Privacy Impact Assessment submitted successfully."}, 204
+    return "", 204
