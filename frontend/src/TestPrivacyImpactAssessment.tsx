@@ -130,6 +130,7 @@ function TestPrivacyImpactAssessment(props: any) {
                               : col.type === "text"
                               ? "agLargeTextCellEditor"
                               : undefined,
+                          cellEditorPopup: col.type === "text" ? true : false,
                         };
                         if (col.type === "select") {
                           baseDef.cellEditorParams = {
@@ -138,6 +139,8 @@ function TestPrivacyImpactAssessment(props: any) {
                         } else if (col.type === "text") {
                           baseDef.cellEditorParams = {
                             maxLength: 1000,
+                            rows: 5,
+                            cols: 30,
                           } as ILargeTextEditorParams;
                         }
                         return baseDef;
