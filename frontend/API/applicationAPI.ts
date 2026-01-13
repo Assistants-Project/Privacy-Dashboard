@@ -36,22 +36,12 @@ async function getPiaTemplate() {
   }
 }
 
-async function submitPiaByManagedApplicationUuid(
-  applicationUuid: string,
-  content: any
-) {
+async function getPiaByManagedApplicationUuid(applicationUuid: string) {
   let response = await fetch(
-    baseURL +
-      "applications/managed-application/" +
-      applicationUuid +
-      "/pia-template",
+    baseURL + "applications/managed-application/" + applicationUuid + "/pia",
     {
-      method: "PUT",
+      method: "GET",
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(content),
     }
   );
   if (response.ok) {
@@ -78,8 +68,45 @@ async function submitPiaByManagedApplicationUuid(
   }
 }
 
+async function submitPiaByManagedApplicationUuid(
+  applicationUuid: string,
+  content: any
+) {
+  let response = await fetch(
+    baseURL + "applications/managed-application/" + applicationUuid + "/pia",
+    {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(content),
+    }
+  );
+  if (!response.ok) {
+    const errDetail = await response.json();
+    // Flask-smorest validation error
+    if (errDetail?.errors) {
+      const jsonErrors = errDetail.errors.json;
+      if (jsonErrors && typeof jsonErrors === "object") {
+        const msgs = Object.values(jsonErrors).flat().join("\n");
+        throw new Error(msgs || "Validation error");
+      }
+      if (typeof errDetail.errors === "string") {
+        throw new Error(errDetail.errors);
+      }
+    }
+    if (errDetail?.message) {
+      throw new Error(errDetail.message);
+    }
+
+    throw new Error("Something went wrong");
+  }
+}
+
 export {
   getManagedApplications,
   getPiaTemplate,
+  getPiaByManagedApplicationUuid,
   submitPiaByManagedApplicationUuid,
 };

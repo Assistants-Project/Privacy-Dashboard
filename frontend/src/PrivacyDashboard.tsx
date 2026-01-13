@@ -8,6 +8,7 @@ import authentication from "../API/User/authentication";
 import {
   getManagedApplications,
   getPiaTemplate,
+  getPiaByManagedApplicationUuid,
   submitPiaByManagedApplicationUuid,
 } from "../API/applicationAPI";
 import {
@@ -168,17 +169,28 @@ function PrivacyDashboard() {
     }
   };
 
+  const handleGetPrivacyImpactAssessment = async (applicationUuid: string) => {
+    try {
+      console.log(
+        "Trying to get Privacy Impact Assessment for application: ",
+        applicationUuid
+      );
+      const result = await getPiaByManagedApplicationUuid(applicationUuid);
+      console.log("Privacy Impact Assessment retrieved successfully");
+      return result;
+    } catch (err) {
+      console.error("Error getting privacy impact assessment:", err);
+    }
+  };
+
   const submitPiaTemplate = async (
     applicationUuid: string,
     piaTemplate: any
   ) => {
     try {
-      const result = await submitPiaByManagedApplicationUuid(
-        applicationUuid,
-        piaTemplate
-      );
-      console.log("Privacy Impact Assessment submitted successfully: ", result);
-      return result;
+      await submitPiaByManagedApplicationUuid(applicationUuid, piaTemplate);
+      console.log("Privacy Impact Assessment submitted successfully");
+      return;
     } catch (err) {
       console.error("Error submitting privacy impact assessment:", err);
     }
@@ -236,6 +248,9 @@ function PrivacyDashboard() {
                 onLogout={doLogout}
                 fetchPiaTemplate={fetchPiaTemplate}
                 fetchManagedApplications={fetchManagedApplications}
+                handleGetPrivacyImpactAssessment={
+                  handleGetPrivacyImpactAssessment
+                }
                 submitPiaTemplate={submitPiaTemplate}
               />
             ) : (

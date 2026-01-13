@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from typing import List, TypedDict
 
@@ -9,6 +10,7 @@ from ..exceptions import (
     InvalidPrivacyImpactAssessmentException,
     MissingPrivacyImpactAssessmentException,
     MissingValidationSchemaException,
+    PrivacyImpactAssessmentNotFoundException,
     SmartHomeNotFoundException,
 )
 from ..models import Application
@@ -69,6 +71,38 @@ class ApplicationService:
             user_id, smart_home.id
         )
         return [{"application": app, "installed_at": dt} for app, dt in iterator]
+
+    @staticmethod
+    def get_pia_by_managed_application_uuid(user_id: int, application_uuid: str) -> str:
+        """Retrieves the Privacy Impact Assessment (PIA) of an application managed by a `DATA_CONTROLLER` or `DPO`, if any.
+
+        Args:
+            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the application.
+            application_uuid: The UUID of the application whose PIA is being requested.
+
+        Returns:
+            A string representing a JSON-encoded dictionary containing the PIA data for the specified application.
+
+        Raises:
+            `ApplicationNotFoundException`: If the application with the given UUID is not found among the managed applications.
+            `PrivacyImpactAssessmentNotFoundException`: If no PIA is found for the specified application.
+        """
+
+        application = (
+            ApplicationRepository.get_application_by_user_id_and_application_uuid(
+                user_id, application_uuid
+            )
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among the managed applications!"
+            )
+        privacy_impact_assessment = application.privacy_impact_assessment
+        if not privacy_impact_assessment:
+            raise PrivacyImpactAssessmentNotFoundException(
+                f"No Privacy Impact Assessment found for the application with uuid {application_uuid}"
+            )
+        return json.dumps(privacy_impact_assessment)
 
     @staticmethod
     def submit_pia_by_managed_application_uuid(

@@ -9,6 +9,7 @@ from .entities.application_exceptions import (
     MissingPrivacyImpactAssessmentException,
     MissingTemplateException,
     MissingValidationSchemaException,
+    PrivacyImpactAssessmentNotFoundException,
 )
 from .entities.available_consent_exceptions import (
     AvailableConsentApplicationMismatchException,
@@ -64,6 +65,7 @@ __all__ = [
     "MissingPrivacyImpactAssessmentException",
     "MissingTemplateException",
     "MissingValidationSchemaException",
+    "PrivacyImpactAssessmentNotFoundException",
     "AvailableConsentApplicationMismatchException",
     "AvailableConsentEmptyListException",
     "AvailableConsentNotFoundException",

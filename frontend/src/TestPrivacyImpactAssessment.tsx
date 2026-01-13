@@ -15,6 +15,7 @@ import {
 
 function TestPrivacyImpactAssessment(props: any) {
   const [piaTemplate, setPiaTemplate] = useState<any>("");
+  const [fetchedPia, setFetchedPia] = useState<any>("");
   const gridApisRef = useRef<any>({});
 
   // TODO: move this application fetching logic elsewhere and pass data here via props if needed
@@ -41,20 +42,35 @@ function TestPrivacyImpactAssessment(props: any) {
       alert("Please select an application.");
       return;
     }
-    let updatedTemplate = structuredClone(piaTemplate);
-    for (let section of updatedTemplate.sections || []) {
-      for (let subsection of section.subsections || []) {
-        for (let table of subsection.tables || []) {
-          const gridApi = gridApisRef.current[table.table_key];
-          if (gridApi) {
-            const rowData: any[] = [];
-            gridApi.forEachNode((node: any) => rowData.push(node.data));
-            table.initial_rows = rowData;
+    try {
+      let updatedTemplate = structuredClone(piaTemplate);
+      for (let section of updatedTemplate.sections || []) {
+        for (let subsection of section.subsections || []) {
+          for (let table of subsection.tables || []) {
+            const gridApi = gridApisRef.current[table.table_key];
+            if (gridApi) {
+              const rowData: any[] = [];
+              gridApi.forEachNode((node: any) => rowData.push(node.data));
+              table.initial_rows = rowData;
+            }
           }
         }
       }
+      await props.submitPiaTemplate(selectedApplicationUuid, updatedTemplate);
+      // TODO: for simplicity, we fetch directly here the submitted PIA to verify it was stored correctly, REMOVE THIS!
+      const fetchedPiaResult = await props.handleGetPrivacyImpactAssessment(
+        selectedApplicationUuid
+      );
+      if (fetchedPiaResult) {
+        setFetchedPia(fetchedPiaResult);
+        setPiaTemplate(piaTemplate); // reset to original template
+        setSelectedApplicationUuid(""); // reset application selection
+      } else {
+        alert("Error verifying submitted Privacy Impact Assessment.");
+      }
+    } catch (err) {
+      console.error("Error submitting privacy impact assessment:", err);
     }
-    await props.submitPiaTemplate(selectedApplicationUuid, updatedTemplate);
   };
 
   return (
@@ -140,6 +156,43 @@ function TestPrivacyImpactAssessment(props: any) {
           Submit Privacy Notice
         </Button>
       </div>
+      {fetchedPia && (
+        <div className="w-75 border border-black rounded shadow-sm p-3 mt-3">
+          {fetchedPia.sections?.map((section: any) => (
+            <div
+              key={section.section_key}
+              className="w-100 border border-black rounded mb-3 shadow-sm p-3"
+            >
+              <h4 className="mb-3">{section.label}</h4>
+              {section.subsections?.map((subsection: any) => (
+                <div
+                  key={subsection.subsection_key}
+                  className="w-100 border border-black rounded mb-3 shadow-sm p-3"
+                >
+                  <h5>{subsection.label}</h5>
+                  {subsection.tables?.map((table: any) => (
+                    <div key={table.table_key} style={{ width: "100%" }}>
+                      <h6 className="mt-4">{table.title}</h6>
+                      <AgGridReact
+                        rowData={table.initial_rows || []}
+                        columnDefs={table.columns.map((col: any) => ({
+                          editable: false,
+                          field: col.key,
+                          headerName: col.label,
+                          cellStyle: { whiteSpace: "pre-line" },
+                          autoHeight: true,
+                        }))}
+                        defaultColDef={{ flex: 1 }}
+                        domLayout={"autoHeight"}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
       <Button variant="secondary" onClick={props.onLogout} className="mt-3">
         Logout
       </Button>

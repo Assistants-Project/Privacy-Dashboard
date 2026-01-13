@@ -46,9 +46,20 @@ def get_pia_template(current_user):
     return Response(initial_data.pia_template, mimetype="application/json", status=200)
 
 
-@application_bp.route(
-    "/managed-application/<application_uuid>/pia-template", methods=["PUT"]
-)
+@application_bp.route("/managed-application/<application_uuid>/pia", methods=["GET"])
+@application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
+@dc_or_dpo_required()
+def get_pia_by_managed_application_uuid(application_uuid: str, current_user):
+    return Response(
+        ApplicationService.get_pia_by_managed_application_uuid(
+            current_user.id, application_uuid
+        ),
+        mimetype="application/json",
+        status=200,
+    )
+
+
+@application_bp.route("/managed-application/<application_uuid>/pia", methods=["PUT"])
 @application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
 @dc_or_dpo_required()
 def submit_pia_by_managed_application_uuid(application_uuid: str, current_user):

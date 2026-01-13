@@ -40,3 +40,11 @@ class InvalidPrivacyImpactAssessmentException(Exception):
         self.message = message
         self.code = BadRequest.code
         self.status = HTTP_STATUS_CODES[self.code]
+
+
+class PrivacyImpactAssessmentNotFoundException(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.code = NotFound.code
+        self.status = HTTP_STATUS_CODES[self.code]
