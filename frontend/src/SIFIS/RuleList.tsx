@@ -1,0 +1,161 @@
+import React, { useState } from "react";
+import { Button, Badge, Row, Col, Card, Modal } from "react-bootstrap";
+
+interface Detail {
+  name: string;
+  value: any;
+  type: string;
+  url: string;
+}
+
+interface Service {
+    name: string;
+    description?: string;
+}
+
+interface TriggerAction {
+  name?: string;
+  description: string;
+  url: string;
+  service?: Service;
+  details: Detail[];
+}
+
+interface Rule {
+  db_id: number;
+  type: string;
+  effect: string; // "permit" or "deny"
+  subject: string;
+  timestamp: number;
+  trigger: TriggerAction;
+  action: TriggerAction;
+}
+
+interface RuleListProps {
+  rules: Rule[];
+  onDelete: (id: number) => void;
+  onTranslate: (id: number) => void;
+  onCheck: (id: number) => void;
+}
+
+const RuleList: React.FC<RuleListProps> = ({ rules, onDelete, onTranslate, onCheck }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [ruleToDelete, setRuleToDelete] = useState<number | null>(null);
+
+  const handleDeleteClick = (id: number) => {
+    setRuleToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (ruleToDelete !== null) {
+      onDelete(ruleToDelete);
+    }
+    setShowDeleteModal(false);
+    setRuleToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setRuleToDelete(null);
+  };
+  
+  const renderDetails = (details: Detail[]) => {
+      if (!details || details.length === 0) return null;
+      return (
+          <div className="mt-2 ps-3 border-start">
+             {details.map((d, idx) => {
+                 let displayValue = d.value;
+                 if (typeof d.value === 'object' && d.value !== null) {
+                     displayValue = d.value.name || JSON.stringify(d.value);
+                 }
+                 return (
+                    <div key={idx} className="text-muted small">
+                        <strong>{d.name || "Parameter"}:</strong> {displayValue}
+                    </div>
+                 );
+             })}
+          </div>
+      );
+  };
+
+  if(!rules || rules.length === 0) {
+      return <p className="text-muted text-center mt-5">No rules defined for this home.</p>;
+  }
+
+  return (
+    <>
+        <div className="mt-4 d-flex flex-column gap-3">
+            {rules.map((rule) => (
+                <Card key={rule.db_id} className="shadow-sm">
+                    <Card.Header className="bg-white py-2">
+                     <div className="d-flex align-items-center w-100 gap-3">
+                        <Badge bg={rule.effect === "permit" ? "success" : "danger"} className="me-2">
+                            {rule.effect.toUpperCase()}
+                        </Badge>
+                        <span className="fw-bold text-dark">
+                             {rule.trigger?.service?.name || "Trigger"}
+                        </span>
+                        <small className="text-muted">➜</small>
+                        <span className="fw-bold text-dark">
+                             {rule.action?.service?.name || "Action"}
+                        </span>
+                        
+                        <div className="ms-auto d-flex align-items-center gap-3">
+                            <small className="text-muted border-end pe-3 me-1">
+                                Subject: {rule.subject.split('@')[0]}
+                            </small>
+                            <div className="d-flex gap-2">
+                                 <Button variant="outline-success" size="sm" onClick={() => onTranslate(rule.db_id)}>
+                                    Translate
+                                </Button>
+                                 <Button variant="outline-primary" size="sm" onClick={() => onCheck(rule.db_id)}>
+                                    Check
+                                </Button>
+                                <Button variant="outline-danger" size="sm" onClick={() => handleDeleteClick(rule.db_id)}>
+                                    Delete
+                                </Button>
+                            </div>
+                        </div>
+                     </div>
+                </Card.Header>
+                <Card.Body className="py-2">
+                     <Row>
+                        <Col md={6} className="mb-1">
+                             <h6 className="text-uppercase text-secondary fw-bold small mb-1">When This Happens</h6>
+                             <div className="fw-bold fs-6">{rule.trigger?.name || rule.trigger?.description}</div>
+                             {renderDetails(rule.trigger?.details)}
+                        </Col>
+                        
+                        <Col md={6} className="mb-1 border-start">
+                            <h6 className="text-uppercase text-secondary fw-bold small mb-1">Then Execute This</h6>
+                            <div className="fw-bold fs-6">{rule.action?.name || rule.action?.description}</div>
+                             {renderDetails(rule.action?.details)}
+                        </Col>
+                    </Row>
+                </Card.Body>
+                </Card>
+            ))}
+        </div>
+
+        <Modal show={showDeleteModal} onHide={cancelDelete} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>Confirm Deletion</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                Are you sure you want to delete this rule?
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={cancelDelete}>
+                    Cancel
+                </Button>
+                <Button variant="danger" onClick={confirmDelete}>
+                    Delete Rule
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    </>
+  );
+};
+
+export default RuleList;

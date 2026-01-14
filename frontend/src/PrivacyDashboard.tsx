@@ -20,6 +20,7 @@ import {
 import { TestPrivacyNotice } from "./TestPrivacyNotice";
 import { TestPrivacyImpactAssessment } from "./TestPrivacyImpactAssessment";
 import { Home } from "./Home";
+import PolicyTranslation from "./SIFIS/PolicyTranslation";
 
 function PrivacyDashboard() {
   const { user, setUser } = useUser();
@@ -253,6 +254,16 @@ function PrivacyDashboard() {
                 }
                 submitPiaTemplate={submitPiaTemplate}
               />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/policy-translation"
+          element={
+            user ? (
+              <PolicyTranslation onLogout={doLogout} />
             ) : (
               <Navigate to="/login" replace />
             )

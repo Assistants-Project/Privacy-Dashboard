@@ -44,6 +44,13 @@ function Home({ onLogout }: HomeProps) {
               >
                 Test Privacy Impact Assessment
               </Button>
+              <Button
+                variant="primary"
+                onClick={() => navigate("/policy-translation")}
+                className="mt-3 ms-3"
+              >
+                PTP (SIFIS)
+              </Button>
             </>
           ) : (
             <p>Utente non disponibile. Effettua il login.</p>
