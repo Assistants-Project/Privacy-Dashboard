@@ -246,7 +246,7 @@ class OWLService:
                 )
 
                 trigger.details = self._get_details_for_instance(
-                    trigger_instance, service_id, username
+                    trigger_instance, service_id, username, is_action=False
                 )
                 triggers.append(trigger)
 
@@ -257,7 +257,7 @@ class OWLService:
             return []
 
     def _get_details_for_instance(
-        self, instance, service_id: str, username: Optional[str] = "ptp-demo"
+        self, instance, service_id: str, username: Optional[str] = "ptp-demo", is_action: bool = False
     ) -> List[Detail]:
         """Get configuration details/parameters for a trigger or action instance."""
         details = []
@@ -286,7 +286,9 @@ class OWLService:
                         service_id, username
                     )
                 elif detail_type == "location":
-                    detail.alternatives = self._get_locations(username)
+                    # Filter locations only for Actions
+                    action_filter = instance.name if is_action else None
+                    detail.alternatives = self._get_locations(username, action_id=action_filter)
                 else:
                     detail.alternatives = []
 
@@ -398,14 +400,15 @@ class OWLService:
             self.logger.error(f"Error getting entities for service {service_id}: {e}")
             return []
 
-    def _get_locations(self, home_uuid: Optional[str] = None) -> List[Dict]:
-        """Get locations from home's ontology."""
+    def _get_locations(self, home_uuid: Optional[str] = None, action_id: Optional[str] = None) -> List[Dict]:
+        """Get locations from home's ontology, optionally filtered by Action/Trigger capability (allowTo)."""
         if not home_uuid:
             return []
 
-        # Check cache first
-        if home_uuid in self._locations_cache:
-            return self._locations_cache[home_uuid]
+        # Check cache with composite key
+        cache_key = (home_uuid, action_id)
+        if cache_key in self._locations_cache:
+            return self._locations_cache[cache_key]
 
         try:
             ontology_dir = Path(self._get_ontology_dir())
@@ -448,19 +451,90 @@ class OWLService:
             if not Location:
                 return []
 
+            # Filter Logic: If action_id is provided, find valid location IRIs via object traversal
+            valid_location_iris = set()
+            should_filter = False
+            
+            if action_id:
+                should_filter = True
+                
+                # Resolve Action IRI
+                action_iri = None
+                candidates = list(home_world.search(iri=f"*{action_id}"))
+                if candidates:
+                    action_iri = candidates[0].iri
+
+                # Helper to safely get list of values
+                def get_props(obj, prop_name):
+                     vals = getattr(obj, prop_name, [])
+                     if vals and not isinstance(vals, list):
+                         return [vals]
+                     return vals
+
+                # Iterate through all individuals to find devices allowing this action
+                for ind in home_world.individuals():
+                    # Get Services of the Device
+                    services = get_props(ind, "hasService")
+                    if not services:
+                        services = get_props(ind, "eupont_hasService")
+
+                    is_device_valid = False
+                    for service in services:
+                        # Get Commands of the Service
+                        commands = get_props(service, "hasCommand")
+                        if not commands:
+                            commands = get_props(service, "eupont_hasCommand")
+                            
+                        for cmd in commands:
+                            # Get allowTo of the Command
+                            allowed_targets = get_props(cmd, "allowTo")
+                            if not allowed_targets:
+                                allowed_targets = get_props(cmd, "eupont_allowTo")
+                                
+                            for target in allowed_targets:
+                                t_iri = str(getattr(target, 'iri', ''))
+                                t_name = str(getattr(target, 'name', ''))
+                                
+                                if action_iri and t_iri == action_iri:
+                                    is_device_valid = True
+                                elif t_name == action_id or t_iri.endswith(f"#{action_id}"):
+                                    is_device_valid = True
+                                
+                                if is_device_valid:
+                                    break
+                            if is_device_valid:
+                                break
+                        if is_device_valid:
+                            break
+                    
+                    if is_device_valid:
+                        positions = get_props(ind, "position")
+                        if not positions:
+                            positions = get_props(ind, "eupont_position")
+                            
+                        for pos in positions:
+                            if hasattr(pos, "iri"):
+                                valid_location_iris.add(str(pos.iri))
+                                        
             # Get location instances
             locations = []
             for loc_instance in Location.instances(home_world):
+                loc_iri = str(loc_instance.iri)
+                
+                # Apply Filter
+                if should_filter and loc_iri not in valid_location_iris:
+                    continue
+
                 locations.append(
                     {
-                        "url": str(loc_instance.iri),
+                        "url": loc_iri,
                         "name": self._safe_get_property(loc_instance, "name")
                         or loc_instance.name,
                     }
                 )
 
             # Cache the result
-            self._locations_cache[home_uuid] = locations
+            self._locations_cache[cache_key] = locations
 
             return locations
 
@@ -556,7 +630,7 @@ class OWLService:
                 )
 
                 action.details = self._get_details_for_instance(
-                    action_instance, service_id, username
+                    action_instance, service_id, username, is_action=True
                 )
                 actions.append(action)
 
@@ -632,6 +706,7 @@ class OWLService:
                 trigger_instance,
                 service_instance.name if service_instance else "",
                 home_uuid,
+                is_action=False
             )
 
             return trigger
@@ -670,6 +745,7 @@ class OWLService:
                 action_instance,
                 service_instance.name if service_instance else "",
                 home_uuid,
+                is_action=True
             )
 
             return action
