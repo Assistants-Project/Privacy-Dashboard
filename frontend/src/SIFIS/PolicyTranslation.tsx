@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Form, Button, Tabs, Tab, Alert, Card, Navbar, Nav } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Tabs, Tab, Alert, Card, Navbar, Nav, Modal } from "react-bootstrap";
 
 import { useNavigate } from "react-router-dom";
 import { getHomes } from "../../API/homesAPI";
@@ -20,6 +20,10 @@ const PolicyTranslation: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
   const [success, setSuccess] = useState<string | null>(null);
   const [verificationReport, setVerificationReport] = useState<any>(null);
   const [showReport, setShowReport] = useState(false);
+
+  // Delete Modal State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [ruleToDelete, setRuleToDelete] = useState<number | null>(null);
 
   // Load homes on mount
   useEffect(() => {
@@ -55,16 +59,33 @@ const PolicyTranslation: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
     }
   };
 
-  const handleDeleteRule = async (id: number) => {
+  // Opens the modal
+  const requestDeleteRule = (id: number) => {
+    setRuleToDelete(id);
+    setShowDeleteModal(true);
+  };
 
+  // Performs actual deletion
+  const confirmDeleteRule = async () => {
+    if (ruleToDelete === null) return;
+    
     try {
-      await deleteRule(selectedHome, id);
+      await deleteRule(selectedHome, ruleToDelete);
       setSuccess("Rule deleted.");
       loadRules();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.message);
+    } finally {
+        setShowDeleteModal(false);
+        setRuleToDelete(null);
+        setShowReport(false); // Close report if open
     }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setRuleToDelete(null);
   };
 
   const handleTranslateRule = async (id: number) => {
@@ -150,7 +171,7 @@ const PolicyTranslation: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                             </div>
                             <RuleList 
                                 rules={rules} 
-                                onDelete={handleDeleteRule} 
+                                onDelete={requestDeleteRule} 
                                 onTranslate={handleTranslateRule}
                                 onCheck={handleCheckRule}
                             />
@@ -168,9 +189,29 @@ const PolicyTranslation: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                 show={showReport} 
                 onHide={() => setShowReport(false)} 
                 report={verificationReport} 
+                onDeleteRule={requestDeleteRule}
             />
             </>
         )}
+
+        {/* Delete Confirmation Modal */}
+        <Modal show={showDeleteModal} onHide={cancelDelete} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>Confirm Deletion</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                Are you sure you want to delete this rule? This action cannot be undone.
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={cancelDelete}>
+                    Cancel
+                </Button>
+                <Button variant="danger" onClick={confirmDeleteRule}>
+                    Delete Rule
+                </Button>
+            </Modal.Footer>
+        </Modal>
+
       </Container>
     </div>
   );

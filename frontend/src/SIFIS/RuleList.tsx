@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Button, Badge, Row, Col, Card, Modal } from "react-bootstrap";
+import React from "react";
+import { Button, Badge, Row, Col, Card } from "react-bootstrap";
 
 interface Detail {
   name: string;
@@ -39,26 +39,6 @@ interface RuleListProps {
 }
 
 const RuleList: React.FC<RuleListProps> = ({ rules, onDelete, onTranslate, onCheck }) => {
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [ruleToDelete, setRuleToDelete] = useState<number | null>(null);
-
-  const handleDeleteClick = (id: number) => {
-    setRuleToDelete(id);
-    setShowDeleteModal(true);
-  };
-
-  const confirmDelete = () => {
-    if (ruleToDelete !== null) {
-      onDelete(ruleToDelete);
-    }
-    setShowDeleteModal(false);
-    setRuleToDelete(null);
-  };
-
-  const cancelDelete = () => {
-    setShowDeleteModal(false);
-    setRuleToDelete(null);
-  };
   
   const renderDetails = (details: Detail[]) => {
       if (!details || details.length === 0) return null;
@@ -90,6 +70,7 @@ const RuleList: React.FC<RuleListProps> = ({ rules, onDelete, onTranslate, onChe
                 <Card key={rule.db_id} className="shadow-sm">
                     <Card.Header className="bg-white py-2">
                      <div className="d-flex align-items-center w-100 gap-3">
+                        <span className="text-muted small fw-bold">#{rule.db_id}</span>
                         <Badge bg={rule.effect === "permit" ? "success" : "danger"} className="me-2">
                             {rule.effect.toUpperCase()}
                         </Badge>
@@ -112,7 +93,7 @@ const RuleList: React.FC<RuleListProps> = ({ rules, onDelete, onTranslate, onChe
                                  <Button variant="outline-primary" size="sm" onClick={() => onCheck(rule.db_id)}>
                                     Check
                                 </Button>
-                                <Button variant="outline-danger" size="sm" onClick={() => handleDeleteClick(rule.db_id)}>
+                                <Button variant="outline-danger" size="sm" onClick={() => onDelete(rule.db_id)}>
                                     Delete
                                 </Button>
                             </div>
@@ -137,23 +118,6 @@ const RuleList: React.FC<RuleListProps> = ({ rules, onDelete, onTranslate, onChe
                 </Card>
             ))}
         </div>
-
-        <Modal show={showDeleteModal} onHide={cancelDelete} centered>
-            <Modal.Header closeButton>
-                <Modal.Title>Confirm Deletion</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                Are you sure you want to delete this rule?
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={cancelDelete}>
-                    Cancel
-                </Button>
-                <Button variant="danger" onClick={confirmDelete}>
-                    Delete Rule
-                </Button>
-            </Modal.Footer>
-        </Modal>
     </>
   );
 };

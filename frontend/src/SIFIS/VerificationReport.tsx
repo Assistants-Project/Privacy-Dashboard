@@ -5,15 +5,60 @@ interface VerificationReportProps {
   show: boolean;
   onHide: () => void;
   report: any; // The JSON response from /check endpoint
+  onDeleteRule: (id: number) => void;
 }
 
-const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, report }) => {
+const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, report, onDeleteRule }) => {
   if (!report) return null;
 
   const hasProblems = 
     (report.loops && report.loops.length > 0) || 
     (report.inconsistentRules && report.inconsistentRules.length > 0) || 
     (report.redundantRules && report.redundantRules.length > 0);
+
+  // Helper to render details list
+  const renderDetails = (details: any[]) => {
+      if (!details || details.length === 0) return null;
+      return (
+          <div className="ps-4 mt-1 text-muted small">
+              {details.map((d: any, idx: number) => {
+                  let val = d.value;
+                  if (typeof val === 'object' && val !== null) {
+                      val = val.name || val.id || JSON.stringify(val);
+                  }
+                  return (
+                      <div key={idx}>
+                          • <span className="fw-semibold">{d.name}:</span> {val}
+                      </div>
+                  );
+              })}
+          </div>
+      );
+  };
+
+  // Helper to render rule string
+  const renderRuleString = (rule: any) => {
+      const effect = rule.effect === "permit" ? "PERMIT" : "DENY";
+      const badgeClass = rule.effect === "permit" ? "success" : "danger";
+      const triggerName = rule.trigger?.name || rule.trigger?.service?.name || "Unknown Trigger";
+      const actionName = rule.action?.name || rule.action?.service?.name || "Unknown Action";
+      
+      return (
+          <div className="w-100">
+              <div className="d-flex align-items-center">
+                  <span className="text-muted small fw-bold me-2">#{rule.db_id}</span>
+                  <Badge bg={badgeClass} className="me-2" style={{minWidth: '60px'}}>{effect}</Badge>
+                  <span>
+                      If <strong>{triggerName}</strong> then <strong>{actionName}</strong> 
+                  </span>
+              </div>
+              
+              {/* Render Parameters */}
+              {rule.trigger?.details && renderDetails(rule.trigger.details)}
+              {rule.action?.details && renderDetails(rule.action.details)}
+          </div>
+      );
+  };
 
   return (
     <Modal show={show} onHide={onHide} size="lg">
@@ -28,7 +73,7 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
         {!hasProblems && (
             <Alert variant="success">
                 <i className="fa fa-check-circle me-2"></i>
-                No issues found. The policy logic is sound.
+                No issues detected!
             </Alert>
         )}
 
@@ -44,7 +89,7 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
                     <ListGroup.Item variant="danger"><strong>Loop #{idx + 1}</strong></ListGroup.Item>
                     {loop.map((rule, rIdx) => (
                         <ListGroup.Item key={rIdx}>
-                            {rIdx + 1}. If <strong>{rule.trigger?.service_name}</strong> then <strong>{rule.action?.service_name}</strong>
+                            {rIdx + 1}. {renderRuleString(rule)}
                         </ListGroup.Item>
                     ))}
                 </ListGroup>
@@ -57,15 +102,26 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
           <div className="mb-4">
              <h5 className="text-warning"><i className="fa fa-exclamation-triangle me-2"></i>Inconsistent Rules</h5>
              <Alert variant="warning">
-                These rules have conflicting logic (e.g., trying to do different things with the same trigger).
+                These rules have conflicting logic.
              </Alert>
-             <ListGroup>
-                {report.inconsistentRules.map((rule: any, idx: number) => (
-                    <ListGroup.Item key={idx}>
-                         If <strong>{rule.trigger?.service_name}</strong> then <strong>{rule.action?.service_name}</strong> (ID: {rule.db_id})
-                    </ListGroup.Item>
-                ))}
-             </ListGroup>
+             {report.inconsistentRules.map((group: any[], gIdx: number) => (
+                <ListGroup key={gIdx} className="mb-3">
+                    <ListGroup.Item variant="warning"><strong>Conflict Group #{gIdx + 1}</strong></ListGroup.Item>
+                    {group.map((rule: any, rIdx: number) => (
+                        <ListGroup.Item key={rIdx} className="d-flex justify-content-between align-items-center">
+                             <div className="flex-grow-1">{renderRuleString(rule)}</div>
+                             <Button 
+                                variant="danger" 
+                                size="sm" 
+                                className="ms-3 text-nowrap"
+                                onClick={() => onDeleteRule(rule.db_id)}
+                             >
+                                <i className="fa fa-trash me-1"></i> Delete
+                             </Button>
+                        </ListGroup.Item>
+                    ))}
+                </ListGroup>
+             ))}
           </div>
         )}
 
@@ -74,15 +130,26 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
           <div className="mb-4">
              <h5 className="text-info"><i className="fa fa-clone me-2"></i>Redundant Rules</h5>
              <Alert variant="info">
-                These rules perform the exact same logic. Consider removing duplicates.
+                These rules perform the exact same logic.
              </Alert>
-             <ListGroup>
-                {report.redundantRules.map((rule: any, idx: number) => (
-                    <ListGroup.Item key={idx}>
-                         If <strong>{rule.trigger?.service_name}</strong> then <strong>{rule.action?.service_name}</strong> (ID: {rule.db_id})
-                    </ListGroup.Item>
-                ))}
-             </ListGroup>
+             {report.redundantRules.map((group: any[], gIdx: number) => (
+                <ListGroup key={gIdx} className="mb-3">
+                    <ListGroup.Item variant="info"><strong>Redundancy Group #{gIdx + 1}</strong></ListGroup.Item>
+                    {group.map((rule: any, rIdx: number) => (
+                        <ListGroup.Item key={rIdx} className="d-flex justify-content-between align-items-center">
+                             <div className="flex-grow-1">{renderRuleString(rule)}</div>
+                             <Button 
+                                variant="danger" 
+                                size="sm" 
+                                className="ms-3 text-nowrap"
+                                onClick={() => onDeleteRule(rule.db_id)}
+                             >
+                                <i className="fa fa-trash me-1"></i> Delete
+                             </Button>
+                        </ListGroup.Item>
+                    ))}
+                </ListGroup>
+             ))}
           </div>
         )}
 
