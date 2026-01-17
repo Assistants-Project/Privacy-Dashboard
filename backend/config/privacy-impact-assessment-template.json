@@ -31,15 +31,7 @@
                 { "key": "controller", "label": "Controller", "type": "text" },
                 { "key": "processor", "label": "Processor(s)", "type": "text" }
               ],
-              "initial_rows": [
-                {
-                  "description": "",
-                  "purposes": "",
-                  "stakes": "",
-                  "controller": "",
-                  "processor": ""
-                }
-              ]
+              "initial_rows": []
             },
             {
               "table_key": "sector_standards",
@@ -56,12 +48,7 @@
                   "type": "text"
                 }
               ],
-              "initial_rows": [
-                {
-                  "standards": "",
-                  "consideration": ""
-                }
-              ]
+              "initial_rows": []
             }
           ]
         },
@@ -89,13 +76,7 @@
                   "type": "text"
                 }
               ],
-              "initial_rows": [
-                {
-                  "data_types": "",
-                  "recipients": "",
-                  "storage_duration": ""
-                }
-              ]
+              "initial_rows": []
             },
             {
               "table_key": "processes_supporting_assets",
@@ -117,13 +98,7 @@
                   "type": "text"
                 }
               ],
-              "initial_rows": [
-                {
-                  "processes": "",
-                  "process_description": "",
-                  "data_supporting_assets": ""
-                }
-              ]
+              "initial_rows": []
             }
           ]
         }
@@ -152,12 +127,7 @@
                   "type": "text"
                 }
               ],
-              "initial_rows": [
-                {
-                  "purposes": "",
-                  "legitimacy": ""
-                }
-              ]
+              "initial_rows": []
             },
             {
               "table_key": "explanation_and_justification_of_lawfulness",
@@ -237,14 +207,7 @@
                   "type": "text"
                 }
               ],
-              "initial_rows": [
-                {
-                  "data_processed": "",
-                  "data_categories": "",
-                  "justification": "",
-                  "minimization_controls": ""
-                }
-              ]
+              "initial_rows": []
             },
             {
               "table_key": "explanation_and_justification_of_data_quality",
@@ -261,12 +224,7 @@
                   "type": "text"
                 }
               ],
-              "initial_rows": [
-                {
-                  "data_quality_controls": "",
-                  "justification": ""
-                }
-              ]
+              "initial_rows": []
             },
             {
               "table_key": "explanation_and_justification_of_storage_durations",
@@ -791,15 +749,7 @@
                   "type": "text"
                 }
               ],
-              "initial_rows": [
-                {
-                  "processor_name": "",
-                  "purpose": "",
-                  "scope": "",
-                  "contract_reference": "",
-                  "compliance_art28": ""
-                }
-              ]
+              "initial_rows": []
             },
             {
               "table_key": "controls_transfer_data_outside_eu",
@@ -836,16 +786,7 @@
                   "type": "text"
                 }
               ],
-              "initial_rows": [
-                {
-                  "data_sets_storage_location": "",
-                  "france": "",
-                  "eu": "",
-                  "outside_eu_adequate_country": "",
-                  "other_country": "",
-                  "justification_supervision": ""
-                }
-              ]
+              "initial_rows": []
             },
             {
               "table_key": "assessment_controls_data_subjects_rights",
@@ -1552,16 +1493,7 @@
                   "type": "text"
                 }
               ],
-              "initial_rows": [
-                {
-                  "additional_controls_requested": "",
-                  "manager": "",
-                  "frequency": "",
-                  "difficulty": "",
-                  "cost": "",
-                  "progress": ""
-                }
-              ]
+              "initial_rows": []
             },
             {
               "table_key": "documentation_advice_data_protection",

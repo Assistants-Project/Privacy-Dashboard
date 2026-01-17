@@ -3,6 +3,8 @@ import {
   FormSelect,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
+  OverlayTrigger,
 } from "react-bootstrap";
 import { useState, useEffect, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
@@ -37,6 +39,21 @@ function TestPrivacyImpactAssessment(props: any) {
     gridApisRef.current[tableKey] = params.api;
   };
 
+  const addRow = (tableKey: string) => {
+    const gridApi = gridApisRef.current[tableKey];
+    if (gridApi) {
+      const newRow: any = {};
+      const colDefs = gridApi.getColumnDefs();
+      colDefs.forEach((col: ColDef) => (newRow[col.field ?? ""] = ""));
+      gridApi.applyTransaction({ add: [newRow] });
+      const newIndex = gridApi.getDisplayedRowCount() - 1;
+      gridApi.startEditingCell({
+        rowIndex: newIndex,
+        colKey: colDefs[0].field,
+      });
+    }
+  };
+
   const handleSubmit = async () => {
     if (!selectedApplicationUuid) {
       alert("Please select an application.");
@@ -59,7 +76,7 @@ function TestPrivacyImpactAssessment(props: any) {
       await props.submitPiaTemplate(selectedApplicationUuid, updatedTemplate);
       // TODO: for simplicity, we fetch directly here the submitted PIA to verify it was stored correctly, REMOVE THIS!
       const fetchedPiaResult = await props.handleGetPrivacyImpactAssessment(
-        selectedApplicationUuid
+        selectedApplicationUuid,
       );
       if (fetchedPiaResult) {
         setFetchedPia(fetchedPiaResult);
@@ -96,70 +113,101 @@ function TestPrivacyImpactAssessment(props: any) {
           ))}
         </FormSelect>
       </div>
-      <div className="w-75 border border-black rounded shadow-sm p-3">
-        {piaTemplate.sections?.map((section: any) => (
-          <div
-            key={section.section_key}
-            className="w-100 border border-black rounded mb-3 shadow-sm p-3"
-          >
-            <h4 className="mb-3">{section.label}</h4>
-            {section.subsections?.map((subsection: any) => (
-              <div
-                key={subsection.subsection_key}
-                className="w-100 border border-black rounded mb-3 shadow-sm p-3"
-              >
-                <h5>{subsection.label}</h5>
-                {subsection.tables?.map((table: any) => (
-                  <div key={table.table_key} style={{ width: "100%" }}>
-                    <h6 className="mt-4">{table.title}</h6>
-                    <AgGridReact
-                      onGridReady={(params) =>
-                        onGridReady(params, table.table_key)
-                      }
-                      rowData={structuredClone(table.initial_rows || [])}
-                      columnDefs={table.columns.map((col: any) => {
-                        const baseDef: ColDef = {
-                          editable: true,
-                          field: col.key,
-                          headerName: col.label,
-                          cellStyle: { whiteSpace: "pre-line" },
-                          autoHeight: true,
-                          cellEditor:
-                            col.type === "select"
-                              ? "agSelectCellEditor"
-                              : col.type === "text"
-                              ? "agLargeTextCellEditor"
-                              : undefined,
-                          cellEditorPopup: col.type === "text" ? true : false,
-                        };
-                        if (col.type === "select") {
-                          baseDef.cellEditorParams = {
-                            values: col.options || [],
-                          } as ISelectCellEditorParams;
-                        } else if (col.type === "text") {
-                          baseDef.cellEditorParams = {
-                            maxLength: 1000,
-                            rows: 5,
-                            cols: 30,
-                          } as ILargeTextEditorParams;
+      {selectedApplicationUuid && (
+        <div className="w-75 border border-black rounded shadow-sm p-3">
+          {piaTemplate.sections?.map((section: any) => (
+            <div
+              key={section.section_key}
+              className="w-100 border border-black rounded mb-3 shadow-sm p-3"
+            >
+              <h4 className="mb-3">{section.label}</h4>
+              {section.subsections?.map((subsection: any) => (
+                <div
+                  key={subsection.subsection_key}
+                  className="w-100 border border-black rounded mb-3 shadow-sm p-3"
+                >
+                  <h5>{subsection.label}</h5>
+                  {subsection.tables?.map((table: any) => (
+                    <div key={table.table_key} style={{ width: "100%" }}>
+                      <h6 className="mt-4">{table.title}</h6>
+                      <AgGridReact
+                        onGridReady={(params) =>
+                          onGridReady(params, table.table_key)
                         }
-                        return baseDef;
-                      })}
-                      defaultColDef={{ flex: 1 }}
-                      domLayout={"autoHeight"}
-                      stopEditingWhenCellsLoseFocus={true}
-                    />
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
-        <Button variant="dark" onClick={handleSubmit} className="mt-3">
-          Submit Privacy Notice
-        </Button>
-      </div>
-      {fetchedPia && (
+                        rowData={structuredClone(table.initial_rows || [])}
+                        columnDefs={table.columns.map(
+                          (col: any, colIndex: number) => {
+                            const baseDef: ColDef = {
+                              editable:
+                                table.initial_rows.length < 1 ||
+                                colIndex > 0 ||
+                                table.table_key.includes("documentation"),
+                              field: col.key,
+                              headerName: col.label,
+                              cellStyle: { whiteSpace: "pre-line" },
+                              autoHeight: true,
+                              cellEditor:
+                                col.type === "text"
+                                  ? "agLargeTextCellEditor"
+                                  : "agSelectCellEditor",
+                              cellEditorPopup:
+                                col.type === "text" ? true : false,
+                            };
+                            if (col.type === "select") {
+                              baseDef.cellEditorParams = {
+                                values: col.options || [],
+                              } as ISelectCellEditorParams;
+                            } else if (col.type === "text") {
+                              baseDef.cellEditorParams = {
+                                maxLength: 1000,
+                                rows: 5,
+                                cols: table.table_key.includes("documentation")
+                                  ? 200
+                                  : 30,
+                              } as ILargeTextEditorParams;
+                            }
+                            return baseDef;
+                          },
+                        )}
+                        defaultColDef={{ flex: 1 }}
+                        domLayout={"autoHeight"}
+                        stopEditingWhenCellsLoseFocus={true}
+                      />
+                      {table.initial_rows.length < 1 && (
+                        <div className="w-100 d-flex justify-content-center mt-2">
+                          <OverlayTrigger
+                            placement={"top"}
+                            overlay={
+                              <Tooltip id={`tooltip-top`}>Add Row</Tooltip>
+                            }
+                          >
+                            <Button
+                              style={{
+                                borderRadius: "50%",
+                                backgroundColor: "#fafafb",
+                                color: "#181d1f",
+                                fontWeight: "bold",
+                                borderColor: "#181d1f26",
+                              }}
+                              onClick={() => addRow(table.table_key)}
+                            >
+                              +
+                            </Button>
+                          </OverlayTrigger>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+          <Button variant="dark" onClick={handleSubmit} className="mt-3">
+            Submit Privacy Notice
+          </Button>
+        </div>
+      )}
+      {!selectedApplicationUuid && fetchedPia && (
         <div className="w-75 border border-black rounded shadow-sm p-3 mt-3">
           {fetchedPia.sections?.map((section: any) => (
             <div
