@@ -327,7 +327,7 @@ class OWLService:
                 return []
 
             return self._get_details_for_instance(
-                trigger_instance, service_id, username
+                trigger_instance, service_id, username, is_action=False
             )
 
         except Exception as e:
@@ -346,7 +346,9 @@ class OWLService:
             if not action_instance:
                 return []
 
-            return self._get_details_for_instance(action_instance, service_id, username)
+            return self._get_details_for_instance(
+                action_instance, service_id, username, is_action=True
+            )
 
         except Exception as e:
             self.logger.error(f"Error getting action details: {e}")
