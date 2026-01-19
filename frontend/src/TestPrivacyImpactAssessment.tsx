@@ -16,8 +16,8 @@ import {
 } from "ag-grid-community";
 
 function TestPrivacyImpactAssessment(props: any) {
-  const [piaTemplate, setPiaTemplate] = useState<any>("");
-  const [fetchedPia, setFetchedPia] = useState<any>("");
+  const [piaTemplate, setPiaTemplate] = useState<any>(null);
+  const [fetchedPia, setFetchedPia] = useState<any>(null);
   const gridApisRef = useRef<any>({});
 
   // TODO: move this application fetching logic elsewhere and pass data here via props if needed
@@ -27,13 +27,59 @@ function TestPrivacyImpactAssessment(props: any) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedPiaTemplate = await props.fetchPiaTemplate();
-      setPiaTemplate(fetchedPiaTemplate || {});
       const applications = await props.fetchManagedApplications();
       setManagedApplications(applications || []);
     };
     fetchData();
   }, []);
+
+  const createColDefs = (
+    tableColumns: any[],
+    tableKey: string,
+    addOrDeleteRowsEnabled: boolean,
+  ): ColDef[] => {
+    let colDefs: ColDef[] = tableColumns.map((col: any, colIndex: number) => {
+      const baseDef: ColDef = {
+        editable:
+          addOrDeleteRowsEnabled ||
+          colIndex > 0 ||
+          tableKey.includes("documentation"),
+        field: col.key,
+        headerName: col.label,
+        cellStyle: { whiteSpace: "pre-line" },
+        autoHeight: true,
+        cellEditor:
+          col.type === "text" ? "agLargeTextCellEditor" : "agSelectCellEditor",
+        cellEditorPopup: col.type === "text" ? true : false,
+      };
+      if (col.type === "select") {
+        baseDef.cellEditorParams = {
+          values: col.options || [],
+        } as ISelectCellEditorParams;
+      } else if (col.type === "text") {
+        baseDef.cellEditorParams = {
+          maxLength: 1000,
+          rows: 5,
+          cols: tableKey.includes("documentation") ? 200 : 30,
+        } as ILargeTextEditorParams;
+      }
+      return baseDef;
+    });
+    if (addOrDeleteRowsEnabled) {
+      colDefs.push({
+        headerName: "",
+        field: "delete_row",
+        maxWidth: 80,
+        cellRenderer: DeleteButtonComponent,
+        cellStyle: {
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        },
+      } as ColDef);
+    }
+    return colDefs;
+  };
 
   const onGridReady = (params: GridReadyEvent, tableKey: string) => {
     gridApisRef.current[tableKey] = params.api;
@@ -54,6 +100,19 @@ function TestPrivacyImpactAssessment(props: any) {
     }
   };
 
+  const setChosenApplication = async (applicationUuid: string) => {
+    const fetchedPiaResult =
+      await props.handleGetPrivacyImpactAssessment(applicationUuid);
+    if (fetchedPiaResult) {
+      setPiaTemplate(fetchedPiaResult); // overwrite template with existing PIA, if any, for editing, else load empty template for adding
+    } else {
+      const fetchedPiaTemplate = await props.fetchPiaTemplate();
+      setPiaTemplate(fetchedPiaTemplate || {});
+    }
+    setSelectedApplicationUuid(applicationUuid);
+    setFetchedPia(null); // reset fetched PIA when choosing a new application
+  };
+
   const handleSubmit = async () => {
     if (!selectedApplicationUuid) {
       alert("Please select an application.");
@@ -67,7 +126,10 @@ function TestPrivacyImpactAssessment(props: any) {
             const gridApi = gridApisRef.current[table.table_key];
             if (gridApi) {
               const rowData: any[] = [];
-              gridApi.forEachNode((node: any) => rowData.push(node.data));
+              gridApi.forEachNode((node: any) => {
+                delete node.data["delete_row"]; // remove cell with delete button data to avoid sending it to backend
+                rowData.push(node.data);
+              });
               table.initial_rows = rowData;
             }
           }
@@ -80,7 +142,6 @@ function TestPrivacyImpactAssessment(props: any) {
       );
       if (fetchedPiaResult) {
         setFetchedPia(fetchedPiaResult);
-        setPiaTemplate(piaTemplate); // reset to original template
         setSelectedApplicationUuid(""); // reset application selection
       } else {
         alert("Error verifying submitted Privacy Impact Assessment.");
@@ -100,7 +161,7 @@ function TestPrivacyImpactAssessment(props: any) {
         </p>
         <FormSelect
           className="mb-3"
-          onChange={(e) => setSelectedApplicationUuid(e.target.value)}
+          onChange={(e) => setChosenApplication(e.target.value)}
           value={selectedApplicationUuid}
         >
           <option className="d-none" value="" disabled>
@@ -135,45 +196,16 @@ function TestPrivacyImpactAssessment(props: any) {
                           onGridReady(params, table.table_key)
                         }
                         rowData={structuredClone(table.initial_rows || [])}
-                        columnDefs={table.columns.map(
-                          (col: any, colIndex: number) => {
-                            const baseDef: ColDef = {
-                              editable:
-                                table.initial_rows.length < 1 ||
-                                colIndex > 0 ||
-                                table.table_key.includes("documentation"),
-                              field: col.key,
-                              headerName: col.label,
-                              cellStyle: { whiteSpace: "pre-line" },
-                              autoHeight: true,
-                              cellEditor:
-                                col.type === "text"
-                                  ? "agLargeTextCellEditor"
-                                  : "agSelectCellEditor",
-                              cellEditorPopup:
-                                col.type === "text" ? true : false,
-                            };
-                            if (col.type === "select") {
-                              baseDef.cellEditorParams = {
-                                values: col.options || [],
-                              } as ISelectCellEditorParams;
-                            } else if (col.type === "text") {
-                              baseDef.cellEditorParams = {
-                                maxLength: 1000,
-                                rows: 5,
-                                cols: table.table_key.includes("documentation")
-                                  ? 200
-                                  : 30,
-                              } as ILargeTextEditorParams;
-                            }
-                            return baseDef;
-                          },
+                        columnDefs={createColDefs(
+                          table.columns,
+                          table.table_key,
+                          table.addOrDeleteRowsEnabled,
                         )}
                         defaultColDef={{ flex: 1 }}
                         domLayout={"autoHeight"}
                         stopEditingWhenCellsLoseFocus={true}
                       />
-                      {table.initial_rows.length < 1 && (
+                      {table.addOrDeleteRowsEnabled && (
                         <div className="w-100 d-flex justify-content-center mt-2">
                           <OverlayTrigger
                             placement={"top"}
@@ -186,12 +218,11 @@ function TestPrivacyImpactAssessment(props: any) {
                                 borderRadius: "50%",
                                 backgroundColor: "#fafafb",
                                 color: "#181d1f",
-                                fontWeight: "bold",
                                 borderColor: "#181d1f26",
                               }}
                               onClick={() => addRow(table.table_key)}
                             >
-                              +
+                              <i className="fa-solid fa-plus"></i>
                             </Button>
                           </OverlayTrigger>
                         </div>
@@ -248,6 +279,29 @@ function TestPrivacyImpactAssessment(props: any) {
         Logout
       </Button>
     </div>
+  );
+}
+
+function DeleteButtonComponent(props: any) {
+  return (
+    <OverlayTrigger
+      placement={"right"}
+      overlay={<Tooltip id={`tooltip-top`}>Delete Row</Tooltip>}
+    >
+      <Button
+        onClick={() =>
+          props.api.applyTransaction({ remove: [props.node.data] })
+        }
+        style={{
+          color: "red",
+          borderRadius: "50%",
+          backgroundColor: "#fafafb",
+          borderColor: "#181d1f26",
+        }}
+      >
+        <i className="fa-solid fa-minus"></i>
+      </Button>
+    </OverlayTrigger>
   );
 }
 

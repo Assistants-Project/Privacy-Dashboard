@@ -286,13 +286,17 @@
                           "required": [],
                           "additionalProperties": false
                         }
+                      },
+                      "addOrDeleteRowsEnabled": {
+                        "type": "boolean"
                       }
                     },
                     "required": [
                       "table_key",
                       "title",
                       "columns",
-                      "initial_rows"
+                      "initial_rows",
+                      "addOrDeleteRowsEnabled"
                     ],
                     "additionalProperties": false
                   }
