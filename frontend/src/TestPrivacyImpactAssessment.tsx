@@ -286,7 +286,7 @@ function DeleteButtonComponent(props: any) {
   return (
     <OverlayTrigger
       placement={"right"}
-      overlay={<Tooltip id={`tooltip-top`}>Delete Row</Tooltip>}
+      overlay={<Tooltip id={`tooltip-right`}>Delete Row</Tooltip>}
     >
       <Button
         onClick={() =>

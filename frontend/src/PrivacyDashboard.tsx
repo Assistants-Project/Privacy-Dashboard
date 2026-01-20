@@ -19,6 +19,7 @@ import {
 } from "../API/privacyNoticeAPI";
 import { TestPrivacyNotice } from "./TestPrivacyNotice";
 import { TestPrivacyImpactAssessment } from "./TestPrivacyImpactAssessment";
+import { TestQuestionnaire } from "./TestQuestionnaire";
 import { Home } from "./Home";
 import PolicyTranslation from "./SIFIS/PolicyTranslation";
 
@@ -55,8 +56,8 @@ function PrivacyDashboard() {
           err instanceof Error
             ? err.message
             : typeof err === "string"
-            ? err
-            : err?.error || err?.message || "An error occurred";
+              ? err
+              : err?.error || err?.message || "An error occurred";
         setLoginMessage(msg);
       });
   };
@@ -66,7 +67,7 @@ function PrivacyDashboard() {
     name: string,
     surname: string,
     newPassword: string,
-    role: string
+    role: string,
   ) => {
     // FAKE REGISTRATION
     console.debug("Registrazione utente", {
@@ -113,11 +114,10 @@ function PrivacyDashboard() {
     try {
       console.log(
         "Trying to get Privacy Notice for application: ",
-        applicationUuid
+        applicationUuid,
       );
-      const result = await getPrivacyNoticeByManagedApplicationUuid(
-        applicationUuid
-      );
+      const result =
+        await getPrivacyNoticeByManagedApplicationUuid(applicationUuid);
       console.log("Privacy Notice retrieved successfully: ", result);
       return result;
     } catch (err) {
@@ -127,17 +127,17 @@ function PrivacyDashboard() {
 
   const handleSubmitPrivacyNotice = async (
     applicationUuid: string,
-    privacyNoticeContent: string
+    privacyNoticeContent: string,
   ) => {
     try {
       console.log(
         "Trying to submit Privacy Notice to application: ",
         applicationUuid,
-        privacyNoticeContent
+        privacyNoticeContent,
       );
       const result = await writePrivacyNoticeByManagedApplicationUuid(
         applicationUuid,
-        privacyNoticeContent
+        privacyNoticeContent,
       );
       console.log("Privacy Notice submitted successfully: ", result);
       return result;
@@ -150,7 +150,7 @@ function PrivacyDashboard() {
     try {
       console.log(
         "Trying to delete existing privacy notice for application: ",
-        applicationUuid
+        applicationUuid,
       );
       await removePrivacyNoticeByManagedApplicationUuid(applicationUuid);
       console.log("Existing privacy notice deleted.");
@@ -174,7 +174,7 @@ function PrivacyDashboard() {
     try {
       console.log(
         "Trying to get Privacy Impact Assessment for application: ",
-        applicationUuid
+        applicationUuid,
       );
       const result = await getPiaByManagedApplicationUuid(applicationUuid);
       console.log("Privacy Impact Assessment retrieved successfully");
@@ -186,7 +186,7 @@ function PrivacyDashboard() {
 
   const submitPiaTemplate = async (
     applicationUuid: string,
-    piaTemplate: any
+    piaTemplate: any,
   ) => {
     try {
       await submitPiaByManagedApplicationUuid(applicationUuid, piaTemplate);
@@ -253,6 +253,19 @@ function PrivacyDashboard() {
                   handleGetPrivacyImpactAssessment
                 }
                 submitPiaTemplate={submitPiaTemplate}
+              />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/test-questionnaire"
+          element={
+            user ? (
+              <TestQuestionnaire
+                onLogout={doLogout}
+                fetchManagedApplications={fetchManagedApplications}
               />
             ) : (
               <Navigate to="/login" replace />

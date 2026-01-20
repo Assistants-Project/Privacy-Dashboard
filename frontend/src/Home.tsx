@@ -45,6 +45,13 @@ function Home({ onLogout }: HomeProps) {
                 Test Privacy Impact Assessment
               </Button>
               <Button
+                variant="secondary"
+                onClick={() => navigate("/test-questionnaire")}
+                className="mt-3 ms-3"
+              >
+                Test Questionnaire
+              </Button>
+              <Button
                 variant="primary"
                 onClick={() => navigate("/policy-translation")}
                 className="mt-3 ms-3"
