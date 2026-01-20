@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import Row
 
 from ..extensions import db
-from ..models import Evaluation, Question, QuestionApplication, QuestionType
+from ..models import Evaluation, Question, QuestionApplication
 
 
 class QuestionAnsweredDict(TypedDict):
@@ -15,10 +15,8 @@ class QuestionAnsweredDict(TypedDict):
 
 class QuestionRepository:
     @staticmethod
-    def get_questions_by_type(type: QuestionType) -> Iterator[Question]:
-        statement = (
-            db.select(Question).where(Question.type == type).order_by(Question.id)
-        )
+    def get_all_questions() -> Iterator[Question]:
+        statement = db.select(Question).order_by(Question.id)
         return db.session.scalars(statement)
 
     @staticmethod
@@ -63,8 +61,7 @@ class QuestionRepository:
     ) -> Iterator[Tuple[QuestionApplication, Question]]:
         statement = db.select(QuestionApplication, Question).join(
             QuestionApplication.question.and_(
-                QuestionApplication.application_id == application_id,
-                Question.type == QuestionType.QUESTIONNAIRE,
+                QuestionApplication.application_id == application_id
             )
         )
         return db.session.execute(statement)

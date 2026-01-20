@@ -4,12 +4,12 @@ from .entities.device import Device
 from .entities.message import Message
 from .entities.notification import Notification
 from .entities.privacy_notice import PrivacyNotice
-from .entities.question import Question, QuestionType
+from .entities.question import Question
 from .entities.request import Request, RightType, Status
 from .entities.room import Room
+from .entities.sifis.db import DbAction, DbDetail, DbEntity, DbRule, DbTrigger
 from .entities.smart_home import SmartHome
 from .entities.user import User, UserRole
-from .entities.sifis.db import DbRule, DbTrigger, DbAction, DbDetail, DbEntity
 from .relations.question_application import QuestionApplication
 from .relations.user_notification import UserNotification
 from .relations.user_smart_home import UserSmartHome
@@ -24,7 +24,6 @@ __all__ = [
     "Notification",
     "PrivacyNotice",
     "Question",
-    "QuestionType",
     "Request",
     "RightType",
     "Status",

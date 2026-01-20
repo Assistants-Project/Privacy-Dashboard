@@ -9,7 +9,7 @@ from ..exceptions import (
     QuestionnaireSubmissionException,
     QuestionNotFoundException,
 )
-from ..models import Evaluation, Question, QuestionApplication, QuestionType
+from ..models import Evaluation, Question, QuestionApplication
 from ..repositories import ApplicationRepository, QuestionRepository
 
 
@@ -63,7 +63,7 @@ class QuestionService:
             A list of dictionaries each containing the question instance and the list of possible choices, or an empty list if none are found.
         """
 
-        iterator = QuestionRepository.get_questions_by_type(QuestionType.QUESTIONNAIRE)
+        iterator = QuestionRepository.get_all_questions()
         return [
             {
                 "question": question,
@@ -91,6 +91,13 @@ class QuestionService:
         Returns:
             A dictionary containing the result of the submission, with keys `application_evaluation` and `given_answers`, where `application_evaluation` is the
             overall evaluation of the application based on the questionnaire answers, and `given_answers` is a list of dictionaries each containing a `question` and the corresponding `answer`.
+
+        Raises:
+            `ApplicationNotFoundException`: If the application with the given UUID is not found among the managed applications.
+            `QuestionNotFoundException`: If a question with the given UUID is not found among the possible questions.
+            `InvalidAnswerContentException`: If an answer content provided does not match any of the possible choices for the corresponding question.
+            `MissingRequiredAnswerException`: If a required question is not answered when `check_required` is set to True.
+            `QuestionnaireSubmissionException`: If an error occurs during the submission process.
         """
 
         application = (
@@ -195,6 +202,10 @@ class QuestionService:
         Returns:
             A dictionary containing the result of the view request, with keys `application_evaluation` and `given_answers`, where `application_evaluation` is the
             overall evaluation of the application based on the questionnaire answers, and `given_answers` is a list of dictionaries each containing a `question` and the corresponding `answer`.
+
+        Raises:
+            `ApplicationNotFoundException`: If the application with the given UUID is not found among the managed applications.
+            `QuestionnaireNotFoundException`: If no questionnaire was submitted for the application.
         """
 
         application = (

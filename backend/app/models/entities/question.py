@@ -1,24 +1,17 @@
-import enum
 from typing import List
 from uuid import UUID, uuid4
 
-from sqlalchemy import Enum, Text
+from sqlalchemy import Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...extensions import db
 
 
-class QuestionType(enum.Enum):
-    QUESTIONNAIRE = "QUESTIONNAIRE"
-    PRIVACY_IMPACT_ASSESSMENT = "PRIVACY_IMPACT_ASSESSMENT"
-
-
 class Question(db.Model):
     """Model for a question mapped to the table `questions`.
 
-    A `Question` instance corresponds to one question of either a questionnaire
-    or a privacy impact assessment. It can either be an open question or a
-    multiple choice question.
+    A `Question` instance corresponds to one question of a questionnaire
+    It can either be an open question or a multiple choice question.
 
     Attributes:
         id: An auto-incremented integer identifier, used as the primary key.
@@ -32,8 +25,6 @@ class Question(db.Model):
             assuming that the choices are stored as a single delimiter-separated string.
         red_choices: An optional text field that represents the possibile 'bad' choices of a multiple choice question,
             assuming that the choices are stored as a single delimiter-separated string.
-        type: An enum that represents whether the question belongs to a questionnaire or
-            a privacy impact assessment.
         answers: A list of `QuestionApplication` instances.
             Represents a one-to-many relationship with the `QuestionApplication` class.
     """
@@ -48,12 +39,11 @@ class Question(db.Model):
     green_choices = mapped_column(Text, nullable=True)
     orange_choices = mapped_column(Text, nullable=True)
     red_choices = mapped_column(Text, nullable=True)
-    type = mapped_column(Enum(QuestionType, validate_strings=True), nullable=False)
 
     answers: Mapped[List["QuestionApplication"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="question", cascade="all, delete-orphan", passive_deletes=True
     )
 
     def __repr__(self) -> str:
-        return f"Question(id={self.id}, content={self.content}, \
-            choices={self.choices}, type={self.type})"
+        return f"Question(id={self.id}, uuid={self.uuid}), content={self.content}, additional_information={self.additional_information}), \
+            green_choices={self.green_choices}, orange_choices={self.orange_choices}, red_choices={self.red_choices}"

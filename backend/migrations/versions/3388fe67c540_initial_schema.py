@@ -36,11 +36,6 @@ def upgrade():
         sa.Column("green_choices", sa.Text(), nullable=True),
         sa.Column("orange_choices", sa.Text(), nullable=True),
         sa.Column("red_choices", sa.Text(), nullable=True),
-        sa.Column(
-            "type",
-            sa.Enum("QUESTIONNAIRE", "PRIVACY_IMPACT_ASSESSMENT", name="questiontype"),
-            nullable=False,
-        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("uuid"),
     )

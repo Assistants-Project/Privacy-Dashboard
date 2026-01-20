@@ -8,7 +8,7 @@ class QuestionSchema(ma.SQLAlchemyAutoSchema):
         include_fk = False
         include_relationships = False
         load_instance = False
-        exclude = ("id", "green_choices", "orange_choices", "red_choices", "type")
+        exclude = ("id", "green_choices", "orange_choices", "red_choices")
 
 
 class QuestionResSchema(ma.Schema):
