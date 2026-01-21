@@ -1,0 +1,13 @@
+.git
+.venv
+.vscode
+__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+
+frontend/node_modules
+backend/instance
+

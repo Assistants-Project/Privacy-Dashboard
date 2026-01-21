@@ -3,8 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from config import config_by_name
-from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, abort, send_from_directory
 from flask_cors import CORS
 
 from .controllers import (
@@ -36,15 +35,6 @@ def create_app(env_name: Optional[str] = None) -> Flask:
     Assumes Flask CLI has already auto-loaded .env for development.
     """
     env_name = env_name or os.getenv("FLASK_ENV", "development")
-
-    override_map = {"testing": ".env.test", "production": ".env.prod"}
-    override_file = override_map.get(env_name)
-    if override_file:
-        path = Path("../" + override_file)
-        if path.exists():
-            load_dotenv(path, override=True)
-        else:
-            print(f"[WARNING] Override env file not found: {override_file}")
 
     app = Flask(__name__)
     app.config.from_object(config_by_name[env_name])
@@ -86,11 +76,26 @@ def create_app(env_name: Optional[str] = None) -> Flask:
     ]:
         api.register_blueprint(blueprint)
 
+    frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+    if frontend_dist.exists():
+
+        @app.route("/", defaults={"path": ""})
+        @app.route("/<path:path>")
+        def serve_frontend(path: str):
+            if path.startswith("api") or path.startswith("docs"):
+                abort(404)
+
+            asset_path = frontend_dist / path
+            if path and asset_path.exists() and asset_path.is_file():
+                return send_from_directory(frontend_dist, path)
+
+            return send_from_directory(frontend_dist, "index.html")
+
     app.after_request(refresh_expiring_jwts)
     app.register_error_handler(Exception, global_error_handler)
 
-    # Add dummy initial data only in development
-    if env_name == "development":
+    # Add dummy initial data in development and testing/demo
+    if env_name in {"development", "testing"}:
         init_data(app)
 
     from .commands import generate_owls_command

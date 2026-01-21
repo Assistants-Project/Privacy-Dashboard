@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: "postgres:17.4"
+    container_name: "privacy_dashboard_db"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - privacy_dashboard_volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.deploy
+    container_name: "privacy_dashboard_app"
+    env_file:
+      - ../.env
+    environment:
+      FLASK_ENV: testing
+      TEST_DATABASE_URI: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      CORS_ORIGINS: http://localhost:5050,http://127.0.0.1:5050
+    command:
+      - sh
+      - -c
+      - flask db upgrade && exec flask run --host=0.0.0.0 --port 5050
+    ports:
+      - "5050:5050"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  privacy_dashboard_volume:

@@ -56,10 +56,15 @@ class SmartHomeService:
         init_data(cast(Flask, current_app))
 
     @staticmethod
-    def update_database_for_user(current_user: User):
-        #if the user is a data subject we sync is homes with smartotum
+    def update_database_for_user(current_user: User, access_token: str | None = None):
+        #if the user is a data subject we sync his homes with smartotum
         if current_user.role == UserRole.DATA_SUBJECT:
-            SmartotumService.update_database_smartotum_for_user(current_user)
+            if access_token is None:
+                #in case the update request comes from the refresh call
+                SmartotumService.update_database_smartotum_for_user(current_user)
+            else:
+                #in caso the update request comes from the login call 
+                SmartotumService.update_database_smartotum(access_token, current_user)
             #in the future a new domotic system can be added here
 
     #gets the homes of the current user

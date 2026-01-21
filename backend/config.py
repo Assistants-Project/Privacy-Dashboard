@@ -2,6 +2,19 @@ import os
 from datetime import timedelta
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "t", "yes", "y", "on"}:
+        return True
+    if normalized in {"0", "false", "f", "no", "n", "off"}:
+        return False
+    return default
+
+
 class BaseConfig:
     SECRET_KEY = os.getenv("SECRET_KEY", "30e10900abeadf6f02b786f6f1bcf30a")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -14,9 +27,9 @@ class BaseConfig:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "3301947240a7448b5c90462c7d981d10")
     JWT_TOKEN_LOCATION = ["cookies", "headers"]
     JWT_ACCESS_COOKIE_NAME = "st_access_token"
-    JWT_COOKIE_CSRF_PROTECT = os.getenv("JWT_COOKIE_CSRF_PROTECT", True)
+    JWT_COOKIE_CSRF_PROTECT = _env_bool("JWT_COOKIE_CSRF_PROTECT", True)
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
-    JWT_COOKIE_SECURE = os.getenv("JWT_COOKIE_SECURE", True)
+    JWT_COOKIE_SECURE = _env_bool("JWT_COOKIE_SECURE", True)
     JWT_SESSION_COOKIE = False
     JWT_CSRF_METHODS = ["GET", "POST", "PUT", "DELETE"]
     # --- Smartotum ---
@@ -33,7 +46,7 @@ class BaseConfig:
         ).split(",")
         if t.strip()
     ]
-    SMARTOTUM_RULE_TOPIC = os.getenv("SMARTOTUM_RULES_TOPIC", "privacy_rule")
+    SMARTOTUM_RULE_TOPIC = os.getenv("SMARTOTUM_RULE_TOPIC", "privacy_rule")
     SMARTOTUM_JWKS_URL = os.getenv("SMARTOTUM_JWKS_URL","https://api.smartotum.com/auth/jwt/jwks.json")
     SMARTOTUM_ISSUER = os.getenv("SMARTOTUM_ISSUER", "https://api.smartotum.com/auth")
     SMARTOTUM_TIMEOUT = float(os.getenv("SMARTOTUM_TIMEOUT", "1")) #max time a http request to smartotum api can last

@@ -1,3 +1,4 @@
+from flask import Response, current_app
 from flask_smorest import Blueprint
 
 from ..schemas import HomeResSchema
@@ -57,4 +58,13 @@ def clear_all_homes():
 @homes_bp.response(204, description="Database reset to initial data (debug only)")
 def reset_database_to_initial_data():
     SmartHomeService.reset_database_to_initial_data()
-    return "Database reset to initial data", 204
+    response = Response(status=204, content_type="application/json")
+    secure_cookie = current_app.config.get("JWT_COOKIE_SECURE", True)
+    response.delete_cookie(
+        "st_access_token",
+        path="/",
+        httponly=True,
+        secure=secure_cookie,
+        samesite="None" if secure_cookie else "Lax",
+    )
+    return response
