@@ -151,6 +151,13 @@ npm run dev
 docker compose --env-file .env -f docker/docker-compose.deploy.yml up -d --build
 docker compose --env-file .env -f docker/docker-compose.deploy.yml down -v #to destroy it
 ```
+- env variables that are important in testing phase
+```ini
+FLASK_ENV=testing
+TEST_DATABASE_URI=postgresql+psycopg2://<user>:<password>@postgres:5432/privacy_db #when FLASK_ENV=testing
+VITE_API_BASE_UR= /api/ 
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+```
 
 The app is reachable at `http://localhost:5050` (frontend) and `http://localhost:5050/docs/swagger` (API docs).
 
