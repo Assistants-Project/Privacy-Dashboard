@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "react-quill/dist/quill.snow.css";
+import "./style.css"
 import { BrowserRouter } from "react-router-dom";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import PrivacyDashboard from "./PrivacyDashboard";

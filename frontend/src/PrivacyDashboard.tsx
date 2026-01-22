@@ -1,27 +1,19 @@
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Container } from "react-bootstrap";
+import { Container, Navbar } from "react-bootstrap";
 import { Login } from "./Authentication/Login";
 import { useUser } from "./Authentication/UserContext";
 import { Role, User } from "../models/user";
-import authentication from "../API/User/authentication";
+import authentication from "./API/User/authentication";
 import {
   getManagedApplications,
-  getPiaTemplate,
-  getPiaByManagedApplicationUuid,
-  submitPiaByManagedApplicationUuid,
-} from "../API/applicationAPI";
-import {
-  getPrivacyNoticeTemplate,
-  getPrivacyNoticeByManagedApplicationUuid,
-  writePrivacyNoticeByManagedApplicationUuid,
-  removePrivacyNoticeByManagedApplicationUuid,
-} from "../API/privacyNoticeAPI";
-import { TestPrivacyNotice } from "./TestPrivacyNotice";
-import { TestPrivacyImpactAssessment } from "./TestPrivacyImpactAssessment";
-import { TestQuestionnaire } from "./TestQuestionnaire";
-import { Home } from "./Home";
-import PolicyTranslation from "./SIFIS/PolicyTranslation";
+} from "./API/applicationAPI";
+import { TestPrivacyNotice } from "./components/GDRP/TestPrivacyNotice";
+import { TestPrivacyImpactAssessment } from "./components/GDRP/TestPrivacyImpactAssessment";
+import { TestQuestionnaire } from "./components/GDRP/TestQuestionnaire";
+import { Home } from "./components/Home";
+import PolicyTranslation from "./components/SIFIS/PolicyTranslation";
+import { TopNavBar } from "./components/TopNavBar"
 
 function PrivacyDashboard() {
   const { user, setUser } = useUser();
@@ -37,7 +29,7 @@ function PrivacyDashboard() {
         setUser(new User(u.email, u.firstname, u.lastname, u.role));
         console.log("User is authenticated, redirecting to home page.");
         navigate("/", { replace: true });
-      } catch {}
+      } catch { }
     };
     checkAuth();
   }, []);
@@ -99,117 +91,9 @@ function PrivacyDashboard() {
     }
   };
 
-  const fetchPrivacyNoticeTemplate = async () => {
-    try {
-      console.log("Trying to get Privacy Notice Template");
-      const result = await getPrivacyNoticeTemplate();
-      console.log("Privacy Notice Template retrieved successfully: ", result);
-      return result;
-    } catch (err) {
-      console.error("Error getting privacy notice template:", err);
-    }
-  };
-
-  const handleGetPrivacyNotice = async (applicationUuid: string) => {
-    try {
-      console.log(
-        "Trying to get Privacy Notice for application: ",
-        applicationUuid,
-      );
-      const result =
-        await getPrivacyNoticeByManagedApplicationUuid(applicationUuid);
-      console.log("Privacy Notice retrieved successfully: ", result);
-      return result;
-    } catch (err) {
-      console.error("Error getting privacy notice:", err);
-    }
-  };
-
-  const handleSubmitPrivacyNotice = async (
-    applicationUuid: string,
-    privacyNoticeContent: string,
-  ) => {
-    try {
-      console.log(
-        "Trying to submit Privacy Notice to application: ",
-        applicationUuid,
-        privacyNoticeContent,
-      );
-      const result = await writePrivacyNoticeByManagedApplicationUuid(
-        applicationUuid,
-        privacyNoticeContent,
-      );
-      console.log("Privacy Notice submitted successfully: ", result);
-      return result;
-    } catch (err) {
-      console.error("Error submitting privacy notice:", err);
-    }
-  };
-
-  const handleRemovePrivacyNotice = async (applicationUuid: string) => {
-    try {
-      console.log(
-        "Trying to delete existing privacy notice for application: ",
-        applicationUuid,
-      );
-      await removePrivacyNoticeByManagedApplicationUuid(applicationUuid);
-      console.log("Existing privacy notice deleted.");
-    } catch (err) {
-      console.error("Error deleting privacy notice:", err);
-    }
-  };
-
-  const fetchPiaTemplate = async () => {
-    try {
-      console.log("Trying to get Privacy Impact Assessment Template");
-      const result = await getPiaTemplate();
-      console.log("Privacy Impact Assessment Template retrieved successfully");
-      return result;
-    } catch (err) {
-      console.error("Error getting privacy impact assessment template:", err);
-    }
-  };
-
-  const handleGetPrivacyImpactAssessment = async (applicationUuid: string) => {
-    try {
-      console.log(
-        "Trying to get Privacy Impact Assessment for application: ",
-        applicationUuid,
-      );
-      const result = await getPiaByManagedApplicationUuid(applicationUuid);
-      console.log("Privacy Impact Assessment retrieved successfully");
-      return result;
-    } catch (err) {
-      console.error("Error getting privacy impact assessment:", err);
-    }
-  };
-
-  const submitPiaTemplate = async (
-    applicationUuid: string,
-    piaTemplate: any,
-  ) => {
-    try {
-      await submitPiaByManagedApplicationUuid(applicationUuid, piaTemplate);
-      console.log("Privacy Impact Assessment submitted successfully");
-      return;
-    } catch (err) {
-      console.error("Error submitting privacy impact assessment:", err);
-    }
-  };
-
   return (
     <Container fluid style={{ padding: 0, height: "100%" }}>
       <Routes>
-        <Route
-          path="/"
-          element={
-            user ? (
-              <Home onLogout={doLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
 
         <Route
           path="/login"
@@ -224,64 +108,39 @@ function PrivacyDashboard() {
             />
           }
         />
+
         <Route
-          path="/test-privacy-notice"
-          element={
-            user ? (
-              <TestPrivacyNotice
-                onLogout={doLogout}
-                fetchPrivacyNoticeTemplate={fetchPrivacyNoticeTemplate}
-                fetchManagedApplications={fetchManagedApplications}
-                handleGetPrivacyNotice={handleGetPrivacyNotice}
-                handleSubmitPrivacyNotice={handleSubmitPrivacyNotice}
-                handleRemovePrivacyNotice={handleRemovePrivacyNotice}
-              />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/test-privacy-impact-assessment"
-          element={
-            user ? (
-              <TestPrivacyImpactAssessment
-                onLogout={doLogout}
-                fetchPiaTemplate={fetchPiaTemplate}
-                fetchManagedApplications={fetchManagedApplications}
-                handleGetPrivacyImpactAssessment={
-                  handleGetPrivacyImpactAssessment
-                }
-                submitPiaTemplate={submitPiaTemplate}
-              />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/test-questionnaire"
-          element={
-            user ? (
-              <TestQuestionnaire
-                onLogout={doLogout}
-                fetchManagedApplications={fetchManagedApplications}
-              />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/policy-translation"
-          element={
-            user ? (
+
+          element={user ? (<TopNavBar />) : (<Navigate to="/login" replace />)}>
+
+          <Route index element={<Home onLogout={doLogout} />} />
+
+          <Route
+            path="/privacy-notice"
+            element={
+              <TestPrivacyNotice onLogout={doLogout} fetchManagedApplications={fetchManagedApplications} />
+            }
+          />
+          <Route
+            path="/privacy-impact-assessment"
+            element={
+              <TestPrivacyImpactAssessment onLogout={doLogout} fetchManagedApplications={fetchManagedApplications} />
+            }
+          />
+          <Route
+            path="/questionnaire"
+            element={
+              <TestQuestionnaire onLogout={doLogout} fetchManagedApplications={fetchManagedApplications} />
+            }
+          />
+          <Route
+            path="/policy-translation"
+            element={
               <PolicyTranslation onLogout={doLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
+            }
+          />
+
+        </Route>
       </Routes>
     </Container>
   );

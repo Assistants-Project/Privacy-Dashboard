@@ -14,6 +14,12 @@ import {
   ILargeTextEditorParams,
   ISelectCellEditorParams,
 } from "ag-grid-community";
+import {
+  fetchPiaTemplate,
+  handleGetPrivacyImpactAssessment,
+  submitPiaTemplate,
+} from "../../services/PrivacyImpactAssessmentService";
+
 
 function TestPrivacyImpactAssessment(props: any) {
   const [piaTemplate, setPiaTemplate] = useState<any>(null);
@@ -102,11 +108,11 @@ function TestPrivacyImpactAssessment(props: any) {
 
   const setChosenApplication = async (applicationUuid: string) => {
     const fetchedPiaResult =
-      await props.handleGetPrivacyImpactAssessment(applicationUuid);
+      await handleGetPrivacyImpactAssessment(applicationUuid);
     if (fetchedPiaResult) {
       setPiaTemplate(fetchedPiaResult); // overwrite template with existing PIA, if any, for editing, else load empty template for adding
     } else {
-      const fetchedPiaTemplate = await props.fetchPiaTemplate();
+      const fetchedPiaTemplate = await fetchPiaTemplate();
       setPiaTemplate(fetchedPiaTemplate || {});
     }
     setSelectedApplicationUuid(applicationUuid);
@@ -135,9 +141,9 @@ function TestPrivacyImpactAssessment(props: any) {
           }
         }
       }
-      await props.submitPiaTemplate(selectedApplicationUuid, updatedTemplate);
+      await submitPiaTemplate(selectedApplicationUuid, updatedTemplate);
       // TODO: for simplicity, we fetch directly here the submitted PIA to verify it was stored correctly, REMOVE THIS!
-      const fetchedPiaResult = await props.handleGetPrivacyImpactAssessment(
+      const fetchedPiaResult = await handleGetPrivacyImpactAssessment(
         selectedApplicationUuid,
       );
       if (fetchedPiaResult) {

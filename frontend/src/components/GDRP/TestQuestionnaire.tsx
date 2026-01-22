@@ -12,8 +12,8 @@ import {
   getQuestionnaireByManagedApplicationUuid,
   getQuestionnaireQuestions,
   submitQuestionnaireByManagedApplicationUuid,
-} from "../API/questionAPI";
-import { Question, Evaluation } from "../models/question";
+} from "../../API/questionAPI";
+import { Question, Evaluation } from "../../../models/question";
 
 function TestQuestionnaire(props: any) {
   const [questions, setQuestions] = useState<Question[] | null>(null);

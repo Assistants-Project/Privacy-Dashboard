@@ -6,6 +6,13 @@ import {
 } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import ReactQuill from "react-quill";
+import {
+  fetchPrivacyNoticeTemplate,
+  handleGetPrivacyNotice,
+  handleSubmitPrivacyNotice,
+  handleRemovePrivacyNotice
+} from "../../services/PrivacyNoticeService";
+import "react-quill/dist/quill.snow.css";
 
 function TestPrivacyNotice(props: any) {
   const [value, setValue] = useState("");
@@ -28,7 +35,7 @@ function TestPrivacyNotice(props: any) {
 
   useEffect(() => {
     const setValueToTemplate = async () => {
-      const template = await props.fetchPrivacyNoticeTemplate();
+      const template = await fetchPrivacyNoticeTemplate();
       setValue(template?.content || "");
     };
     if (isTemplate === 2) {
@@ -45,13 +52,13 @@ function TestPrivacyNotice(props: any) {
     }
     try {
       // TODO: for semplicity, we first remove any existing privacy notice before submitting a new one, REMOVE THIS!
-      await props.handleRemovePrivacyNotice(selectedApplicationUuid);
-      const submittedNotice = await props.handleSubmitPrivacyNotice(
+      await handleRemovePrivacyNotice(selectedApplicationUuid);
+      const submittedNotice = await handleSubmitPrivacyNotice(
         selectedApplicationUuid,
         value
       );
       // TODO: for simplicity, we fetch directly here the submitted privacy notice to verify it was stored correctly, REMOVE THIS!
-      const fetchedNoticeResult = await props.handleGetPrivacyNotice(
+      const fetchedNoticeResult = await handleGetPrivacyNotice(
         selectedApplicationUuid
       );
       console.log("Submitted Notice:", submittedNotice.uuid);

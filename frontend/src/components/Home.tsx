@@ -1,5 +1,5 @@
 import { Button } from "react-bootstrap";
-import { useUser } from "./Authentication/UserContext";
+import { useUser } from "../Authentication/UserContext";
 import { useNavigate } from "react-router-dom";
 
 type HomeProps = {
