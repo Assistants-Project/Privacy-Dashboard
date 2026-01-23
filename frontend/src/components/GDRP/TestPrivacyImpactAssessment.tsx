@@ -281,9 +281,6 @@ function TestPrivacyImpactAssessment(props: any) {
           ))}
         </div>
       )}
-      <Button variant="secondary" onClick={props.onLogout} className="mt-3">
-        Logout
-      </Button>
     </div>
   );
 }

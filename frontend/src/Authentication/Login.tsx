@@ -1,15 +1,22 @@
 import { useState } from 'react';
 import { Alert, Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { Registration } from './Registration';
+import { useAuth } from "./AuthContext";
+import { Navigate } from "react-router-dom";
 import './style.css';
 
 function Login(props: any) {
+    const auth = useAuth();
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [error, setError] = useState("");
 
-    const handleSubmit = (event: any) => {
+    if (auth.user) {
+        return <Navigate to="/" replace />;
+    }
+
+    const handleSubmit = async (event: any) => {
         event.preventDefault();
-        props.setMessage('');
 
         let valid = true;
         let msg = '';
@@ -25,10 +32,23 @@ function Login(props: any) {
         }
 
         if (valid) {
-            props.login(email, password);
+            try {
+                await auth.login(email, password);
+                
+            } catch (err) {
+                const msg =
+                    err instanceof Error
+                        ? err.message
+                        : typeof err === "string"
+                            ? err
+                            : (err as any)?.error ||
+                              (err as any)?.message ||
+                              "An error occurred";
+                setError(msg)
+            }
         }
         else {
-            props.setMessage(msg);
+            setError(msg)
         }
     }
 
@@ -43,7 +63,7 @@ function Login(props: any) {
                 <Col>
                     <Row className="loginFormContainer">
                         <h2>Login</h2>
-                        {props.message ? <Alert className="error" variant='danger' onClose={() => props.setMessage('')} dismissible>{props.message}</Alert> : false}
+                        {error ? <Alert className="error" variant='danger' onClose={() => setError("")} dismissible>{error}</Alert> : false}
                         <Form.Group className="form" controlId='login'>
                             <Form.Control placeholder="Email" type='email' value={email} onChange={ev => setEmail(ev.target.value)} />
                             <Form.Control className="mt-3" placeholder="Password" type='password' value={password} onChange={ev => setPassword(ev.target.value)} />
@@ -58,7 +78,7 @@ function Login(props: any) {
                           registrationMessage={props.registrationMessage}
                           setRegistrationMessage={props.setRegistrationMessage}
                           setMessage={props.setMessage}
-                          register={props.register}
+                          register={auth.registration}
                         />
                     </Row>
                 </Col>

@@ -5,16 +5,16 @@ import "./style.css"
 import { BrowserRouter } from "react-router-dom";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import PrivacyDashboard from "./PrivacyDashboard";
-import { UserProvider } from "./Authentication/UserContext";
+import { AuthProvider } from "./Authentication/AuthContext";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
-      <UserProvider>
+      <AuthProvider>
         <PrivacyDashboard />
-      </UserProvider>
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

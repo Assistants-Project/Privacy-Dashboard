@@ -13,6 +13,9 @@ import {
   handleRemovePrivacyNotice
 } from "../../services/PrivacyNoticeService";
 import "react-quill/dist/quill.snow.css";
+import {
+  fetchManagedApplications
+} from "../../services/ApplicationService"
 
 function TestPrivacyNotice(props: any) {
   const [value, setValue] = useState("");
@@ -27,7 +30,7 @@ function TestPrivacyNotice(props: any) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const applications = await props.fetchManagedApplications();
+      const applications = await fetchManagedApplications();
       setManagedApplications(applications || []);
     };
     fetchData();
@@ -134,9 +137,6 @@ function TestPrivacyNotice(props: any) {
           <div dangerouslySetInnerHTML={{ __html: fetchedNotice.content }} />
         </div>
       )}
-      <Button variant="secondary" onClick={props.onLogout} className="mt-3">
-        Logout
-      </Button>
     </div>
   );
 }

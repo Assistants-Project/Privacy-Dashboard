@@ -14,6 +14,9 @@ import {
   submitQuestionnaireByManagedApplicationUuid,
 } from "../../API/questionAPI";
 import { Question, Evaluation } from "../../../models/question";
+import {
+  fetchManagedApplications
+} from "../../services/ApplicationService"
 
 function TestQuestionnaire(props: any) {
   const [questions, setQuestions] = useState<Question[] | null>(null);
@@ -28,7 +31,7 @@ function TestQuestionnaire(props: any) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const applications = await props.fetchManagedApplications();
+      const applications = await fetchManagedApplications();
       setManagedApplications(applications || []);
     };
     fetchData();
@@ -274,9 +277,6 @@ function TestQuestionnaire(props: any) {
           ))}
         </div>
       )}
-      <Button variant="secondary" onClick={props.onLogout} className="mt-3">
-        Logout
-      </Button>
     </div>
   );
 }

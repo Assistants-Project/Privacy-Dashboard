@@ -8,7 +8,7 @@ import RuleList from "./RuleList";
 import RuleEditor from "./RuleEditor";
 import VerificationReport from "./VerificationReport";
 
-const PolicyTranslation: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
+function PolicyTranslation() {
 
   const navigate = useNavigate();
   

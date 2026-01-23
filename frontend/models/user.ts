@@ -1,25 +1,24 @@
 /**
  * Represents a user in the system.
  */
+import { HomeModel } from "./home"
 class User {
     email: string
     firstname: string
     lastname: string
     role: Role
+    homes: HomeModel[] | undefined
+    current_home: HomeModel | undefined
 
 
-    /**
-     * Creates a new instance of the User class.
-     * @param username - The username of the user. This is unique for each user.
-     * @param name - The name of the user.
-     * @param surname - The surname of the user.
-     * @param role - The role of the user. This can be "Manager" or "Customer".
-     */
-    constructor(email: string, firstname: string, lastname: string, role: Role) {
+    constructor(email: string, firstname: string, lastname: string, role: Role, homes?: HomeModel[], current_home?: HomeModel) {
         this.email = email
         this.firstname = firstname
         this.lastname = lastname
         this.role = role
+        this.homes = homes
+        this.current_home = current_home
+        
     }
 }
 

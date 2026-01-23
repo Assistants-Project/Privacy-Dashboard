@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useUser } from "../Authentication/UserContext";
+import { useAuth } from "../Authentication/AuthContext";
 import { NavLink, Outlet } from "react-router-dom";
 import { Role } from "../../models/user";
+import Button from "react-bootstrap/esm/Button";
 
 export function TopNavBar() {
 
-    const { user } = useUser();
+    const { user, logout } = useAuth();
 
     const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
     isActive ? "active" : undefined;
@@ -40,6 +41,9 @@ export function TopNavBar() {
             </NavLink>
             <NavLink className={navLinkClassName} to="/policy-translation">
               Policy Translation
+            </NavLink>
+            <NavLink className={navLinkClassName} to="/login">
+              <Button onClick={logout}>Logout</Button>
             </NavLink>
           </nav>
         </div>

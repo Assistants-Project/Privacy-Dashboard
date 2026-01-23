@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Row, Col, Card } from "react-bootstrap";
-import { useUser } from "../../Authentication/UserContext";
+import { useAuth } from "../../Authentication/AuthContext";
 import {
   getTriggerServices,
   getTriggers,
@@ -18,7 +18,7 @@ interface RuleEditorProps {
 }
 
 const RuleEditor: React.FC<RuleEditorProps> = ({ homeUuid, onSave, onCancel }) => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const [triggerServices, setTriggerServices] = useState<any[]>([]);
   const [actionServices, setActionServices] = useState<any[]>([]);
   const [triggers, setTriggers] = useState<any[]>([]);
