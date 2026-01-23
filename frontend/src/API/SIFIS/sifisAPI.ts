@@ -1,4 +1,4 @@
-import baseURL from "./baseUrl";
+import baseURL from "../baseUrl";
 
 // --- Services & Triggers/Actions ---
 

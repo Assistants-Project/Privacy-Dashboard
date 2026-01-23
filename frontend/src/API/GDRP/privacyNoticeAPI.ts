@@ -1,13 +1,13 @@
-import baseURL from "./baseUrl";
+import baseURL from "../baseUrl";
 
-async function getQuestionnaireQuestions() {
-  let response = await fetch(baseURL + "questions/questionnaire", {
+async function getPrivacyNoticeTemplate() {
+  let response = await fetch(baseURL + "privacy-notices/template", {
     method: "GET",
     credentials: "include",
   });
   if (response.ok) {
-    const questionnaireQuestions = await response.json();
-    return questionnaireQuestions;
+    const result = await response.json();
+    return result;
   } else {
     const errDetail = await response.json();
     if (errDetail?.message) {
@@ -18,15 +18,15 @@ async function getQuestionnaireQuestions() {
   }
 }
 
-async function getQuestionnaireByManagedApplicationUuid(
-  applicationUuid: string,
+async function getPrivacyNoticeByManagedApplicationUuid(
+  applicationUuid: string
 ) {
   let response = await fetch(
-    baseURL + "questions/view-questionnaire/application/" + applicationUuid,
+    baseURL + "privacy-notices/managed-application/" + applicationUuid,
     {
       method: "GET",
       credentials: "include",
-    },
+    }
   );
   if (response.ok) {
     const result = await response.json();
@@ -52,24 +52,57 @@ async function getQuestionnaireByManagedApplicationUuid(
   }
 }
 
-async function submitQuestionnaireByManagedApplicationUuid(
+async function writePrivacyNoticeByManagedApplicationUuid(
   applicationUuid: string,
-  content: any,
+  content: string
 ) {
   let response = await fetch(
-    baseURL + "questions/submit-questionnaire/application/" + applicationUuid,
+    baseURL + "privacy-notices/managed-application/" + applicationUuid,
     {
-      method: "PUT",
+      method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(content),
-    },
+      body: JSON.stringify({ content: content }),
+    }
   );
   if (response.ok) {
     const result = await response.json();
     return result;
+  } else {
+    const errDetail = await response.json();
+    // Flask-smorest validation error
+    if (errDetail?.errors) {
+      const jsonErrors = errDetail.errors.json;
+      if (jsonErrors && typeof jsonErrors === "object") {
+        const msgs = Object.values(jsonErrors).flat().join("\n");
+        throw new Error(msgs || "Validation error");
+      }
+      if (typeof errDetail.errors === "string") {
+        throw new Error(errDetail.errors);
+      }
+    }
+    if (errDetail?.message) {
+      throw new Error(errDetail.message);
+    }
+
+    throw new Error("Something went wrong");
+  }
+}
+
+async function removePrivacyNoticeByManagedApplicationUuid(
+  applicationUuid: string
+) {
+  let response = await fetch(
+    baseURL + "privacy-notices/managed-application/" + applicationUuid,
+    {
+      method: "DELETE",
+      credentials: "include",
+    }
+  );
+  if (response.ok) {
+    return;
   } else {
     const errDetail = await response.json();
     // Flask-smorest validation error
@@ -92,7 +125,8 @@ async function submitQuestionnaireByManagedApplicationUuid(
 }
 
 export {
-  getQuestionnaireQuestions,
-  getQuestionnaireByManagedApplicationUuid,
-  submitQuestionnaireByManagedApplicationUuid,
+  getPrivacyNoticeTemplate,
+  getPrivacyNoticeByManagedApplicationUuid,
+  writePrivacyNoticeByManagedApplicationUuid,
+  removePrivacyNoticeByManagedApplicationUuid,
 };

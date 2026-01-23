@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Tabs, Tab, Alert, Card, Navbar, Nav, Modal } from "react-bootstrap";
 
 import { useNavigate } from "react-router-dom";
-import { getHomes } from "../../API/homesAPI";
-import { getRules, saveRule, deleteRule, translateRule, checkRule, downloadPolicies } from "../../API/sifisAPI";
+import { getHomes } from "../../API/Homes/homesAPI";
+import { getRules, saveRule, deleteRule, translateRule, checkRule, downloadPolicies } from "../../API/SIFIS/sifisAPI";
 import RuleList from "./RuleList";
 import RuleEditor from "./RuleEditor";
 import VerificationReport from "./VerificationReport";

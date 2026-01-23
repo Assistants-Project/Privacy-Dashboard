@@ -1,4 +1,5 @@
-import baseURL from "./baseUrl";
+import baseURL from "../baseUrl";
+import { getApiError } from "../apiError";
 
 async function getHomes() {
   let response = await fetch(baseURL + "/homes", {
@@ -8,13 +9,9 @@ async function getHomes() {
   if (response.ok) {
     const homes = await response.json();
     return homes;
-  } else {
-    const errDetail = await response.json();
-    if (errDetail?.message) {
-      throw new Error(errDetail.message);
-    }
-    throw new Error("Something went wrong");
   }
+
+  throw await getApiError(response);
 }
 
 async function getHomeRooms(homeUuid: string) {
@@ -24,13 +21,9 @@ async function getHomeRooms(homeUuid: string) {
   });
   if (response.ok) {
     return await response.json();
-  } else {
-    const errDetail = await response.json();
-    if (errDetail?.message) {
-      throw new Error(errDetail.message);
-    }
-    throw new Error("Something went wrong");
   }
+
+  throw await getApiError(response);
 }
 
 export { getHomes, getHomeRooms };

@@ -1,4 +1,4 @@
-import { getHomes, getHomeRooms } from "../API/homesAPI";
+import { getHomes, getHomeRooms } from "../API/Homes/homesAPI";
 import { HomeModel } from "../../models/home";
 
 type HomeDto = {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Row, Col, Card } from "react-bootstrap";
-import { useAuth } from "../../Authentication/AuthContext";
+import { useAuth } from "../Authentication/AuthContext";
 import {
   getTriggerServices,
   getTriggers,
@@ -8,7 +8,7 @@ import {
   getActionServices,
   getActions,
   getActionDetails,
-} from "../../API/sifisAPI";
+} from "../../API/SIFIS/sifisAPI";
 
 
 interface RuleEditorProps {

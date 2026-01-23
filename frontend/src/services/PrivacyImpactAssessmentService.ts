@@ -2,7 +2,7 @@ import {
   getPiaTemplate,
   getPiaByManagedApplicationUuid,
   submitPiaByManagedApplicationUuid,
-} from "../API/applicationAPI";
+} from "../API/Applications/applicationAPI";
 
 
 export const fetchPiaTemplate = async () => {

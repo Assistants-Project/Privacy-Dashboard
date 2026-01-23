@@ -33,12 +33,12 @@ def login(email: str, password: str):
     user = result.user
     access_token = result.access_token
 
-    try:
-        SmartHomeService.update_database_for_user(user, access_token)
-    except Exception as exc:
-        current_app.logger.warning(
-            "Failed to sync Smartotum data during login: %s", exc
-        )
+    # try:
+    #     SmartHomeService.update_database_for_user(user, access_token)
+    # except Exception as exc:
+    #     current_app.logger.warning(
+    #         "Failed to sync Smartotum data during login: %s", exc
+    #     )
 
     user_data = UserResSchema().dump(user)
     response = jsonify(user_data)

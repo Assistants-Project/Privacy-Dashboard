@@ -1,6 +1,3 @@
-/**
- * Represents a home of a user
- */
 class HomeModel {
     uuid: string
     name: string

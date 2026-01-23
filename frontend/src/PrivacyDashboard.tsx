@@ -1,13 +1,14 @@
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { Container, Navbar } from "react-bootstrap";
-import { Login } from "./Authentication/Login";
-import { useAuth } from "./Authentication/AuthContext";
+import { Login } from "./components/Authentication/Login";
+import { useAuth } from "./components/Authentication/AuthContext";
 import { TestPrivacyNotice } from "./components/GDRP/TestPrivacyNotice";
 import { TestPrivacyImpactAssessment } from "./components/GDRP/TestPrivacyImpactAssessment";
 import { TestQuestionnaire } from "./components/GDRP/TestQuestionnaire";
 import { Home } from "./components/Home";
 import PolicyTranslation from "./components/SIFIS/PolicyTranslation";
 import { TopNavBar } from "./components/TopNavBar"
+import { RequireAuth } from "./components/Authentication/RequireAuth";
 
 function PrivacyDashboard() {
   const auth = useAuth();
@@ -16,20 +17,9 @@ function PrivacyDashboard() {
     <Container fluid style={{ padding: 0, height: "100%" }}>
       <Routes>
 
-        <Route
-          path="/login"
-          element={
-            auth.user ? (
-              <Navigate to="/" replace />
-            ) : (
-              <Login/>
-            )
-          }
-        />
+        <Route path="/login" element={<Login/>}/>
 
-        <Route
-
-          element={auth.user ? (<TopNavBar />) : (<Navigate to="/login" replace />)}>
+        <Route element={<RequireAuth><TopNavBar /></RequireAuth>}>
 
           <Route index element={<Home/>} />
 

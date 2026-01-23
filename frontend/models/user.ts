@@ -1,6 +1,3 @@
-/**
- * Represents a user in the system.
- */
 import { HomeModel } from "./home"
 class User {
     email: string

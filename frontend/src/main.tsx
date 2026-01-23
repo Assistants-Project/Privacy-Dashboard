@@ -5,7 +5,7 @@ import "./style.css"
 import { BrowserRouter } from "react-router-dom";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import PrivacyDashboard from "./PrivacyDashboard";
-import { AuthProvider } from "./Authentication/AuthContext";
+import { AuthProvider } from "./components/Authentication/AuthContext";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 

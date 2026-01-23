@@ -1,6 +1,6 @@
 import {
   getManagedApplications,
-} from "../API/applicationAPI";
+} from "../API/Applications/applicationAPI";
   
 const fetchManagedApplications = async () => {
     try {

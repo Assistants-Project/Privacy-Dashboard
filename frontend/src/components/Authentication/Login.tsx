@@ -33,18 +33,9 @@ function Login(props: any) {
 
         if (valid) {
             try {
-                await auth.login(email, password);
-                
+                await auth.login(email, password); 
             } catch (err) {
-                const msg =
-                    err instanceof Error
-                        ? err.message
-                        : typeof err === "string"
-                            ? err
-                            : (err as any)?.error ||
-                              (err as any)?.message ||
-                              "An error occurred";
-                setError(msg)
+                setError(err instanceof Error ? err.message : String(err))
             }
         }
         else {

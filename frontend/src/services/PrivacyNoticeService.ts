@@ -3,7 +3,7 @@ import {
   getPrivacyNoticeByManagedApplicationUuid,
   writePrivacyNoticeByManagedApplicationUuid,
   removePrivacyNoticeByManagedApplicationUuid,
-} from "../API/privacyNoticeAPI";
+} from "../API/GDRP/privacyNoticeAPI";
 
 
 export const fetchPrivacyNoticeTemplate = async () => {

@@ -1,4 +1,4 @@
-import baseURL from "./baseUrl";
+import baseURL from "../baseUrl";
 
 async function getManagedApplications() {
   let response = await fetch(baseURL + "applications/managed", {

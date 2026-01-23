@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { User, Role } from '../../models/user';
-import authentication from "../API/User/authentication";
-import { fetchHomes } from "../services/HomesService"
-import { HomeModel } from "../../models/home";
+import { User, Role } from '../../../models/user';
+import authentication from "../../API/User/authenticationAPI";
+import { fetchHomes } from "../../services/HomesService"
+import { HomeModel } from "../../../models/home";
 
 //tutti i parametri del contesto che possono essere comodi e usati in tanti componenti diversi
 type AuthContextValue = {
-  user: User | null;
+  user: User | undefined;
+  loading: boolean;
   login: (username: string, password: string) => Promise<void>;
   registration: (
     newUsername: string,
@@ -24,7 +25,9 @@ const AuthContext = React.createContext<AuthContextValue | undefined>(undefined)
 //dove mettere tutte le funzioni ed è quello da importare in react che wrappa tutto
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | undefined>(undefined);
+
+  const [loading, setLoading] = useState(true);
 
   const setHome = (user: User, new_current_home: HomeModel) => {
     setUser(
@@ -45,7 +48,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           new User(u.email, u.firstname, u.lastname, u.role, homes, homes?.[0]),
         );
         console.log("User is authenticated, redirecting to home page.");
-      } catch { }
+      } catch { 
+      } finally {
+        setLoading(false);
+      }
     };
 
     checkAuth();
@@ -53,22 +59,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
   const login = async (email: string, password: string) => {
-    try {
-      const u = await authentication.login(email, password);
-      //prendo le case solo se utente è data subject
-      const homes = u.role === Role.DataSubject ? await fetchHomes() : undefined;
-      setUser(new User(u.email, u.firstname, u.lastname, u.role, homes, homes?.[0]));
-    } catch (err) {
-        const msg =
-                    err instanceof Error
-                        ? err.message
-                        : typeof err === "string"
-                            ? err
-                            : (err as any)?.error ||
-                              (err as any)?.message ||
-                              "An error occurred";
-      throw msg;
-    }
+    const u = await authentication.login(email, password);
+    //prendo le case solo se utente è data subject
+    const homes = u.role === Role.DataSubject ? await fetchHomes() : undefined;
+    setUser(new User(u.email, u.firstname, u.lastname, u.role, homes, homes?.[0]));
   };
 
   const registration = (
@@ -94,14 +88,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.warn("Logout fallito", err);
     } finally {
-      setUser(null);
+      setUser(undefined);
     }
   };
 
   //per ottimizzare il caricamento riguardare meglio
   const value = useMemo<AuthContextValue>(
-    () => ({ user, login, logout, registration, setHome }),
-    [user],
+    () => ({ user, loading, login, logout, registration, setHome }),
+    [user, loading],
   );
 
   return <AuthContext.Provider value={ value }>{children}</AuthContext.Provider>;
@@ -111,6 +105,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 //la funzione deve essere chiamata dentro un componente wrappato dal contesto AuthProvider
 export function useAuth(): AuthContextValue {
   const value = useContext(AuthContext);
-  if (!value) throw new Error('useUser fuori da UserProvider');
+  if (!value) throw new Error('useAuth fuori da AuthProvider');
   return value;
 }
