@@ -30,6 +30,9 @@ export function TopNavBar() {
             <NavLink to="/">Privacy Dashboard</NavLink>
           </div>
           <nav className="nav">
+            <NavLink className={navLinkClassName} to="/">
+              Home
+            </NavLink>
             <NavLink className={navLinkClassName} to="/privacy-notice">
               Privacy Notice
             </NavLink>
