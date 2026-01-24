@@ -61,6 +61,22 @@ def login(email: str, password: str):
 def current(current_user):
     return jsonify(UserResSchema().dump(current_user))
 
+@auth_bp.route("/current", methods=["DELETE"])
+@auth_bp.response(204, description="User Deleted Succefully")
+@logged_in_required()
+def delete_current(current_user):
+    AuthService.delete_current_user(current_user)
+    response = Response(status=204, content_type="application/json")
+    secure_cookie = current_app.config.get("JWT_COOKIE_SECURE", True)
+    response.delete_cookie(
+        "st_access_token",
+        path="/",
+        httponly=True,
+        secure=secure_cookie,
+        samesite="None" if secure_cookie else "Lax",
+    )
+    return response
+
 @auth_bp.route("/logout", methods=["POST"])
 @auth_bp.response(204, description="Successful logout")
 @logged_in_required()

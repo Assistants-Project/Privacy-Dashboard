@@ -97,3 +97,8 @@ class UserRepository:
             )
         )
         return db.session.scalar(statement)
+
+    @staticmethod
+    def delete_user(user: User):
+        db.session.delete(user)
+        db.session.commit()

@@ -15,7 +15,9 @@ class DbEntity(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     url: Mapped[str] = mapped_column(String(500), nullable=False)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
 
     user: Mapped["User"] = relationship("User")
     triggers: Mapped[List["DbTrigger"]] = relationship(back_populates="entity")
@@ -28,7 +30,9 @@ class DbRule(db.Model):
     __tablename__ = "dbrule"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     type: Mapped[str] = mapped_column(String(50), nullable=False)  # 'sifis'
     effect: Mapped[str] = mapped_column(String(50), nullable=True)
     subject: Mapped[str] = mapped_column(String(255), nullable=True)
@@ -51,8 +55,12 @@ class DbTrigger(db.Model):
     __tablename__ = "dbtrigger"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    rule_id: Mapped[int] = mapped_column(ForeignKey("dbrule.id"), nullable=False)
-    entity_id: Mapped[int] = mapped_column(ForeignKey("dbentity.id"), nullable=True)
+    rule_id: Mapped[int] = mapped_column(
+        ForeignKey("dbrule.id", ondelete="CASCADE"), nullable=False
+    )
+    entity_id: Mapped[int] = mapped_column(
+        ForeignKey("dbentity.id", ondelete="SET NULL"), nullable=True
+    )
     url: Mapped[str] = mapped_column(String(500), nullable=False)
 
     rule: Mapped["DbRule"] = relationship(back_populates="triggers")
@@ -70,8 +78,12 @@ class DbAction(db.Model):
     __tablename__ = "dbaction"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    rule_id: Mapped[int] = mapped_column(ForeignKey("dbrule.id"), nullable=False)
-    entity_id: Mapped[int] = mapped_column(ForeignKey("dbentity.id"), nullable=True)
+    rule_id: Mapped[int] = mapped_column(
+        ForeignKey("dbrule.id", ondelete="CASCADE"), nullable=False
+    )
+    entity_id: Mapped[int] = mapped_column(
+        ForeignKey("dbentity.id", ondelete="SET NULL"), nullable=True
+    )
     url: Mapped[str] = mapped_column(String(500), nullable=False)
 
     rule: Mapped["DbRule"] = relationship(back_populates="actions")
@@ -89,8 +101,12 @@ class DbDetail(db.Model):
     __tablename__ = "dbdetail"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    trigger_id: Mapped[int] = mapped_column(ForeignKey("dbtrigger.id"), nullable=True)
-    action_id: Mapped[int] = mapped_column(ForeignKey("dbaction.id"), nullable=True)
+    trigger_id: Mapped[int] = mapped_column(
+        ForeignKey("dbtrigger.id", ondelete="CASCADE"), nullable=True
+    )
+    action_id: Mapped[int] = mapped_column(
+        ForeignKey("dbaction.id", ondelete="CASCADE"), nullable=True
+    )
     url: Mapped[str] = mapped_column(String(500), nullable=False)
     type: Mapped[str] = mapped_column(
         String(50), nullable=False

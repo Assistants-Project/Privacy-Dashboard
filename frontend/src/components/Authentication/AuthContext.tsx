@@ -9,15 +9,16 @@ type AuthContextValue = {
   user: User | undefined;
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  registration: (
-    newUsername: string,
-    name: string,
-    surname: string,
-    newPassword: string,
-    role: string,
-  ) => void;
+  register: (
+    email: string,
+    firstname: string,
+    lastname: string,
+    password: string,
+    role: Role,
+  ) => Promise<void>;
   logout: () => Promise<void>;
   setHome: (user: User, current_home: HomeModel) => void
+  delete_user: () => Promise<void>;
 };
 
 const AuthContext = React.createContext<AuthContextValue | undefined>(undefined);
@@ -57,6 +58,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);
 
+  const delete_user = async() => {
+    await authentication.delete_current();
+    setUser(undefined)
+  } 
+
 
   const login = async (email: string, password: string) => {
     const u = await authentication.login(email, password);
@@ -65,21 +71,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(new User(u.email, u.firstname, u.lastname, u.role, homes, homes?.[0]));
   };
 
-  const registration = (
-    newUsername: string,
-    name: string,
-    surname: string,
-    newPassword: string,
-    role: string,
+
+  const register = async (
+    email: string,
+    firstname: string,
+    lastname: string,
+    password: string,
+    role: Role,
   ) => {
-    // FAKE REGISTRATION
+
     console.debug("Registrazione utente", {
-      newUsername,
-      name,
-      surname,
+      email,
+      firstname,
+      lastname,
       role,
-      newPassword,
+      password,
     });
+
+    await authentication.register(email,firstname,lastname,password,role)
+
   };
 
   const logout = async () => {
@@ -94,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   //per ottimizzare il caricamento riguardare meglio
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, login, logout, registration, setHome }),
+    () => ({ user, loading, login, logout, register, setHome, delete_user }),
     [user, loading],
   );
 

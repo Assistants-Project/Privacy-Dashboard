@@ -106,3 +106,7 @@ class AuthService:
 
 
         return user
+    
+    @staticmethod
+    def delete_current_user(user: User):
+        UserRepository.delete_user(user)

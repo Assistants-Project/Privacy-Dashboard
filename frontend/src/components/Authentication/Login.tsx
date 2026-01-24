@@ -66,10 +66,7 @@ function Login(props: any) {
                 <Col >
                     <Row className="loginFormContainer">
                         <Registration
-                          registrationMessage={props.registrationMessage}
-                          setRegistrationMessage={props.setRegistrationMessage}
-                          setMessage={props.setMessage}
-                          register={auth.registration}
+                          setRegistrationMessage={setError}
                         />
                     </Row>
                 </Col>
