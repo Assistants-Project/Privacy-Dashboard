@@ -19,9 +19,10 @@ import {
   handleGetPrivacyImpactAssessment,
   submitPiaTemplate,
 } from "../../services/PrivacyImpactAssessmentService";
+import { fetchManagedApplications } from "../../services/ApplicationService";
 
 
-function TestPrivacyImpactAssessment(props: any) {
+function TestPrivacyImpactAssessment() {
   const [piaTemplate, setPiaTemplate] = useState<any>(null);
   const [fetchedPia, setFetchedPia] = useState<any>(null);
   const gridApisRef = useRef<any>({});
@@ -33,7 +34,7 @@ function TestPrivacyImpactAssessment(props: any) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const applications = await props.fetchManagedApplications();
+      const applications = await fetchManagedApplications();
       setManagedApplications(applications || []);
     };
     fetchData();

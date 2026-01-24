@@ -2,9 +2,9 @@ import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { Container, Navbar } from "react-bootstrap";
 import { Login } from "./components/Authentication/Login";
 import { useAuth } from "./components/Authentication/AuthContext";
-import { TestPrivacyNotice } from "./components/GDRP/TestPrivacyNotice";
-import { TestPrivacyImpactAssessment } from "./components/GDRP/TestPrivacyImpactAssessment";
-import { TestQuestionnaire } from "./components/GDRP/TestQuestionnaire";
+import { TestPrivacyNotice } from "./components/GDPR/TestPrivacyNotice";
+import { TestPrivacyImpactAssessment } from "./components/GDPR/TestPrivacyImpactAssessment";
+import { TestQuestionnaire } from "./components/GDPR/TestQuestionnaire";
 import { Home } from "./components/Home";
 import PolicyTranslation from "./components/SIFIS/PolicyTranslation";
 import { TopNavBar } from "./components/TopNavBar"
