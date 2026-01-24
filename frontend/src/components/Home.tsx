@@ -12,7 +12,7 @@ function Home() {
 
   return (
     <Container>
-      <Row>
+      <Row className="mb-3">
         <Col>
           <h2>Benvenuto {auth.user ? `, ${auth.user.firstname} ${auth.user.lastname}` : ""}</h2>
         </Col>

@@ -1,4 +1,4 @@
-import { Button, Container } from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useAuth } from "./Authentication/AuthContext";
 import { HomeModel } from "../../models/home";
 import { Role, User } from "../../models/user";
@@ -12,6 +12,7 @@ function HomeSelector() {
 
     const selectHome = (home: HomeModel) => {
         if (!auth.user) return;
+        console.log('Clicked on a Home in Home Selection')
         if (auth.user.current_home?.uuid === home.uuid) return;
 
         auth.setHome(
@@ -28,62 +29,70 @@ function HomeSelector() {
 
     return (
         <>
-            <Container>
-                <h2>Case</h2>
-                <p className="muted">
-                    Clicca su una casa per impostarla come casa corrente.
-                </p>
+            <Row>
+                <Col>
+                    <h2>Selezione Case</h2>
+                    <p className="muted">Clicca su una casa per impostarla come casa corrente.</p>
+                </Col>
+            </Row>
+            <Row>
                 {homes.length ? (
-                    <div className="d-flex flex-nowrap gap-3 overflow-auto pb-2">
+                    <Col className="d-flex flex-nowrap gap-3 overflow-auto pb-2">
                         {homes.map((home, idx) => {
                             const isSelected =
                                 auth.user?.current_home?.uuid === home.uuid ||
                                 (!auth.user?.current_home && idx === 0);
 
                             return (
-                                <button
+                                <Card
                                     key={home.uuid || idx}
-                                    type="button"
-                                    className={`card card-button ${isSelected ? "selected" : ""}`}
+                                    className={`${isSelected ? "border-3 border-primary" : ""}`}
+                                    id="house_card"
                                     style={{ minWidth: 280 }}
                                     onClick={() => selectHome(home)}
                                 >
-                                    <div style={{ fontWeight: 700 }}>
-                                        {home.name?.trim()
-                                            ? home.name
-                                            : "Nome non impostato"}
-                                    </div>
-                                    <div className="muted" style={{ fontSize: 12 }}>
+                                    <Card.Title className="text-center"> {home.name?.trim()
+                                        ? home.name
+                                        : "Nome non impostato"}
+                                    </Card.Title>
+
+                                    <Card.Subtitle className="text-center mb-3 text-muted">
                                         UUID:{" "}
                                         {home.uuid?.trim() ? home.uuid : "Non impostato"}
-                                    </div>
-                                    <div className="kv-grid" style={{ marginTop: 12 }}>
-                                        <div className="kv-row">
-                                            <span>Address</span>
-                                            <span>{renderOptional(home.address)}</span>
-                                        </div>
-                                        <div className="kv-row">
-                                            <span>ZIP</span>
-                                            <span>{renderOptional(home.zip_code)}</span>
-                                        </div>
-                                        <div className="kv-row">
-                                            <span>Country</span>
-                                            <span>{renderOptional(home.country)}</span>
-                                        </div>
-                                    </div>
-                                </button>
+                                    </Card.Subtitle>
+
+                                    <Card.Text>
+                                        <Row className="align-items-start">
+                                            <Col xs="auto">
+                                                Address
+                                            </Col>
+                                            <Col className="text-end">
+                                                {renderOptional(home.address)}
+                                            </Col>
+                                        </Row>
+                                        <Row className="align-items-start">
+                                            <Col xs="auto">ZIP</Col>
+                                            <Col className="text-end">{renderOptional(home.zip_code)}</Col>
+                                        </Row>
+                                        <Row className="align-items-start">
+                                            <Col xs="auto">Country</Col>
+                                            <Col className="text-end">{renderOptional(home.country)}</Col>
+                                        </Row>
+
+                                    </Card.Text>
+                                </Card>
                             );
                         })}
-                    </div>
+                    </Col>
                 ) : (
-                    <div className="card">
+                    <Col className="card">
                         <div>Nessuna casa disponibile.</div>
                         <div className="muted">
                             La lista potrebbe essere vuota oppure non caricata.
                         </div>
-                    </div>
+                    </Col>
                 )}
-            </Container>
+            </Row>
 
         </>
     );
