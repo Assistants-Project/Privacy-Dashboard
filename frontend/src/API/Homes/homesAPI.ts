@@ -2,7 +2,7 @@ import baseURL from "../baseUrl";
 import { getApiError } from "../apiError";
 
 async function getHomes() {
-  let response = await fetch(baseURL + "/homes", {
+  let response = await fetch(baseURL + "homes", {
     method: "GET",
     credentials: "include",
   });
@@ -15,7 +15,7 @@ async function getHomes() {
 }
 
 async function getHomeRooms(homeUuid: string) {
-  let response = await fetch(`${baseURL}/homes/${homeUuid}/rooms`, {
+  let response = await fetch(`${baseURL}homes/${homeUuid}/rooms`, {
     method: "GET",
     credentials: "include",
   });
