@@ -1,7 +1,7 @@
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useAuth } from "./Authentication/AuthContext";
-import { HomeModel } from "../../models/home";
-import { Role, User } from "../../models/user";
+import { HomeModel } from "../models/home";
+import { Role, User } from "../models/user";
 
 export function UserMenu() {
     const { user, logout, delete_user } = useAuth();
@@ -11,7 +11,7 @@ export function UserMenu() {
 
     return (
         <>
-            <Card style={{ minWidth: 350 }}>
+            <Card style={{ minWidth: 350 }} className="border-0 shadow-none">
                 <Card.Title className="text-center"> {user?.firstname + " " + user?.lastname}
                 </Card.Title>
 
@@ -19,7 +19,7 @@ export function UserMenu() {
 
                 </Card.Subtitle>
 
-                <Card.Text>
+                <Card.Text as="div">
                     <Row className="align-items-start mb-2">
                         <Col>
                             Email

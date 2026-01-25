@@ -3,7 +3,10 @@ from typing import Iterator, List, Tuple
 from uuid import UUID
 
 from ..extensions import db
-from ..models import Application, Evaluation, UserSmartHomeApplication
+from ..models import Application, Evaluation, UserSmartHomeApplication, User, UserRole
+from sqlalchemy import and_
+from sqlalchemy.orm import aliased
+
 
 
 class ApplicationRepository:
@@ -41,6 +44,47 @@ class ApplicationRepository:
             )
         )
         return db.session.execute(statement)
+
+    @staticmethod
+    def get_installed_applications_with_managers_by_ds_id_and_smart_home_id(
+        user_id: int, smart_home_id: int
+    ) -> List[Tuple[Application, datetime, User | None]]:
+        ds_rel = aliased(UserSmartHomeApplication)
+        mgr_rel = aliased(UserSmartHomeApplication)
+
+        statement = (
+            db.select(Application, ds_rel.installed_at, User)
+            .join(
+                ds_rel,
+                and_(
+                    ds_rel.application_id == Application.id,
+                    ds_rel.user_id == user_id,
+                    ds_rel.smart_home_id == smart_home_id,
+                ),
+            )
+            .outerjoin(
+                mgr_rel,
+                and_(
+                    mgr_rel.application_id == Application.id,
+                    mgr_rel.smart_home_id.is_(None),
+                ),
+            )
+            .outerjoin(
+                User,
+                and_(
+                    User.id == mgr_rel.user_id,
+                    User.role.in_(
+                        [
+                            UserRole.DATA_CONTROLLER,
+                            UserRole.DATA_PROTECTION_OFFICER,
+                        ]
+                    ),
+                ),
+            )
+        )
+
+        rows = db.session.execute(statement).all()
+        return [(app, installed_at, user) for app, installed_at, user in rows]
 
     @staticmethod
     def get_user_smart_home_application_by_ds_id_and_smart_home_id_and_application_uuid(
@@ -138,3 +182,23 @@ class ApplicationRepository:
         application = db.session.get(Application, application_id)
         application.privacy_impact_assessment = pia_data
         db.session.commit()
+
+    #retrieves for every application the applications details and assigned data controllers and dpo
+    @staticmethod
+    def get_available_application() -> List[Tuple[Application, User | None]]:
+
+        statement = (db.select(Application, User).outerjoin(
+            UserSmartHomeApplication,
+            and_(
+                UserSmartHomeApplication.application_id == Application.id,
+                UserSmartHomeApplication.smart_home_id.is_(None),
+            ),
+        )
+        .outerjoin(User,and_(
+        User.id == UserSmartHomeApplication.user_id,
+        User.role.in_([UserRole.DATA_CONTROLLER, UserRole.DATA_PROTECTION_OFFICER]),
+        )))
+
+        rows = db.session.execute(statement).all()
+
+        return [(app, user) for app, user in rows]

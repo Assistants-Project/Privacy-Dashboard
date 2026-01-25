@@ -13,7 +13,7 @@ import {
   getQuestionnaireQuestions,
   submitQuestionnaireByManagedApplicationUuid,
 } from "../../API/GDPR/questionAPI";
-import { Question, Evaluation } from "../../../models/question";
+import { Question, Evaluation } from "../../models/question";
 import {
   fetchManagedApplications
 } from "../../services/ApplicationService"

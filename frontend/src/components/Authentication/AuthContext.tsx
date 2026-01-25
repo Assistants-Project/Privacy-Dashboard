@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { User, Role } from '../../../models/user';
+import { User, Role } from '../../models/user';
 import authentication from "../../API/User/authenticationAPI";
 import { fetchHomes } from "../../services/HomesService"
-import { HomeModel } from "../../../models/home";
+import { HomeModel } from "../../models/home";
 
 //tutti i parametri del contesto che possono essere comodi e usati in tanti componenti diversi
 type AuthContextValue = {

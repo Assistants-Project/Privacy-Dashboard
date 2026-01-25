@@ -7,9 +7,12 @@ from ..schemas import (
     ApplicationResSchema,
     ApplicationUuidReqSchema,
     SmartHomeUuidReqSchema,
+    ApplicationCatalogItemResSchema,
+    InstalledApplicationWithManagersResSchema,
+    
 )
 from ..services import ApplicationService
-from ..utils import dc_or_dpo_required, ds_required
+from ..utils import dc_or_dpo_required, ds_required, logged_in_required
 
 application_bp = Blueprint(
     "Applications API",
@@ -25,10 +28,18 @@ application_bp = Blueprint(
 def get_managed_applications(current_user):
     return ApplicationService.get_applications_by_dc_or_dpo_id(current_user.id)
 
+#find better name
+#for data controller to see all the apps
+@application_bp.route("/catalog", methods=["GET"])
+@application_bp.response(200, ApplicationCatalogItemResSchema(many=True))
+@dc_or_dpo_required()
+def get_available_applications(current_user):
+    return ApplicationService.get_available_applications_service()
+
 
 @application_bp.route("/home/<smart_home_uuid>", methods=["GET"])
 @application_bp.arguments(SmartHomeUuidReqSchema, location="path", as_kwargs=True)
-@application_bp.response(200, ApplicationResSchema(many=True))
+@application_bp.response(200, InstalledApplicationWithManagersResSchema(many=True))
 @ds_required()
 def get_installed_applications(smart_home_uuid: str, current_user):
     return ApplicationService.get_applications_by_ds_id_and_smart_home_uuid(

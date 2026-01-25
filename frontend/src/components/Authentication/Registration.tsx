@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Alert, Button, Col, Container, Dropdown, DropdownButton, Form, Row } from 'react-bootstrap';
 import './style.css';
-import { Role } from '../../../models/user';
+import { Role } from '../../models/user';
 import { useAuth } from "./AuthContext";
 
 function Registration(props: any) {

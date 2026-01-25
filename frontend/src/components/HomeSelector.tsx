@@ -1,7 +1,7 @@
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useAuth } from "./Authentication/AuthContext";
-import { HomeModel } from "../../models/home";
-import { Role, User } from "../../models/user";
+import { HomeModel } from "../models/home";
+import { Role, User } from "../models/user";
 
 function HomeSelector() {
     const auth = useAuth();
@@ -61,7 +61,7 @@ function HomeSelector() {
                                         {home.uuid?.trim() ? home.uuid : "Non impostato"}
                                     </Card.Subtitle>
 
-                                    <Card.Text>
+                                    <Card.Text as="div">
                                         <Row className="align-items-start">
                                             <Col xs="auto">
                                                 Address

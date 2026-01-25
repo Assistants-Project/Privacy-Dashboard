@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useAuth } from "./Authentication/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { HomeModel } from "../../models/home";
-import { Role, User } from "../../models/user";
+import { HomeModel } from "../models/home";
+import { Role, User } from "../models/user";
 import { HomeSelector } from "./HomeSelector";
 
 function Home() {

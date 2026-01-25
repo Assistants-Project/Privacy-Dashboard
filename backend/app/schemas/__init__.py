@@ -25,6 +25,8 @@ from .request.user_and_smart_home_and_available_consent_uuid_req_schema import (
 from .request.user_role_req_schema import UserRoleReqSchema
 from .request.user_uuid_req_schema import UserUuidReqSchema
 from .response.application_res_schema import ApplicationResSchema
+from .response.application_res_schema import ApplicationCatalogItemResSchema
+from .response.application_res_schema import InstalledApplicationWithManagersResSchema
 from .response.available_consent_res_schema import (
     AvailableConsentGivenResSchema,
     AvailableConsentResSchema,
@@ -71,4 +73,6 @@ __all__ = [
     "RequestSchema",
     "RoomResSchema",
     "UserResSchema",
+    "ApplicationCatalogItemResSchema",
+    "InstalledApplicationWithManagersResSchema",
 ]
