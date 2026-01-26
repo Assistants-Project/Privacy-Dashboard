@@ -1,5 +1,5 @@
 import { getHomes, getHomeRooms } from "../API/Homes/homesAPI";
-import { HomeModel } from "../../models/home";
+import { HomeModel } from "../models/home";
 
 type HomeDto = {
   uuid: string;
