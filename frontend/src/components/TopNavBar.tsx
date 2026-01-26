@@ -1,6 +1,6 @@
 import { useAuth } from "./Authentication/AuthContext";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Role } from "../../models/user";
+import { Role } from "../models/user";
 import { Button, Container, Dropdown, Nav, Navbar } from "react-bootstrap";
 import { UserMenu } from "./UserMenu";
 
@@ -65,7 +65,7 @@ export function TopNavBar() {
               >
                 {initials || "U"}
               </Dropdown.Toggle>
-              <Dropdown.Menu className="p-3">
+              <Dropdown.Menu>
                 <UserMenu />
               </Dropdown.Menu>
             </Dropdown>
