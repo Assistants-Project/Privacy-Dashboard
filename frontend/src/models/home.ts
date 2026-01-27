@@ -11,7 +11,7 @@ class HomeModel {
 
 
 
-    constructor(uuid: string, name: string, address: string, zip_code: string, country: string) {
+    constructor(uuid: string, name: string, address?: string, zip_code?: string, country?: string) {
         this.uuid = uuid
         this.name = name
         this.address = address

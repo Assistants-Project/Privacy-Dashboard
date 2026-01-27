@@ -27,13 +27,13 @@ class ApplicationDict(TypedDict):
 class ApplicationCatalogItem(TypedDict):
     application: Application
     data_controllers: list[User]
-    dpos: list[User]
+    dpo: User | None
 
 class InstalledApplicationWithManagersDict(TypedDict):
     application: Application
     installed_at: datetime
     data_controllers: list[User]
-    dpos: list[User]
+    dpo: User | None
 
 
 class ApplicationService:
@@ -93,7 +93,7 @@ class ApplicationService:
                     "application": app,
                     "installed_at": installed_at,
                     "data_controllers": [],
-                    "dpos": [],
+                    "dpo": None,
                 },
             )
             if manager is None:
@@ -102,7 +102,8 @@ class ApplicationService:
             if manager.role == UserRole.DATA_CONTROLLER:
                 item["data_controllers"].append(manager)
             elif manager.role == UserRole.DATA_PROTECTION_OFFICER:
-                item["dpos"].append(manager)
+                if item["dpo"] is None:
+                    item["dpo"] = manager
 
         return list(installed.values())
 
@@ -190,8 +191,15 @@ class ApplicationService:
 
         for app, user in res:
 
-            item = catalog.setdefault(app.id, {"application": app, "data_controllers": [], "dpos": []})
-            if not user: continue
-            (item["data_controllers"] if user.role == UserRole.DATA_CONTROLLER else item["dpos"]).append(user)
+            item = catalog.setdefault(
+                app.id,
+                {"application": app, "data_controllers": [], "dpo": None},
+            )
+            if not user:
+                continue
+            if user.role == UserRole.DATA_CONTROLLER:
+                item["data_controllers"].append(user)
+            elif item["dpo"] is None:
+                item["dpo"] = user
         
         return list(catalog.values())

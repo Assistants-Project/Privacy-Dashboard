@@ -41,6 +41,13 @@ export function TopNavBar() {
               <Nav.Link as={NavLink} to="/privacy-notice" eventKey="/privacy-notice">
                 Privacy Notice
               </Nav.Link>
+                  <Nav.Link
+                as={NavLink}
+                to="/installed-apps"
+                eventKey="/installed-apps"
+              >
+                Installed Apps
+              </Nav.Link>
               <Nav.Link
                 as={NavLink}
                 to="/privacy-impact-assessment"

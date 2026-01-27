@@ -19,11 +19,11 @@ class ApplicationResSchema(ma.Schema):
 class ApplicationCatalogItemResSchema(ma.Schema):
     application = ma.Nested(ApplicationSchema, required=True)
     data_controllers = ma.List(ma.Nested(UserResSchema), required=True)
-    dpos = ma.List(ma.Nested(UserResSchema), required=True)
+    dpo = ma.Nested(UserResSchema, required=True, allow_none=True)
 
 
 class InstalledApplicationWithManagersResSchema(ma.Schema):
     application = ma.Nested(ApplicationSchema, required=True)
     installed_at = ma.DateTime(required=True)
     data_controllers = ma.List(ma.Nested(UserResSchema), required=True)
-    dpos = ma.List(ma.Nested(UserResSchema), required=True)
+    dpo = ma.Nested(UserResSchema, required=True, allow_none=True)

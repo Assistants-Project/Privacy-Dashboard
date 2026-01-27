@@ -4,7 +4,8 @@ import { HomeModel } from "../models/home";
 type HomeDto = {
   uuid: string;
   name: string;
-  address?: string | null;
+  //sono tutti parametri opzionali
+  address?: string | null; // ? esprime se manca nella risposta, mentre | null la proprietà c'è ma la stringa è vuota 
   zip_code?: string | null;
   country?: string | null;
   // latitude?: number | null;
@@ -26,14 +27,10 @@ const toHomeModel = (home: HomeDto): HomeModel => {
   const model = new HomeModel(
     normalizeString(home.uuid),
     normalizeString(home.name),
-    "",
-    "",
-    "",
+    normalizeOptionalString(home.address),
+    normalizeOptionalString(home.zip_code),
+    normalizeOptionalString(home.country),
   );
-
-  model.address = normalizeOptionalString(home.address);
-  model.zip_code = normalizeOptionalString(home.zip_code);
-  model.country = normalizeOptionalString(home.country);
 
   return model;
 };

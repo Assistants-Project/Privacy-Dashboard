@@ -9,6 +9,7 @@ import { Home } from "./components/Home";
 import PolicyTranslation from "./components/SIFIS/PolicyTranslation";
 import { TopNavBar } from "./components/TopNavBar"
 import { RequireAuth } from "./components/Authentication/RequireAuth";
+import { Apps } from "./pages/Apps/Apps";
 
 function PrivacyDashboard() {
   const auth = useAuth();
@@ -29,6 +30,14 @@ function PrivacyDashboard() {
               <TestPrivacyNotice />
             }
           />
+
+          <Route
+            path="/installed-apps"
+            element={
+              <Apps />
+            }
+          />
+
           <Route
             path="/privacy-impact-assessment"
             element={

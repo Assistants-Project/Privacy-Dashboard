@@ -8,10 +8,11 @@ export class AppModel {
     description: string | undefined
     evaluation: Evaluation | undefined
     questionnaire_summary: string | undefined
-    installed_at: string | undefined
-    data_controllers: User[]
-    dpos: User[]
+    installed_at: string | undefined //se presente significa che l'oggetto Application è stato richiesto da un data subject per la sua casa
+    data_controllers: User[] | undefined //array eventualmente vuoto se non ci sono data_controllers, undefined se c'è stato un errore
+    dpo: User | undefined //solo 1 dpo per applicazione 
 
+    //constructor minimo
     constructor(uuid: string, name: string) {
         this.uuid = uuid
         this.name = name
@@ -20,7 +21,7 @@ export class AppModel {
         this.questionnaire_summary = undefined
         this.installed_at = undefined
         this.data_controllers = []
-        this.dpos = []
+        this.dpo = undefined
     }
 }
 
@@ -42,13 +43,11 @@ export class AppModel {
 //         "role": "DATA_SUBJECT"
 //       }
 //     ],
-//     "dpos": [
-//       {
-//         "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-//         "firstname": "string",
-//         "lastname": "string",
-//         "email": "string",
-//         "profile_picture": "string",
-//         "role": "DATA_SUBJECT"
-//       }
-//     ]
+//     "dpo": {
+//       "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+//       "firstname": "string",
+//       "lastname": "string",
+//       "email": "string",
+//       "profile_picture": "string",
+//       "role": "DATA_PROTECTION_OFFICER"
+//     }
