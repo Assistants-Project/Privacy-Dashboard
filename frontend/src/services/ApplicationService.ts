@@ -1,6 +1,7 @@
 import {
   getManagedApplications,
-  getInstalledApplications
+  getInstalledApplications,
+  getCatalogApplications
 } from "../API/Applications/applicationAPI";
 import {AppModel} from "../models/app"
 import { Evaluation } from "../models/question";
@@ -75,6 +76,7 @@ const toUserModel = (dto: UserDto): User =>
   );
 
 //trasforma quello che riceve dal backend nel nostro AppModel
+//va bene sia per la chiamata a catalogo sia quella installed
 const toAppModel = (dto: ApplicationDto): AppModel => {
   const app = dto.application ?? {}; 
 
@@ -97,7 +99,7 @@ const toAppModel = (dto: ApplicationDto): AppModel => {
 
   const fetchInstalledApplications = async (smartHomeUuid: string): Promise<AppModel[] | undefined> => {
     try {
-      //cast semplice, permette di trattare il valore ritornato com un InstalledApplicationDTO 
+      //cast semplice, permette di trattare il valore ritornato com un ApplicationDTO 
       const applications = (await getInstalledApplications(smartHomeUuid)) as ApplicationDto[];
       //controlliamo che sia un array 
       if (!Array.isArray(applications)) {
@@ -106,8 +108,23 @@ const toAppModel = (dto: ApplicationDto): AppModel => {
       }
       return applications.map(toAppModel);
     } catch (err) {
-      console.error("Error fetching installed applications:", err);
+      throw err
     }
   }
 
-  export {fetchManagedApplications, fetchInstalledApplications}
+  const fetchCatalogpplications = async (): Promise<AppModel[] | undefined> => {
+    try {
+      //cast semplice, permette di trattare il valore ritornato com un ApplicationDTO 
+      const applications = (await getCatalogApplications()) as ApplicationDto[];
+      //controlliamo che sia un array 
+      if (!Array.isArray(applications)) {
+        console.warn("Unexpected installed applications payload:", applications);
+        return undefined;
+      }
+      return applications.map(toAppModel);
+    } catch (err) {
+      throw err
+    }
+  }
+
+  export {fetchManagedApplications, fetchInstalledApplications, fetchCatalogpplications}

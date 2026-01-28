@@ -1,4 +1,5 @@
 import baseURL from "../baseUrl";
+import { getApiError } from "../apiError";
 
 async function getManagedApplications() {
   let response = await fetch(baseURL + "applications/managed", {
@@ -26,14 +27,24 @@ async function getInstalledApplications(smartHomeUuid: string) {
   if (response.ok) {
     const applications = await response.json();
     return applications;
-  } else {
-    const errDetail = await response.json();
-    if (errDetail?.message) {
-      throw new Error(errDetail.message);
-    }
-
-    throw new Error("Something went wrong");
   }
+
+  throw await getApiError(response);
+
+}
+
+async function getCatalogApplications() {
+  let response = await fetch(baseURL + `applications/catalog`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (response.ok) {
+    const applications = await response.json();
+    return applications;
+  }
+  
+  throw await getApiError(response);
+
 }
 
 async function getPiaTemplate() {
@@ -127,5 +138,6 @@ export {
   getPiaTemplate,
   getPiaByManagedApplicationUuid,
   submitPiaByManagedApplicationUuid,
-  getInstalledApplications
+  getInstalledApplications,
+  getCatalogApplications
 };

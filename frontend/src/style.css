@@ -32,6 +32,23 @@
   box-shadow: 0 0 0 .2rem rgba(13,110,253,.25);
 }
 
+
+
+.apps_card_selected,
+.apps_card_selected:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px #2563eb1f;
+}
+
+.apps_card_hover {
+  transition: transform 80ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.apps_card_hover:not(.apps_card_selected):hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow);
+}
+
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -48,10 +65,7 @@ body {
 }
 
 
-.container {
-  margin: 0 auto;
-  padding: 24px;
-}
+
 
 
 .muted {

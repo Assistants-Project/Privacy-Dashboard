@@ -1,155 +1,279 @@
-import { Button, Card, Col, Container, Row } from "react-bootstrap";
+import { Badge, Card, CloseButton, Col, Container, Form, Row } from "react-bootstrap";
 import { useAuth } from "../../components/Authentication/AuthContext";
-import { HomeModel } from "../../models/home";
-import { Role, User } from "../../models/user";
-import { fetchInstalledApplications } from "../../services/ApplicationService"
+import { Role } from "../../models/user";
+import { fetchCatalogpplications, fetchInstalledApplications } from "../../services/ApplicationService";
 import { useEffect, useState } from "react";
 import { AppModel } from "../../models/app";
-import CloseButton from 'react-bootstrap/CloseButton';
-
+import { Link } from "react-router-dom";
 
 export function Apps() {
-    const { user, logout, delete_user, loading } = useAuth();
-    const [apps, setApps] = useState<AppModel[] | undefined>(undefined);
-    const [current_app, setCurrentApp] = useState<number | undefined>(undefined);
+  const { user, loading } = useAuth();
+  const [apps, setApps] = useState<AppModel[]>([]);
+  const [appsLoading, setAppsLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [query, setQuery] = useState("");
+  const [selectedAppUuid, setSelectedAppUuid] = useState<string | undefined>(undefined);
 
+  const selectedApp = apps.find((app) => app.uuid === selectedAppUuid); //comodo per avere sempre la app selezionata
+  const isDataSubject = user?.role === Role.DataSubject;
 
-    //redirect user to the home page if a session is established
-    useEffect(() => {
+  useEffect(() => {
+    if (loading) return;
 
-        if (loading) return;
+    let cancelled = false;
 
-        const homeUuid = user?.current_home?.uuid;
-        if (!homeUuid) return;
+    (async () => {
+      setAppsLoading(true);
+      setError(undefined);
 
-        (async () => {
-            const res = await fetchInstalledApplications(homeUuid);
-            setApps(res);
-            setCurrentApp(1);
-        })();
+      try {
 
-    }, [loading, user?.current_home?.uuid]);
+        let res: AppModel[] | undefined = [];
 
+        if (isDataSubject) {
 
-    return (
+            const homeUuid = user?.current_home?.uuid;
+            if (!homeUuid) return;
 
-        <Container>
-            <Row>
-                <Col>
-                    <h2>Selezione App</h2>
-                    <p className="muted">Clicca su un app per vedere i dettagli</p>
-                </Col>
-            </Row>
+            res = await fetchInstalledApplications(homeUuid);
 
-            <Row className="align-items-start g-4">
-                <Col>
+        } else {
+            
+            res = await fetchCatalogpplications();
+        }
+        
 
-                    <Row xs={2} md={3}>
+        if (cancelled) return;
 
-                        {apps?.length ? (
-                            <>
-                                {apps.map((app, idx) => {
-                                    return (
-                                        <Col>
-                                            <Card
-                                                key={app.uuid}
-                                                className="m-2"
-                                                id=""
+        if (!res) {
+            setApps([]);
+            setSelectedAppUuid(undefined);
+            setError("Impossibile caricare le applicazioni.");
+            setAppsLoading(false);
+            return;
+        }
 
-                                                onClick={() => {setCurrentApp(idx)}}
-                                            >
-                                                <Card.Title className="text-center"> {app.name.trim()
-                                                    ? app.name
-                                                    : "Nome non impostato"}
-                                                </Card.Title>
+        setApps(res);
+        setSelectedAppUuid(res[0]?.uuid);
+        setAppsLoading(false);
+      }
+      catch(err) {
+        setAppsLoading(false)
+        setError(err instanceof Error ? err.message : "Errore inatteso")
+      }
 
-                                                <Card.Subtitle className="text-center mb-3 text-muted">
-                                                    Description:{" "}
-                                                    {app.description}
-                                                </Card.Subtitle>
+    })();
 
-                                            </Card>
-                                        </Col>
-                                    );
+    //chiamata da react quando il componente viene smontato cosi da non aggiornare le apps in seguito ad un ritorno da fetch
+    //che non ci interessa più
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, user?.current_home?.uuid]);
 
-                                })}
+  const closePanel = () => setSelectedAppUuid(undefined);
 
-                            </>
-                        ) : (
-                            <Col>
-                                <div>Nessuna applicazione disponibile.</div>
-                                <div className="muted">
-                                    La lista potrebbe essere vuota oppure non caricata.
-                                </div>
-                            </Col>
-                        )}
+  return (
+    <Container className="py-3">
+      <Row className="mb-3">
+        <Col>
+          <h1 className="mb-0">{isDataSubject? "Installed Apps" : "Catalog Apps"}</h1>
+        </Col>
+      </Row>
 
+      {loading || appsLoading ? (
+        <Card className="mb-3 p-0">
+          <Card.Body>Loading…</Card.Body>
+        </Card>
+      ) : undefined}
+
+      {error ? (
+        <Card bg="danger" text="white" className="mb-3 p-0">
+          <Card.Body>{error}</Card.Body>
+        </Card>
+      ) : undefined}
+
+      {!loading && !appsLoading && !error ? (
+        <Row className="g-3 align-items-start">
+          <Col xs={12} lg={7}>
+            <Container fluid className="d-flex flex-column gap-3">
+              <Card className="p-0">
+                <Card.Body>
+                  <Form.Group controlId="apps-search">
+                    <Form.Label className="mb-1">Search</Form.Label>
+                    <Form.Control
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Name, description…"
+                    />
+                  </Form.Group>
+                </Card.Body>
+              </Card>
+
+              {apps.length === 0 ? (
+                <Card className="p-0">
+                  <Card.Body className="text-muted">No apps.</Card.Body>
+                </Card>
+              ) : (
+                <Row xs={1} md={2} className="g-4">
+                  {apps.filter((app) => app.name.includes(query) || app.description?.includes(query))
+                  .map((app) => {
+                    const selected = app.uuid === selectedAppUuid;
+
+                    const title =
+                      app.name && app.name.trim() !== "" ? app.name : "Nome non impostato";
+                    const vote = app.evaluation ? app.evaluation : "no vote";
+                    const description = app.description;
+
+                    return (
+                      <Col key={app.uuid}>
+                        <Card
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => {
+                            if (selected) {
+                              closePanel();
+                              return;
+                            }
+                            setSelectedAppUuid(app.uuid);
+                          }}
+                          className={[
+                            "h-100 p-0 apps_card_hover",
+                            selected ? "border-3 apps_card_selected" : "",
+                          ].join(" ")}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <Card.Body>
+                            <div className="d-flex align-items-baseline gap-2">
+                              <strong>{title}</strong>
+                              <span className="text-muted">({vote})</span>
+                            </div>
+                            {description ? (
+                              <div className="text-muted">{description}</div>
+                            ) : (
+                              <div className="text-muted">(no description)</div>
+                            )}
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    );
+                  })}
+                </Row>
+              )}
+            </Container>
+          </Col>
+
+          <Col xs={12} lg={5}>
+            <Card className="sticky-top z-1 p-0" style={{ top: "1rem" }}>
+              <Card.Body className="d-flex flex-column gap-3">
+                {!selectedApp ? (
+                  <div className="text-muted">Select an app to see details.</div>
+                ) : (
+                  <>
+                    <Container fluid className="d-flex justify-content-between align-items-start">
+                      <Container fluid className="ps-0">
+                        <h2 className="h4 mb-1">
+                          {selectedApp.name && selectedApp.name.trim() !== ""
+                            ? selectedApp.name
+                            : "Nome non impostato"}
+                        </h2>
+                        <div className="text-muted">
+                          {selectedApp.evaluation
+                            ? `Vote: ${selectedApp.evaluation}`
+                            : "Vote: —"}
+                        </div>
+                      </Container>
+                      <CloseButton onClick={closePanel} />
+                    </Container>
+
+                    {selectedApp.description ? (
+                      <div className="text-muted">{selectedApp.description}</div>
+                    ) : undefined}
+
+                    <Container fluid className="d-flex flex-wrap gap-2 ps-0">
+                      <Link className="btn btn-outline-secondary btn-sm" to="/privacy-notice">
+                        Privacy Notice
+                      </Link>
+                      <Link className="btn btn-outline-secondary btn-sm" to="/questionnaire">
+                        Questionnaire
+                      </Link>
+                      <Link
+                        className="btn btn-outline-secondary btn-sm"
+                        to="/privacy-impact-assessment"
+                      >
+                        Privacy Impact Assessment
+                      </Link>
+                    </Container>
+
+                    <Row xs={1} md={2} className="g-3">
+                      <Col>
+                        <Card className="h-100 p-0">
+                          <Card.Body>
+                            <strong>Controllers</strong>
+                            <div className="mt-2" />
+                            {selectedApp.data_controllers?.length ? (
+                              <div className="d-flex flex-wrap gap-2">
+                                {selectedApp.data_controllers
+                                //gestire caso utente loggato manager dell'App
+                                 // .filter((u) => u.email !== user?.email)
+                                  .map((contact) => (
+                                    <Badge
+                                      key={contact.email}
+                                      bg="light"
+                                      text="dark"
+                                      className="border rounded-pill"
+                                    >
+                                      {`${contact.firstname} ${contact.lastname}`.trim() ||
+                                        contact.email}
+                                    </Badge>
+                                  ))}
+                              </div>
+                            ) : (
+                              <div className="text-muted">Not Assiegned</div>
+                            )}
+                          </Card.Body>
+                        </Card>
+                      </Col>
+
+                      <Col>
+                        <Card className="h-100 p-0">
+                          <Card.Body>
+                            <strong>DPO</strong>
+                            <div className="mt-2" />
+                            {selectedApp.dpo ? (
+                              <div className="d-flex flex-wrap gap-2">
+                                <Badge bg="light" text="dark" className="border rounded-pill">
+                                  {`${selectedApp.dpo.firstname} ${selectedApp.dpo.lastname}`.trim() ||
+                                    selectedApp.dpo.email}
+                                </Badge>
+                              </div>
+                            ) : (
+                              <div className="text-muted">Not Assiegned</div>
+                            )}
+                          </Card.Body>
+                        </Card>
+                      </Col>
                     </Row>
 
-                </Col>
+                    {selectedApp.questionnaire_summary ? (
+                      <Card className="p-0">
+                        <Card.Body>
+                          <strong>Questionnaire summary</strong>
+                          <div className="mt-2 text-muted">{selectedApp.questionnaire_summary}</div>
+                        </Card.Body>
+                      </Card>
+                    ) : undefined}
 
-                <Col className="col-4">
-                    {
-                        current_app!=undefined && apps?.[current_app] &&
-                        <>
-                            <Card
-                                key={apps?.[current_app].name}
-                                className=""
-                                id=""
-                                style={{ minWidth: 280 }}
-                            // onClick={}
-                            >
-                                <div className="d-flex justify-content-between align-items-start">
-                                <Card.Title className="text-center"> {apps?.[current_app].name.trim()
-                                    ? apps?.[current_app].name
-                                    : "Nome non impostato"}
-                                <CloseButton onClick={() => setCurrentApp(undefined)}></CloseButton>
-                                </Card.Title>
-                                </div>
-
-                                <Card.Subtitle className="text-center mb-3 text-muted">
-                                    Description:{" "}
-                                    {apps?.[current_app].description}
-                                </Card.Subtitle>
-
-                                <Card.Text as="div">
-                                    <Row className="align-items-start">
-                                        <Col xs="auto">
-                                            Description
-                                        </Col>
-                                        <Col className="text-end">
-                                            {apps?.[current_app].description}
-                                        </Col>
-                                    </Row>
-                                    <Row className="align-items-start">
-                                        <Col xs="auto">installed at</Col>
-                                        <Col className="text-end">{apps?.[current_app].installed_at}</Col>
-                                    </Row>
-                                    {/* <Row className="align-items-start">
-                                            <Col xs="auto">Country</Col>
-                                            <Col className="text-end">{renderOptional(home.country)}</Col>
-                                        </Row> */}
-
-                                </Card.Text>
-                            </Card>
-                        </>
-                    }
-
-                </Col>
-
-
-
-
-
-
-
-
-            </Row>
-
-
-
-
-        </Container>
-    )
-
+                    {isDataSubject && selectedApp.installed_at ? (
+                      <div className="text-muted">Installed at: {selectedApp.installed_at}</div>
+                    ) : undefined}
+                  </>
+                )}
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      ) : undefined}
+    </Container>
+  );
 }
