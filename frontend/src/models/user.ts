@@ -1,20 +1,18 @@
 import { HomeModel } from "./home"
 class User {
+    uuid: string
     email: string
     firstname: string
     lastname: string
     role: Role
-    homes: HomeModel[] | undefined
-    current_home: HomeModel | undefined
 
 
-    constructor(email: string, firstname: string, lastname: string, role: Role, homes?: HomeModel[], current_home?: HomeModel) {
+    constructor(uuid: string, email: string, firstname: string, lastname: string, role: Role) {
         this.email = email
         this.firstname = firstname
         this.lastname = lastname
         this.role = role
-        this.homes = homes
-        this.current_home = current_home
+        this.uuid = uuid
         
     }
 }

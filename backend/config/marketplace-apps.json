@@ -1,0 +1,12 @@
+[
+  { "name": "market-thermostat-manager", "description": "control thermostats and heating" },
+  { "name": "market-lighting-scenes", "description": "create lighting scenes and automations" },
+  { "name": "market-security-camera-viewer", "description": "view and manage security cameras" },
+  { "name": "market-door-lock", "description": "manage smart locks and access codes" },
+  { "name": "market-energy-monitor", "description": "track home energy consumption" },
+  { "name": "market-air-quality", "description": "monitor temperature and air quality" },
+  { "name": "market-water-leak-alerts", "description": "detect leaks and send alerts" },
+  { "name": "market-ir-remote", "description": "control IR devices like AC and TV" },
+  { "name": "market-voice-assistant-bridge", "description": "connect devices to a voice assistant" },
+  { "name": "market-gateway-health", "description": "monitor gateways and system health" }
+]

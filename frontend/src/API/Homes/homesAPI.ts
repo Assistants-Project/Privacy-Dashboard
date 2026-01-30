@@ -14,6 +14,19 @@ async function getHomes() {
   throw await getApiError(response);
 }
 
+async function updateHomes() {
+  let response = await fetch(baseURL + "homes/refresh", {
+    method: "POST",
+    credentials: "include",
+  });
+  if (response.ok) {
+    return true;
+  }
+
+  throw await getApiError(response);
+}
+
+
 async function getHomeRooms(homeUuid: string) {
   let response = await fetch(`${baseURL}homes/${homeUuid}/rooms`, {
     method: "GET",
@@ -26,4 +39,4 @@ async function getHomeRooms(homeUuid: string) {
   throw await getApiError(response);
 }
 
-export { getHomes, getHomeRooms };
+export { getHomes, getHomeRooms, updateHomes };

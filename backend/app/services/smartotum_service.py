@@ -122,25 +122,6 @@ class SmartotumService:
                 #update all the devices of the home, even if there are none
                 DeviceRepository.update_device_for_home(home.id, updated_devices)
 
-                # update installed applications for the home
-                smartotum_applications = client.get_home_applications(
-                    access_token, system.home_uuid
-                )
-                applications_payload: list[Application] = []
-                for smartotum_application in smartotum_applications:
-                    applications_payload.append(
-                        Application(
-                            name=smartotum_application.name,
-                            description=smartotum_application.description,
-                        )
-                    )
-
-                ApplicationRepository.update_applications_for_home(
-                    user_id=user.id,
-                    smart_home_id=home.id,
-                    applications=applications_payload,
-                )
-
             existing_home: list[SmartHome] = SmartHomeRepository.get_homes_by_user_id(user.id)
 
             for home in existing_home:
@@ -164,6 +145,8 @@ class SmartotumService:
                         SmartHomeRepository.delete_home(home)
             
             session.commit()
+
+            #rule updating should be done in a dedicated endpoint because the update process would become too long
 
         except SQLAlchemyError as exc:
             session.rollback()
@@ -196,3 +179,55 @@ class SmartotumService:
             raise MissingJWTException("Smartotum access token missing")
 
         SmartotumService.update_database_smartotum(access_token, user)
+
+
+    @staticmethod
+    def update_installed_application_for_user(user: User):
+
+        access_token = request.cookies.get("st_access_token")
+        if not access_token:
+            raise MissingJWTException("Smartotum access token missing")
+        
+        session = db.session
+
+        try:
+            client = SmartotumClient()
+
+            systems_new = client.get_systems(access_token)
+
+            #for ever home owned by the user
+            for system in systems_new:
+                # update installed applications for the home
+                smartotum_applications = client.get_home_applications(
+                    access_token, system.home_uuid
+                )
+                applications_payload: list[Application] = []
+                for smartotum_application in smartotum_applications:
+                    applications_payload.append(
+                        Application(
+                            name=smartotum_application.name,
+                            description=smartotum_application.description,
+                        )
+                    )
+
+                found_home = SmartHomeRepository.get_home_by_uuid(system.home_uuid)
+
+                if found_home is None:
+                    #what is better here? 
+                    #To continue or we make it fail?
+                    continue
+
+                ApplicationRepository.update_applications_for_home(
+                    user_id=user.id,
+                    smart_home_id=found_home.id,
+                    applications=applications_payload,
+                )
+                
+            session.commit()
+
+        except SQLAlchemyError as exc:
+            session.rollback()
+            raise SmartotumSyncException("Failed to synchronize Smartotum data") from exc
+        except Exception as exc:
+            session.rollback()
+            raise SmartotumSyncException("Smartotum synchronization failed") from exc

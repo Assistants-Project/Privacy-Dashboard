@@ -18,6 +18,9 @@ from ..repositories import ApplicationRepository, SmartHomeRepository
 
 from ..models import UserRole
 from ..models import User
+from .smartotum_service import SmartotumService
+from ..integrations.marketplace import MarketplaceClient
+from ..extensions import db
 
 
 class ApplicationDict(TypedDict):
@@ -203,3 +206,28 @@ class ApplicationService:
                 item["dpo"] = user
         
         return list(catalog.values())
+    
+
+
+    @staticmethod
+    def update_apps_database_from_all_sources(current_user: User):
+        #if the user is a data subject we sync his homes with smartotum
+        if current_user.role == UserRole.DATA_SUBJECT:
+            #in case the update request comes from the refresh call
+            SmartotumService.update_installed_application_for_user(current_user)
+            #in the future a new domotic system can be added here
+        else:
+            client = MarketplaceClient()
+            marketplace_applications = client.update_marketplace_applications()
+
+            applications_payload: list[Application] = []
+            for marketplace_application in marketplace_applications:
+                applications_payload.append(
+                    Application(
+                        name=marketplace_application.name,
+                        description=marketplace_application.description,
+                    )
+                )
+
+            ApplicationRepository.upsert_applications(applications_payload)
+            db.session.commit()

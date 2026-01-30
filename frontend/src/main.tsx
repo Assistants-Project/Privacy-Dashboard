@@ -6,6 +6,8 @@ import { BrowserRouter } from "react-router-dom";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import PrivacyDashboard from "./PrivacyDashboard";
 import { AuthProvider } from "./components/Authentication/AuthContext";
+import { HomeProvider } from "./components/HomeContext";
+import { AppsProvider } from "./components/AppsContext";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -13,7 +15,11 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
+        <HomeProvider>
+          <AppsProvider>
         <PrivacyDashboard />
+        </AppsProvider>
+        </HomeProvider>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>

@@ -178,6 +178,38 @@ class ApplicationRepository:
                 db.session.delete(rel)
 
     @staticmethod
+    def upsert_applications(applications: List[Application]) -> None:
+        """Upserts applications by name only (no relations).
+        Called only from marketplace"""
+
+        applications_by_name: dict[str, Application] = {}
+        for application in applications:
+            name = (application.name or "").strip()
+            if not name:
+                continue
+            application.name = name
+            applications_by_name[name] = application
+
+        input_names = set(applications_by_name.keys())
+        existing_by_name: dict[str, Application] = {}
+        if input_names:
+            statement = db.select(Application).where(Application.name.in_(input_names))
+            existing_by_name = {
+                application.name: application
+                for application in db.session.scalars(statement).all()
+            }
+
+        for name, application in applications_by_name.items():
+            present = existing_by_name.get(name)
+            if present is None:
+                db.session.add(application)
+                db.session.flush()
+                continue
+
+            if application.description is not None:
+                present.description = application.description
+
+    @staticmethod
     def submit_pia_for_application(application_id: int, pia_data: dict) -> None:
         application = db.session.get(Application, application_id)
         application.privacy_impact_assessment = pia_data

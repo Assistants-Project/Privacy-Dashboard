@@ -17,7 +17,6 @@ type AuthContextValue = {
     role: Role,
   ) => Promise<void>;
   logout: () => Promise<void>;
-  setHome: (user: User, current_home: HomeModel) => void
   delete_user: () => Promise<void>;
 };
 
@@ -30,12 +29,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const [loading, setLoading] = useState(true);
 
-  const setHome = (user: User, new_current_home: HomeModel) => {
-    setUser(
-        new User(user.email, user.firstname, user.lastname, user.role, user.homes, new_current_home),
-    );
-  }
-
   //redirect user to the home page if a session is established
   useEffect(() => {
 
@@ -43,10 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       try {
         const u = await authentication.getUserInfo();
-        const homes =
-          u.role === Role.DataSubject ? await fetchHomes() : undefined;
         setUser(
-          new User(u.email, u.firstname, u.lastname, u.role, homes, homes?.[0]),
+          new User(u.uuid, u.email, u.firstname, u.lastname, u.role),
         );
         console.log("User is authenticated, redirecting to home page.");
       } catch { 
@@ -56,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkAuth();
-  }, []);
+  }, [user?.uuid]);
 
   const delete_user = async() => {
     await authentication.delete_current();
@@ -67,8 +58,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     const u = await authentication.login(email, password);
     //prendo le case solo se utente è data subject
-    const homes = u.role === Role.DataSubject ? await fetchHomes() : undefined;
-    setUser(new User(u.email, u.firstname, u.lastname, u.role, homes, homes?.[0]));
+    //const homes = u.role === Role.DataSubject ? await fetchHomes() : undefined;
+    setUser(new User(u.uuid,u.email, u.firstname, u.lastname, u.role));
   };
 
 
@@ -104,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   //per ottimizzare il caricamento riguardare meglio
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, login, logout, register, setHome, delete_user }),
+    () => ({ user, loading, login, logout, register, delete_user }),
     [user, loading],
   );
 

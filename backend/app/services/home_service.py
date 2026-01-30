@@ -63,7 +63,7 @@ class SmartHomeService:
                 #in case the update request comes from the refresh call
                 SmartotumService.update_database_smartotum_for_user(current_user)
             else:
-                #in caso the update request comes from the login call 
+                #in case the update request comes from the login call 
                 SmartotumService.update_database_smartotum(access_token, current_user)
             #in the future a new domotic system can be added here
 

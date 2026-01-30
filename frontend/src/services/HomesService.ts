@@ -1,4 +1,4 @@
-import { getHomes, getHomeRooms } from "../API/Homes/homesAPI";
+import { getHomes, getHomeRooms, updateHomes } from "../API/Homes/homesAPI";
 import { HomeModel } from "../models/home";
 
 type HomeDto = {
@@ -44,7 +44,17 @@ export const fetchHomes = async (): Promise<HomeModel[] | undefined> => {
     }
     return homes.map(toHomeModel);
   } catch (err) {
-    console.error("Error getting homes:", err);
+     throw err
+  }
+};
+
+
+export const updateHomesService = async (): Promise<boolean | undefined> => {
+  try {
+    const response = (await updateHomes()) as boolean;
+    return response;
+  } catch (err) {
+     throw err
   }
 };
 

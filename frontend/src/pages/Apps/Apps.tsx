@@ -1,75 +1,21 @@
 import { Badge, Card, CloseButton, Col, Container, Form, Row } from "react-bootstrap";
 import { useAuth } from "../../components/Authentication/AuthContext";
 import { Role } from "../../models/user";
-import { fetchCatalogpplications, fetchInstalledApplications } from "../../services/ApplicationService";
+
 import { useEffect, useState } from "react";
-import { AppModel } from "../../models/app";
 import { Link } from "react-router-dom";
+import { useApp } from "../../components/AppsContext";
 
 export function Apps() {
+
   const { user, loading } = useAuth();
-  const [apps, setApps] = useState<AppModel[]>([]);
-  const [appsLoading, setAppsLoading] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
+  const apps_context = useApp();
+
   const [query, setQuery] = useState("");
   const [selectedAppUuid, setSelectedAppUuid] = useState<string | undefined>(undefined);
 
-  const selectedApp = apps.find((app) => app.uuid === selectedAppUuid); //comodo per avere sempre la app selezionata
+  const selectedApp = apps_context.apps?.find((app) => app.uuid === selectedAppUuid); //comodo per avere sempre la app selezionata
   const isDataSubject = user?.role === Role.DataSubject;
-
-  useEffect(() => {
-    if (loading) return;
-
-    let cancelled = false;
-
-    (async () => {
-      setAppsLoading(true);
-      setError(undefined);
-
-      try {
-
-        let res: AppModel[] | undefined = [];
-
-        if (isDataSubject) {
-
-            const homeUuid = user?.current_home?.uuid;
-            if (!homeUuid) return;
-
-            res = await fetchInstalledApplications(homeUuid);
-
-        } else {
-            
-            res = await fetchCatalogpplications();
-        }
-        
-
-        if (cancelled) return;
-
-        if (!res) {
-            setApps([]);
-            setSelectedAppUuid(undefined);
-            setError("Impossibile caricare le applicazioni.");
-            setAppsLoading(false);
-            return;
-        }
-
-        setApps(res);
-        setSelectedAppUuid(res[0]?.uuid);
-        setAppsLoading(false);
-      }
-      catch(err) {
-        setAppsLoading(false)
-        setError(err instanceof Error ? err.message : "Errore inatteso")
-      }
-
-    })();
-
-    //chiamata da react quando il componente viene smontato cosi da non aggiornare le apps in seguito ad un ritorno da fetch
-    //che non ci interessa più
-    return () => {
-      cancelled = true;
-    };
-  }, [loading, user?.current_home?.uuid]);
 
   const closePanel = () => setSelectedAppUuid(undefined);
 
@@ -81,19 +27,19 @@ export function Apps() {
         </Col>
       </Row>
 
-      {loading || appsLoading ? (
+      {apps_context.loadingApps ? (
         <Card className="mb-3 p-0">
           <Card.Body>Loading…</Card.Body>
         </Card>
       ) : undefined}
 
-      {error ? (
+      {apps_context.errorApps ? (
         <Card bg="danger" text="white" className="mb-3 p-0">
-          <Card.Body>{error}</Card.Body>
+          <Card.Body>{apps_context.errorApps}</Card.Body>
         </Card>
       ) : undefined}
 
-      {!loading && !appsLoading && !error ? (
+      {!loading && !apps_context.loadingApps && !apps_context.errorApps ? (
         <Row className="g-3 align-items-start">
           <Col xs={12} lg={7}>
             <Container fluid className="d-flex flex-column gap-3">
@@ -110,14 +56,18 @@ export function Apps() {
                 </Card.Body>
               </Card>
 
-              {apps.length === 0 ? (
+              {apps_context.apps?.length === 0 ? (
                 <Card className="p-0">
                   <Card.Body className="text-muted">No apps.</Card.Body>
                 </Card>
               ) : (
                 <Row xs={1} md={2} className="g-4">
-                  {apps.filter((app) => app.name.includes(query) || app.description?.includes(query))
-                  .map((app) => {
+                  {apps_context.apps
+                    ?.filter(
+                      (app) =>
+                        app.name.includes(query) || app.description?.includes(query),
+                    )
+                    .map((app) => {
                     const selected = app.uuid === selectedAppUuid;
 
                     const title =

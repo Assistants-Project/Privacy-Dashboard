@@ -2,30 +2,14 @@ import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useAuth } from "./Authentication/AuthContext";
 import { HomeModel } from "../models/home";
 import { Role, User } from "../models/user";
+import { useHome } from "./HomeContext";
 
 function HomeSelector() {
     const auth = useAuth();
-    const homes = auth.user?.homes ?? [];
+    const {current_home_uuid,homes,updateCurrentHomeUUID} = useHome();
 
     const renderOptional = (value: string | undefined) =>
         value && value.trim() ? value : <span className="muted">Non impostato</span>;
-
-    const selectHome = (home: HomeModel) => {
-        if (!auth.user) return;
-        console.log('Clicked on a Home in Home Selection')
-        if (auth.user.current_home?.uuid === home.uuid) return;
-
-        auth.setHome(
-            new User(
-                auth.user.email,
-                auth.user.firstname,
-                auth.user.lastname,
-                auth.user.role,
-                auth.user.homes,
-            ),
-            home
-        );
-    };
 
     return (
         <>
@@ -36,20 +20,17 @@ function HomeSelector() {
                 </Col>
             </Row>
             <Row>
-                {homes.length ? (
+                {homes?.length ? (
                     <Col className="d-flex flex-nowrap gap-3 overflow-auto pb-2">
                         {homes.map((home, idx) => {
-                            const isSelected =
-                                auth.user?.current_home?.uuid === home.uuid ||
-                                (!auth.user?.current_home && idx === 0);
-
+                            const isSelected = current_home_uuid === home.uuid 
                             return (
                                 <Card
                                     key={home.uuid || idx}
                                     className={`${isSelected ? "border-3 border-primary" : ""}`}
                                     id="house_card"
                                     style={{ minWidth: 280 }}
-                                    onClick={() => selectHome(home)}
+                                    onClick={() => current_home_uuid !== home.uuid && updateCurrentHomeUUID(home.uuid)}
                                 >
                                     <Card.Title className="text-center"> {home.name?.trim()
                                         ? home.name

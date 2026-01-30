@@ -13,6 +13,7 @@ from ..schemas import (
 )
 from ..services import ApplicationService
 from ..utils import dc_or_dpo_required, ds_required, logged_in_required
+from ..models import UserRole
 
 application_bp = Blueprint(
     "Applications API",
@@ -35,6 +36,17 @@ def get_managed_applications(current_user):
 @dc_or_dpo_required()
 def get_available_applications(current_user):
     return ApplicationService.get_available_applications_service()
+
+@application_bp.route("/refresh", methods=["POST"])
+@application_bp.response(202, description="Refresh started")
+@logged_in_required()
+def refresh_apps(current_user):
+    ApplicationService.update_apps_database_from_all_sources(current_user)
+    if current_user.role == UserRole.DATA_SUBJECT:
+        return "Apps updated from Smartotum Installed App of " + current_user.email, 202
+    else:
+        return "Apps updated from Marketplace " + current_user.email, 202
+    
 
 
 @application_bp.route("/home/<smart_home_uuid>", methods=["GET"])

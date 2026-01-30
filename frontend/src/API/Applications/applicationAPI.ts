@@ -47,6 +47,18 @@ async function getCatalogApplications() {
 
 }
 
+async function UpdateApps() {
+  let response = await fetch(baseURL + "applications/refresh", {
+    method: "POST",
+    credentials: "include",
+  });
+  if (response.ok) {
+    return true;
+  }
+
+  throw await getApiError(response);
+}
+
 async function getPiaTemplate() {
   let response = await fetch(baseURL + "applications/pia-template", {
     method: "GET",
@@ -139,5 +151,6 @@ export {
   getPiaByManagedApplicationUuid,
   submitPiaByManagedApplicationUuid,
   getInstalledApplications,
-  getCatalogApplications
+  getCatalogApplications,
+  UpdateApps
 };

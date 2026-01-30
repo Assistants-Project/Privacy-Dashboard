@@ -37,6 +37,12 @@ function PrivacyDashboard() {
               <Apps />
             }
           />
+          <Route
+            path="/catalog"
+            element={
+              <Apps />
+            }
+          />
 
           <Route
             path="/privacy-impact-assessment"

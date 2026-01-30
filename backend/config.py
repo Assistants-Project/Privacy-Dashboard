@@ -71,6 +71,8 @@ class BaseConfig:
 
     # If set, Smartotum applications are loaded from this local JSON file instead of calling the remote API.
     SMARTOTUM_APPLICATIONS_JSON = os.getenv("SMARTOTUM_APPLICATIONS_JSON", None)
+    # If set, Marketplace applications are loaded from this local JSON file (mock) instead of calling a remote API.
+    MARKETPLACE_APPLICATIONS_JSON = os.getenv("MARKETPLACE_APPLICATIONS_JSON", None)
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.getenv("DEV_DATABASE_URI")

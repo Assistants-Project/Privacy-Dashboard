@@ -55,6 +55,7 @@ SMARTOTUM_DEVICE_TOPICS=domo_light,domo_light_dimmable,domo_rgbw_light,domo_swit
 SMARTOTUM_TIMEOUT=5
 #If set, Smartotum applications are loaded from this local JSON file instead of calling the remote API
 SMARTOTUM_APPLICATIONS_JSON=./config/smartotum-apps.json
+MARKETPLACE_APPLICATIONS_JSON=./config/marketplace-apps.json
 
 #DHT
 DHT_ENDPOINT=http://localhost:3000/ #not used for now
@@ -100,7 +101,7 @@ docker compose down -v
 
 #### 2. Create and activate the virtual environment
 ```bash
-python -m venv .venv
+python -m venv .venv #or python3 if you use that
 source .venv/bin/activate
 ```
 (Use `Scripts\\activate` on Windows.)
@@ -131,7 +132,7 @@ flask run --debug --port 5050 #use 5050 to avoid airplay port collision on mac o
 #### 6. Install frontend dependencies
 ```bash
 cd frontend
-npm install
+npm ci
 ```
 
 ### 7. Run Frontend VITE in development

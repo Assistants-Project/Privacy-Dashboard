@@ -1,7 +1,8 @@
 import {
   getManagedApplications,
   getInstalledApplications,
-  getCatalogApplications
+  getCatalogApplications,
+  UpdateApps
 } from "../API/Applications/applicationAPI";
 import {AppModel} from "../models/app"
 import { Evaluation } from "../models/question";
@@ -29,6 +30,7 @@ const fetchManagedApplications = async () => {
   };
 
 type UserDto = {
+  uuid: string,
   email: string; 
   firstname: string;
   //profile_picture NON CI SERVE PER IL MOMENTO
@@ -69,6 +71,7 @@ const normalizeOptionalEvaluation = (value: unknown): Evaluation | undefined =>
 const toUserModel = (dto: UserDto): User =>
   //sono tutte stringhe o parametri required che nel caso siano vuoti non ci importa
   new User(
+    dto.uuid,
     dto.email,
     dto.firstname,
     dto.lastname,
@@ -112,7 +115,7 @@ const toAppModel = (dto: ApplicationDto): AppModel => {
     }
   }
 
-  const fetchCatalogpplications = async (): Promise<AppModel[] | undefined> => {
+  const fetchCatalogApplications = async (): Promise<AppModel[] | undefined> => {
     try {
       //cast semplice, permette di trattare il valore ritornato com un ApplicationDTO 
       const applications = (await getCatalogApplications()) as ApplicationDto[];
@@ -127,4 +130,14 @@ const toAppModel = (dto: ApplicationDto): AppModel => {
     }
   }
 
-  export {fetchManagedApplications, fetchInstalledApplications, fetchCatalogpplications}
+
+  export const updateCatalogApplications = async (): Promise<boolean | undefined> => {
+  try {
+    const response = (await UpdateApps()) as boolean;
+    return response;
+  } catch (err) {
+     throw err
+  }
+};
+
+  export {fetchManagedApplications, fetchInstalledApplications, fetchCatalogApplications}
