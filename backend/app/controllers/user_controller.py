@@ -3,7 +3,12 @@ from uuid import UUID
 from flask_smorest import Blueprint
 
 from ..models import UserRole
-from ..schemas import ApplicationUuidReqSchema, UserResSchema, UserRoleReqSchema
+from ..schemas import (
+    ApplicationUuidReqSchema,
+    UserMessageResSchema,
+    UserResSchema,
+    UserRoleReqSchema,
+)
 from ..services import UserService
 from ..utils import dc_or_dpo_required, logged_in_required
 
@@ -33,3 +38,12 @@ def get_users_by_managed_application_uuid_and_user_role(
 @logged_in_required()
 def get_contacts(current_user):
     return UserService.get_contacts_by_user_id(current_user.id, current_user.role)
+
+
+@user_bp.route("/contacts/messaged", methods=["GET"])
+@user_bp.response(200, UserMessageResSchema(many=True))
+@logged_in_required()
+def get_messaged_contacts(current_user):
+    return UserService.get_messaged_contacts_by_user_id(
+        current_user.id, current_user.role
+    )

@@ -1,9 +1,15 @@
-from typing import List
+from typing import List, TypedDict
 from uuid import UUID
 
 from ..exceptions import ApplicationNotFoundException, UserNotFoundException
 from ..models import User, UserRole
 from ..repositories import ApplicationRepository, UserRepository
+from ..services import MessageResDict, MessageService
+
+
+class UserMessageResDict(TypedDict):
+    user: User
+    last_message: MessageResDict
 
 
 class UserService:
@@ -65,6 +71,7 @@ class UserService:
 
         Args:
             user_id: The ID of the user.
+            role: The role of the user.
 
         Returns:
             The list of `User` instances that are contacts of the given user.
@@ -73,3 +80,32 @@ class UserService:
         if role == UserRole.DATA_SUBJECT:
             return [user for user in iterator if user.role != role]
         return [user for user in iterator]
+
+    @staticmethod
+    def get_messaged_contacts_by_user_id(
+        user_id: int, role: UserRole
+    ) -> List[UserMessageResDict]:
+        """Returns the contacts of the given user who have exchanged at least one message with the user, along with the last exchanged message.
+
+        Args:
+            user_id: The ID of the user.
+            role: The role of the user.
+
+        Returns:
+            A list of dictionaries each containing a `User` instance representing a contact who has exchanged at least one message with the user,
+            and the last exchanged message as a `MessageResDict`.
+        """
+
+        contacts = UserService.get_contacts_by_user_id(user_id, role)
+        messaged_contacts: List[UserMessageResDict] = []
+        for contact in contacts:
+            exchanged_messages = MessageService.get_messages_by_user_id_and_user_uuid(
+                user_id, role, contact.uuid
+            )
+            if exchanged_messages:
+                messaged_contacts.append(
+                    UserMessageResDict(
+                        user=contact, last_message=exchanged_messages[-1]
+                    )
+                )
+        return messaged_contacts
