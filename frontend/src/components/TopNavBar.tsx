@@ -43,7 +43,7 @@ export function TopNavBar() {
         variant="light"
         expand="lg"
         sticky="top"
-        className="border-bottom"
+        className="border-bottom shadow-sm"
       >
         <Container fluid>
           <Nav className="align-items-center gap-2 flex-nowrap">

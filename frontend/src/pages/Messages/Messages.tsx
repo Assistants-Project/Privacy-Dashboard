@@ -1,8 +1,6 @@
 import {
   Badge,
   Button,
-  Card,
-  CloseButton,
   Col,
   Container,
   Form,
@@ -10,11 +8,9 @@ import {
   Row,
 } from "react-bootstrap";
 import { useAuth } from "../../components/Authentication/AuthContext";
-import { Role, User } from "../../models/user";
+import { User } from "../../models/user";
 
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { useApp } from "../../components/AppsContext";
 import { getMessagedContacts } from "../../API/User/userAPI";
 import { Message } from "../../models/message";
 import { Chat } from "./Chat";
@@ -34,6 +30,7 @@ export function Messages() {
     undefined,
   );
   const [typedMessage, setTypedMessage] = useState<string>("");
+  const [rowsAmount, setRowsAmount] = useState<number>(1);
 
   useEffect(() => {
     fetchData();
@@ -58,6 +55,7 @@ export function Messages() {
           submittedMessageRes.receiver_uuid === selectedContact.uuid
         ) {
           setTypedMessage("");
+          setRowsAmount(1);
           setMessagedContacts(undefined);
           fetchData();
         } else {
@@ -72,6 +70,12 @@ export function Messages() {
         );
       }
     }
+  };
+
+  const onTypedMessageChange = (value: string) => {
+    setTypedMessage(value);
+    const lineBreaks = (value.match(/\n/g) || []).length;
+    setRowsAmount(lineBreaks + 1);
   };
 
   const fetchMessagedContacts = async (): Promise<
@@ -125,15 +129,24 @@ export function Messages() {
   };
 
   return (
-    <Container fluid className="py-3 flex-grow-1">
+    <Container fluid className="py-0 flex-grow-1" style={{ minHeight: 0 }}>
       <Row className="h-100">
-        <Col md={4}>
-          <ListGroup variant="flush">
+        <Col
+          md={4}
+          className="h-100 px-0"
+          style={{ backgroundColor: "white", border: "1px solid #dee2e6" }}
+        >
+          <ListGroup
+            variant="flush"
+            className="h-100 overflow-auto"
+            style={{ scrollbarWidth: "thin" }}
+          >
             {messagedContacts?.map((contact) => (
               <ListGroup.Item
                 action
                 key={contact.user.uuid}
                 onClick={() => setSelectedContact(contact.user)}
+                style={{ borderRadius: 0 }}
               >
                 <Row>
                   <Col
@@ -174,24 +187,55 @@ export function Messages() {
           </ListGroup>
         </Col>
         {messagedContacts && selectedContact && (
-          <Col md={8} className="d-flex flex-column">
-            <Row className="flex-grow-1 mb-3">
-              <Chat selectedContact={selectedContact} />
+          <Col md={8} className="d-flex flex-column h-100">
+            <Row
+              className="align-items-center border-bottom p-2"
+              style={{ backgroundColor: "white" }}
+            >
+              <Col
+                md={1}
+                className="d-flex justify-content-center align-items-center"
+              >
+                <Badge
+                  bg="light"
+                  text="dark"
+                  className="border rounded-circle d-flex align-items-center justify-content-center"
+                  style={{
+                    height: "56px",
+                    aspectRatio: "1 / 1",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedContact.firstname.charAt(0)}
+                  {selectedContact.lastname.charAt(0)}
+                </Badge>
+              </Col>
+              <Col md={11} className="d-flex align-items-center">
+                <strong>
+                  {selectedContact.firstname} {selectedContact.lastname}
+                </strong>
+                <span className="ms-2">
+                  <em>{selectedContact.email}</em>
+                </span>
+              </Col>
             </Row>
+
+            <Chat selectedContact={selectedContact} />
             <Row>
-              <Form className="d-flex" onSubmit={handleSubmit}>
+              <Form className="d-flex mb-3" onSubmit={handleSubmit}>
                 <Form.Control
                   as="textarea"
                   placeholder="Write a message..."
                   className="flex-grow-1"
-                  rows={3}
+                  rows={rowsAmount}
                   value={typedMessage}
-                  onChange={(e) => setTypedMessage(e.target.value)}
+                  onChange={(e) => onTypedMessageChange(e.target.value)}
                 />
                 <Button
                   type="submit"
-                  className="mx-2"
+                  className="mx-2 align-self-center"
                   disabled={typedMessage?.trim() === ""}
+                  style={{ height: "fit-content", aspectRatio: "1 / 1" }}
                 >
                   <i className="fa-solid fa-paper-plane"></i>
                 </Button>
