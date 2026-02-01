@@ -10,14 +10,12 @@ import {
   fetchPrivacyNoticeTemplate,
   handleGetPrivacyNotice,
   handleSubmitPrivacyNotice,
-  handleRemovePrivacyNotice
+  handleRemovePrivacyNotice,
 } from "../../services/PrivacyNoticeService";
 import "react-quill/dist/quill.snow.css";
-import {
-  fetchManagedApplications
-} from "../../services/ApplicationService"
+import { fetchManagedApplications } from "../../services/ApplicationService";
 
-function TestPrivacyNotice(props: any) {
+function PrivacyNotice(props: any) {
   const [value, setValue] = useState("");
   const [isTemplate, setIsTemplate] = useState<number>(0); // 0 = none, 1 = scratch, 2 = template
 
@@ -58,11 +56,11 @@ function TestPrivacyNotice(props: any) {
       await handleRemovePrivacyNotice(selectedApplicationUuid);
       const submittedNotice = await handleSubmitPrivacyNotice(
         selectedApplicationUuid,
-        value
+        value,
       );
       // TODO: for simplicity, we fetch directly here the submitted privacy notice to verify it was stored correctly, REMOVE THIS!
       const fetchedNoticeResult = await handleGetPrivacyNotice(
-        selectedApplicationUuid
+        selectedApplicationUuid,
       );
       console.log("Submitted Notice:", submittedNotice.uuid);
       console.log("Fetched Notice:", fetchedNoticeResult.uuid);
@@ -141,4 +139,4 @@ function TestPrivacyNotice(props: any) {
   );
 }
 
-export { TestPrivacyNotice };
+export { PrivacyNotice };

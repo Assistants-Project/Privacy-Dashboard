@@ -1,4 +1,12 @@
-import { Badge, Card, CloseButton, Col, Container, Form, Row } from "react-bootstrap";
+import {
+  Badge,
+  Card,
+  CloseButton,
+  Col,
+  Container,
+  Form,
+  Row,
+} from "react-bootstrap";
 import { useAuth } from "../../components/Authentication/AuthContext";
 import { Role } from "../../models/user";
 
@@ -7,14 +15,17 @@ import { Link } from "react-router-dom";
 import { useApp } from "../../components/AppsContext";
 
 export function Apps() {
-
   const { user, loading } = useAuth();
   const apps_context = useApp();
 
   const [query, setQuery] = useState("");
-  const [selectedAppUuid, setSelectedAppUuid] = useState<string | undefined>(undefined);
+  const [selectedAppUuid, setSelectedAppUuid] = useState<string | undefined>(
+    undefined,
+  );
 
-  const selectedApp = apps_context.apps?.find((app) => app.uuid === selectedAppUuid); //comodo per avere sempre la app selezionata
+  const selectedApp = apps_context.apps?.find(
+    (app) => app.uuid === selectedAppUuid,
+  ); //comodo per avere sempre la app selezionata
   const isDataSubject = user?.role === Role.DataSubject;
 
   const closePanel = () => setSelectedAppUuid(undefined);
@@ -23,7 +34,9 @@ export function Apps() {
     <Container className="py-3">
       <Row className="mb-3">
         <Col>
-          <h1 className="mb-0">{isDataSubject? "Installed Apps" : "Catalog Apps"}</h1>
+          <h1 className="mb-0">
+            {isDataSubject ? "Installed Apps" : "Catalog Apps"}
+          </h1>
         </Col>
       </Row>
 
@@ -65,49 +78,54 @@ export function Apps() {
                   {apps_context.apps
                     ?.filter(
                       (app) =>
-                        app.name.includes(query) || app.description?.includes(query),
+                        app.name.includes(query) ||
+                        app.description?.includes(query),
                     )
                     .map((app) => {
-                    const selected = app.uuid === selectedAppUuid;
+                      const selected = app.uuid === selectedAppUuid;
 
-                    const title =
-                      app.name && app.name.trim() !== "" ? app.name : "Nome non impostato";
-                    const vote = app.evaluation ? app.evaluation : "no vote";
-                    const description = app.description;
+                      const title =
+                        app.name && app.name.trim() !== ""
+                          ? app.name
+                          : "Nome non impostato";
+                      const vote = app.evaluation ? app.evaluation : "no vote";
+                      const description = app.description;
 
-                    return (
-                      <Col key={app.uuid}>
-                        <Card
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => {
-                            if (selected) {
-                              closePanel();
-                              return;
-                            }
-                            setSelectedAppUuid(app.uuid);
-                          }}
-                          className={[
-                            "h-100 p-0 apps_card_hover",
-                            selected ? "border-3 apps_card_selected" : "",
-                          ].join(" ")}
-                          style={{ cursor: "pointer" }}
-                        >
-                          <Card.Body>
-                            <div className="d-flex align-items-baseline gap-2">
-                              <strong>{title}</strong>
-                              <span className="text-muted">({vote})</span>
-                            </div>
-                            {description ? (
-                              <div className="text-muted">{description}</div>
-                            ) : (
-                              <div className="text-muted">(no description)</div>
-                            )}
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    );
-                  })}
+                      return (
+                        <Col key={app.uuid}>
+                          <Card
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => {
+                              if (selected) {
+                                closePanel();
+                                return;
+                              }
+                              setSelectedAppUuid(app.uuid);
+                            }}
+                            className={[
+                              "h-100 p-0 apps_card_hover",
+                              selected ? "border-3 apps_card_selected" : "",
+                            ].join(" ")}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <Card.Body>
+                              <div className="d-flex align-items-baseline gap-2">
+                                <strong>{title}</strong>
+                                <span className="text-muted">({vote})</span>
+                              </div>
+                              {description ? (
+                                <div className="text-muted">{description}</div>
+                              ) : (
+                                <div className="text-muted">
+                                  (no description)
+                                </div>
+                              )}
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      );
+                    })}
                 </Row>
               )}
             </Container>
@@ -117,10 +135,15 @@ export function Apps() {
             <Card className="sticky-top z-1 p-0" style={{ top: "1rem" }}>
               <Card.Body className="d-flex flex-column gap-3">
                 {!selectedApp ? (
-                  <div className="text-muted">Select an app to see details.</div>
+                  <div className="text-muted">
+                    Select an app to see details.
+                  </div>
                 ) : (
                   <>
-                    <Container fluid className="d-flex justify-content-between align-items-start">
+                    <Container
+                      fluid
+                      className="d-flex justify-content-between align-items-start"
+                    >
                       <Container fluid className="ps-0">
                         <h2 className="h4 mb-1">
                           {selectedApp.name && selectedApp.name.trim() !== ""
@@ -137,14 +160,22 @@ export function Apps() {
                     </Container>
 
                     {selectedApp.description ? (
-                      <div className="text-muted">{selectedApp.description}</div>
+                      <div className="text-muted">
+                        {selectedApp.description}
+                      </div>
                     ) : undefined}
 
                     <Container fluid className="d-flex flex-wrap gap-2 ps-0">
-                      <Link className="btn btn-outline-secondary btn-sm" to="/privacy-notice">
+                      <Link
+                        className="btn btn-outline-secondary btn-sm"
+                        to="/privacy-notice"
+                      >
                         Privacy Notice
                       </Link>
-                      <Link className="btn btn-outline-secondary btn-sm" to="/questionnaire">
+                      <Link
+                        className="btn btn-outline-secondary btn-sm"
+                        to="/questionnaire"
+                      >
                         Questionnaire
                       </Link>
                       <Link
@@ -164,8 +195,8 @@ export function Apps() {
                             {selectedApp.data_controllers?.length ? (
                               <div className="d-flex flex-wrap gap-2">
                                 {selectedApp.data_controllers
-                                //gestire caso utente loggato manager dell'App
-                                 // .filter((u) => u.email !== user?.email)
+                                  //gestire caso utente loggato manager dell'App
+                                  // .filter((u) => u.email !== user?.email)
                                   .map((contact) => (
                                     <Badge
                                       key={contact.email}
@@ -179,7 +210,7 @@ export function Apps() {
                                   ))}
                               </div>
                             ) : (
-                              <div className="text-muted">Not Assiegned</div>
+                              <div className="text-muted">Not Assigned</div>
                             )}
                           </Card.Body>
                         </Card>
@@ -192,13 +223,17 @@ export function Apps() {
                             <div className="mt-2" />
                             {selectedApp.dpo ? (
                               <div className="d-flex flex-wrap gap-2">
-                                <Badge bg="light" text="dark" className="border rounded-pill">
+                                <Badge
+                                  bg="light"
+                                  text="dark"
+                                  className="border rounded-pill"
+                                >
                                   {`${selectedApp.dpo.firstname} ${selectedApp.dpo.lastname}`.trim() ||
                                     selectedApp.dpo.email}
                                 </Badge>
                               </div>
                             ) : (
-                              <div className="text-muted">Not Assiegned</div>
+                              <div className="text-muted">Not Assigned</div>
                             )}
                           </Card.Body>
                         </Card>
@@ -209,13 +244,17 @@ export function Apps() {
                       <Card className="p-0">
                         <Card.Body>
                           <strong>Questionnaire summary</strong>
-                          <div className="mt-2 text-muted">{selectedApp.questionnaire_summary}</div>
+                          <div className="mt-2 text-muted">
+                            {selectedApp.questionnaire_summary}
+                          </div>
                         </Card.Body>
                       </Card>
                     ) : undefined}
 
                     {isDataSubject && selectedApp.installed_at ? (
-                      <div className="text-muted">Installed at: {selectedApp.installed_at}</div>
+                      <div className="text-muted">
+                        Installed at: {selectedApp.installed_at}
+                      </div>
                     ) : undefined}
                   </>
                 )}

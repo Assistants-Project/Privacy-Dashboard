@@ -1,15 +1,21 @@
 import { useAuth } from "./Authentication/AuthContext";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { Role } from "../models/user";
-import { Container, Dropdown, Nav, Navbar, NavDropdown, Spinner } from "react-bootstrap";
+import {
+  Container,
+  Dropdown,
+  Nav,
+  Navbar,
+  NavDropdown,
+  Spinner,
+} from "react-bootstrap";
 import { UserMenu } from "./UserMenu";
 import { useHome } from "./HomeContext";
 import { useApp } from "./AppsContext";
-import { ArrowRepeat } from 'react-bootstrap-icons';
-import { CheckCircle } from 'react-bootstrap-icons';
+import { ArrowRepeat } from "react-bootstrap-icons";
+import { CheckCircle } from "react-bootstrap-icons";
 
 export function TopNavBar() {
-
   const { user } = useAuth();
   const location = useLocation();
   const { current_home_uuid, updatingHomes, syncHomes } = useHome();
@@ -18,41 +24,42 @@ export function TopNavBar() {
   const isDataSubject = user?.role === Role.DataSubject;
   const showQuestionnaire = !isDataSubject;
 
-
   const anySyncing = updatingHomes || updatingApps;
 
   const syncedIcon = (
     <CheckCircle className="text-success" style={{ width: 18, height: 18 }} />
   );
-  const syncingIcon = (
-    <Spinner animation="border" size="sm" />
-  );
+  const syncingIcon = <Spinner animation="border" size="sm" />;
 
-  const initials = [
-    user?.firstname?.trim()?.[0],
-    user?.lastname?.trim()?.[0],
-  ]
+  const initials = [user?.firstname?.trim()?.[0], user?.lastname?.trim()?.[0]]
     .filter(Boolean)
     .join("")
     .toUpperCase();
 
   return (
     <>
-      <Navbar bg="light" variant="light" expand="lg" sticky="top" className="border-bottom">
+      <Navbar
+        bg="light"
+        variant="light"
+        expand="lg"
+        sticky="top"
+        className="border-bottom"
+      >
         <Container fluid>
           <Nav className="align-items-center gap-2 flex-nowrap">
             <Navbar.Brand as={NavLink} to="/" end className="me-0">
               Privacy Dashboard {isDataSubject ? "|" : ""}
             </Navbar.Brand>
             {isDataSubject ? (
-              <span className="text-muted text-nowrap">{current_home_uuid}</span>
+              <span className="text-muted text-nowrap">
+                {current_home_uuid}
+              </span>
             ) : undefined}
           </Nav>
 
           <Navbar.Toggle aria-controls="main-navbar" className="ms-auto" />
 
           <Navbar.Collapse id="main-navbar" className="w-100">
-
             <Nav
               className="flex-grow-1 justify-content-lg-center flex-nowrap gap-3 gap-lg-4"
               activeKey={location.pathname}
@@ -60,7 +67,11 @@ export function TopNavBar() {
               <Nav.Link as={NavLink} to="/" end eventKey="/">
                 Home
               </Nav.Link>
-              <Nav.Link as={NavLink} to="/privacy-notice" eventKey="/privacy-notice">
+              <Nav.Link
+                as={NavLink}
+                to="/privacy-notice"
+                eventKey="/privacy-notice"
+              >
                 Privacy Notice
               </Nav.Link>
               <Nav.Link
@@ -78,12 +89,23 @@ export function TopNavBar() {
                 Privacy Impact Assessment
               </Nav.Link>
               {showQuestionnaire && (
-                <Nav.Link as={NavLink} to="/questionnaire" eventKey="/questionnaire">
+                <Nav.Link
+                  as={NavLink}
+                  to="/questionnaire"
+                  eventKey="/questionnaire"
+                >
                   Questionnaire
                 </Nav.Link>
               )}
-              <Nav.Link as={NavLink} to="/policy-translation" eventKey="/policy-translation">
+              <Nav.Link
+                as={NavLink}
+                to="/policy-translation"
+                eventKey="/policy-translation"
+              >
                 Policy Translation
+              </Nav.Link>
+              <Nav.Link as={NavLink} to="/messages" eventKey="/messages">
+                Messages
               </Nav.Link>
             </Nav>
 
@@ -141,9 +163,6 @@ export function TopNavBar() {
                 </Dropdown.Menu>
               </Dropdown>
             </Nav>
-
-
-
           </Navbar.Collapse>
         </Container>
       </Navbar>

@@ -21,8 +21,7 @@ import {
 } from "../../services/PrivacyImpactAssessmentService";
 import { fetchManagedApplications } from "../../services/ApplicationService";
 
-
-function TestPrivacyImpactAssessment() {
+function PrivacyImpactAssessment() {
   const [piaTemplate, setPiaTemplate] = useState<any>(null);
   const [fetchedPia, setFetchedPia] = useState<any>(null);
   const gridApisRef = useRef<any>({});
@@ -309,4 +308,4 @@ function DeleteButtonComponent(props: any) {
   );
 }
 
-export { TestPrivacyImpactAssessment };
+export { PrivacyImpactAssessment };

@@ -14,11 +14,9 @@ import {
   submitQuestionnaireByManagedApplicationUuid,
 } from "../../API/GDPR/questionAPI";
 import { Question, Evaluation } from "../../models/question";
-import {
-  fetchManagedApplications
-} from "../../services/ApplicationService"
+import { fetchManagedApplications } from "../../services/ApplicationService";
 
-function TestQuestionnaire(props: any) {
+function Questionnaire(props: any) {
   const [questions, setQuestions] = useState<Question[] | null>(null);
   const [applicationEvaluation, setApplicationEvaluation] =
     useState<Evaluation | null>(null);
@@ -281,4 +279,4 @@ function TestQuestionnaire(props: any) {
   );
 }
 
-export { TestQuestionnaire };
+export { Questionnaire };
