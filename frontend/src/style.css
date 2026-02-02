@@ -71,6 +71,11 @@ body {
   color: var(--text);
 }
 
+.list-item-active {
+  color: black;
+  background-color: #f8f9fa;
+}
+
 .message-bubble {
   width: fit-content;
   max-width: 100%;

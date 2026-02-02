@@ -108,4 +108,7 @@ class UserService:
                         user=contact, last_message=exchanged_messages[-1]
                     )
                 )
+        messaged_contacts.sort(
+            key=lambda x: x["last_message"]["message"].sent_at, reverse=True
+        )
         return messaged_contacts
