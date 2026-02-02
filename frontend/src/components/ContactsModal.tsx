@@ -21,7 +21,16 @@ export function ContactsModal(props: any) {
   return (
     <>
       {contacts && (
-        <Modal {...props} size="lg" centered animation={false}>
+        <Modal
+          show={props.show}
+          size="lg"
+          centered
+          animation={false}
+          onHide={() => {
+            setQuery("");
+            props.onHide();
+          }}
+        >
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
               <h5 className="mb-3">Select a contact to start a new chat</h5>
@@ -52,6 +61,7 @@ export function ContactsModal(props: any) {
                     key={contact.uuid}
                     className="d-flex justify-content-between"
                     onClick={() => {
+                      setQuery("");
                       props.setSelectedContact(contact);
                       props.onHide();
                     }}
