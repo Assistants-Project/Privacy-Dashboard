@@ -11,6 +11,28 @@ from ..repositories import ApplicationRepository, PrivacyNoticeRepository
 
 class PrivacyNoticeService:
     @staticmethod
+    def get_privacy_notice_by_ds_id_and_application_uuid(
+        user_id: int, application_uuid: UUID
+    ) -> PrivacyNotice | None:
+        """Returns the `PrivacyNotice`, if any, associated to an installed `Application`
+        for the given `DATA_SUBJECT` user.
+
+        If the application is not found among installed applications, it raises `ApplicationNotFoundException`.
+        If the application exists but has no privacy notice, it returns `None`.
+        """
+
+        application = (
+            ApplicationRepository.get_installed_application_by_ds_id_and_application_uuid(
+                user_id, application_uuid
+            )
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among the installed applications!"
+            )
+        return application.privacy_notice
+
+    @staticmethod
     def get_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
         user_id: int, application_uuid: UUID
     ) -> PrivacyNotice:

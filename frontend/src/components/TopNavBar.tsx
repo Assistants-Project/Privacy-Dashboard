@@ -97,13 +97,16 @@ export function TopNavBar() {
                   Questionnaire
                 </Nav.Link>
               )}
-              <Nav.Link
-                as={NavLink}
-                to="/policy-translation"
-                eventKey="/policy-translation"
-              >
-                Policy Translation
-              </Nav.Link>
+              {isDataSubject &&
+                <Nav.Link
+                  as={NavLink}
+                  to="/policy-translation"
+                  eventKey="/policy-translation"
+                >
+                  Policy Translation
+                </Nav.Link>
+              }
+
               <Nav.Link as={NavLink} to="/messages" eventKey="/messages">
                 Messages
               </Nav.Link>

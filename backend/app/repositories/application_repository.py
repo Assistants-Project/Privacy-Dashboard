@@ -11,6 +11,11 @@ from sqlalchemy.orm import aliased
 
 class ApplicationRepository:
     @staticmethod
+    def get_application_by_uuid(application_uuid: UUID) -> Application | None:
+        statement = db.select(Application).where(Application.uuid == application_uuid)
+        return db.session.scalar(statement)
+
+    @staticmethod
     def get_applications_by_dc_or_dpo_id(
         user_id: int,
     ) -> Iterator[Tuple[Application, datetime]]:
@@ -28,6 +33,19 @@ class ApplicationRepository:
         statement = db.select(Application).join(
             Application.installed_by_user_smart_home_combinations.and_(
                 UserSmartHomeApplication.user_id == user_id,
+                Application.uuid == application_uuid,
+            )
+        )
+        return db.session.scalar(statement)
+
+    @staticmethod
+    def get_installed_application_by_ds_id_and_application_uuid(
+        user_id: int, application_uuid: UUID
+    ) -> Application | None:
+        statement = db.select(Application).join(
+            Application.installed_by_user_smart_home_combinations.and_(
+                UserSmartHomeApplication.user_id == user_id,
+                UserSmartHomeApplication.smart_home_id.isnot(None),
                 Application.uuid == application_uuid,
             )
         )
@@ -176,6 +194,103 @@ class ApplicationRepository:
         for rel in relations_present:
             if rel.application_id not in desired_application_ids:
                 db.session.delete(rel)
+
+    @staticmethod
+    def ensure_application_managed_by_user(user_id: int, application_id: int) -> bool:
+        # Assicura che l'utente sia collegato all'app come "manager" (Data Controller / DPO)
+        # Nel nostro modello, un'app "managed" è una riga in UserSmartHomeApplication con smart_home_id = NULL
+        # La funzione è idempotente:
+        # - se la relazione esiste già, non crea nulla e ritorna False
+        # - se non esiste, la crea e ritorna True
+        # In più elimina eventuali duplicati: con il vincolo UNIQUE attuale i NULL possono permettere righe doppie
+
+        statement = db.select(UserSmartHomeApplication).where(
+            UserSmartHomeApplication.user_id == user_id,
+            UserSmartHomeApplication.smart_home_id.is_(None),
+            UserSmartHomeApplication.application_id == application_id,
+        )
+        relations = list(db.session.scalars(statement).all())
+        if relations:
+            # Se ci sono più righe (duplicati), teniamo la prima e cancelliamo le altre.
+            for duplicate in relations[1:]:
+                db.session.delete(duplicate)
+            return False
+
+        # Relazione non presente: la creiamo (user_id + application_id) come "managed" (smart_home_id = NULL)
+        relation = UserSmartHomeApplication()
+        relation.user_id = user_id
+        relation.smart_home_id = None
+        relation.application_id = application_id
+        relation.installed_at = datetime.now()
+        db.session.add(relation)
+        return True
+
+    @staticmethod
+    def has_dpo_assigned_for_application(application_id: int) -> bool:
+        statement = (
+            db.select(UserSmartHomeApplication.id)
+            .join(User, User.id == UserSmartHomeApplication.user_id)
+            .where(
+                UserSmartHomeApplication.application_id == application_id,
+                UserSmartHomeApplication.smart_home_id.is_(None),
+                User.role == UserRole.DATA_PROTECTION_OFFICER,
+            )
+        )
+        return db.session.scalar(statement) is not None
+
+    @staticmethod
+    def get_dpo_user_ids_for_application(application_id: int) -> set[int]:
+        # Restituisce gli id degli utenti DPO assegnati ad una specifica app
+        # join con User per filtrare solo i DPO, e smart_home_id = NULL
+        statement = (
+            db.select(UserSmartHomeApplication.user_id)
+            .join(User, User.id == UserSmartHomeApplication.user_id)
+            .where(
+                UserSmartHomeApplication.application_id == application_id,
+                UserSmartHomeApplication.smart_home_id.is_(None),
+                User.role == UserRole.DATA_PROTECTION_OFFICER,
+            )
+        )
+        return set(db.session.scalars(statement).all())
+
+    @staticmethod
+    def assign_dpo_for_application(application_id: int, dpo_user_id: int) -> None:
+        # Assegna un DPO ad una app come relazione "managed" (smart_home_id = NULL).
+        # Obiettivo: avere un solo DPO collegato a questa app.
+        # - se il DPO è già presente, non facciamo nulla (a parte cancellare eventuali duplicati)
+        # - se esistono altri DPO assegnati, li rimuoviamo
+        # - se non esiste nessun DPO, creiamo la relazione per dpo_user_id
+
+        statement = (
+            db.select(UserSmartHomeApplication)
+            .join(User, User.id == UserSmartHomeApplication.user_id)
+            .where(
+                UserSmartHomeApplication.application_id == application_id,
+                UserSmartHomeApplication.smart_home_id.is_(None),
+                User.role == UserRole.DATA_PROTECTION_OFFICER,
+            )
+        )
+        relations = list(db.session.scalars(statement).all())
+
+        kept = None
+        for relation in relations:
+            if relation.user_id == dpo_user_id and kept is None:
+                kept = relation
+                continue
+            # Se è un altro DPO (o un duplicato), lo cancelliamo.
+            db.session.delete(relation)
+
+        if kept is not None:
+            # Il DPO richiesto era già assegnato (abbiamo solo ripulito eventuali duplicati)
+            return
+
+        # Nessun DPO assegnato: creiamo la relazione
+        relation = UserSmartHomeApplication()
+        relation.user_id = dpo_user_id
+        relation.smart_home_id = None
+        relation.application_id = application_id
+        relation.installed_at = datetime.now()
+        db.session.add(relation)
 
     @staticmethod
     def upsert_applications(applications: List[Application]) -> None:

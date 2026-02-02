@@ -1,4 +1,4 @@
-from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
+from werkzeug.exceptions import BadRequest, Conflict, Forbidden, InternalServerError, NotFound
 from werkzeug.http import HTTP_STATUS_CODES
 
 
@@ -7,6 +7,13 @@ class ApplicationNotFoundException(Exception):
         super().__init__(message)
         self.message = message
         self.code = NotFound.code
+        self.status = HTTP_STATUS_CODES[self.code]
+
+class ApplicationNotManagedException(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.code = Forbidden.code
         self.status = HTTP_STATUS_CODES[self.code]
 
 
@@ -47,4 +54,19 @@ class PrivacyImpactAssessmentNotFoundException(Exception):
         super().__init__(message)
         self.message = message
         self.code = NotFound.code
+        self.status = HTTP_STATUS_CODES[self.code]
+
+class MissingDpoUuidException(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.code = BadRequest.code
+        self.status = HTTP_STATUS_CODES[self.code]
+
+
+class DpoAlreadyAssignedException(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.code = Conflict.code
         self.status = HTTP_STATUS_CODES[self.code]

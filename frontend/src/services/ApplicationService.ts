@@ -2,6 +2,8 @@ import {
   getManagedApplications,
   getInstalledApplications,
   getCatalogApplications,
+  claimManagedApplication,
+  assignDpoToManagedApplication,
   UpdateApps
 } from "../API/Applications/applicationAPI";
 import {AppModel} from "../models/app"
@@ -131,7 +133,7 @@ const toAppModel = (dto: ApplicationDto): AppModel => {
   }
 
 
-  export const updateCatalogApplications = async (): Promise<boolean | undefined> => {
+export const updateCatalogApplications = async (): Promise<boolean | undefined> => {
   try {
     const response = (await UpdateApps()) as boolean;
     return response;
@@ -140,4 +142,23 @@ const toAppModel = (dto: ApplicationDto): AppModel => {
   }
 };
 
-  export {fetchManagedApplications, fetchInstalledApplications, fetchCatalogApplications}
+export const claimApplicationAsDataController = async (
+  applicationUuid: string,
+): Promise<boolean> => {
+  try {
+    return await claimManagedApplication(applicationUuid);
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const assignDpoToApplication = async (applicationUuid: string,dpoUuid: string): Promise<boolean> => {
+  try {
+    return await assignDpoToManagedApplication(applicationUuid, dpoUuid);
+  } catch (err) {
+    throw err;
+  }
+};
+
+
+export {fetchManagedApplications, fetchInstalledApplications, fetchCatalogApplications}

@@ -182,6 +182,21 @@ def dc_or_dpo_required():
     return wrapper
 
 
+def dc_required():
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            user = get_current_user_from_claims()
+            if user.role == UserRole.DATA_CONTROLLER:
+                return fn(*args, **kwargs, current_user=user)
+
+            raise WrongUserRoleException("User is not a Data Controller!")
+
+        return decorator
+
+    return wrapper
+
+
 def ds_required():
     def wrapper(fn):
         @wraps(fn)

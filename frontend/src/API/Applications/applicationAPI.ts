@@ -42,16 +42,46 @@ async function getCatalogApplications() {
     const applications = await response.json();
     return applications;
   }
-  
+
   throw await getApiError(response);
 
 }
 
+async function claimManagedApplication(applicationUuid: string): Promise<boolean> {
+  const response = await fetch(
+    baseURL + `applications/managed/${encodeURIComponent(applicationUuid)}`,
+    {
+      method: "POST",
+      credentials: "include",
+    },
+  );
+
+  if (response.status === 201) return true;
+  if (response.status === 204) return false;
+
+  throw await getApiError(response);
+}
+
+async function assignDpoToManagedApplication(applicationUuid: string,dpoUuid: string): Promise<boolean> {
+  const response = await fetch(baseURL +`applications/managed/${encodeURIComponent(applicationUuid)}/dpo`,
+{
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ dpo_uuid: dpoUuid }),
+    },
+  );
+
+  if (response.status === 201) return true;
+  if (response.status === 204) return false;
+
+  throw await getApiError(response);
+}
+
 async function UpdateApps() {
-  let response = await fetch(baseURL + "applications/refresh", {
-    method: "POST",
-    credentials: "include",
-  });
+  let response = await fetch(baseURL + "applications/refresh", {method: "POST",credentials: "include"});
   if (response.ok) {
     return true;
   }
@@ -152,5 +182,7 @@ export {
   submitPiaByManagedApplicationUuid,
   getInstalledApplications,
   getCatalogApplications,
+  claimManagedApplication,
+  assignDpoToManagedApplication,
   UpdateApps
 };

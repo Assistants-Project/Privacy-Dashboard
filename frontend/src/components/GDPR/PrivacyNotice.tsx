@@ -1,38 +1,23 @@
-import {
-  Button,
-  FormSelect,
-  ToggleButton,
-  ToggleButtonGroup,
-} from "react-bootstrap";
+import { Button, FormSelect, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import ReactQuill from "react-quill";
 import {
   fetchPrivacyNoticeTemplate,
-  handleGetPrivacyNotice,
   handleSubmitPrivacyNotice,
   handleRemovePrivacyNotice,
 } from "../../services/PrivacyNoticeService";
 import "react-quill/dist/quill.snow.css";
-import { fetchManagedApplications } from "../../services/ApplicationService";
+import { useApp } from "../../components/AppsContext";
+import { useAuth } from "../Authentication/AuthContext";
+import { Role } from "../../models/user";
 
 function PrivacyNotice(props: any) {
   const [value, setValue] = useState("");
   const [isTemplate, setIsTemplate] = useState<number>(0); // 0 = none, 1 = scratch, 2 = template
+  const { loadPrivacyNotice, PrivacyNoticeByAppUUID, managedApps } = useApp();
+  const { user } = useAuth();
 
-  // TODO: move this application fetching logic elsewhere and pass data here via props if needed
-  const [managedApplications, setManagedApplications] = useState<any[]>([]);
-  const [selectedApplicationUuid, setSelectedApplicationUuid] =
-    useState<string>("");
-
-  const [fetchedNotice, setFetchedNotice] = useState<any>("");
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const applications = await fetchManagedApplications();
-      setManagedApplications(applications || []);
-    };
-    fetchData();
-  }, []);
+  const [selectedApplicationUuid, setSelectedApplicationUuid] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const setValueToTemplate = async () => {
@@ -46,6 +31,28 @@ function PrivacyNotice(props: any) {
     }
   }, [isTemplate]);
 
+
+  useEffect(() => {
+
+    if (!selectedApplicationUuid) return;
+    void loadPrivacyNotice(selectedApplicationUuid, false);
+
+  }, [loadPrivacyNotice, selectedApplicationUuid]);
+
+
+  useEffect(() => {
+    if (managedApps.length === 0) {
+      setSelectedApplicationUuid(undefined);
+      return;
+    }
+
+    if (!selectedApplicationUuid || !managedApps.some(a => a.uuid === selectedApplicationUuid)) {
+      setSelectedApplicationUuid(managedApps[0].uuid);
+    }
+  }, [managedApps, selectedApplicationUuid]);
+
+  const pn = selectedApplicationUuid ? PrivacyNoticeByAppUUID[selectedApplicationUuid] : undefined;
+
   const handleSubmit = async () => {
     if (!selectedApplicationUuid) {
       alert("Please select an application.");
@@ -58,27 +65,12 @@ function PrivacyNotice(props: any) {
         selectedApplicationUuid,
         value,
       );
-      // TODO: for simplicity, we fetch directly here the submitted privacy notice to verify it was stored correctly, REMOVE THIS!
-      const fetchedNoticeResult = await handleGetPrivacyNotice(
-        selectedApplicationUuid,
-      );
-      console.log("Submitted Notice:", submittedNotice.uuid);
-      console.log("Fetched Notice:", fetchedNoticeResult.uuid);
-      if (
-        submittedNotice &&
-        fetchedNoticeResult &&
-        submittedNotice.uuid === fetchedNoticeResult.uuid
-      ) {
-        setFetchedNotice(fetchedNoticeResult);
-        setSelectedApplicationUuid("");
-        setIsTemplate(0);
-        setValue("");
-      } else {
-        alert("Error verifying the submitted Privacy Notice.");
-      }
+      // we force the get of the new submitted
+      void loadPrivacyNotice(selectedApplicationUuid, true)
     } catch (err) {
       console.error("Error submitting privacy notice:", err);
     }
+
   };
 
   return (
@@ -94,46 +86,52 @@ function PrivacyNotice(props: any) {
           <option className="d-none" value="" disabled>
             Select an application
           </option>
-          {managedApplications.map((app) => (
-            <option key={app.application.uuid} value={app.application.uuid}>
-              {app.application.name}
+          {managedApps.map((app) => (
+            <option key={app.uuid} value={app.uuid}>
+              {app.name}
             </option>
           ))}
         </FormSelect>
-        <p>Choose whether to write from scratch or from a provided template:</p>
-        <ToggleButtonGroup
-          type="radio"
-          name="options"
-          defaultValue={0}
-          onChange={(val) => setIsTemplate(val)}
-        >
-          <ToggleButton id="tbg-radio-1" variant="outline-dark" value={1}>
-            Scratch
-          </ToggleButton>
-          <ToggleButton id="tbg-radio-2" variant="outline-dark" value={2}>
-            Template
-          </ToggleButton>
-        </ToggleButtonGroup>
-        {isTemplate > 0 && (
-          <div className="my-3 p-3 border rounded">
-            <ReactQuill
-              className="mb-3"
-              theme="snow"
-              value={value}
-              onChange={setValue}
-            />
-            <Button variant="dark" onClick={handleSubmit} className="mt-3">
-              Submit Privacy Notice
-            </Button>
-          </div>
-        )}
+        {user?.role != Role.DataSubject &&
+          <>
+            <p>Choose whether to write from scratch or from a provided template:</p>
+            <ToggleButtonGroup
+              type="radio"
+              name="options"
+              defaultValue={0}
+              onChange={(val) => setIsTemplate(val)}
+            >
+              <ToggleButton id="tbg-radio-1" variant="outline-dark" value={1}>
+                Scratch
+              </ToggleButton>
+              <ToggleButton id="tbg-radio-2" variant="outline-dark" value={2}>
+                Template
+              </ToggleButton>
+            </ToggleButtonGroup>
+            {isTemplate > 0 && (
+              <div className="my-3 p-3 border rounded">
+                <ReactQuill
+                  className="mb-3"
+                  theme="snow"
+                  value={value}
+                  onChange={setValue}
+                />
+                <Button variant="dark" onClick={handleSubmit} className="mt-3">
+                  Submit Privacy Notice
+                </Button>
+              </div>
+            )}
+          </>
+        }
+
       </div>
-      {fetchedNotice && fetchedNotice.uuid && fetchedNotice.content && (
-        <div className="mt-4 p-3 border rounded w-50">
-          <h4>Privacy Notice Submitted Successfully!</h4>
-          <p>UUID: {fetchedNotice.uuid}</p>
-          <div dangerouslySetInnerHTML={{ __html: fetchedNotice.content }} />
-        </div>
+      {pn && pn.content && (
+        <>
+          <h4>Contenuto Privacy Notice:</h4>
+          <div className="mt-4 p-3 border rounded w-50">
+            <div dangerouslySetInnerHTML={{ __html: pn.content }} />
+          </div>
+        </>
       )}
     </div>
   );

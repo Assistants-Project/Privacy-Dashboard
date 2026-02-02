@@ -1,34 +1,121 @@
-import {
-  Badge,
-  Card,
-  CloseButton,
-  Col,
-  Container,
-  Form,
-  Row,
+import {Badge,Button,Card,CloseButton,Col,Container,Form,Row,
 } from "react-bootstrap";
 import { useAuth } from "../../components/Authentication/AuthContext";
-import { Role } from "../../models/user";
-
+import { Role, User } from "../../models/user";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useApp } from "../../components/AppsContext";
+import { fetchDataProtectionOfficers } from "../../services/UserService";
 
 export function Apps() {
+
   const { user, loading } = useAuth();
   const apps_context = useApp();
 
   const [query, setQuery] = useState("");
-  const [selectedAppUuid, setSelectedAppUuid] = useState<string | undefined>(
-    undefined,
-  );
+  const [selectedAppUuid, setSelectedAppUuid] = useState<string | undefined>(undefined);
 
   const selectedApp = apps_context.apps?.find(
     (app) => app.uuid === selectedAppUuid,
   ); //comodo per avere sempre la app selezionata
+
+
   const isDataSubject = user?.role === Role.DataSubject;
+  const isDataController = user?.role === Role.DatController;
 
   const closePanel = () => setSelectedAppUuid(undefined);
+
+  //necessario perchè il backend risponde con un errore invece di pia vuoto come per le installed/catalog app
+  const canReadPrivacyNotice = !!user && !!selectedAppUuid && apps_context.managedApps.some((app) => app.uuid === selectedAppUuid);
+  const isManagedByMe = !!selectedAppUuid && apps_context.managedApps.some((app) => app.uuid === selectedAppUuid);
+
+  //se selectedAppUui non è undefined ci salviamo localmente il pn se no è undefined
+  const pn = selectedAppUuid ? apps_context.PrivacyNoticeByAppUUID[selectedAppUuid] : undefined;
+
+  const [dpos, setDpos] = useState<User[] | undefined>(undefined);
+  const [loadingDpos, setLoadingDpos] = useState(false);
+  const [selectedDpoUuid, setSelectedDpoUuid] = useState<string>("");
+
+  //per disabilitare tasto claim data controller e evitare doppio click
+  const [claimingApp, setClaimingApp] = useState(false);
+
+  //per disabilitare tasto dpo per evitare doppio click 
+  const [assigningDpo, setAssigningDpo] = useState(false);
+
+  //per tutti gli errori di gestione Data controller / DPO
+  const [managementError, setManagementError] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!isDataController) {
+      setDpos(undefined);
+      setSelectedDpoUuid("");
+      setManagementError(undefined);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingDpos(true);
+
+    fetchDataProtectionOfficers()
+      .then((res) => {
+        if (cancelled) return;
+        const list = res ?? [];
+        setDpos(list);
+        setSelectedDpoUuid((prev) => prev || (list[0]?.uuid ?? ""));
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setManagementError(err instanceof Error ? err.message : "Errore inatteso");
+        setDpos([]);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setLoadingDpos(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isDataController, user?.uuid]);
+
+
+  useEffect(() => {
+
+    if (!selectedAppUuid) return;
+    if (!canReadPrivacyNotice) return;
+    void apps_context.loadPrivacyNotice(selectedAppUuid, false);
+
+  }, [apps_context.loadPrivacyNotice, canReadPrivacyNotice, selectedAppUuid]);
+
+  const onClaimManagedApplication = async () => {
+    if (!selectedAppUuid) return;
+    setManagementError(undefined);
+    setClaimingApp(true);
+    try {
+      await apps_context.claimManagedApplication(selectedAppUuid);
+    } catch (err) {
+      setManagementError(err instanceof Error ? err.message : "Errore inatteso");
+    } finally {
+      setClaimingApp(false);
+    }
+  };
+
+  const onAssignDpo = async () => {
+    if (!selectedAppUuid) return;
+    if (!selectedDpoUuid) {
+      setManagementError("Seleziona un DPO.");
+      return;
+    }
+    setManagementError(undefined);
+    setAssigningDpo(true);
+    try {
+      await apps_context.assignDpoToManagedApplication(selectedAppUuid, selectedDpoUuid);
+    } catch (err) {
+      setManagementError(err instanceof Error ? err.message : "Errore inatteso");
+    } finally {
+      setAssigningDpo(false);
+    }
+  };
 
   return (
     <Container className="py-3">
@@ -165,10 +252,26 @@ export function Apps() {
                       </div>
                     ) : undefined}
 
-                    <Container fluid className="d-flex flex-wrap gap-2 ps-0">
+                    <Container fluid className="d-flex flex-wrap gap-2 ps-0">                    
                       <Link
-                        className="btn btn-outline-secondary btn-sm"
+                        className={[
+                          "btn btn-sm border-2",
+                          //se selectedApp è definita e canReadPrivacyNotice è vera allora possiamo valutare correttamente il contenuto di pn
+                          (!selectedApp || !canReadPrivacyNotice)? "btn-outline-secondary disabled" //se no disabilitiamo perchè significa che non possiamo leggere il privacy notice
+                              : pn === undefined
+                              ? "btn-outline-secondary" //se pn undefined significa che non è mai stato scaricato o tentativo di fetch è fallito
+                              : pn === null
+                                ? "btn-outline-danger" //se pn null significa che il pn manca e possiamo crearne uno nuovo
+                                : "btn-outline-success", //se pn non è null significa che il pn è presente e leggibile
+                        ].join(" ")}
                         to="/privacy-notice"
+                        aria-disabled={!selectedApp || !canReadPrivacyNotice}
+                        onClick={(e) => {
+                          if (!selectedApp || !canReadPrivacyNotice) {
+                            e.preventDefault();
+                            //andiamo dentro privacy notice dove possiamo modificarlo
+                          }
+                        }}
                       >
                         Privacy Notice
                       </Link>
@@ -238,6 +341,71 @@ export function Apps() {
                           </Card.Body>
                         </Card>
                       </Col>
+                    </Row>
+
+                    <Row>
+                      {isDataController && selectedApp ? (
+                      <Card className="p-0">
+                        <Card.Body className="d-flex flex-column gap-2">
+                          <strong>Management</strong>
+
+                          {managementError ? (
+                            <div className="text-danger small">
+                              {managementError}
+                            </div>
+                          ) : undefined}
+
+                          {!isManagedByMe ? (
+                            <Button
+                              size="sm"
+                              variant="primary"
+                              disabled={claimingApp}
+                              onClick={onClaimManagedApplication}
+                            >
+                              {claimingApp ? "Claiming…" : "Claim application"}
+                            </Button>
+                          ) : selectedApp.dpo ? (
+                            <div className="text-muted small">
+                              DPO già assegnato:{" "}
+                              {`${selectedApp.dpo.firstname} ${selectedApp.dpo.lastname}`.trim() ||
+                                selectedApp.dpo.email}
+                            </div>
+                          ) : (
+                            <>
+                              <Form.Select
+                                size="sm"
+                                value={selectedDpoUuid}
+                                onChange={(e) => setSelectedDpoUuid(e.target.value)}
+                                disabled={loadingDpos || assigningDpo || !dpos?.length}
+                              >
+                                {(!dpos || dpos.length === 0) && (
+                                  <option value="" disabled>
+                                    {loadingDpos ? "Loading DPOs…" : "No DPOs available"}
+                                  </option>
+                                )}
+                                {dpos?.map((dpo) => (
+                                  <option key={dpo.uuid} value={dpo.uuid}>
+                                    {`${dpo.firstname} ${dpo.lastname}`.trim() ||
+                                      dpo.email}
+                                  </option>
+                                ))}
+                              </Form.Select>
+
+                              <Button
+                                size="sm"
+                                variant="outline-primary"
+                                disabled={
+                                  assigningDpo || loadingDpos || !selectedDpoUuid
+                                }
+                                onClick={onAssignDpo}
+                              >
+                                {assigningDpo ? "Assigning…" : "Assign DPO"}
+                              </Button>
+                            </>
+                          )}
+                        </Card.Body>
+                      </Card>
+                    ) : undefined}
                     </Row>
 
                     {selectedApp.questionnaire_summary ? (

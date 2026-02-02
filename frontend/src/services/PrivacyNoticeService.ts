@@ -3,7 +3,54 @@ import {
   getPrivacyNoticeByManagedApplicationUuid,
   writePrivacyNoticeByManagedApplicationUuid,
   removePrivacyNoticeByManagedApplicationUuid,
+  getPrivacyNoticeByInstalledApplicationUuid
 } from "../API/GDPR/privacyNoticeAPI";
+
+import {
+  PrivacyNotice
+} from "../models/privacy_notice"
+import { Role } from "../models/user";
+
+type PrivacyNoticeDto = {
+  uuid: string,
+  content: string
+}
+
+
+const toPrivacyNoticeModel = (privacy_notice: PrivacyNoticeDto): PrivacyNotice => {
+
+  const model = new PrivacyNotice(
+    privacy_notice.uuid,
+    privacy_notice.content
+  );
+
+  return model;
+};
+
+
+export const fetchManagedPrivacyNotice = async (applicationUuid: string): Promise<PrivacyNotice | null> => {
+  try {
+    const privacy_notice = (await getPrivacyNoticeByManagedApplicationUuid(applicationUuid)) as PrivacyNoticeDto | null;
+    if (privacy_notice === null) {
+      return null
+    }
+    return toPrivacyNoticeModel(privacy_notice);
+  } catch (err) {
+     throw err
+  }
+};
+
+export const fetchInstalledPrivacyNotice = async (applicationUuid: string): Promise<PrivacyNotice | null> => {
+  try {
+    const privacy_notice = (await getPrivacyNoticeByInstalledApplicationUuid(applicationUuid)) as PrivacyNoticeDto | null;
+    if (privacy_notice === null) {
+      return null
+    }
+    return toPrivacyNoticeModel(privacy_notice);
+  } catch (err) {
+     throw err
+  }
+};
 
 
 export const fetchPrivacyNoticeTemplate = async () => {
@@ -17,18 +64,22 @@ export const fetchPrivacyNoticeTemplate = async () => {
     }
   };
 
-export  const handleGetPrivacyNotice = async (applicationUuid: string) => {
+export  const handleFetchPrivacyNotice = async (applicationUuid: string, role: Role) => {
     try {
       console.log(
         "Trying to get Privacy Notice for application: ",
         applicationUuid,
       );
-      const result =
-        await getPrivacyNoticeByManagedApplicationUuid(applicationUuid);
-      console.log("Privacy Notice retrieved successfully: ", result);
+      let result: PrivacyNotice | null;
+      if (role === Role.DataSubject) {
+        result = await fetchInstalledPrivacyNotice(applicationUuid)
+      } else {
+        result = await fetchManagedPrivacyNotice(applicationUuid)
+      }
+      //console.log("Privacy Notice retrieved successfully: ", result);
       return result;
     } catch (err) {
-      console.error("Error getting privacy notice:", err);
+      throw err
     }
   };
 

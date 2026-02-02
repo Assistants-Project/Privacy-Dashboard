@@ -12,7 +12,7 @@ from ..schemas import (
     
 )
 from ..services import ApplicationService
-from ..utils import dc_or_dpo_required, ds_required, logged_in_required
+from ..utils import dc_or_dpo_required, dc_required, ds_required, logged_in_required
 from ..models import UserRole
 
 application_bp = Blueprint(
@@ -36,6 +36,26 @@ def get_managed_applications(current_user):
 @dc_or_dpo_required()
 def get_available_applications(current_user):
     return ApplicationService.get_available_applications_service()
+
+#serve per permettere ad un data controller di assegnarsi ad un app (visto che manca un marketplace che lo aggiunge)
+@application_bp.route("/managed/<application_uuid>", methods=["POST"])
+@application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
+@dc_required()
+def claim_managed_application(application_uuid, current_user):
+    created = ApplicationService.claim_application(current_user, application_uuid)
+    return "", 201 if created else 204
+
+#serve per permettere ad un data controller di assegnare un dpo a scelta ad un app se conosce il suo uuid
+@application_bp.route("/managed/<application_uuid>/dpo", methods=["PUT"])
+@application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
+@dc_required()
+def assign_dpo_to_application(application_uuid, current_user):
+    payload = request.get_json(silent=True) or {}
+    dpo_uuid = payload.get("dpo_uuid")
+    created = ApplicationService.assign_dpo_to_managed_application(
+        current_user, application_uuid, dpo_uuid
+    )
+    return "", 201 if created else 204
 
 @application_bp.route("/refresh", methods=["POST"])
 @application_bp.response(202, description="Refresh started")

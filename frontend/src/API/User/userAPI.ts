@@ -1,4 +1,5 @@
 import baseURL from "../baseUrl";
+import { getApiError } from "../apiError";
 
 async function getContacts() {
   let response = await fetch(baseURL + "users/contacts", {
@@ -16,6 +17,20 @@ async function getContacts() {
 
     throw new Error("Something went wrong");
   }
+}
+
+//serve per poter scegliere il dpo da assegnare
+async function getDpos() {
+  const response = await fetch(baseURL + "users/dpos", {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (response.ok) {
+    return await response.json();
+  }
+
+  throw await getApiError(response);
 }
 
 async function getMessagedContacts() {
@@ -36,4 +51,4 @@ async function getMessagedContacts() {
   }
 }
 
-export { getContacts, getMessagedContacts };
+export { getContacts, getDpos, getMessagedContacts };

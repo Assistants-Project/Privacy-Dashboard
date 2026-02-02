@@ -41,6 +41,11 @@ class UserRepository:
         return db.session.scalar(statement)
 
     @staticmethod
+    def get_users_by_role(role: UserRole) -> Iterator[User]:
+        statement = db.select(User).where(User.role == role)
+        return db.session.scalars(statement)
+
+    @staticmethod
     def get_users_by_application_id_and_user_role(
         application_id: int, role: UserRole
     ) -> Iterator[User]:

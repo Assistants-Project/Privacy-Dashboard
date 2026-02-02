@@ -12,7 +12,7 @@ from ..schemas import (
     PrivacyNoticeResSchema,
 )
 from ..services import PrivacyNoticeService
-from ..utils import dc_or_dpo_required
+from ..utils import dc_or_dpo_required, ds_required
 
 privacy_notice_bp = Blueprint(
     "Privacy Notices API",
@@ -32,6 +32,20 @@ def get_privacy_notice_by_managed_application_uuid(
     return PrivacyNoticeService.get_privacy_notice_by_dc_or_dpo_id_and_application_uuid(
         current_user.id, application_uuid
     )
+
+@privacy_notice_bp.route("/installed-application/<application_uuid>", methods=["GET"])
+@privacy_notice_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
+@privacy_notice_bp.response(200, PrivacyNoticeResSchema)
+@ds_required()
+def get_privacy_notice_by_installed_application_uuid(
+    application_uuid: UUID, current_user
+):
+    privacy_notice = PrivacyNoticeService.get_privacy_notice_by_ds_id_and_application_uuid(
+        current_user.id, application_uuid
+    )
+    if privacy_notice is None:
+        return Response(status=204)
+    return privacy_notice
 
 
 @privacy_notice_bp.route("/template", methods=["GET"])

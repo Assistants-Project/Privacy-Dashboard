@@ -1,20 +1,26 @@
 import json
 from datetime import datetime
 from typing import List, TypedDict
+from uuid import UUID
 
 from jsonschema import ValidationError, validate
 
 from .. import initial_data
 from ..exceptions import (
     ApplicationNotFoundException,
+    ApplicationNotManagedException,
+    DpoAlreadyAssignedException,
     InvalidPrivacyImpactAssessmentException,
+    MissingDpoUuidException,
     MissingPrivacyImpactAssessmentException,
     MissingValidationSchemaException,
     PrivacyImpactAssessmentNotFoundException,
     SmartHomeNotFoundException,
+    UserNotFoundException,
+    WrongUserRoleException,
 )
 from ..models import Application
-from ..repositories import ApplicationRepository, SmartHomeRepository
+from ..repositories import ApplicationRepository, SmartHomeRepository, UserRepository
 
 from ..models import UserRole
 from ..models import User
@@ -231,3 +237,85 @@ class ApplicationService:
 
             ApplicationRepository.upsert_applications(applications_payload)
             db.session.commit()
+
+    @staticmethod
+    def claim_application(current_user: User, application_uuid) -> bool:
+        # Permette ad un Data Controller di "prendersi in carico" (claim) un'app
+        # Se la relazione DC-App non esiste, la crea e ritorna True (201)
+        # Se la relazione esiste già, non cambia nulla e ritorna False (204)
+        if current_user.role != UserRole.DATA_CONTROLLER:
+            raise WrongUserRoleException("User is not a Data Controller!")
+
+        application = ApplicationRepository.get_application_by_uuid(application_uuid)
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found!"
+            )
+
+        created = ApplicationRepository.ensure_application_managed_by_user(
+            current_user.id, application.id
+        )
+        db.session.commit()
+        return created
+
+    @staticmethod
+    def assign_dpo_to_managed_application(
+        current_user: User,
+        application_uuid,
+        dpo_uuid: UUID | str | None = None,
+    ) -> bool:
+        # Assegna un DPO ad una app gestita da questo Data Controller.
+        # Regole:
+        # - il Data Controller deve già gestire l'app (altrimenti 403)
+        # - dpo_uuid è obbligatorio (400)
+        # - se l'app ha già un DPO diverso assegnato - 409
+        # - se l'app ha già lo stesso DPO assegnato - ritorna False (204)
+        # - se non c'è ancora un DPO assegnato - assegna e ritorna True (201)
+        if current_user.role != UserRole.DATA_CONTROLLER:
+            raise WrongUserRoleException("User is not a Data Controller!")
+
+        managed_application = (
+            ApplicationRepository.get_application_by_user_id_and_application_uuid(
+                current_user.id, application_uuid
+            )
+        )
+        if not managed_application:
+            raise ApplicationNotManagedException(
+                f"Application with uuid {application_uuid} is not managed by the current Data Controller!"
+            )
+
+        if dpo_uuid is None:
+            raise MissingDpoUuidException("dpo_uuid is required!")
+
+        # Recuperiamo il DPO richiesto e verifichiamo che esista e abbia ruolo corretto.
+        parsed_uuid = dpo_uuid
+        if isinstance(parsed_uuid, str):
+            parsed_uuid = UUID(parsed_uuid)
+        dpo_user = UserRepository.get_user_by_uuid(parsed_uuid)
+        if not dpo_user:
+            raise UserNotFoundException(f"User with uuid {parsed_uuid} not found!")
+        if dpo_user.role != UserRole.DATA_PROTECTION_OFFICER:
+            raise WrongUserRoleException("User is not a Data Protection Officer!")
+
+        # Se c'è già un DPO assegnato:
+        # - se è lo stesso: no content (204)
+        # - se è diverso: conflict (409)
+        assigned_dpo_user_ids = ApplicationRepository.get_dpo_user_ids_for_application(
+            managed_application.id
+        )
+        if assigned_dpo_user_ids and assigned_dpo_user_ids != {dpo_user.id}:
+            raise DpoAlreadyAssignedException(
+                "A different Data Protection Officer has already been assigned to this application!"
+            )
+        if assigned_dpo_user_ids == {dpo_user.id}:
+            ApplicationRepository.assign_dpo_for_application(
+                managed_application.id, dpo_user.id
+            )
+            db.session.commit()
+            return False
+
+        ApplicationRepository.assign_dpo_for_application(
+            managed_application.id, dpo_user.id
+        )
+        db.session.commit()
+        return True

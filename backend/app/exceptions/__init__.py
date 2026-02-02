@@ -5,7 +5,10 @@ from .auth_exceptions import (
 )
 from .entities.application_exceptions import (
     ApplicationNotFoundException,
+    ApplicationNotManagedException,
+    DpoAlreadyAssignedException,
     InvalidPrivacyImpactAssessmentException,
+    MissingDpoUuidException,
     MissingPrivacyImpactAssessmentException,
     MissingTemplateException,
     MissingValidationSchemaException,
@@ -61,7 +64,10 @@ __all__ = [
     "InvalidJWTException",
     "MissingJWTException",
     "ApplicationNotFoundException",
+    "ApplicationNotManagedException",
+    "DpoAlreadyAssignedException",
     "InvalidPrivacyImpactAssessmentException",
+    "MissingDpoUuidException",
     "MissingPrivacyImpactAssessmentException",
     "MissingTemplateException",
     "MissingValidationSchemaException",
