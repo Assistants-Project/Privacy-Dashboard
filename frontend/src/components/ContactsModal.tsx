@@ -1,8 +1,8 @@
-import { Form, ListGroup, Modal, Row } from "react-bootstrap";
-import { Role, User } from "../../models/user";
+import { Form, ListGroup, Modal } from "react-bootstrap";
+import { User } from "../models/user";
 
 import { useEffect, useState } from "react";
-import { getContacts } from "../../API/User/userAPI";
+import { fetchContacts } from "../services/MessageService";
 
 export function ContactsModal(props: any) {
   const [contacts, setContacts] = useState<User[] | undefined>(undefined);
@@ -18,34 +18,10 @@ export function ContactsModal(props: any) {
     }
   }, [props.show]);
 
-  const fetchContacts = async (): Promise<User[] | undefined> => {
-    try {
-      const contacts = await getContacts();
-      return contacts.map(
-        (contact: any) =>
-          ({
-            uuid: contact.uuid,
-            email: contact.email,
-            firstname: contact.firstname,
-            lastname: contact.lastname,
-            role: contact.role as Role,
-          }) as User,
-      );
-    } catch (err) {
-      console.error("Error fetching contacts:", err);
-    }
-  };
-
   return (
     <>
       {contacts && (
-        <Modal
-          {...props}
-          size="lg"
-          aria-labelledby="contained-modal-title-vcenter"
-          centered
-          animation={false}
-        >
+        <Modal {...props} size="lg" centered animation={false}>
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
               <h5 className="mb-3">Select a contact to start a new chat</h5>
