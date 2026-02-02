@@ -76,6 +76,30 @@ body {
   max-width: 100%;
   white-space: pre-wrap;
   word-break: break-word;
+  position: relative;
+  border-radius: 10px;
+}
+
+/* https://codepen.io/Founts/pen/AJyVOr */
+.message-bubble-sent:after {
+  content: "";
+  position: absolute;
+  left: auto;
+  right: -10px;
+  top: auto;
+  bottom: 0px;
+  border: 10px solid;
+  border-color: transparent transparent #0d6efd transparent;
+}
+.message-bubble-received:after {
+  content: "";
+  position: absolute;
+  left: -10px;
+  right: auto;
+  top: auto;
+  bottom: 0px;
+  border: 10px solid;
+  border-color: transparent transparent #6c757d transparent;
 }
 
 .muted {

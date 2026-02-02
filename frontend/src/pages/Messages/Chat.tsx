@@ -5,7 +5,6 @@ import { User } from "../../models/user";
 import { useEffect, useRef, useState } from "react";
 import { Message } from "../../models/message";
 import { getMessagesByUserUuid } from "../../API/Message/messageAPI";
-import { formatIsoDateOrTime } from "./Messages";
 
 interface MessageResSchema {
   message: Message;
@@ -37,14 +36,17 @@ export function Chat({ selectedContact }: { selectedContact: User }) {
     }
   }, [messageHistory]);
 
-  const nextBelongsToSameGroup = (current: number, next: number): boolean => {
+  const nextBelongsToOtherGroup = (current: number, next: number): boolean => {
+    if (!messageHistory) return false;
     return (
-      messageHistory![current].senderUuid ===
-        messageHistory![next].senderUuid &&
-      isSameUpToMinute(
-        messageHistory![current].message.sentAt,
-        messageHistory![next].message.sentAt,
-      )
+      (current < messageHistory.length - 1 &&
+        (messageHistory![current].senderUuid !==
+          messageHistory![next].senderUuid ||
+          !isSameUpToMinute(
+            messageHistory![current].message.sentAt,
+            messageHistory![next].message.sentAt,
+          ))) ||
+      current === messageHistory.length - 1
     );
   };
 
@@ -86,26 +88,20 @@ export function Chat({ selectedContact }: { selectedContact: User }) {
           {messageHistory.map((messageRes, index) => (
             <Col
               key={messageRes.message.uuid}
-              className={`col-8 align-self-${messageRes.senderUuid === user?.uuid ? "end" : "start"} justify-content-${messageRes.senderUuid === user?.uuid ? "end" : "start"} d-flex flex-wrap px-2 pt-1 pb-${
-                (index < messageHistory.length - 1 &&
-                  !nextBelongsToSameGroup(index, index + 1)) ||
-                index === messageHistory.length - 1
-                  ? 2
-                  : 0
+              className={`col-8 align-self-${messageRes.senderUuid === user?.uuid ? "end" : "start"} justify-content-${messageRes.senderUuid === user?.uuid ? "end" : "start"} d-flex flex-wrap px-3 pt-1 pb-${
+                nextBelongsToOtherGroup(index, index + 1) ? 2 : 0
               }`}
             >
               <div
-                className={`bg-${messageRes.senderUuid === user?.uuid ? "primary" : "secondary"} text-white rounded p-2 message-bubble`}
+                className={`bg-${messageRes.senderUuid === user?.uuid ? "primary" : "secondary"} text-white py-2 px-3 message-bubble ${nextBelongsToOtherGroup(index, index + 1) ? "message-bubble-" + (messageRes.senderUuid === user?.uuid ? "sent" : "received") : ""}`}
               >
                 {messageRes.message.content}
-              </div>{" "}
-              <div
-                className={`w-100 text-${messageRes.senderUuid === user?.uuid ? "end" : "start"} text-muted`}
-              >
-                {((index < messageHistory.length - 1 &&
-                  !nextBelongsToSameGroup(index, index + 1)) ||
-                  index === messageHistory.length - 1) &&
-                  formatIsoDateOrTime(messageRes.message.sentAt)}{" "}
+                <div
+                  className="text-end"
+                  style={{ fontSize: "0.8rem", opacity: 0.8 }}
+                >
+                  {formatIsoDateTime(messageRes.message.sentAt)}
+                </div>
               </div>
             </Col>
           ))}
@@ -128,4 +124,29 @@ function isSameUpToMinute(a: string, b: string): boolean {
     d1.getHours() === d2.getHours() &&
     d1.getMinutes() === d2.getMinutes()
   );
+}
+
+function formatIsoDateTime(isoString: string): string {
+  const dt = new Date(isoString);
+
+  // Today's midnight
+  const now = new Date();
+  const todayMidnight = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  );
+
+  const hours = String(dt.getHours()).padStart(2, "0");
+  const minutes = String(dt.getMinutes()).padStart(2, "0");
+  if (dt >= todayMidnight) {
+    // Same day: return HH:MM
+    return `${hours}:${minutes}`;
+  } else {
+    // Previous day: return HH:MM DD/MM/YYYY
+    const day = String(dt.getDate()).padStart(2, "0");
+    const month = String(dt.getMonth() + 1).padStart(2, "0");
+    const year = dt.getFullYear();
+    return `${hours}:${minutes} ${day}/${month}/${year}`;
+  }
 }

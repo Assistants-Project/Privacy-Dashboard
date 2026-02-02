@@ -248,7 +248,7 @@ export function Messages() {
   );
 }
 
-export function formatIsoDateOrTime(isoString: string): string {
+function formatIsoDateOrTime(isoString: string): string {
   const dt = new Date(isoString);
 
   // Today's midnight
