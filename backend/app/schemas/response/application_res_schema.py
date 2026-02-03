@@ -1,6 +1,7 @@
 from ...extensions import ma
 from ...models import Application
 from .user_res_schema import UserResSchema 
+from marshmallow import validate
 
 
 class ApplicationSchema(ma.SQLAlchemyAutoSchema):
@@ -16,14 +17,18 @@ class ApplicationResSchema(ma.Schema):
     application = ma.Nested(ApplicationSchema)
     installed_at = ma.DateTime()
 
-class ApplicationCatalogItemResSchema(ma.Schema):
+DOC_STATUS_VALUES = ("AVAILABLE", "MISSING", "FORBIDDEN")
+
+class ApplicationWithManagersBaseResSchema(ma.Schema):
     application = ma.Nested(ApplicationSchema, required=True)
     data_controllers = ma.List(ma.Nested(UserResSchema), required=True)
     dpo = ma.Nested(UserResSchema, required=True, allow_none=True)
+    pn_status = ma.String(required=True, validate=validate.OneOf(DOC_STATUS_VALUES))
+    pia_status = ma.String(required=True, validate=validate.OneOf(DOC_STATUS_VALUES))
 
 
-class InstalledApplicationWithManagersResSchema(ma.Schema):
-    application = ma.Nested(ApplicationSchema, required=True)
+class ApplicationCatalogItemResSchema(ApplicationWithManagersBaseResSchema):
+    pass
+
+class InstalledApplicationWithManagersResSchema(ApplicationWithManagersBaseResSchema):
     installed_at = ma.DateTime(required=True)
-    data_controllers = ma.List(ma.Nested(UserResSchema), required=True)
-    dpo = ma.Nested(UserResSchema, required=True, allow_none=True)

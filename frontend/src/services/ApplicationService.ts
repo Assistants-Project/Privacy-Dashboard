@@ -6,7 +6,7 @@ import {
   assignDpoToManagedApplication,
   UpdateApps
 } from "../API/Applications/applicationAPI";
-import {AppModel} from "../models/app"
+import { AppModel, DocumentStatus } from "../models/app"
 import { Evaluation } from "../models/question";
 import { Role, User } from "../models/user";
 
@@ -48,11 +48,15 @@ type InnerApplicationDto = {
   questionnaire_summary?: string | null;
 };
 
+type DocumentStatusDto = "AVAILABLE" | "MISSING" | "FORBIDDEN";
+
 type ApplicationDto = {
   application: InnerApplicationDto;
   installed_at?: string;  //può non essere presente se è un data controller a fare richiesta dell'app da catalogo
   data_controllers: UserDto[];
   dpo: UserDto | null;
+  pn_status?: DocumentStatusDto; //di solito sempre presente
+  pia_status?: DocumentStatusDto;
 };
 
 //serve per nornalizzare un parametro che nel caso sia un oggetto null venga tradotta in undefined, mentre
@@ -67,6 +71,11 @@ const normalizeOptionalString = (value: unknown): string | undefined =>
 const normalizeOptionalEvaluation = (value: unknown): Evaluation | undefined =>
   value === Evaluation.GREEN || value === Evaluation.ORANGE || value === Evaluation.RED
     ? value
+    : undefined;
+
+const normalizeOptionalDocumentStatus = (value: unknown): DocumentStatus | undefined =>
+  value === "AVAILABLE" || value === "MISSING" || value === "FORBIDDEN"
+    ? (value as DocumentStatus)
     : undefined;
 
 
@@ -98,6 +107,8 @@ const toAppModel = (dto: ApplicationDto): AppModel => {
 
   //type guard minima
   model.dpo = dto.dpo?.role === Role.DPO ? toUserModel(dto.dpo as UserDto) : undefined;
+  model.pn_status = normalizeOptionalDocumentStatus(dto.pn_status);
+  model.pia_status = normalizeOptionalDocumentStatus(dto.pia_status);
 
   return model;
 };

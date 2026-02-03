@@ -16,16 +16,29 @@ import { handleFetchPrivacyNotice } from "../services/PrivacyNoticeService";
 type AppsContextValue = {
 
     apps: AppModel[] | undefined; //per data subject sono le installed apps, per data controller / dpo sono le catalog apps
-    managedApps: AppModel[]; //sottoinsieme derivato da `apps` (per DS coincide con `apps`)
-    loadingApps: boolean;
-    updatingApps: boolean;
-    errorApps: string | undefined;
-    errorUpdatingApps: string | undefined;
-    PrivacyNoticeByAppUUID: Record<string, PrivacyNotice | null | undefined>
+    selectedAppUUID: string | undefined; //è l'uuid dell'app selezionata dal sistema Catalog/InstalledApp/PIA/PN
+    selectedApp: AppModel | undefined; //l'app selezionata corrente dal sistema Catalog/InstalledApp/PIA/PN
+    managedApps: AppModel[]; //sottoinsieme derivato da apps (per DS coincide con apps)
+    loadingApps: boolean; //indica se è in corso un fetch delle apps dal backend
+    errorApps: string | undefined; //indica se c'è stato un errore durante il fetch delle apps dal backend
+    updatingApps: boolean; //indica se è in corso un update delle apps nel backend (attraverso un refresh)
+    errorUpdatingApps: string | undefined; //indica se c'è stato un errore durante il refresh del backend
+    PrivacyNoticeByAppUUID: Record<string, PrivacyNotice | null | undefined> //record cache dei PN
 
+
+    //espone modo per cambiare app selezionata
+    setSelectedAppUUID: (uuid: string | undefined) => void
+
+    //ritorna il privacy notice in cache o recupera la versione più recente se refresh è true
     loadPrivacyNotice: (appUUID: string, force: boolean) => Promise<PrivacyNotice | null | undefined>
+
+
+    //da valutare se mettere in un hook separato, se lo faccio devo però esporre load apps
     claimManagedApplication: (appUUID: string) => Promise<boolean | undefined>
     assignDpoToManagedApplication: (appUUID: string, dpoUUID: string) => Promise<boolean | undefined>
+    ///
+
+    //permette di forzare un aggiornamento del backend della parte apps
     syncApps: () => Promise<void>;
 
 };
@@ -39,12 +52,36 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     const { current_home_uuid, loadingHomes } = useHome();
 
     const [PrivacyNoticeByAppUUID, setPrivacyNoticeByAppUUID] = useState<Record<string, PrivacyNotice | null | undefined>>({});
+    const [selectedAppUUID, setInnerSelectedAppUUID] = useState<string | undefined>(undefined);
 
     const [apps, setApps] = useState<AppModel[] | undefined>(undefined);
     const [loadingApps, setLoadingApps] = useState(true);
     const [updatingApps, setUpdatingApps] = useState(false);
     const [errorApps, setErrorApps] = useState<string | undefined>(undefined);
     const [errorUpdatingApps, setErrorUpdatingApps] = useState<string | undefined>(undefined);
+
+
+    const setSelectedAppUUID = useCallback((uuid: string | undefined) => {
+        //possiamo aggiungere logica extra
+        setInnerSelectedAppUUID(uuid);
+    }, []);
+
+
+    const selectedApp = useMemo<AppModel | undefined>(() => {
+
+        if (!user) return undefined;
+        if (!apps) return undefined;
+
+        if (selectedAppUUID) {
+            const selectedApp = apps.find(
+                (app) => app.uuid === selectedAppUUID,
+            );
+            return selectedApp
+        } else {
+            return undefined
+        }
+
+    }, [apps, selectedAppUUID]);
 
 
     const managedApps = useMemo<AppModel[]>(() => {
@@ -141,30 +178,6 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
         }
     }, [user]);
 
-    const claimManagedApplication = useCallback(async (appUUID: string): Promise<boolean | undefined> => {
-
-        if (!user) return undefined;
-        if (user.role !== Role.DatController) return undefined;
-
-        const created = await claimApplicationAsDataController(appUUID);
-        await loadApps();
-        return created;
-    },
-        [loadApps, user],
-    );
-
-    const assignDpoToManagedApplication = useCallback(async (appUUID: string, dpoUUID: string): Promise<boolean | undefined> => {
-
-        if (!user) return undefined;
-        if (user.role !== Role.DatController) return undefined;
-
-        const created = await assignDpoToApplication(appUUID, dpoUUID);
-        await loadApps();
-        return created;
-    },
-        [loadApps, user],
-    );
-
 
     const loadPrivacyNotice = useCallback(async (appUUID: string, force: boolean): Promise<PrivacyNotice | null | undefined> => {
         if (!user) return undefined;
@@ -199,6 +212,29 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     );
 
 
+    const claimManagedApplication = useCallback(async (appUUID: string): Promise<boolean | undefined> => {
+
+        if (!user) return undefined;
+        if (user.role !== Role.DatController) return undefined;
+
+        const created = await claimApplicationAsDataController(appUUID);
+        await loadApps();
+        return created;
+    },
+        [loadApps, user],
+    );
+
+    const assignDpoToManagedApplication = useCallback(async (appUUID: string, dpoUUID: string): Promise<boolean | undefined> => {
+
+        if (!user) return undefined;
+        if (user.role !== Role.DatController) return undefined;
+
+        const created = await assignDpoToApplication(appUUID, dpoUUID);
+        await loadApps();
+        return created;
+    },
+        [loadApps, user],
+    );
 
 
     //per ottimizzare il caricamento riguardare meglio
@@ -211,10 +247,14 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
             updatingApps,
             errorApps,
             errorUpdatingApps,
+            selectedAppUUID,
+            selectedApp,
             syncApps,
             claimManagedApplication,
             assignDpoToManagedApplication,
             loadPrivacyNotice,
+            setSelectedAppUUID
+
         }),
         [
             apps,
@@ -224,6 +264,8 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
             updatingApps,
             errorApps,
             errorUpdatingApps,
+            selectedAppUUID,
+            selectedApp,
             syncApps,
             claimManagedApplication,
             assignDpoToManagedApplication,

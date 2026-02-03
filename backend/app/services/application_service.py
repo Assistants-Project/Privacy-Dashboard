@@ -37,15 +37,23 @@ class ApplicationCatalogItem(TypedDict):
     application: Application
     data_controllers: list[User]
     dpo: User | None
+    pn_status: str
+    pia_status: str
 
 class InstalledApplicationWithManagersDict(TypedDict):
     application: Application
     installed_at: datetime
     data_controllers: list[User]
     dpo: User | None
+    pn_status: str
+    pia_status: str
 
 
 class ApplicationService:
+    DOC_STATUS_AVAILABLE = "AVAILABLE"
+    DOC_STATUS_MISSING = "MISSING"
+    DOC_STATUS_FORBIDDEN = "FORBIDDEN"
+
     @staticmethod
     def get_applications_by_dc_or_dpo_id(
         user_id: int,
@@ -103,6 +111,12 @@ class ApplicationService:
                     "installed_at": installed_at,
                     "data_controllers": [],
                     "dpo": None,
+                    "pn_status": (
+                        ApplicationService.DOC_STATUS_AVAILABLE
+                        if app.privacy_notice_id is not None
+                        else ApplicationService.DOC_STATUS_MISSING
+                    ),
+                    "pia_status": ApplicationService.DOC_STATUS_FORBIDDEN,
                 },
             )
             if manager is None:
@@ -194,7 +208,7 @@ class ApplicationService:
         )
 
     @staticmethod
-    def get_available_applications_service() -> List[ApplicationCatalogItem]:
+    def get_available_applications_service(current_user: User) -> List[ApplicationCatalogItem]:
         res = ApplicationRepository.get_available_application()
         catalog = {}
 
@@ -202,7 +216,13 @@ class ApplicationService:
 
             item = catalog.setdefault(
                 app.id,
-                {"application": app, "data_controllers": [], "dpo": None},
+                {
+                    "application": app,
+                    "data_controllers": [],
+                    "dpo": None,
+                    "pn_status": ApplicationService.DOC_STATUS_FORBIDDEN,
+                    "pia_status": ApplicationService.DOC_STATUS_FORBIDDEN,
+                },
             )
             if not user:
                 continue
@@ -210,6 +230,32 @@ class ApplicationService:
                 item["data_controllers"].append(user)
             elif item["dpo"] is None:
                 item["dpo"] = user
+
+        for item in catalog.values():
+            is_managed_by_me = False
+            if current_user.role == UserRole.DATA_CONTROLLER:
+                is_managed_by_me = any(
+                    dc.id == current_user.id for dc in item["data_controllers"]
+                )
+            elif current_user.role == UserRole.DATA_PROTECTION_OFFICER:
+                is_managed_by_me = (
+                    item["dpo"] is not None and item["dpo"].id == current_user.id
+                )
+
+            if not is_managed_by_me:
+                continue
+
+            app = item["application"]
+            item["pn_status"] = (
+                ApplicationService.DOC_STATUS_AVAILABLE
+                if app.privacy_notice_id is not None
+                else ApplicationService.DOC_STATUS_MISSING
+            )
+            item["pia_status"] = (
+                ApplicationService.DOC_STATUS_AVAILABLE
+                if app.privacy_impact_assessment is not None
+                else ApplicationService.DOC_STATUS_MISSING
+            )
         
         return list(catalog.values())
     

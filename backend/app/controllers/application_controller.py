@@ -35,7 +35,7 @@ def get_managed_applications(current_user):
 @application_bp.response(200, ApplicationCatalogItemResSchema(many=True))
 @dc_or_dpo_required()
 def get_available_applications(current_user):
-    return ApplicationService.get_available_applications_service()
+    return ApplicationService.get_available_applications_service(current_user)
 
 #serve per permettere ad un data controller di assegnarsi ad un app (visto che manca un marketplace che lo aggiunge)
 @application_bp.route("/managed/<application_uuid>", methods=["POST"])
