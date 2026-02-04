@@ -14,7 +14,7 @@ import { SubmitRightRequestModal } from "../../components/Rights/RightRequestSub
 export function Apps() {
 
   const { user, loading } = useAuth();
-  const {loadingApps,selectedApp,setSelectedAppUUID,selectedAppUUID,errorApps,apps} = useApp();
+  const { loadingApps, selectedApp, setSelectedAppUUID, selectedAppUUID, errorApps, apps } = useApp();
 
   const [query, setQuery] = useState("");
   const [showSubmitRightModal, setShowSubmitRightModal] = useState(false);
@@ -174,21 +174,6 @@ export function Apps() {
 
                     <Container fluid className="d-flex flex-wrap gap-2 ps-0">
                       <Link
-                        className="btn btn-outline-primary btn-sm"
-                        to="/rights"
-                      >
-                        {isDataSubject ? "Rights" : "Requests"}
-                      </Link>
-                      {isDataSubject ? (
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          onClick={() => setShowSubmitRightModal(true)}
-                        >
-                          Exercise a right
-                        </Button>
-                      ) : undefined}
-                      <Link
                         className={[
                           "btn btn-sm border-2",
                           PNforbidden ? "btn-outline-secondary disabled" //se no disabilitiamo perchè significa che non possiamo leggere il privacy notice
@@ -207,7 +192,7 @@ export function Apps() {
                         Privacy Notice
                       </Link>
                       <Link
-                        className="btn btn-outline-secondary btn-sm"
+                        className="btn btn-sm border-2 btn-outline-secondary btn-sm disabled"
                         to="/questionnaire"
                       >
                         Questionnaire
@@ -285,11 +270,32 @@ export function Apps() {
                         </Card>
                       </Col>
                     </Row>
+                    <Row>
+                      <Col>
+                        <Card className="h-100 p-0">
+                          <Card.Body>
+                            <strong>Actions</strong>
+                            <div className="mt-2" />
+                            {isDataSubject ? (
+                              <Button variant="outline-primary" size="sm" onClick={() => setShowSubmitRightModal(true)}>
+                                Exercise a right
+                              </Button>
+                            ) : ( 
+                                <Button variant={(PIAforbidden || PNforbidden)? "btn-outline-secondary disabled" : "outline-primary"} size="sm" onClick={() => setShowSubmitRightModal(true)}>
+                                Manage Rights
+                              </Button>
+                            )}
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    </Row>
 
                     <Row>
+                      <Col>
                       {isDataController && selectedApp ? (
                         <AppAssignmentPanel />
                       ) : undefined}
+                      </Col>
                     </Row>
 
                     {selectedApp.questionnaire_summary ? (

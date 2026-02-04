@@ -3,11 +3,7 @@ import { useAuth } from "../components/Authentication/AuthContext";
 import { useHome } from "../components/HomeContext";
 import { RequestStatus } from "../models/request";
 import { Role } from "../models/user";
-import {
-  fetchRequestsHome,
-  fetchRequestsInbox,
-  RequestListItem,
-} from "../services/RightsService";
+import { fetchRequestsHome, fetchRequestsInbox, RequestListItem } from "../services/RightsService";
 
 type UseRightsRequestsResult = {
   requests: RequestListItem[] | undefined;
@@ -25,13 +21,9 @@ function useRightsRequests(statusFilter: RequestStatus | undefined): UseRightsRe
 
   const isDataSubject = user?.role === Role.DataSubject;
 
-  const [requests, setRequests] = useState<RequestListItem[] | undefined>(
-    undefined,
-  );
+  const [requests, setRequests] = useState<RequestListItem[] | undefined>(undefined,);
   const [loadingRequests, setLoadingRequests] = useState<boolean>(true);
-  const [errorRequests, setErrorRequests] = useState<string | undefined>(
-    undefined,
-  );
+  const [errorRequests, setErrorRequests] = useState<string | undefined>(undefined,);
 
   const loadRequests = useCallback(async () => {
     if (loading) return;
@@ -50,6 +42,7 @@ function useRightsRequests(statusFilter: RequestStatus | undefined): UseRightsRe
     setErrorRequests(undefined);
 
     try {
+
       let res: RequestListItem[] | undefined;
 
       if (isDataSubject) {
@@ -63,18 +56,22 @@ function useRightsRequests(statusFilter: RequestStatus | undefined): UseRightsRe
       }
 
       setRequests(res ?? []);
+
     } catch (err) {
+
       setErrorRequests(err instanceof Error ? err.message : "Errore inatteso");
       setRequests(undefined);
+
     } finally {
       setLoadingRequests(false);
     }
-  }, [loading, user?.uuid, user?.role, isDataSubject, current_home_uuid, loadingHomes, statusFilter]);
+    //ricarichiamo automaticamente quando cambia utente, home corrente o filtro stato
+  }, [loading, user?.uuid, isDataSubject, current_home_uuid, loadingHomes, statusFilter]);
 
-  //ricarichiamo automaticamente quando cambia utente, home corrente o filtro stato
+
   useEffect(() => {
     void loadRequests();
-  }, [loadRequests]);
+  }, [loadRequests]); //si ricarica quando cambia la firma della funzione quindi ogni qual volta accade quello indicato sopra
 
   return { requests, loadingRequests, errorRequests, loadRequests };
 }

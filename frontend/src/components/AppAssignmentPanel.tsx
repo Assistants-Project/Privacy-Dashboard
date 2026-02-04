@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Form } from "react-bootstrap";
+import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import { useAuth } from "./Authentication/AuthContext";
 import { Role, User } from "../models/user";
 import { useApp } from "./AppsContext";
@@ -106,9 +106,9 @@ function AppAssignmentPanel() {
     return (
         <>
         <Card className="p-0">
-            <Card.Body className="d-flex flex-column gap-2">
+            <Card.Body>
                 <strong>Management</strong>
-
+                <div className="mt-2" />
                 {managementError ? (
                     <div className="text-danger small">
                         {managementError}
@@ -118,7 +118,7 @@ function AppAssignmentPanel() {
                 {!isManagedByMe ? (
                     <Button
                         size="sm"
-                        variant="primary"
+                        variant="outline-primary"
                         disabled={claimingApp}
                         onClick={onClaimManagedApplication}
                     >
@@ -132,7 +132,9 @@ function AppAssignmentPanel() {
                     </div>
                 ) : (
                     <>
-                        <Form.Select
+                    <Row>
+                        <Col>
+                         <Form.Select
                             size="sm"
                             value={selectedDpoUuid}
                             onChange={(e) => setSelectedDpoUuid(e.target.value)}
@@ -150,17 +152,23 @@ function AppAssignmentPanel() {
                                 </option>
                             ))}
                         </Form.Select>
-
+                        
+                        </Col>
+                        <Col className="ps-0"> 
                         <Button
                             size="sm"
                             variant="outline-primary"
-                            disabled={
-                                assigningDpo || loadingDpos || !selectedDpoUuid
-                            }
+                            disabled={assigningDpo || loadingDpos || !selectedDpoUuid}
                             onClick={onAssignDpo}
                         >
                             {assigningDpo ? "Assigning…" : "Assign DPO"}
                         </Button>
+                        
+                        </Col>
+                    </Row>
+                       
+                       
+                        
                     </>
                 )}
             </Card.Body>

@@ -11,10 +11,11 @@ function Home() {
   const isDataSubject = auth.user?.role === Role.DataSubject;
 
   return (
-    <Container>
+    <Container className="py-3">
       <Row className="mb-3">
         <Col>
-          <h2>Benvenuto {auth.user ? `, ${auth.user.firstname} ${auth.user.lastname}` : ""}</h2>
+          <h2>Benvenuto</h2>
+          <h3> {auth.user ? `${auth.user.firstname} ${auth.user.lastname}` : ""}</h3>
         </Col>
       </Row>
       <Row>

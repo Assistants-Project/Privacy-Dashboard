@@ -1,13 +1,4 @@
-import {
-  Badge,
-  Card,
-  CloseButton,
-  Col,
-  Container,
-  Form,
-  Row,
-  Spinner,
-} from "react-bootstrap";
+import {Badge,Card,CloseButton,Col,Container,Form,Row,Spinner} from "react-bootstrap";
 import { useAuth } from "../components/Authentication/AuthContext";
 import { Role } from "../models/user";
 import { useState } from "react";
@@ -19,44 +10,27 @@ import { formatIsoDateOrTime } from "../services/MessageService";
 export function ManageRights() {
 
   const { user, loading } = useAuth();
-
-  const isDataSubject = user?.role === Role.DataSubject;
-  const isManager = user?.role === Role.DatController || user?.role === Role.DPO;
-
-  const [statusFilter, setStatusFilter] = useState<RequestStatus | undefined>(undefined,);
-  const [query, setQuery] = useState<string>("");
-
-  const {
-    requests,
-    loadingRequests,
-    errorRequests,
-    loadRequests,
-  } = useRightsRequests(statusFilter);
+  const [statusFilter, setStatusFilter] = useState<RequestStatus | undefined>(undefined);
+  const {requests,loadingRequests,errorRequests,loadRequests} = useRightsRequests(statusFilter); //carica l'hook
 
   const [selectedRequestUuid, setSelectedRequestUuid] = useState<string | undefined>(undefined);
-
-  const list = requests ?? [];
-
-  const q = query.trim().toLowerCase();
-  
-  const visibleRequests = q.length === 0? list: //filtro semplice: cerchiamo solo per nome applicazione
-        list.filter((item) => {
-          const appName = item.application_name?.toLowerCase() ?? "";
-          return appName.includes(q);
-        });
-
-  const selectedItem = selectedRequestUuid
-    ? list.find((r) => r.request.uuid === selectedRequestUuid)
-    : undefined;
-
+  const selectedItem = selectedRequestUuid? requests?.find((r) => r.request.uuid === selectedRequestUuid): undefined;
   const selectedRequest = selectedItem?.request;
+  
+  const [query, setQuery] = useState<string>("");
+  //filtro semplice: cerchiamo solo per nome applicazione
+  const visibleRequests = requests?.filter((item) => item.application_name?.toLowerCase().includes(query));
 
   const closePanel = () => setSelectedRequestUuid(undefined);
+  const isDataSubject = user?.role === Role.DataSubject;
+  const isManager = user?.role === Role.DatController || user?.role === Role.DPO;
 
   const statusBadge = (status: RequestStatus) => {
     if (status === RequestStatus.HANDLED) return "success";
     return "warning";
   };
+
+
   return (
     <Container className="py-3">
       <Row className="mb-3">
@@ -117,7 +91,7 @@ export function ManageRights() {
                 </Card.Body>
               </Card>
 
-              {visibleRequests.length === 0 ? (
+              {visibleRequests?.length === 0 ? (
                 <Card className="p-0">
                   <Card.Body className="text-muted">
                     No requests.
@@ -125,12 +99,9 @@ export function ManageRights() {
                 </Card>
               ) : (
                 <Container fluid className="d-flex flex-column gap-2 p-0">
-                  {visibleRequests.map((item) => {
+                  {visibleRequests?.map((item) => {
                     const selected = item.request.uuid === selectedRequestUuid;
-                    const rightLabel =
-                      RIGHT_TYPE_LABELS[item.request.right_type] ??
-                      item.request.right_type;
-
+                    const rightLabel = RIGHT_TYPE_LABELS[item.request.right_type] ?? item.request.right_type;
                     return (
                       <Card
                         key={item.request.uuid}
@@ -199,8 +170,7 @@ export function ManageRights() {
                             {selectedRequest!.status}
                           </Badge>
                           <span className="text-muted">
-                            {RIGHT_TYPE_LABELS[selectedRequest!.right_type] ??
-                              selectedRequest!.right_type}
+                            {RIGHT_TYPE_LABELS[selectedRequest!.right_type]}
                           </span>
                         </div>
                       </Container>

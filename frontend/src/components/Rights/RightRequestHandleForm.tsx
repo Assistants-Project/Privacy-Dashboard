@@ -9,14 +9,11 @@ type RightRequestHandleFormProps = {
 };
 
 function RightRequestHandleForm({ request, onSaved }: RightRequestHandleFormProps) {
+  
   const [draftStatus, setDraftStatus] = useState<RequestStatus>(request.status);
-  const [draftResponse, setDraftResponse] = useState<string>(
-    request.response ?? "",
-  );
+  const [draftResponse, setDraftResponse] = useState<string>(request.response ?? "",);
   const [handling, setHandling] = useState<boolean>(false);
-  const [errorHandling, setErrorHandling] = useState<string | undefined>(
-    undefined,
-  );
+  const [errorHandling, setErrorHandling] = useState<string | undefined>(undefined,);
 
   //resetta il form quando cambia la request selezionata
   useEffect(() => {

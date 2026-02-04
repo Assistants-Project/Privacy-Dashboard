@@ -110,3 +110,16 @@ body {
 .muted {
   color: var(--muted);
 }
+
+.pn-quill {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 280px;
+}
+
+.pn-quill .ql-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 0;
+}

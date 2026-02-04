@@ -133,10 +133,13 @@ function PrivacyNotice(props: any) {
 
               <Col xs={9} lg={8}>
                 <Card
-                  className="sticky-top z-1 p-0 overflow-hidden"
+                  className="sticky-top z-1 p-0 overflow-hidden d-flex flex-column"
                   style={{ top: "1rem", maxHeight: "calc(100vh - 2rem)" }}
                 >
-                  <Card.Body className="d-flex flex-column gap-3" style={{ minHeight: 0 }}>
+                  <Card.Body
+                    className="d-flex flex-column flex-grow-1 gap-3 overflow-hidden"
+                    style={{ minHeight: 0 }}
+                  >
                     {!selectedApp ? (
                       <div className="text-muted">
                         Select an app to see the PN.
@@ -207,11 +210,17 @@ function PrivacyNotice(props: any) {
                           </>
                         ) : null}
 
-                        <Stack className="flex-grow-1 overflow-auto pe-2" style={{ minHeight: 0 }}>
+                        <Stack className="flex-grow-1 pe-2 overflow-hidden" style={{ minHeight: 0 }}>
                           {canEdit ? (
                             editMode ? (
-                              <Card className="p-0">
-                                <Card.Body>
+                              <Card
+                                className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+                                style={{ minHeight: 0 }}
+                              >
+                                <Card.Body
+                                  className="d-flex flex-column flex-grow-1"
+                                  style={{ minHeight: 0 }}
+                                >
                                   <Row className="g-2 mb-3 align-items-center">
                                     <Col className="text-muted">
                                       Insert template will paste the template into your current document.
@@ -227,54 +236,74 @@ function PrivacyNotice(props: any) {
                                       </Button>
                                     </Col>
                                   </Row>
-                                  <ReactQuill
-                                    className="mb-3"
-                                    ref={quillRef as any}
-                                    theme="snow"
-                                    value={value}
-                                    onChange={(html) => {
-                                      setValue(html);
-                                      draftRef.current = html;
-                                    }}
-                                  />
-                                  <Button variant="dark" onClick={handleSubmit}>
-                                    Submit Privacy Notice
-                                  </Button>
+                                  <div className="flex-grow-1 mb-3" style={{ minHeight: 0 }}>
+                                    <ReactQuill
+                                      className="pn-quill"
+                                      ref={quillRef as any}
+                                      theme="snow"
+                                      value={value}
+                                      onChange={(html) => {
+                                        setValue(html);
+                                        draftRef.current = html;
+                                      }}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Button variant="dark" onClick={handleSubmit}>
+                                      Submit Privacy Notice
+                                    </Button>
+                                  </div>
                                 </Card.Body>
                               </Card>
                             ) : (
-                              <Card className="p-0">
-                                <Card.Body>
+                              <Card
+                                className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+                                style={{ minHeight: 0 }}
+                              >
+                                <Card.Body
+                                  className="d-flex flex-column flex-grow-1"
+                                  style={{ minHeight: 0 }}
+                                >
                                   <Row className="g-1">
                                     <Col>
                                       <h5 className="mb-0">Privacy Notice content:</h5>
                                     </Col>
                                   </Row>
                                   <hr className="my-3" />
-                                  {pn?.content ? (
-                                    <div dangerouslySetInnerHTML={{ __html: pn.content }} />
-                                  ) : (
-                                    <div className="text-muted">
-                                      No Privacy Notice yet. Press Create to add one.
-                                    </div>
-                                  )}
+                                  <div className="flex-grow-1 overflow-auto" style={{ minHeight: 0 }}>
+                                    {pn?.content ? (
+                                      <div dangerouslySetInnerHTML={{ __html: pn.content }} />
+                                    ) : (
+                                      <div className="text-muted">
+                                        No Privacy Notice yet. Press Create to add one.
+                                      </div>
+                                    )}
+                                  </div>
                                 </Card.Body>
                               </Card>
                             )
                           ) : (
-                            <Card className="p-0">
-                              <Card.Body>
+                            <Card
+                              className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+                              style={{ minHeight: 0 }}
+                            >
+                              <Card.Body
+                                className="d-flex flex-column flex-grow-1"
+                                style={{ minHeight: 0 }}
+                              >
                                 <Row className="g-1">
                                   <Col>
                                     <h5 className="mb-0">Privacy Notice content</h5>
                                   </Col>
                                 </Row>
                                 <hr className="my-3" />
-                                {pn?.content ? (
-                                  <div dangerouslySetInnerHTML={{ __html: pn.content }} />
-                                ) : (
-                                  <div className="text-muted">No Privacy Notice available.</div>
-                                )}
+                                <div className="flex-grow-1 overflow-auto" style={{ minHeight: 0 }}>
+                                  {pn?.content ? (
+                                    <div dangerouslySetInnerHTML={{ __html: pn.content }} />
+                                  ) : (
+                                    <div className="text-muted">No Privacy Notice available.</div>
+                                  )}
+                                </div>
                               </Card.Body>
                             </Card>
                           )}

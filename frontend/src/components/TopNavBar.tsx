@@ -116,21 +116,22 @@ export function TopNavBar() {
             </Nav>
 
             <Nav className="align-items-center gap-4">
-              {isDataSubject ? (
-                <NavDropdown
-                  id="sync-dropdown"
-                  align="end"
-                  title={
-                    <span
-                      className="d-inline-flex align-items-center gap-2 border rounded px-2 py-1"
-                      title={anySyncing ? "Sync in corso…" : "Sync completato"}
-                    >
-                      <span>Smartotum Sync</span>
-                      {anySyncing ? syncingIcon : syncedIcon}
-                    </span>
-                  }
-                >
-                  <NavDropdown.Header>Sync Status</NavDropdown.Header>
+
+              <NavDropdown
+                id="sync-dropdown"
+                align="end"
+                title={
+                  <span
+                    className="d-inline-flex align-items-center gap-2 border rounded px-2 py-1"
+                    title={anySyncing ? "Sync in corso…" : "Sync completato"}
+                  >
+                    {isDataSubject ? <span>Smartotum Sync</span> : <span>Marketplace Sync</span>}
+                    {anySyncing ? syncingIcon : syncedIcon}
+                  </span>
+                }
+              >
+                <NavDropdown.Header>Sync Status</NavDropdown.Header>
+                {isDataSubject ?
                   <NavDropdown.Item
                     disabled={updatingHomes}
                     className="d-flex align-items-center gap-2"
@@ -140,22 +141,27 @@ export function TopNavBar() {
                     <span>Homes</span>
                     <ArrowRepeat />
                   </NavDropdown.Item>
-                  <NavDropdown.Item
-                    disabled={updatingApps}
-                    className="d-flex align-items-center gap-2"
-                    onClick={() => !updatingApps && syncApps()}
-                  >
-                    {updatingApps ? syncingIcon : syncedIcon}
-                    <span>Apps</span>
-                    <ArrowRepeat />
-                  </NavDropdown.Item>
-                  {/* <NavDropdown.Divider />
+                  :
+                  undefined
+
+                }
+
+                <NavDropdown.Item
+                  disabled={updatingApps}
+                  className="d-flex align-items-center gap-2"
+                  onClick={() => !updatingApps && syncApps()}
+                >
+                  {updatingApps ? syncingIcon : syncedIcon}
+                  <span>Apps</span>
+                  <ArrowRepeat />
+                </NavDropdown.Item>
+                {/* <NavDropdown.Divider />
                   <NavDropdown.Header>Actions</NavDropdown.Header>
                   <NavDropdown.Item as="button">Sync Homes</NavDropdown.Item>
                   <NavDropdown.Item as="button" disabled>Sync Apps</NavDropdown.Item>
                   <NavDropdown.Item as="button" disabled>Sync All</NavDropdown.Item> */}
-                </NavDropdown>
-              ) : undefined}
+              </NavDropdown>
+
 
               <Dropdown align="end" autoClose="outside">
                 <Dropdown.Toggle
