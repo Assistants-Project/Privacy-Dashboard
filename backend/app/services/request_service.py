@@ -21,6 +21,7 @@ class RequestDict(TypedDict):
     request: Request
     user_email: str
     application_name: str
+    application_uuid: UUID
 
 
 class RequestService:
@@ -48,6 +49,7 @@ class RequestService:
                 current_user_id, application_uuid
             )
         )
+        # applicazione deve essere tra quelle gestite dal data controller
         if not application:
             raise ApplicationNotFoundException(
                 f"Application with uuid {application_uuid} not found among the managed applications!"
@@ -67,8 +69,9 @@ class RequestService:
                 "request": request,
                 "user_email": user_email,
                 "application_name": application_name,
+                "application_uuid": application_uuid,
             }
-            for request, user_email, application_name in iterator
+            for request, user_email, application_name, application_uuid in iterator
         ]
 
     @staticmethod
@@ -93,8 +96,9 @@ class RequestService:
                 "request": request,
                 "user_email": user_email,
                 "application_name": application_name,
+                "application_uuid": application_uuid,
             }
-            for request, user_email, application_name in iterator
+            for request, user_email, application_name, application_uuid in iterator
         ]
 
     @staticmethod
@@ -119,6 +123,7 @@ class RequestService:
             current_user_id, smart_home_uuid
         )
         if not smart_home:
+            # la casa deve essere del data subject
             raise SmartHomeNotFoundException(
                 f"Smart Home with uuid {smart_home_uuid} not found among the owned smart homes!"
             )
@@ -130,8 +135,9 @@ class RequestService:
                 "request": request,
                 "user_email": user_email,
                 "application_name": application_name,
+                "application_uuid": application_uuid,
             }
-            for request, user_email, application_name in iterator
+            for request, user_email, application_name, application_uuid in iterator
         ]
 
     @staticmethod

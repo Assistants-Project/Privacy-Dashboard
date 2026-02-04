@@ -14,16 +14,18 @@ from ..models import (
 
 
 class RequestRepository:
+    # recupera le richieste in base al data subject e all'applicazione
     @staticmethod
     def get_requests_by_application_id_and_user_id(
         application_id: int,
         user_id: int,
-    ) -> Iterator[Tuple[Request, str, str]]:
+    ) -> Iterator[Tuple[Request, str, str, UUID]]:
         statement = (
             db.select(
                 Request,
                 User.email,
                 Application.name,
+                Application.uuid, #aggiunto per visualizzare meglio i rights nel frontend e collegarli comodamente alle app
             )
             .join(
                 Request.user_smart_home_application_relation.and_(
@@ -33,13 +35,15 @@ class RequestRepository:
             )
             .join(User)
             .join(Application)
+            .order_by(Request.created_at.desc(), Request.id.desc())
         )
         return db.session.execute(statement)
-
+    
+    #per DC/DPO ritorna (listing) le richieste in ordine dalla più recente alla meno recente con un determinato stato
     @staticmethod
     def get_requests_by_dc_or_dpo_id_and_status(
         current_user_id: int, status: Status | None
-    ) -> Iterator[Tuple[Request, str, str]]:
+    ) -> Iterator[Tuple[Request, str, str, UUID]]:
         subquery = (
             db.select(UserSmartHomeApplication.application_id)
             .where(UserSmartHomeApplication.user_id == current_user_id)
@@ -50,6 +54,7 @@ class RequestRepository:
                 Request,
                 User.email,
                 Application.name,
+                Application.uuid, #....
             )
             .join(
                 Request.user_smart_home_application_relation.and_(
@@ -58,6 +63,8 @@ class RequestRepository:
             )
             .join(User)
             .join(Application)
+             #per ottenere le richieste in ordine dalla più recente alla meno recente per comodità del client
+            .order_by(Request.created_at.desc(), Request.id.desc())
         )
         if status:
             statement = statement.filter(Request.status == status)
@@ -80,15 +87,18 @@ class RequestRepository:
         )
         return db.session.scalar(statement)
 
+
+    # per data subject ritorna tutte le sue richieste nella casa specificata con un determinato stato (può essere facoltativo)
     @staticmethod
     def get_requests_by_ds_id_and_smart_home_id_and_status(
         current_user_id: int, smart_home_id: int, status: Status | None
-    ) -> Iterator[Tuple[Request, str, str]]:
+    ) -> Iterator[Tuple[Request, str, str, UUID]]:
         statement = (
             db.select(
                 Request,
                 User.email,
                 Application.name,
+                Application.uuid,
             )
             .join(
                 Request.user_smart_home_application_relation.and_(
@@ -98,6 +108,7 @@ class RequestRepository:
             )
             .join(User)
             .join(Application)
+            .order_by(Request.created_at.desc(), Request.id.desc())
         )
         if status:
             statement = statement.filter(Request.status == status)

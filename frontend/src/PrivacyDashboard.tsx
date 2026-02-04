@@ -11,6 +11,7 @@ import { TopNavBar } from "./components/TopNavBar";
 import { RequireAuth } from "./components/Authentication/RequireAuth";
 import { Apps } from "./pages/Apps/Apps";
 import { Messages } from "./pages/Messages/Messages";
+import { ManageRights } from "./pages/ManageRights";
 
 function PrivacyDashboard() {
   const auth = useAuth();
@@ -49,6 +50,7 @@ function PrivacyDashboard() {
           <Route path="/questionnaire" element={<Questionnaire />} />
           <Route path="/policy-translation" element={<PolicyTranslation />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/rights" element={<ManageRights />} />
         </Route>
       </Routes>
     </Container>

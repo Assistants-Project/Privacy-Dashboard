@@ -106,6 +106,9 @@ export function TopNavBar() {
                   Policy Translation
                 </Nav.Link>
               }
+              <Nav.Link as={NavLink} to="/rights" eventKey="/rights">
+                {isDataSubject ? "Rights" : "Requests"}
+              </Nav.Link>
 
               <Nav.Link as={NavLink} to="/messages" eventKey="/messages">
                 Messages

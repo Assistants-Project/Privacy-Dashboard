@@ -1,4 +1,3 @@
-import { HomeModel } from "./home"
 class User {
     uuid: string
     email: string

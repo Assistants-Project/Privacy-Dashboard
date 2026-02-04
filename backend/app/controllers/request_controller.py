@@ -23,7 +23,10 @@ request_bp = Blueprint(
     description="Endpoints for requests",
 )
 
-
+#permette ad un data controller o dpo di poter recuperare (listare) tutte le richieste per una singola applicazione
+#di un singolo utente
+#recupera tutte le richieste sia quelle PENDING che HANDLED
+#i parametri sono obbligatori
 @request_bp.route("/application/<application_uuid>/user/<user_uuid>", methods=["GET"])
 @request_bp.arguments(ApplicationAndUserUuidReqSchema, location="path", as_kwargs=True)
 @request_bp.response(200, RequestResSchema(many=True))
@@ -38,14 +41,16 @@ def get_requests_by_managed_application_uuid_and_user_uuid(
     )
 
 
+#permette ad un data controller o dpo di poter recuperare (listare) tutte le richieste che hanno un certo stato (può essere facoltativo)
 @request_bp.route("/", methods=["GET"])
 @request_bp.arguments(RequestStatusReqSchema, location="query", as_kwargs=True)
 @request_bp.response(200, RequestResSchema(many=True))
 @dc_or_dpo_required()
 def get_requests(status: Status | None, current_user):
+    #passiamo current_user.id per indicare il data controller / dpo a cui sono rivolte le richieste
     return RequestService.get_requests_by_dc_or_dpo_id(current_user.id, status)
 
-
+#per data subject prende tutte le richieste della sua casa per un determinato stato (può essere facoltativo)
 @request_bp.route("/home/<smart_home_uuid>", methods=["GET"])
 @request_bp.arguments(SmartHomeUuidReqSchema, location="path", as_kwargs=True)
 @request_bp.arguments(RequestStatusReqSchema, location="query", as_kwargs=True)
@@ -58,7 +63,7 @@ def get_requests_by_smart_home_uuid(
         current_user.id, smart_home_uuid, status
     )
 
-
+#per inviare una richiesta da parte del DS
 @request_bp.route("/submit", methods=["POST"])
 @request_bp.arguments(RequestReqSchema, location="json", as_kwargs=False)
 @request_bp.response(201, RequestSchema)
@@ -66,7 +71,7 @@ def get_requests_by_smart_home_uuid(
 def submit_request(request, current_user):
     return RequestService.submit_request(current_user.id, request)
 
-
+#per cambiare stato ad una richiesta e aggiungere un eventuale messaggio
 @request_bp.route("/handle/<request_uuid>", methods=["PUT"])
 @request_bp.arguments(RequestUuidReqSchema, location="path", as_kwargs=True)
 @request_bp.arguments(RequestHandlingReqSchema, location="json", as_kwargs=True)

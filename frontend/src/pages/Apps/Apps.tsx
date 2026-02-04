@@ -9,6 +9,7 @@ import { useApp } from "../../components/AppsContext";
 
 import { AppAssignmentPanel } from "../../components/AppAssignmentPanel";
 import { DocumentStatus } from "../../models/app"
+import { SubmitRightRequestModal } from "../../components/Rights/RightRequestSubmitForm";
 
 export function Apps() {
 
@@ -16,6 +17,7 @@ export function Apps() {
   const {loadingApps,selectedApp,setSelectedAppUUID,selectedAppUUID,errorApps,apps} = useApp();
 
   const [query, setQuery] = useState("");
+  const [showSubmitRightModal, setShowSubmitRightModal] = useState(false);
 
   const isDataSubject = user?.role === Role.DataSubject;
   const isDataController = user?.role === Role.DatController;
@@ -172,6 +174,21 @@ export function Apps() {
 
                     <Container fluid className="d-flex flex-wrap gap-2 ps-0">
                       <Link
+                        className="btn btn-outline-primary btn-sm"
+                        to="/rights"
+                      >
+                        {isDataSubject ? "Rights" : "Requests"}
+                      </Link>
+                      {isDataSubject ? (
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={() => setShowSubmitRightModal(true)}
+                        >
+                          Exercise a right
+                        </Button>
+                      ) : undefined}
+                      <Link
                         className={[
                           "btn btn-sm border-2",
                           PNforbidden ? "btn-outline-secondary disabled" //se no disabilitiamo perchè significa che non possiamo leggere il privacy notice
@@ -203,7 +220,7 @@ export function Apps() {
                               : "btn-outline-success"
                         ].join(" ")}
                         to="/privacy-impact-assessment"
-                        aria-disabled={PNforbidden}
+                        aria-disabled={PIAforbidden}
                         onClick={(e) => {
 
                           if (PIAforbidden) {
@@ -297,6 +314,13 @@ export function Apps() {
             </Card>
           </Col>
         </Row>
+      ) : undefined}
+
+      {isDataSubject && selectedApp ? (
+        <SubmitRightRequestModal
+          show={showSubmitRightModal}
+          onHide={() => setShowSubmitRightModal(false)}
+        />
       ) : undefined}
     </Container>
   );

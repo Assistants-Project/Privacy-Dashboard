@@ -15,3 +15,4 @@ class RequestResSchema(ma.Schema):
     request = ma.Nested(RequestSchema)
     user_email = ma.Email()
     application_name = ma.Str()
+    application_uuid = ma.UUID()
