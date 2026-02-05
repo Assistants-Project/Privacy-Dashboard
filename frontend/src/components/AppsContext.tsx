@@ -8,6 +8,8 @@ import { PrivacyNotice } from "../models/privacy_notice";
 import { handleFetchPrivacyNotice } from "../services/PrivacyNoticeService";
 import { handleGetPrivacyImpactAssessment } from "../services/PrivacyImpactAssessmentService";
 import { PIA } from "../models/PIA";
+import { Question } from "../models/question";
+import { handleGetQuestionnaireByApplication } from "../services/QuestionnaireService";
 //tutti i parametri del contesto che possono essere comodi e usati in tanti componenti diversi
 type AppsContextValue = {
 
@@ -28,6 +30,7 @@ type AppsContextValue = {
     //ritorna il privacy notice in cache o recupera la versione più recente se refresh è true
     loadPrivacyNotice: (appUUID: string, force: boolean) => Promise<PrivacyNotice | null | undefined>
     loadPIA: (appUUID: string, force: boolean) => Promise<PIA | null | undefined>
+    loadQuestionnaire: (appUUID: string, force: boolean) => Promise<Question[] | null | undefined>
 
 
     //da valutare se mettere in un hook separato, se lo faccio devo però esporre load apps
@@ -51,6 +54,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     const [apps, setApps] = useState<AppModel[] | undefined>(undefined);
     const [PrivacyNoticeByAppUUID, setPrivacyNoticeByAppUUID] = useState<Record<string, PrivacyNotice | null | undefined>>({});
     const [PIAByAppUUID, setPIAByAppUUID] = useState<Record<string, PIA | null | undefined>>({});
+    const [QuestionnaireByAppUUID, setQuestionnaireByAppUUID] = useState<Record<string, Question[] | null | undefined>>({});
     const [selectedAppUUID, setInnerSelectedAppUUID] = useState<string | undefined>(undefined);
 
 
@@ -118,6 +122,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
             setErrorUpdatingApps(undefined);
             setPrivacyNoticeByAppUUID({});
             setPIAByAppUUID({});
+            setQuestionnaireByAppUUID({});
             return;
         }
 
@@ -244,6 +249,38 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
         [user, managedApps, PIAByAppUUID],
     );
 
+    const loadQuestionnaire = useCallback(async (appUUID: string, force: boolean): Promise<Question[] | null | undefined> => {
+        if (!user) return undefined;
+
+        //ritorna undefined se il data controller non la gestisce
+        if (user.role !== Role.DataSubject) {
+            const isManaged = managedApps.some((app) => app.uuid === appUUID);
+            if (!isManaged) {
+                return undefined;
+            }
+        }
+
+        if (force == false) {
+            const cached = QuestionnaireByAppUUID[appUUID];
+            if (cached !== undefined) {
+                return cached;
+            }
+        }
+
+        //se non presente in cache la recuperiamo
+        try {
+            const res = await handleGetQuestionnaireByApplication(appUUID);
+            setQuestionnaireByAppUUID(prev => ({ ...prev, [appUUID]: res })); //può essere a questo punto o un valore o un null
+            return res;
+        }
+        catch (err) {
+            //vedere cosa fare dell'errore
+            return undefined //rimesso a undefined perchè non è stato caricato correttamente
+        }
+    },
+        [user, managedApps, QuestionnaireByAppUUID],
+    );
+
 
     const claimManagedApplication = useCallback(async (appUUID: string): Promise<boolean | undefined> => {
 
@@ -287,6 +324,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
             assignDpoToManagedApplication,
             loadPrivacyNotice,
             loadPIA,
+            loadQuestionnaire,
             setSelectedAppUUID
 
         }),
@@ -304,7 +342,8 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
             claimManagedApplication,
             assignDpoToManagedApplication,
             loadPrivacyNotice,
-            loadPIA
+            loadPIA,
+            loadQuestionnaire
         ],
     );
 
