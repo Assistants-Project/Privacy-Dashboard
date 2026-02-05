@@ -22,9 +22,9 @@ from ..repositories import (
 
 
 class AvailableConsentGivenDict(TypedDict):
-    available_consent = AvailableConsent
-    application_name = str
-    given_at = datetime
+    available_consent: AvailableConsent
+    application_uuid: UUID
+    given_at: datetime
 
 
 class AvailableConsentService:
@@ -68,7 +68,7 @@ class AvailableConsentService:
             smart_home_uuid: The `UUID` of the smart home to fetch given consents of.
 
         Returns:
-            A list of dictionaries each containing the available consent instance, the name of the application associated to the consent and the date and time it was given, or an empty list if none are found.
+            A list of dictionaries each containing the available consent instance, the UUID of the application associated to the consent and the date and time it was given, or an empty list if none are found.
 
         Raises:
             `SmartHomeNotFoundException`: If the `SmartHome` with the given `UUID` is not found among the owned smart homes of the user.
@@ -84,14 +84,16 @@ class AvailableConsentService:
         iterator = AvailableConsentRepository.get_available_consents_by_ds_id_and_smart_home_id(
             current_user_id, smart_home.id
         )
-        return [
-            {
-                "available_consent": available_consent,
-                "application_name": application_name,
-                "given_at": given_at,
-            }
-            for available_consent, application_name, given_at in iterator
-        ]
+        given: List[AvailableConsentGivenDict] = []
+        for available_consent, application_uuid, given_at in iterator:
+            given.append(
+                {
+                    "available_consent": available_consent,
+                    "application_uuid": application_uuid,
+                    "given_at": given_at,
+                }
+            )
+        return given
 
     @staticmethod
     def give_consents_in_smart_home(

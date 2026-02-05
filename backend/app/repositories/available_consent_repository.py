@@ -43,11 +43,11 @@ class AvailableConsentRepository:
     @staticmethod
     def get_available_consents_by_ds_id_and_smart_home_id(
         current_user_id: int, smart_home_id: int
-    ) -> Iterator[Tuple[AvailableConsent, str, datetime]]:
+    ) -> Iterator[Tuple[AvailableConsent, UUID, datetime]]:
         statement = (
             db.select(
                 AvailableConsent,
-                Application.name,
+                Application.uuid,
                 UserSmartHomeAvailableConsent.given_at,
             )
             .join(

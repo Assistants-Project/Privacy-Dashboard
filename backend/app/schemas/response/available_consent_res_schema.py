@@ -13,5 +13,5 @@ class AvailableConsentResSchema(ma.SQLAlchemyAutoSchema):
 
 class AvailableConsentGivenResSchema(ma.Schema):
     available_consent = ma.Nested(AvailableConsentResSchema)
-    application_name = ma.Str()
+    application_uuid = ma.UUID()
     given_at = ma.DateTime()
