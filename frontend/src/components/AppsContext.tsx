@@ -2,16 +2,12 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from "re
 import { Role } from "../models/user";
 import { useAuth } from "./Authentication/AuthContext";
 import { AppModel } from "../models/app";
-import {
-    fetchCatalogApplications,
-    fetchInstalledApplications,
-    claimApplicationAsDataController,
-    assignDpoToApplication,
-    updateCatalogApplications,
-} from "../services/ApplicationService";
+import {fetchCatalogApplications,fetchInstalledApplications,claimApplicationAsDataController,assignDpoToApplication,updateCatalogApplications} from "../services/ApplicationService";
 import { useHome } from "./HomeContext";
 import { PrivacyNotice } from "../models/privacy_notice";
 import { handleFetchPrivacyNotice } from "../services/PrivacyNoticeService";
+import { handleGetPrivacyImpactAssessment } from "../services/PrivacyImpactAssessmentService";
+import { PIA } from "../models/PIA";
 //tutti i parametri del contesto che possono essere comodi e usati in tanti componenti diversi
 type AppsContextValue = {
 
@@ -31,6 +27,7 @@ type AppsContextValue = {
 
     //ritorna il privacy notice in cache o recupera la versione più recente se refresh è true
     loadPrivacyNotice: (appUUID: string, force: boolean) => Promise<PrivacyNotice | null | undefined>
+    loadPIA: (appUUID: string, force: boolean) => Promise<PIA | null | undefined>
 
 
     //da valutare se mettere in un hook separato, se lo faccio devo però esporre load apps
@@ -51,10 +48,12 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     const { user, loading } = useAuth();
     const { current_home_uuid, loadingHomes } = useHome();
 
+    const [apps, setApps] = useState<AppModel[] | undefined>(undefined);
     const [PrivacyNoticeByAppUUID, setPrivacyNoticeByAppUUID] = useState<Record<string, PrivacyNotice | null | undefined>>({});
+    const [PIAByAppUUID, setPIAByAppUUID] = useState<Record<string, PIA | null | undefined>>({});
     const [selectedAppUUID, setInnerSelectedAppUUID] = useState<string | undefined>(undefined);
 
-    const [apps, setApps] = useState<AppModel[] | undefined>(undefined);
+
     const [loadingApps, setLoadingApps] = useState(true);
     const [updatingApps, setUpdatingApps] = useState(false);
     const [errorApps, setErrorApps] = useState<string | undefined>(undefined);
@@ -118,6 +117,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
             setErrorApps(undefined);
             setErrorUpdatingApps(undefined);
             setPrivacyNoticeByAppUUID({});
+            setPIAByAppUUID({});
             return;
         }
 
@@ -212,6 +212,39 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     );
 
 
+    const loadPIA = useCallback(async (appUUID: string, force: boolean): Promise<PIA | null | undefined> => {
+        if (!user) return undefined;
+
+        //ritorna undefined se il data controller non la gestisce
+        if (user.role !== Role.DataSubject) {
+            const isManaged = managedApps.some((app) => app.uuid === appUUID);
+            if (!isManaged) {
+                return undefined;
+            }
+        }
+
+        if (force == false) {
+            const cached = PIAByAppUUID[appUUID];
+            if (cached !== undefined) {
+                return cached;
+            }
+        }
+
+        //se non presente in cache la recuperiamo
+        try {
+            const res = await handleGetPrivacyImpactAssessment(appUUID);
+            setPIAByAppUUID(prev => ({ ...prev, [appUUID]: res })); //può essere a questo punto o un valore o un null
+            return res;
+        }
+        catch (err) {
+            //vedere cosa fare dell'errore
+            return undefined //rimesso a undefined perchè non è stato caricato correttamente
+        }
+    },
+        [user, managedApps, PIAByAppUUID],
+    );
+
+
     const claimManagedApplication = useCallback(async (appUUID: string): Promise<boolean | undefined> => {
 
         if (!user) return undefined;
@@ -253,6 +286,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
             claimManagedApplication,
             assignDpoToManagedApplication,
             loadPrivacyNotice,
+            loadPIA,
             setSelectedAppUUID
 
         }),
@@ -270,6 +304,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
             claimManagedApplication,
             assignDpoToManagedApplication,
             loadPrivacyNotice,
+            loadPIA
         ],
     );
 

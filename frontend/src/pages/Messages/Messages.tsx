@@ -79,16 +79,23 @@ export function Messages() {
   };
 
   return (
-    <Container fluid className="py-0 flex-grow-1" style={{ minHeight: 0 }}>
-      <Row className="h-100">
+    <Container fluid className="py-3 d-flex flex-column overflow-hidden h-100" style={{ minHeight: 0 }}>
+      <Row className="mb-3 flex-shrink-0">
+        <Col>
+          <h1 className="mb-0">
+            Messages
+          </h1>
+        </Col>
+      </Row>
+      <Row className="flex-grow-1 overflow-hidden border border-1 rounded" style={{ minHeight: 0 }}>
         <Col
           md={4}
-          className="h-100 px-0"
-          style={{ backgroundColor: "white", border: "1px solid #dee2e6" }}
+          className="d-flex flex-column overflow-hidden px-0"
+          style={{ minHeight: 0, backgroundColor: "white", border: "1px solid #dee2e6" }}
         >
           <ListGroup
             variant="flush"
-            className="h-100 overflow-auto position-relative"
+            className="flex-grow-1 overflow-auto position-relative"
             style={{ scrollbarWidth: "thin" }}
           >
             {messagedContacts?.map((contact) => (
@@ -154,11 +161,11 @@ export function Messages() {
           </ListGroup>
         </Col>
         {messagedContacts && (
-          <Col md={8} className="d-flex flex-column h-100">
+          <Col md={8} className="d-flex flex-column overflow-hidden" style={{ minHeight: 0,  backgroundColor: "white" }}>
             {selectedContact ? (
               <>
                 <Row
-                  className="align-items-center border-bottom p-2"
+                  className="align-items-center border-bottom p-2 flex-shrink-0"
                   style={{ backgroundColor: "white" }}
                 >
                   <Col
@@ -189,7 +196,7 @@ export function Messages() {
                   </Col>
                 </Row>
                 <Chat selectedContact={selectedContact} />
-                <Row>
+                <Row className="flex-shrink-0">
                   <Form className="d-flex mb-3" onSubmit={handleSubmit}>
                     <Form.Control
                       as="textarea"

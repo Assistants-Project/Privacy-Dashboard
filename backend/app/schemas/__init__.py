@@ -8,6 +8,7 @@ from .request.application_uuid_req_schema import ApplicationUuidReqSchema
 from .request.auth_req_schema import AuthReqSchema
 from .request.available_consents_req_schema import AvailableConsentsReqSchema
 from .request.message_req_schema import MessageReqSchema
+from .request.privacy_impact_assessment_req_schema import PrivacyImpactAssessmentReqSchema
 from .request.privacy_notice_req_schema import PrivacyNoticeReqSchema
 from .request.questionnaire_req_schema import QuestionnaireReqSchema
 from .request.registration_req_schema import RegistrationReqSchema
@@ -36,6 +37,7 @@ from .response.available_consent_res_schema import (
 from .response.device_res_schema import DeviceResSchema
 from .response.home_res_schema import HomeResSchema
 from .response.message_res_schema import MessageResSchema
+from .response.privacy_impact_assessment_res_schema import PrivacyImpactAssessmentResSchema
 from .response.privacy_notice_res_schema import PrivacyNoticeResSchema
 from .response.question_res_schema import QuestionResSchema
 from .response.questionnaire_res_schema import QuestionnaireResSchema
@@ -51,6 +53,7 @@ __all__ = [
     "AuthReqSchema",
     "AvailableConsentsReqSchema",
     "MessageReqSchema",
+    "PrivacyImpactAssessmentReqSchema",
     "PrivacyNoticeReqSchema",
     "QuestionnaireReqSchema",
     "RegistrationReqSchema",
@@ -69,6 +72,7 @@ __all__ = [
     "DeviceResSchema",
     "HomeResSchema",
     "MessageResSchema",
+    "PrivacyImpactAssessmentResSchema",
     "PrivacyNoticeResSchema",
     "QuestionResSchema",
     "QuestionnaireResSchema",

@@ -13,10 +13,11 @@ function HomeSelector() {
 
     return (
         <>
+        <Container className="mt-3">
             <Row>
                 <Col>
-                    <h2>Selezione Case</h2>
-                    <p className="muted">Clicca su una casa per impostarla come casa corrente.</p>
+                    <h2>Home selection</h2>
+                    <p className="muted">Click on a home to select as a current home</p>
                 </Col>
             </Row>
             <Row>
@@ -74,7 +75,7 @@ function HomeSelector() {
                     </Col>
                 )}
             </Row>
-
+            </Container>
         </>
     );
 }

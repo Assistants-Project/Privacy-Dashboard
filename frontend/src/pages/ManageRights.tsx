@@ -32,7 +32,7 @@ export function ManageRights() {
 
 
   return (
-    <Container className="py-3">
+    <Container fluid className="py-3">
       <Row className="mb-3">
         <Col>
           <h1 className="mb-0">
@@ -161,7 +161,7 @@ export function ManageRights() {
                   <>
                     <Container
                       fluid
-                      className="d-flex justify-content-between align-items-start"
+                      className="d-flex px-0 justify-content-between align-items-start"
                     >
                       <Container fluid className="ps-0">
                         <h2 className="h4 mb-1">{selectedItem.application_name}</h2>

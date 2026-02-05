@@ -12,9 +12,11 @@ import { RequireAuth } from "./components/Authentication/RequireAuth";
 import { Apps } from "./pages/Apps/Apps";
 import { Messages } from "./pages/Messages/Messages";
 import { ManageRights } from "./pages/ManageRights";
+import { Role } from "./models/user";
 
 function PrivacyDashboard() {
   const auth = useAuth();
+  const isDataSubject = auth.user?.role === Role.DataSubject;
 
   return (
     <Container
@@ -45,7 +47,7 @@ function PrivacyDashboard() {
 
           <Route
             path="/privacy-impact-assessment"
-            element={<PrivacyImpactAssessment />}
+            element={isDataSubject ? <Navigate to="/" replace /> : <PrivacyImpactAssessment />}
           />
           <Route path="/questionnaire" element={<Questionnaire />} />
           <Route path="/policy-translation" element={<PolicyTranslation />} />

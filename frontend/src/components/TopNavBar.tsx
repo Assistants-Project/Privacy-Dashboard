@@ -37,14 +37,9 @@ export function TopNavBar() {
     .toUpperCase();
 
   return (
-    <>
-      <Navbar
-        bg="light"
-        variant="light"
-        expand="lg"
-        sticky="top"
-        className="border-bottom shadow-sm"
-      >
+    <div className="app-shell">
+      <Navbar bg="light" variant="light" expand="lg"
+        className="border-bottom shadow-sm flex-shrink-0" >
         <Container fluid>
           <Nav className="align-items-center gap-2 flex-nowrap">
             <Navbar.Brand as={NavLink} to="/" end className="me-0">
@@ -81,13 +76,15 @@ export function TopNavBar() {
               >
                 {isDataSubject ? "Installed Apps" : "Apps Catalog"}
               </Nav.Link>
-              <Nav.Link
-                as={NavLink}
-                to="/privacy-impact-assessment"
-                eventKey="/privacy-impact-assessment"
-              >
-                Privacy Impact Assessment
-              </Nav.Link>
+              {!isDataSubject && (
+                <Nav.Link
+                  as={NavLink}
+                  to="/privacy-impact-assessment"
+                  eventKey="/privacy-impact-assessment"
+                >
+                  Privacy Impact Assessment
+                </Nav.Link>
+              )}
               {showQuestionnaire && (
                 <Nav.Link
                   as={NavLink}
@@ -155,11 +152,6 @@ export function TopNavBar() {
                   <span>Apps</span>
                   <ArrowRepeat />
                 </NavDropdown.Item>
-                {/* <NavDropdown.Divider />
-                  <NavDropdown.Header>Actions</NavDropdown.Header>
-                  <NavDropdown.Item as="button">Sync Homes</NavDropdown.Item>
-                  <NavDropdown.Item as="button" disabled>Sync Apps</NavDropdown.Item>
-                  <NavDropdown.Item as="button" disabled>Sync All</NavDropdown.Item> */}
               </NavDropdown>
 
 
@@ -179,7 +171,9 @@ export function TopNavBar() {
         </Container>
       </Navbar>
 
-      <Outlet />
-    </>
+      <Container fluid className="mx-auto app-shell-content mb-3 mt-1" style={{maxWidth: 1800}}>
+        <Outlet />
+      </Container>
+    </div>
   );
 }

@@ -131,7 +131,7 @@ class ApplicationService:
         return list(installed.values())
 
     @staticmethod
-    def get_pia_by_managed_application_uuid(user_id: int, application_uuid: str) -> str:
+    def get_pia_by_managed_application_uuid(user_id: int, application_uuid: str) -> dict:
         """Retrieves the Privacy Impact Assessment (PIA) of an application managed by a `DATA_CONTROLLER` or `DPO`, if any.
 
         Args:
@@ -139,7 +139,7 @@ class ApplicationService:
             application_uuid: The UUID of the application whose PIA is being requested.
 
         Returns:
-            A string representing a JSON-encoded dictionary containing the PIA data for the specified application.
+            A dictionary containing the PIA data for the specified application.
 
         Raises:
             `ApplicationNotFoundException`: If the application with the given UUID is not found among the managed applications.
@@ -160,7 +160,7 @@ class ApplicationService:
             raise PrivacyImpactAssessmentNotFoundException(
                 f"No Privacy Impact Assessment found for the application with uuid {application_uuid}"
             )
-        return json.dumps(privacy_impact_assessment)
+        return privacy_impact_assessment
 
     @staticmethod
     def submit_pia_by_managed_application_uuid(

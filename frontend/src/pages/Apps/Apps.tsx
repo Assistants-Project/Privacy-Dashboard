@@ -3,16 +3,18 @@ import {
 } from "react-bootstrap";
 import { useAuth } from "../../components/Authentication/AuthContext";
 import { Role, User } from "../../models/user";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "../../components/AppsContext";
 
 import { AppAssignmentPanel } from "../../components/AppAssignmentPanel";
 import { DocumentStatus } from "../../models/app"
 import { SubmitRightRequestModal } from "../../components/Rights/RightRequestSubmitForm";
+import { AppsList } from "../../components/AppsList";
 
 export function Apps() {
 
+  const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { loadingApps, selectedApp, setSelectedAppUUID, selectedAppUUID, errorApps, apps } = useApp();
 
@@ -34,12 +36,12 @@ export function Apps() {
   const PIAmissing = selectedApp?.pia_status === DocumentStatus.Missing;
   const PIAforbidden = selectedApp?.pia_status === DocumentStatus.Forbidden;
 
-
-
-
   return (
-    <Container className="py-3">
-      <Row className="mb-3">
+    <Container fluid
+      className="py-3 apps-page"
+      style={{ minHeight: 0 }}
+    >
+      <Row className="mb-3 flex-shrink-0">
         <Col>
           <h1 className="mb-0">
             {isDataSubject ? "Installed Apps" : "Catalog Apps"}
@@ -48,98 +50,26 @@ export function Apps() {
       </Row>
 
       {loadingApps ? (
-        <Card className="mb-3 p-0">
+        <Card className="mb-3 p-0 flex-shrink-0">
           <Card.Body>Loading…</Card.Body>
         </Card>
       ) : undefined}
 
       {errorApps ? (
-        <Card bg="danger" text="white" className="mb-3 p-0">
+        <Card bg="danger" text="white" className="mb-3 p-0 flex-shrink-0">
           <Card.Body>{errorApps}</Card.Body>
         </Card>
       ) : undefined}
 
       {!loading && !loadingApps && !errorApps ? (
-        <Row className="g-3 align-items-start">
-          <Col xs={12} lg={7}>
-            <Container fluid className="d-flex flex-column gap-3">
-              <Card className="p-0">
-                <Card.Body>
-                  <Form.Group controlId="apps-search">
-                    <Form.Label className="mb-1">Search</Form.Label>
-                    <Form.Control
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      placeholder="Name, description…"
-                    />
-                  </Form.Group>
-                </Card.Body>
-              </Card>
-
-              {apps?.length === 0 ? (
-                <Card className="p-0">
-                  <Card.Body className="text-muted">No apps.</Card.Body>
-                </Card>
-              ) : (
-                <Row xs={1} md={2} className="g-4">
-                  {apps
-                    ?.filter(
-                      (app) =>
-                        app.name.includes(query) ||
-                        app.description?.includes(query),
-                    )
-                    .map((app) => {
-                      const selected = app.uuid === selectedAppUUID;
-
-                      const title =
-                        app.name && app.name.trim() !== ""
-                          ? app.name
-                          : "Nome non impostato";
-                      const vote = app.evaluation ? app.evaluation : "no vote";
-                      const description = app.description;
-
-                      return (
-                        <Col key={app.uuid}>
-                          <Card
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => {
-                              if (selected) {
-                                closePanel();
-                                return;
-                              }
-                              setSelectedAppUUID(app.uuid);
-                            }}
-                            className={[
-                              "h-100 p-0 apps_card_hover",
-                              selected ? "border-3 apps_card_selected" : "",
-                            ].join(" ")}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <Card.Body>
-                              <div className="d-flex align-items-baseline gap-2">
-                                <strong>{title}</strong>
-                                <span className="text-muted">({vote})</span>
-                              </div>
-                              {description ? (
-                                <div className="text-muted">{description}</div>
-                              ) : (
-                                <div className="text-muted">
-                                  (no description)
-                                </div>
-                              )}
-                            </Card.Body>
-                          </Card>
-                        </Col>
-                      );
-                    })}
-                </Row>
-              )}
-            </Container>
+        <Row
+          className="g-3 align-items-start align-items-lg-stretch apps-page-body">
+          <Col xs={12} lg={7} className="apps-list-col" >
+            <AppsList closePanel={closePanel} getVote={(app) => app.evaluation ? app.evaluation : "no vote"} dataToRender={apps ?? []}  />
           </Col>
 
-          <Col xs={12} lg={5}>
-            <Card className="sticky-top z-1 p-0" style={{ top: "1rem" }}>
+          <Col xs={12} lg={5} className="apps-detail-col">
+            <Card className="p-0 sticky-top z-1" style={{ top: "1rem" }} >
               <Card.Body className="d-flex flex-column gap-3">
                 {!selectedApp ? (
                   <div className="text-muted">
@@ -149,10 +79,10 @@ export function Apps() {
                   <>
                     <Container
                       fluid
-                      className="d-flex justify-content-between align-items-start"
+                      className="d-flex px-0 justify-content-between align-items-start"
                     >
                       <Container fluid className="ps-0">
-                        <h2 className="h4 mb-1">
+                        <h2 className="h4">
                           {selectedApp.name && selectedApp.name.trim() !== ""
                             ? selectedApp.name
                             : "Nome non impostato"}
@@ -280,8 +210,8 @@ export function Apps() {
                               <Button variant="outline-primary" size="sm" onClick={() => setShowSubmitRightModal(true)}>
                                 Exercise a right
                               </Button>
-                            ) : ( 
-                                <Button variant={(PIAforbidden || PNforbidden)? "btn-outline-secondary disabled" : "outline-primary"} size="sm" onClick={() => setShowSubmitRightModal(true)}>
+                            ) : (
+                              <Button variant={(PIAforbidden || PNforbidden) ? "btn-outline-secondary disabled" : "outline-primary"} size="sm" onClick={() => navigate("/rights")}>
                                 Manage Rights
                               </Button>
                             )}
@@ -292,9 +222,9 @@ export function Apps() {
 
                     <Row>
                       <Col>
-                      {isDataController && selectedApp ? (
-                        <AppAssignmentPanel />
-                      ) : undefined}
+                        {isDataController && selectedApp ? (
+                          <AppAssignmentPanel />
+                        ) : undefined}
                       </Col>
                     </Row>
 
