@@ -1,7 +1,7 @@
 :root {
-  --bg: #f6f8fc;
-  --text: #0f172a;
-  --muted: rgba(15, 23, 42, 0.65);
+	  --bg: #f6f8fc;
+	  --text: #0f172a;
+	  --muted: rgba(15, 23, 42, 0.65);
 
   --card-bg: rgba(255, 255, 255, 0.9);
   --border: rgba(15, 23, 42, 0.12);
@@ -15,7 +15,12 @@
   --accent: #2563eb;
   --accent-weak: rgba(37, 99, 235, 0.12);
 
-  --danger-weak: rgba(220, 38, 38, 0.12);
+	  --danger-weak: rgba(220, 38, 38, 0.12);
+}
+
+html {
+  /* Scale down rem-based Bootstrap typography + spacing a bit */
+  font-size: 14px;
 }
 
 #house_card {

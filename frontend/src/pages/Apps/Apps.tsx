@@ -16,13 +16,14 @@ export function Apps() {
 
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { loadingApps, selectedApp, setSelectedAppUUID, selectedAppUUID, errorApps, apps } = useApp();
+  const { loadingApps, selectedApp, setSelectedAppUUID, selectedAppUUID, errorApps, apps, managedApps } = useApp();
 
   const [query, setQuery] = useState("");
   const [showSubmitRightModal, setShowSubmitRightModal] = useState(false);
 
   const isDataSubject = user?.role === Role.DataSubject;
   const isDataController = user?.role === Role.DatController;
+  const showQuestionnaire = !isDataSubject;
 
   const closePanel = () => setSelectedAppUUID(undefined);
 
@@ -36,9 +37,12 @@ export function Apps() {
   const PIAmissing = selectedApp?.pia_status === DocumentStatus.Missing;
   const PIAforbidden = selectedApp?.pia_status === DocumentStatus.Forbidden;
 
+  const questionnaireForbidden = !showQuestionnaire || !selectedApp || !managedApps.some((app) => app.uuid === selectedApp.uuid);
+  const questionnaireMissing = !selectedApp?.evaluation;
+
   return (
     <Container fluid
-      className="py-3 apps-page"
+      className="py-2 apps-page"
       style={{ minHeight: 0 }}
     >
       <Row className="mb-3 flex-shrink-0">
@@ -102,10 +106,10 @@ export function Apps() {
                       </div>
                     ) : undefined}
 
-                    <Container fluid className="d-flex flex-wrap gap-2 ps-0">
-                      <Link
-                        className={[
-                          "btn btn-sm border-2",
+	                    <Container fluid className="d-flex flex-wrap gap-2 ps-0">
+	                      <Link
+	                        className={[
+	                          "btn btn-sm border-2",
                           PNforbidden ? "btn-outline-secondary disabled" //se no disabilitiamo perchè significa che non possiamo leggere il privacy notice
                             : PNmissing ? "btn-outline-danger" //se pn undefined significa che non è mai stato scaricato o tentativo di fetch è fallito
                               : "btn-outline-success"
@@ -118,34 +122,52 @@ export function Apps() {
                             e.preventDefault();
                           }
                         }}
-                      >
-                        Privacy Notice
-                      </Link>
-                      <Link
-                        className="btn btn-sm border-2 btn-outline-secondary btn-sm disabled"
-                        to="/questionnaire"
-                      >
-                        Questionnaire
-                      </Link>
-                      <Link
-                        className={[
-                          "btn btn-sm border-2",
-                          PIAforbidden ? "btn-outline-secondary disabled"
-                            : PIAmissing ? "btn-outline-danger"
-                              : "btn-outline-success"
-                        ].join(" ")}
-                        to="/privacy-impact-assessment"
-                        aria-disabled={PIAforbidden}
-                        onClick={(e) => {
-
-                          if (PIAforbidden) {
-                            e.preventDefault();
-                          }
-                        }}
-                      >
-                        Privacy Impact Assessment
-                      </Link>
-                    </Container>
+		                      >
+		                        Privacy Notice
+		                      </Link>
+		                      {!isDataSubject && (
+		                        <Link
+		                          className={[
+		                            "btn btn-sm border-2",
+		                            questionnaireForbidden
+		                              ? "btn-outline-secondary disabled"
+		                              : questionnaireMissing
+		                                ? "btn-outline-danger"
+		                                : "btn-outline-success",
+		                          ].join(" ")}
+		                          to="/questionnaire"
+		                          aria-disabled={questionnaireForbidden}
+		                          onClick={(e) => {
+		                            if (questionnaireForbidden) {
+		                              e.preventDefault();
+		                            }
+		                          }}
+		                        >
+		                          Questionnaire
+		                        </Link>
+		                      )}
+		                      {!isDataSubject && (
+		                        <Link
+		                          className={[
+		                            "btn btn-sm border-2",
+		                            PIAforbidden
+		                              ? "btn-outline-secondary disabled"
+		                              : PIAmissing
+		                                ? "btn-outline-danger"
+		                                : "btn-outline-success",
+		                          ].join(" ")}
+		                          to="/privacy-impact-assessment"
+		                          aria-disabled={PIAforbidden}
+		                          onClick={(e) => {
+		                            if (PIAforbidden) {
+		                              e.preventDefault();
+		                            }
+		                          }}
+		                        >
+		                          Privacy Impact Assessment
+		                        </Link>
+		                      )}
+		                    </Container>
 
                     <Row xs={1} md={2} className="g-3">
                       <Col>

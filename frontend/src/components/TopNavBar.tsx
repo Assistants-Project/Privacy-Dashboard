@@ -1,14 +1,7 @@
 import { useAuth } from "./Authentication/AuthContext";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { Role } from "../models/user";
-import {
-  Container,
-  Dropdown,
-  Nav,
-  Navbar,
-  NavDropdown,
-  Spinner,
-} from "react-bootstrap";
+import {Container,Dropdown,Nav,Navbar,NavDropdown,Spinner} from "react-bootstrap";
 import { UserMenu } from "./UserMenu";
 import { useHome } from "./HomeContext";
 import { useApp } from "./AppsContext";
@@ -26,15 +19,10 @@ export function TopNavBar() {
 
   const anySyncing = updatingHomes || updatingApps;
 
-  const syncedIcon = (
-    <CheckCircle className="text-success" style={{ width: 18, height: 18 }} />
-  );
+  const syncedIcon = (<CheckCircle className="text-success" style={{ width: 18, height: 18 }} />);
   const syncingIcon = <Spinner animation="border" size="sm" />;
 
-  const initials = [user?.firstname?.trim()?.[0], user?.lastname?.trim()?.[0]]
-    .filter(Boolean)
-    .join("")
-    .toUpperCase();
+  const initials = [user?.firstname?.trim()?.[0], user?.lastname?.trim()?.[0]].filter(Boolean).join("").toUpperCase();
 
   return (
     <div className="app-shell">
@@ -55,56 +43,35 @@ export function TopNavBar() {
           <Navbar.Toggle aria-controls="main-navbar" className="ms-auto" />
 
           <Navbar.Collapse id="main-navbar" className="w-100">
-            <Nav
-              className="flex-grow-1 justify-content-lg-center flex-nowrap gap-3 gap-lg-4"
+            <Nav className="flex-grow-1 justify-content-lg-center flex-nowrap gap-3 gap-lg-4"
               activeKey={location.pathname}
             >
               <Nav.Link as={NavLink} to="/" end eventKey="/">
                 Home
               </Nav.Link>
-              <Nav.Link
-                as={NavLink}
-                to="/privacy-notice"
-                eventKey="/privacy-notice"
-              >
+              <Nav.Link as={NavLink} to="/privacy-notice" eventKey="/privacy-notice">
                 Privacy Notice
               </Nav.Link>
-              <Nav.Link
-                as={NavLink}
-                to={isDataSubject ? "/installed-apps" : "/catalog"}
-                eventKey={isDataSubject ? "/installed-apps" : "/catalog"}
-              >
+              <Nav.Link as={NavLink} to={isDataSubject ? "/installed-apps" : "/catalog"} eventKey={isDataSubject ? "/installed-apps" : "/catalog"}>
                 {isDataSubject ? "Installed Apps" : "Apps Catalog"}
               </Nav.Link>
               {!isDataSubject && (
-                <Nav.Link
-                  as={NavLink}
-                  to="/privacy-impact-assessment"
-                  eventKey="/privacy-impact-assessment"
-                >
+                <Nav.Link as={NavLink} to="/privacy-impact-assessment" eventKey="/privacy-impact-assessment">
                   Privacy Impact Assessment
                 </Nav.Link>
               )}
               {showQuestionnaire && (
-                <Nav.Link
-                  as={NavLink}
-                  to="/questionnaire"
-                  eventKey="/questionnaire"
-                >
+                <Nav.Link as={NavLink} to="/questionnaire" eventKey="/questionnaire">
                   Questionnaire
                 </Nav.Link>
               )}
               {isDataSubject &&
-                <Nav.Link
-                  as={NavLink}
-                  to="/policy-translation"
-                  eventKey="/policy-translation"
-                >
+                <Nav.Link as={NavLink} to="/policy-translation" eventKey="/policy-translation">
                   Policy Translation
                 </Nav.Link>
               }
               <Nav.Link as={NavLink} to="/rights" eventKey="/rights">
-                {isDataSubject ? "Rights" : "Requests"}
+                {isDataSubject ? "Rights Request" : "Rights Request"}
               </Nav.Link>
 
               <Nav.Link as={NavLink} to="/messages" eventKey="/messages">
@@ -114,9 +81,7 @@ export function TopNavBar() {
 
             <Nav className="align-items-center gap-4">
 
-              <NavDropdown
-                id="sync-dropdown"
-                align="end"
+              <NavDropdown id="sync-dropdown" align="end"
                 title={
                   <span
                     className="d-inline-flex align-items-center gap-2 border rounded px-2 py-1"
@@ -171,7 +136,7 @@ export function TopNavBar() {
         </Container>
       </Navbar>
 
-      <Container fluid className="mx-auto app-shell-content mb-3 mt-1" style={{maxWidth: 1800}}>
+      <Container fluid className="mx-auto app-shell-content" style={{maxWidth: 1800}}>
         <Outlet />
       </Container>
     </div>

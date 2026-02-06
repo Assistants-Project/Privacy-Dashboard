@@ -23,6 +23,7 @@ type AppsContextValue = {
     errorUpdatingApps: string | undefined; //indica se c'è stato un errore durante il refresh del backend
     PrivacyNoticeByAppUUID: Record<string, PrivacyNotice | null | undefined> //record cache dei PN
 
+    reloadApps: () => Promise<void>
 
     //espone modo per cambiare app selezionata
     setSelectedAppUUID: (uuid: string | undefined) => void
@@ -325,8 +326,8 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
             loadPrivacyNotice,
             loadPIA,
             loadQuestionnaire,
-            setSelectedAppUUID
-
+            setSelectedAppUUID,
+            reloadApps: loadApps
         }),
         [
             apps,

@@ -11,7 +11,7 @@ type Props = { closePanel: () => void; setPanelExpanded?: (expanded: boolean) =>
 
 function PrivacyNoticeEditor({closePanel,setPanelExpanded,}: Props) {
   const [value,setValue,] = useState("");
-  const {loadPrivacyNotice,PrivacyNoticeByAppUUID,selectedAppUUID,selectedApp,} = useApp();
+  const {loadPrivacyNotice,PrivacyNoticeByAppUUID,selectedAppUUID,selectedApp,reloadApps} = useApp();
   const { user } = useAuth();
 
   const draftRef = useRef<string>("");
@@ -51,8 +51,9 @@ function PrivacyNoticeEditor({closePanel,setPanelExpanded,}: Props) {
     }
     try {
       await handleRemovePrivacyNotice(selectedAppUUID);
-      await handleSubmitPrivacyNotice(selectedAppUUID,value,);
+      await handleSubmitPrivacyNotice(selectedAppUUID,value);
       void loadPrivacyNotice(selectedAppUUID,true);
+      reloadApps();
     } catch (err) {
       console.error("Error submitting privacy notice:",err);
     }

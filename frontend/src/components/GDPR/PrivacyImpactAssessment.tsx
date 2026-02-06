@@ -21,11 +21,11 @@ function PrivacyImpactAssessment() {
   }, [loadingApps, managedApps, selectedAppUUID, setSelectedAppUUID,]);
 
   return (
-    <Container fluid className="mx-auto py-3 d-flex flex-column overflow-hidden h-100" style={{ minHeight: 0 }}>
+    <Container fluid className="mx-auto py-2 d-flex flex-column overflow-hidden h-100" style={{ minHeight: 0 }}>
       <Row className="mb-3 flex-shrink-0">
         <Col>
           <h1 className="mb-0">
-            Privacy Impact Assessments
+            Privacy Impact Assessment
           </h1>
         </Col>
       </Row>

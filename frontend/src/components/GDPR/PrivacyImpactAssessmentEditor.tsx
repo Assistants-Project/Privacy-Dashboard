@@ -10,7 +10,7 @@ import { PIA } from "../../models/PIA";
 type Props = { closePanel: () => void };
 
 function PrivacyImpactAssessmentEditor({closePanel,}: Props) {
-  const {loadPIA,selectedAppUUID,selectedApp,} = useApp();
+  const {loadPIA,selectedAppUUID,selectedApp,reloadApps} = useApp();
 
   const [editMode,setEditMode,] = useState(false);
   const [pia,setPia,] = useState<PIA | null | undefined>(undefined);
@@ -166,7 +166,9 @@ function PrivacyImpactAssessmentEditor({closePanel,}: Props) {
       }
 
       await submitPiaTemplate(selectedAppUUID,updatedTemplate);
+      loadPIA(selectedAppUUID,true);
       setPia(new PIA(selectedAppUUID,updatedTemplate));
+      reloadApps();
       setEditMode(false);
       setDraftContent(undefined);
       gridApisRef.current = {};
@@ -229,7 +231,7 @@ function PrivacyImpactAssessmentEditor({closePanel,}: Props) {
                         Press {hasPia ? "Edit to start editing" : "Create to create a new PIA"}.
                       </Row>
                       <Row>
-                        Delete is not available yet.
+                        Delete not available
                       </Row>
                     </Col>
                   </Row>

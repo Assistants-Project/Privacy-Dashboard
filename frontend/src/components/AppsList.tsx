@@ -25,6 +25,17 @@ function AppsList(props: AppsListProps) {
   const data = props.dataToRender ?? managedApps; //fallback a managed apps se non vengono passate apps
   const managedUuidSet = new Set(managedApps.map((app) => app.uuid)); //per rendere efficente il filtro
 
+  const getVoteColorClass = (vote?: string) => {
+    const normalized = (vote ?? "").trim().toUpperCase();
+    if (normalized === "GREEN") return "text-success";
+    if (normalized === "ORANGE") return "text-warning";
+    if (normalized === "RED") return "text-danger";
+    if (normalized === "" || normalized === "—" || normalized === "NO VOTE" || normalized === "NO VODE") {
+      return "text-danger";
+    }
+    return "text-muted";
+  };
+
   return (
     <Container fluid className="d-flex flex-column flex-grow-1 gap-3 overflow-hidden"
       style={{ minHeight: 0 }}
@@ -35,18 +46,25 @@ function AppsList(props: AppsListProps) {
             <Form.Label className="mb-2">Search</Form.Label>
             <Form.Control value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Name, description" />
           </Form.Group>
-          {user?.role != Role.DataSubject ?
+          {props.getDocumentStatus ? (
             <Form.Group controlId="apps-doc-status">
-              <Form.Label className="mb-2 mt-2">{props.getDocumentStatus ? "Status" : "Managed"}</Form.Label>
+              <Form.Label className="mb-2 mt-2">Status</Form.Label>
               <Form.Select value={docStatusFilter} onChange={(e) => setDocStatusFilter(e.target.value as "" | DocumentStatus.Available | DocumentStatus.Missing)}>
                 <option value="">All</option>
-                <option value={DocumentStatus.Available}>{props.getDocumentStatus ? "Available" : "Managed"}</option>
-                <option value={DocumentStatus.Missing}>{props.getDocumentStatus ? "Missing" : "Not managed"}</option>
+                <option value={DocumentStatus.Available}>Available</option>
+                <option value={DocumentStatus.Missing}>Missing</option>
               </Form.Select>
             </Form.Group>
-            :
-            undefined
-          }
+          ) : user?.role != Role.DataSubject ? (
+            <Form.Group controlId="apps-doc-status">
+              <Form.Label className="mb-2 mt-2">Managed</Form.Label>
+              <Form.Select value={docStatusFilter} onChange={(e) => setDocStatusFilter(e.target.value as "" | DocumentStatus.Available | DocumentStatus.Missing)}>
+                <option value="">All</option>
+                <option value={DocumentStatus.Available}>Managed</option>
+                <option value={DocumentStatus.Missing}>Not managed</option>
+              </Form.Select>
+            </Form.Group>
+          ) : undefined}
 
         </Card.Body>
       </Card>
@@ -66,6 +84,8 @@ function AppsList(props: AppsListProps) {
                 const title = app.name && app.name.trim() !== "" ? app.name : "Nome non impostato";
                 const description = app.description;
                 const warning = props.getDocumentStatus && props.getDocumentStatus(app) === DocumentStatus.Missing;
+                const voteRaw = props.getVote ? props.getVote(app) : undefined;
+                const vote = voteRaw && voteRaw.trim() !== "" ? voteRaw : "no vote";
 
                 return (
                   <Col key={app.uuid}>
@@ -83,7 +103,7 @@ function AppsList(props: AppsListProps) {
                           <Col>
                             <strong>{title} </strong>
                             {props.getVote &&
-                              <span className="text-muted">({props.getVote(app)})</span>
+                              <span className={getVoteColorClass(vote)}>({vote})</span>
                             }
 
                             {description ? (<div className="text-muted">{description}</div>) : (<div className="text-muted">(no description)</div>)}

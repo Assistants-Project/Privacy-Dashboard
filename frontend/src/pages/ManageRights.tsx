@@ -36,7 +36,7 @@ export function ManageRights() {
       <Row className="mb-3">
         <Col>
           <h1 className="mb-0">
-            {isDataSubject ? "Rights" : "Requests"}
+            {isDataSubject ? "Rights Request" : "Rights Request"}
           </h1>
         </Col>
       </Row>

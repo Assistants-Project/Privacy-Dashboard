@@ -14,7 +14,7 @@ function Home() {
   const appsNeedingAttention = managedApps.filter((app) => app.pn_status === DocumentStatus.Missing || app.pia_status === DocumentStatus.Missing);
 
   return (
-    <Container className="py-3">
+    <Container className="py-2">
       <Row className="mb-3">
         <Col>
           <h2>Welcome:</h2>
