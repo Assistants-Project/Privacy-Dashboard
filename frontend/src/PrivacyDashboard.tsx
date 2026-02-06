@@ -1,5 +1,5 @@
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import { Container, Navbar } from "react-bootstrap";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { Container } from "react-bootstrap";
 import { Login } from "./components/Authentication/Login";
 import { useAuth } from "./components/Authentication/AuthContext";
 import { PrivacyNotice } from "./components/GDPR/PrivacyNotice";
@@ -47,7 +47,13 @@ function PrivacyDashboard() {
 
           <Route
             path="/privacy-impact-assessment"
-            element={isDataSubject ? <Navigate to="/" replace /> : <PrivacyImpactAssessment />}
+            element={
+              isDataSubject ? (
+                <Navigate to="/" replace />
+              ) : (
+                <PrivacyImpactAssessment />
+              )
+            }
           />
           <Route path="/questionnaire" element={<Questionnaire />} />
           <Route path="/policy-translation" element={<PolicyTranslation />} />

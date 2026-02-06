@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from "react";
 import {
   Container,
-  Row,
-  Col,
   Button,
   Tabs,
   Tab,
   Alert,
   Card,
-  Navbar,
-  Nav,
   Modal,
+  Col,
+  Row,
 } from "react-bootstrap";
 
-import { useNavigate } from "react-router-dom";
 import { useHome } from "../HomeContext";
 import {
   getRules,
@@ -21,15 +18,13 @@ import {
   deleteRule,
   translateRule,
   checkRule,
-  downloadPolicies,
 } from "../../API/SIFIS/sifisAPI";
 import RuleList from "./RuleList";
 import RuleEditor from "./RuleEditor";
 import VerificationReport from "./VerificationReport";
 
 function PolicyTranslation() {
-  const navigate = useNavigate();
-  const { current_home_uuid } = useHome(); // Consume Global Context
+  const { current_home_uuid } = useHome();
 
   const [rules, setRules] = useState<any[]>([]);
   const [view, setView] = useState<"list" | "create">("list");
@@ -123,37 +118,8 @@ function PolicyTranslation() {
     }
   };
 
-  const handleDownload = async () => {
-    if (!current_home_uuid) return;
-    try {
-      const blob = await downloadPolicies(current_home_uuid);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "policies.zip";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    } catch (err: any) {
-      setError("Download failed: " + err.message);
-    }
-  };
-
   return (
     <div className="d-flex flex-column" style={{ minHeight: "100vh" }}>
-      <Navbar bg="dark" variant="dark" expand="lg" className="px-3">
-        <Navbar.Brand href="#">SIFIS Policy Translation Point</Navbar.Brand>
-        <Nav className="ms-auto">
-          <Button
-            variant="outline-light"
-            size="sm"
-            onClick={() => navigate("/")}
-          >
-            Back to Dashboard
-          </Button>
-        </Nav>
-      </Navbar>
-
       <Container className="flex-grow-1 py-4">
         {error && (
           <Alert variant="danger" onClose={() => setError(null)} dismissible>
@@ -165,54 +131,37 @@ function PolicyTranslation() {
             {success}
           </Alert>
         )}
-
-        <Card className="mb-4">
-          <Card.Body className="d-flex align-items-center justify-content-between">
-            <div className="fw-bold">Policy Management</div>
-            <div>
-              <Button
-                variant="outline-dark"
-                size="sm"
-                onClick={handleDownload}
-                disabled={!current_home_uuid}
-              >
-                Download All Policies (ZIP)
+        <Row className="mb-3 flex-shrink-0 align-items-center">
+          <Col>
+            <h1 className="mb-0">Policy Translation</h1>
+          </Col>
+          <Col xs="auto">
+            {current_home_uuid && view === "list" && (
+              <Button variant="primary" onClick={() => setView("create")}>
+                <i className="fa fa-plus me-2"></i>Create New Policy
               </Button>
-            </div>
-          </Card.Body>
-        </Card>
-
+            )}
+          </Col>
+        </Row>
         {current_home_uuid ? (
           <>
-            <Tabs defaultActiveKey="rules" id="ptp-tabs" className="mb-3">
-              <Tab eventKey="rules" title="Policy Management">
-                {view === "list" ? (
-                  <>
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h3>Defined Policies</h3>
-                      <Button
-                        variant="primary"
-                        onClick={() => setView("create")}
-                      >
-                        <i className="fa fa-plus me-2"></i>Create New Policy
-                      </Button>
-                    </div>
-                    <RuleList
-                      rules={rules}
-                      onDelete={requestDeleteRule}
-                      onTranslate={handleTranslateRule}
-                      onCheck={handleCheckRule}
-                    />
-                  </>
-                ) : (
-                  <RuleEditor
-                    homeUuid={current_home_uuid}
-                    onSave={handleCreateRule}
-                    onCancel={() => setView("list")}
-                  />
-                )}
-              </Tab>
-            </Tabs>
+            {view === "list" ? (
+              <>
+                <RuleList
+                  rules={rules}
+                  onDelete={requestDeleteRule}
+                  onTranslate={handleTranslateRule}
+                  onCheck={handleCheckRule}
+                />
+              </>
+            ) : (
+              <RuleEditor
+                homeUuid={current_home_uuid}
+                onSave={handleCreateRule}
+                onCancel={() => setView("list")}
+              />
+            )}
+
             <VerificationReport
               show={showReport}
               onHide={() => setShowReport(false)}
