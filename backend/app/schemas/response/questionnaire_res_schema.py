@@ -26,4 +26,5 @@ class GivenAnswerSchema(ma.Schema):
 
 class QuestionnaireResSchema(ma.Schema):
     application_evaluation = ma.Enum(Evaluation, by_value=True, required=False)
+    questionnaire_summary = ma.Str(required=False)
     given_answers = ma.Nested(GivenAnswerSchema, many=True)

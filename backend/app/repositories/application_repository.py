@@ -2,11 +2,11 @@ from datetime import datetime
 from typing import Iterator, List, Tuple
 from uuid import UUID
 
-from ..extensions import db
-from ..models import Application, Evaluation, UserSmartHomeApplication, User, UserRole
 from sqlalchemy import and_
 from sqlalchemy.orm import aliased
 
+from ..extensions import db
+from ..models import Application, Evaluation, User, UserRole, UserSmartHomeApplication
 
 
 class ApplicationRepository:
@@ -130,10 +130,11 @@ class ApplicationRepository:
 
     @staticmethod
     def update_application_evaluation(
-        application_id: int, evaluation: Evaluation
+        application_id: int, evaluation: Evaluation, questionnaire_summary: str
     ) -> None:
         application = db.session.get(Application, application_id)
         application.evaluation = evaluation
+        application.questionnaire_summary = questionnaire_summary
         db.session.commit()
 
     @staticmethod
@@ -336,21 +337,29 @@ class ApplicationRepository:
         application.privacy_impact_assessment = None
         db.session.commit()
 
-    #retrieves for every application the applications details and assigned data controllers and dpo
+    # retrieves for every application the applications details and assigned data controllers and dpo
     @staticmethod
     def get_available_application() -> List[Tuple[Application, User | None]]:
 
-        statement = (db.select(Application, User).outerjoin(
-            UserSmartHomeApplication,
-            and_(
-                UserSmartHomeApplication.application_id == Application.id,
-                UserSmartHomeApplication.smart_home_id.is_(None),
-            ),
+        statement = (
+            db.select(Application, User)
+            .outerjoin(
+                UserSmartHomeApplication,
+                and_(
+                    UserSmartHomeApplication.application_id == Application.id,
+                    UserSmartHomeApplication.smart_home_id.is_(None),
+                ),
+            )
+            .outerjoin(
+                User,
+                and_(
+                    User.id == UserSmartHomeApplication.user_id,
+                    User.role.in_(
+                        [UserRole.DATA_CONTROLLER, UserRole.DATA_PROTECTION_OFFICER]
+                    ),
+                ),
+            )
         )
-        .outerjoin(User,and_(
-        User.id == UserSmartHomeApplication.user_id,
-        User.role.in_([UserRole.DATA_CONTROLLER, UserRole.DATA_PROTECTION_OFFICER]),
-        )))
 
         rows = db.session.execute(statement).all()
 

@@ -36,6 +36,7 @@ class GivenAnswerDict(TypedDict):
 
 class QuestionnaireResDict(TypedDict):
     application_evaluation: Evaluation | None
+    questionnaire_summary: str | None
     given_answers: List[GivenAnswerDict]
 
 
@@ -89,8 +90,8 @@ class QuestionService:
             check_required: A boolean indicating whether to check for required questions, should be set to True if all required questions must be answered.
 
         Returns:
-            A dictionary containing the result of the submission, with keys `application_evaluation` and `given_answers`, where `application_evaluation` is the
-            overall evaluation of the application based on the questionnaire answers, and `given_answers` is a list of dictionaries each containing a `question` and the corresponding `answer`.
+            A dictionary containing the result of the submission, with keys `application_evaluation`, `questionnaire_summary`, and `given_answers`, where `application_evaluation` is the
+            overall evaluation of the application based on the questionnaire answers, `questionnaire_summary` is a summary of the questionnaire, and `given_answers` is a list of dictionaries each containing a `question` and the corresponding `answer`.
 
         Raises:
             `ApplicationNotFoundException`: If the application with the given UUID is not found among the managed applications.
@@ -165,21 +166,30 @@ class QuestionService:
                 if item["answer"].evaluation is not None
             ]
             if answers_evaluation:
+                red_count = answers_evaluation.count(Evaluation.RED)
+                orange_count = answers_evaluation.count(Evaluation.ORANGE)
+                green_count = answers_evaluation.count(Evaluation.GREEN)
+                questionnaire_summary = f"The submitted questionnaire contains: {red_count} RED answer{'s' if red_count != 1 else ''}, {orange_count} ORANGE answer{'s' if orange_count != 1 else ''} and {green_count} GREEN answer{'s' if green_count != 1 else ''}."
                 if Evaluation.RED in answers_evaluation:
                     application_evaluation = Evaluation.RED
                 elif Evaluation.ORANGE in answers_evaluation:
                     application_evaluation = Evaluation.ORANGE
                 else:
                     application_evaluation = Evaluation.GREEN
+
                 ApplicationRepository.update_application_evaluation(
-                    application.id, application_evaluation
+                    application.id, application_evaluation, questionnaire_summary
                 )
             else:
                 application_evaluation = None
-            return QuestionnaireResDict(
-                application_evaluation=ApplicationRepository.get_application_by_user_id_and_application_uuid(
+            updated_application = (
+                ApplicationRepository.get_application_by_user_id_and_application_uuid(
                     current_user_id, application_uuid
-                ).evaluation,
+                )
+            )
+            return QuestionnaireResDict(
+                application_evaluation=updated_application.evaluation,
+                questionnaire_summary=updated_application.questionnaire_summary,
                 given_answers=given_answers,
             )
         except Exception:
@@ -231,5 +241,7 @@ class QuestionService:
                 f"No questionnaire was submitted for application with uuid {application_uuid}!"
             )
         return QuestionnaireResDict(
-            application_evaluation=application.evaluation, given_answers=given_answers
+            application_evaluation=application.evaluation,
+            questionnaire_summary=application.questionnaire_summary,
+            given_answers=given_answers,
         )
