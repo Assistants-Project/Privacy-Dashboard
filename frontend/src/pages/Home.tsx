@@ -1,10 +1,10 @@
 import { Card, Col, Container, Row } from "react-bootstrap";
-import { useAuth } from "./Authentication/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Role } from "../models/user";
-import { HomeSelector } from "./HomeSelector";
-import { useApp } from "./AppsContext";
 import { DocumentStatus } from "../models/app";
+import { useAuth } from "../contexts/AuthContext";
+import { HomeSelector } from "../components/HomeSelector";
+import { useApp } from "../contexts/AppsContext";
 
 function Home() {
   const { user } = useAuth();

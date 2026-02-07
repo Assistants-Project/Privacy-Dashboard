@@ -1,16 +1,16 @@
 import {
   Badge, Button, Card, CloseButton, Col, Container, Form, Row,
 } from "react-bootstrap";
-import { useAuth } from "../../components/Authentication/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { Role, User } from "../../models/user";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApp } from "../../components/AppsContext";
+import { useApp } from "../../contexts/AppsContext";
 
-import { AppAssignmentPanel } from "../../components/AppAssignmentPanel";
+import { AppAssignmentPanel } from "../../components/Apps/AppAssignmentPanel";
 import { DocumentStatus } from "../../models/app"
 import { SubmitRightRequestModal } from "../../components/Rights/RightRequestSubmitForm";
-import { AppsList } from "../../components/AppsList";
+import { AppsList } from "../../components/Apps/AppsList";
 
 export function Apps() {
 

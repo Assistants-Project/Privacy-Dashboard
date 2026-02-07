@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
-import { useAuth } from "./Authentication/AuthContext";
-import { Role, User } from "../models/user";
-import { useApp } from "./AppsContext";
-import { fetchDataProtectionOfficers } from "../services/UserService";
-import { DocumentStatus } from "../models/app";
+import { useAuth } from "../../contexts/AuthContext";
+import { Role, User } from "../../models/user";
+import { useApp } from "../../contexts/AppsContext";
+import { fetchDataProtectionOfficers } from "../../services/UserService";
+import { DocumentStatus } from "../../models/app";
 
 
 function AppAssignmentPanel() {

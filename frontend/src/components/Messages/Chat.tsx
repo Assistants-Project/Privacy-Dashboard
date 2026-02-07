@@ -1,6 +1,6 @@
 import { Col, Row } from "react-bootstrap";
-import { useAuth } from "./Authentication/AuthContext";
-import { User } from "../models/user";
+import { useAuth } from "../../contexts/AuthContext";
+import { User } from "../../models/user";
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -8,7 +8,7 @@ import {
   formatIsoDateOrTime,
   isSameUpToMinute,
   MessageResSchema,
-} from "../services/MessageService";
+} from "../../services/MessageService";
 
 export function Chat({ selectedContact }: { selectedContact: User }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);

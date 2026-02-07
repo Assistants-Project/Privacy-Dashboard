@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { Role } from "../../models/user";
 import { buildPredefinedRightMessage, RIGHT_TYPE_LABELS, RightType } from "../../models/request";
 import { submitRightRequest } from "../../services/RightsService";
-import { useAuth } from "../Authentication/AuthContext";
-import { useApp } from "../AppsContext";
-import { useHome } from "../HomeContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { useApp } from "../../contexts/AppsContext";
+import { useHome } from "../../contexts/HomeContext";
 
 type SubmitRightRequestModalProps = {
   show: boolean;

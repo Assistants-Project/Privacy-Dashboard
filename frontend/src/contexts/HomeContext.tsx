@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from "re
 import { Role } from "../models/user";
 import { fetchHomes, updateHomesService } from "../services/HomesService"
 import { HomeModel } from "../models/home";
-import { useAuth } from "./Authentication/AuthContext";
+import { useAuth } from "./AuthContext";
 
 //tutti i parametri del contesto che possono essere comodi e usati in tanti componenti diversi
 type HomeContextValue = {

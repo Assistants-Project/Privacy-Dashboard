@@ -1,8 +1,8 @@
 import { Form, ListGroup, Modal } from "react-bootstrap";
-import { User } from "../models/user";
+import { User } from "../../models/user";
 
 import { useEffect, useState } from "react";
-import { fetchContacts } from "../services/MessageService";
+import { fetchContacts } from "../../services/MessageService";
 
 export function ContactsModal(props: any) {
   const [contacts, setContacts] = useState<User[] | undefined>(undefined);

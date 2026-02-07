@@ -1,9 +1,9 @@
 import { Card, Col, Container, Row } from "react-bootstrap";
 import { useCallback, useEffect, useState } from "react";
-import { useApp } from "../AppsContext";
-import { AppsList } from "../AppsList";
+import { useApp } from "../../contexts/AppsContext";
+import { AppsList } from "../../components/Apps/AppsList";
 import { AppModel, DocumentStatus } from "../../models/app";
-import { QuestionnaireEditor } from "./QuestionnaireEditor";
+import { QuestionnaireEditor } from "../../components/Questionnaire/QuestionnaireEditor";
 
 function Questionnaire() {
   const { loadingApps, setSelectedAppUUID, selectedAppUUID, selectedApp, managedApps } =

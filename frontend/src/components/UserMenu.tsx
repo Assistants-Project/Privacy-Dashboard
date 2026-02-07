@@ -1,8 +1,8 @@
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
-import { useAuth } from "./Authentication/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 import { HomeModel } from "../models/home";
 import { Role, User } from "../models/user";
-import { useHome } from "./HomeContext";
+import { useHome } from "../contexts/HomeContext";
 
 export function UserMenu() {
     const { user, logout, delete_user } = useAuth();

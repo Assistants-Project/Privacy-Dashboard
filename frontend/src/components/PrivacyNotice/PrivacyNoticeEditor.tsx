@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill";
 import {fetchPrivacyNoticeTemplate,handleRemovePrivacyNotice,handleSubmitPrivacyNotice,} from "../../services/PrivacyNoticeService";
 import "react-quill/dist/quill.snow.css";
-import { useApp } from "../AppsContext";
-import { useAuth } from "../Authentication/AuthContext";
+import { useApp } from "../../contexts/AppsContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { Role } from "../../models/user";
 
 type Props = { closePanel: () => void; setPanelExpanded?: (expanded: boolean) => void };

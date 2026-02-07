@@ -1,9 +1,9 @@
 import { Card, Col, Container, Row } from "react-bootstrap";
 import { useCallback, useEffect, useState } from "react";
-import { useApp } from "../AppsContext";
-import { AppsList } from "../AppsList";
-import { PrivacyNoticeEditor } from "./PrivacyNoticeEditor";
 import { DocumentStatus } from "../../models/app";
+import { useApp } from "../../contexts/AppsContext";
+import { AppsList } from "../../components/Apps/AppsList";
+import { PrivacyNoticeEditor } from "../../components/PrivacyNotice/PrivacyNoticeEditor";
 
 function PrivacyNotice() {
   const { loadingApps, setSelectedAppUUID, selectedAppUUID, selectedApp, managedApps } = useApp();

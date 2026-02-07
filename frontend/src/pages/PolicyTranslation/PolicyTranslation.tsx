@@ -11,7 +11,7 @@ import {
   Row,
 } from "react-bootstrap";
 
-import { useHome } from "../HomeContext";
+import { useHome } from "../../contexts/HomeContext";
 import {
   getRules,
   saveRule,
@@ -19,9 +19,9 @@ import {
   translateRule,
   checkRule,
 } from "../../API/SIFIS/sifisAPI";
-import RuleList from "./RuleList";
-import RuleEditor from "./RuleEditor";
-import VerificationReport from "./VerificationReport";
+import RuleList from "../../components/PolicyTranslation/RuleList";
+import RuleEditor from "../../components/PolicyTranslation/RuleEditor";
+import VerificationReport from "../../components/PolicyTranslation/VerificationReport";
 
 function PolicyTranslation() {
   const { current_home_uuid } = useHome();

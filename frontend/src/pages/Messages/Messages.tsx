@@ -7,12 +7,12 @@ import {
   ListGroup,
   Row,
 } from "react-bootstrap";
-import { useAuth } from "../../components/Authentication/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { User } from "../../models/user";
 
 import { useEffect, useState } from "react";
-import { Chat } from "../../components/Chat";
-import { ContactsModal } from "../../components/ContactsModal";
+import { Chat } from "../../components/Messages/Chat";
+import { ContactsModal } from "../../components/Messages/ContactsModal";
 import {
   fetchMessagedContacts,
   formatIsoDateOrTime,

@@ -1,9 +1,9 @@
 import { Card, Col, Container, Row } from "react-bootstrap";
 import { useCallback, useEffect } from "react";
-import { useApp } from "../../components/AppsContext";
-import { AppsList } from "../AppsList";
-import { PrivacyImpactAssessmentEditor } from "./PrivacyImpactAssessmentEditor";
+import { useApp } from "../../contexts/AppsContext";
 import { DocumentStatus } from "../../models/app";
+import { AppsList } from "../../components/Apps/AppsList";
+import { PrivacyImpactAssessmentEditor } from "../../components/PIA/PrivacyImpactAssessmentEditor";
 
 function PrivacyImpactAssessment() {
    const { loadingApps, setSelectedAppUUID, selectedAppUUID, selectedApp, managedApps } = useApp();

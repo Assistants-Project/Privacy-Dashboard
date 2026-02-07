@@ -1,11 +1,11 @@
 import {Badge,Card,CloseButton,Col,Container,Form,Row,Spinner} from "react-bootstrap";
-import { useAuth } from "../components/Authentication/AuthContext";
-import { Role } from "../models/user";
+import { useAuth } from "../../contexts/AuthContext";
+import { Role } from "../../models/user";
 import { useState } from "react";
-import { RequestStatus, RIGHT_TYPE_LABELS } from "../models/request";
-import { RightRequestHandleForm } from "../components/Rights/RightRequestHandleForm";
-import { useRightsRequests } from "../hooks/useRightsRequests";
-import { formatIsoDateOrTime } from "../services/MessageService";
+import { RequestStatus, RIGHT_TYPE_LABELS } from "../../models/request";
+import { RightRequestHandleForm } from "../../components/Rights/RightRequestHandleForm";
+import { useRightsRequests } from "../../hooks/useRightsRequests";
+import { formatIsoDateOrTime } from "../../services/MessageService";
 
 export function ManageRights() {
 

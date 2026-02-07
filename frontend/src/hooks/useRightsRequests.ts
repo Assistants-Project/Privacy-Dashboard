@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "../components/Authentication/AuthContext";
-import { useHome } from "../components/HomeContext";
+import { useAuth } from "../contexts/AuthContext";
+import { useHome } from "../contexts/HomeContext";
 import { RequestStatus } from "../models/request";
 import { Role } from "../models/user";
 import { fetchRequestsHome, fetchRequestsInbox, RequestListItem } from "../services/RightsService";
@@ -77,4 +77,3 @@ function useRightsRequests(statusFilter: RequestStatus | undefined): UseRightsRe
 }
 
 export { useRightsRequests };
-

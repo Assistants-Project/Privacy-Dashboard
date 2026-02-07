@@ -4,10 +4,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./style.css"
 import { BrowserRouter } from "react-router-dom";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import PrivacyDashboard from "./PrivacyDashboard";
-import { AuthProvider } from "./components/Authentication/AuthContext";
-import { HomeProvider } from "./components/HomeContext";
-import { AppsProvider } from "./components/AppsContext";
+import PrivacyDashboard from "./pages/PrivacyDashboard";
+import { AuthProvider } from "./contexts/AuthContext";
+import { HomeProvider } from "./contexts/HomeContext";
+import { AppsProvider } from "./contexts/AppsContext";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 

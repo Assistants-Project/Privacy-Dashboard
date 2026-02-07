@@ -1,18 +1,18 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Container } from "react-bootstrap";
-import { Login } from "./components/Authentication/Login";
-import { useAuth } from "./components/Authentication/AuthContext";
-import { PrivacyNotice } from "./components/GDPR/PrivacyNotice";
-import { PrivacyImpactAssessment } from "./components/GDPR/PrivacyImpactAssessment";
-import { Questionnaire } from "./components/GDPR/Questionnaire";
-import { Home } from "./components/Home";
-import PolicyTranslation from "./components/SIFIS/PolicyTranslation";
-import { TopNavBar } from "./components/TopNavBar";
-import { RequireAuth } from "./components/Authentication/RequireAuth";
-import { Apps } from "./pages/Apps/Apps";
-import { Messages } from "./pages/Messages/Messages";
-import { ManageRights } from "./pages/ManageRights";
-import { Role } from "./models/user";
+import { Login } from "./Authentication/Login";
+import { useAuth } from "../contexts/AuthContext";
+import { Questionnaire } from "./Questionnaire/Questionnaire";
+import PolicyTranslation from "./PolicyTranslation/PolicyTranslation";
+import { TopNavBar } from "../components/Routing/TopNavBar";
+import { RequireAuth } from "../components/Routing/RequireAuth";
+import { Apps } from "./Apps/Apps";
+import { Messages } from "./Messages/Messages";
+import { ManageRights } from "./RightsRequest/ManageRights";
+import { Role } from "../models/user";
+import { Home } from "./Home";
+import { PrivacyNotice } from "./PrivacyNotice/PrivacyNotice";
+import { PrivacyImpactAssessment } from "./PIA/PrivacyImpactAssessment";
 
 function PrivacyDashboard() {
   const auth = useAuth();

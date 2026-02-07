@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Role } from "../models/user";
-import { useAuth } from "./Authentication/AuthContext";
+import { useAuth } from "./AuthContext";
 import { AppModel } from "../models/app";
 import {fetchCatalogApplications,fetchInstalledApplications,claimApplicationAsDataController,assignDpoToApplication,updateCatalogApplications} from "../services/ApplicationService";
 import { useHome } from "./HomeContext";

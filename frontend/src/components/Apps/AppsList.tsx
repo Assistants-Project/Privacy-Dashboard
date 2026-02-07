@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Button, Card, Col, Container, Form, Row, Stack } from "react-bootstrap";
 import { ExclamationDiamondFill } from "react-bootstrap-icons";
-import { useApp } from "./AppsContext";
-import { AppModel, DocumentStatus } from "../models/app";
-import { useAuth } from "./Authentication/AuthContext";
-import { Role } from "../models/user";
+import { useApp } from "../../contexts/AppsContext";
+import { AppModel, DocumentStatus } from "../../models/app";
+import { useAuth } from "../../contexts/AuthContext";
+import { Role } from "../../models/user";
 
 // Componente molto versatile che permette di essere riutilizzato in tante situazioni
 

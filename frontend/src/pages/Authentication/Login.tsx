@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Alert, Button, Col, Container, Form, Row } from 'react-bootstrap';
-import { Registration } from './Registration';
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import './style.css';
+import { Registration } from './Registration';
 
 function Login(props: any) {
     const auth = useAuth();

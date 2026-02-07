@@ -1,10 +1,10 @@
-import { useAuth } from "./Authentication/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Role } from "../models/user";
+import { Role } from "../../models/user";
 import {Container,Dropdown,Nav,Navbar,NavDropdown,Spinner} from "react-bootstrap";
-import { UserMenu } from "./UserMenu";
-import { useHome } from "./HomeContext";
-import { useApp } from "./AppsContext";
+import { UserMenu } from "../UserMenu";
+import { useHome } from "../../contexts/HomeContext";
+import { useApp } from "../../contexts/AppsContext";
 import { ArrowRepeat } from "react-bootstrap-icons";
 import { CheckCircle } from "react-bootstrap-icons";
 
