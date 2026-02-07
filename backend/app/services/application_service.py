@@ -208,6 +208,34 @@ class ApplicationService:
         )
 
     @staticmethod
+    def remove_pia_by_managed_application_uuid(user_id: int, application_uuid: str) -> None:
+        """Removes an existing Privacy Impact Assessment (PIA) for an application managed by a `DATA_CONTROLLER` or `DPO`.
+
+        Args:
+            user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the application.
+            application_uuid: The UUID of the application for which the PIA is being removed.
+
+        Raises:
+            `ApplicationNotFoundException`: If the application with the given UUID is not found among the managed applications.
+            `PrivacyImpactAssessmentNotFoundException`: If no PIA is found for the specified application.
+        """
+
+        application = (
+            ApplicationRepository.get_application_by_user_id_and_application_uuid(
+                user_id, application_uuid
+            )
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among the managed applications!"
+            )
+        if application.privacy_impact_assessment is None:
+            raise PrivacyImpactAssessmentNotFoundException(
+                f"No Privacy Impact Assessment found for the application with uuid {application_uuid}"
+            )
+        ApplicationRepository.remove_pia_for_application(application.id)
+
+    @staticmethod
     def get_available_applications_service(current_user: User) -> List[ApplicationCatalogItem]:
         res = ApplicationRepository.get_available_application()
         catalog = {}

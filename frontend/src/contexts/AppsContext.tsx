@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Role } from "../models/user";
 import { useAuth } from "./AuthContext";
-import { AppModel } from "../models/app";
+import { AppModel, DocumentStatus } from "../models/app";
 import {fetchCatalogApplications,fetchInstalledApplications,claimApplicationAsDataController,assignDpoToApplication,updateCatalogApplications} from "../services/ApplicationService";
 import { useHome } from "./HomeContext";
 import { PrivacyNotice } from "../models/privacy_notice";
@@ -22,6 +22,7 @@ type AppsContextValue = {
     updatingApps: boolean; //indica se è in corso un update delle apps nel backend (attraverso un refresh)
     errorUpdatingApps: string | undefined; //indica se c'è stato un errore durante il refresh del backend
     PrivacyNoticeByAppUUID: Record<string, PrivacyNotice | null | undefined> //record cache dei PN
+    PIAByAppUUID: Record<string, PIA | null | undefined> //record cache dei PIA
 
     reloadApps: () => Promise<void>
 
@@ -207,6 +208,10 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
         try {
             const res = await handleFetchPrivacyNotice(appUUID, user.role);
             setPrivacyNoticeByAppUUID(prev => ({ ...prev, [appUUID]: res })); //può essere a questo punto o un valore o un null
+            //dobbiamo anche aggiornare il flag dell'app che ci dice se il privacy notice è disponibile o no
+            //managed apps gestito con use memo si ricarica da solo
+            //se res è null significa che non c'è
+            setApps(prev => prev?.map(app => app.uuid === appUUID ? {...app, pn_status: res ? DocumentStatus.Available : DocumentStatus.Missing} : app))
             return res;
         }
         catch (err) {
@@ -240,6 +245,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
         try {
             const res = await handleGetPrivacyImpactAssessment(appUUID);
             setPIAByAppUUID(prev => ({ ...prev, [appUUID]: res })); //può essere a questo punto o un valore o un null
+            setApps(prev => prev?.map(app => app.uuid === appUUID ? {...app, pia_status: res ? DocumentStatus.Available : DocumentStatus.Missing} : app))
             return res;
         }
         catch (err) {
@@ -314,6 +320,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
             apps,
             managedApps,
             PrivacyNoticeByAppUUID,
+            PIAByAppUUID,
             loadingApps,
             updatingApps,
             errorApps,
@@ -333,6 +340,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
             apps,
             managedApps,
             PrivacyNoticeByAppUUID,
+            PIAByAppUUID,
             loadingApps,
             updatingApps,
             errorApps,

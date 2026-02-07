@@ -111,3 +111,13 @@ def submit_pia_by_managed_application_uuid(application_uuid: str, content: dict,
         current_user.id, application_uuid, content
     )
     return "", 204
+
+
+@application_bp.route("/managed-application/<application_uuid>/pia", methods=["DELETE"])
+@application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
+@dc_or_dpo_required()
+def remove_pia_by_managed_application_uuid(application_uuid: str, current_user):
+    ApplicationService.remove_pia_by_managed_application_uuid(
+        current_user.id, application_uuid
+    )
+    return "", 204

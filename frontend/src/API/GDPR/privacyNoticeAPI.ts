@@ -1,3 +1,4 @@
+import { getApiError } from "../apiError";
 import baseURL from "../baseUrl";
 
 async function getPrivacyNoticeTemplate() {
@@ -9,12 +10,7 @@ async function getPrivacyNoticeTemplate() {
     const result = await response.json();
     return result;
   } else {
-    const errDetail = await response.json();
-    if (errDetail?.message) {
-      throw new Error(errDetail.message);
-    }
-
-    throw new Error("Something went wrong");
+    throw await getApiError(response);
   }
 }
 
@@ -35,24 +31,7 @@ async function getPrivacyNoticeByInstalledApplicationUuid(
     const result = await response.json();
     return result;
   } else {
-    //se c'è stato un errore, che è una situazione diversa rispetto a arrivato ma vuoto
-    const errDetail = await response.json();
-    // Flask-smorest validation error
-    if (errDetail?.errors) {
-      const jsonErrors = errDetail.errors.json;
-      if (jsonErrors && typeof jsonErrors === "object") {
-        const msgs = Object.values(jsonErrors).flat().join("\n");
-        throw new Error(msgs || "Validation error");
-      }
-      if (typeof errDetail.errors === "string") {
-        throw new Error(errDetail.errors);
-      }
-    }
-    if (errDetail?.message) {
-      throw new Error(errDetail.message);
-    }
-
-    throw new Error("Something went wrong");
+    throw await getApiError(response);
   }
 }
 
@@ -75,34 +54,18 @@ async function getPrivacyNoticeByManagedApplicationUuid(
     if (response.status === 404) {
       return null; //privacy notice non presente
     }
-    const errDetail = await response.json();
-    // Flask-smorest validation error
-    if (errDetail?.errors) {
-      const jsonErrors = errDetail.errors.json;
-      if (jsonErrors && typeof jsonErrors === "object") {
-        const msgs = Object.values(jsonErrors).flat().join("\n");
-        throw new Error(msgs || "Validation error");
-      }
-      if (typeof errDetail.errors === "string") {
-        throw new Error(errDetail.errors);
-      }
-    }
-    if (errDetail?.message) {
-      throw new Error(errDetail.message);
-    }
-
-    throw new Error("Something went wrong");
+    throw await getApiError(response);
   }
 }
 
-async function writePrivacyNoticeByManagedApplicationUuid(
+async function submitPrivacyNoticeByManagedApplicationUuid(
   applicationUuid: string,
   content: string
 ) {
   let response = await fetch(
     baseURL + "privacy-notices/managed-application/" + applicationUuid,
     {
-      method: "POST",
+      method: "PUT",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -114,25 +77,10 @@ async function writePrivacyNoticeByManagedApplicationUuid(
     const result = await response.json();
     return result;
   } else {
-    const errDetail = await response.json();
-    // Flask-smorest validation error
-    if (errDetail?.errors) {
-      const jsonErrors = errDetail.errors.json;
-      if (jsonErrors && typeof jsonErrors === "object") {
-        const msgs = Object.values(jsonErrors).flat().join("\n");
-        throw new Error(msgs || "Validation error");
-      }
-      if (typeof errDetail.errors === "string") {
-        throw new Error(errDetail.errors);
-      }
-    }
-    if (errDetail?.message) {
-      throw new Error(errDetail.message);
-    }
-
-    throw new Error("Something went wrong");
+    throw await getApiError(response);
   }
 }
+
 
 async function removePrivacyNoticeByManagedApplicationUuid(
   applicationUuid: string
@@ -147,30 +95,14 @@ async function removePrivacyNoticeByManagedApplicationUuid(
   if (response.ok) {
     return;
   } else {
-    const errDetail = await response.json();
-    // Flask-smorest validation error
-    if (errDetail?.errors) {
-      const jsonErrors = errDetail.errors.json;
-      if (jsonErrors && typeof jsonErrors === "object") {
-        const msgs = Object.values(jsonErrors).flat().join("\n");
-        throw new Error(msgs || "Validation error");
-      }
-      if (typeof errDetail.errors === "string") {
-        throw new Error(errDetail.errors);
-      }
-    }
-    if (errDetail?.message) {
-      throw new Error(errDetail.message);
-    }
-
-    throw new Error("Something went wrong");
+    throw await getApiError(response);
   }
 }
 
 export {
   getPrivacyNoticeTemplate,
   getPrivacyNoticeByManagedApplicationUuid,
-  writePrivacyNoticeByManagedApplicationUuid,
   removePrivacyNoticeByManagedApplicationUuid,
-  getPrivacyNoticeByInstalledApplicationUuid
+  getPrivacyNoticeByInstalledApplicationUuid,
+  submitPrivacyNoticeByManagedApplicationUuid
 };

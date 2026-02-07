@@ -162,11 +162,25 @@ async function submitPiaByManagedApplicationUuid(
   }
 }
 
+async function removePiaByManagedApplicationUuid(applicationUuid: string) {
+  let response = await fetch(
+    baseURL + "applications/managed-application/" + applicationUuid + "/pia",
+    {
+      method: "DELETE",
+      credentials: "include",
+    }
+  );
+  if (!response.ok) {
+    throw await getApiError(response);
+  }
+}
+
 export {
   getManagedApplications,
   getPiaTemplate,
   getPiaByManagedApplicationUuid,
   submitPiaByManagedApplicationUuid,
+  removePiaByManagedApplicationUuid,
   getInstalledApplications,
   getCatalogApplications,
   claimManagedApplication,

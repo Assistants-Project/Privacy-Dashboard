@@ -2,6 +2,7 @@ import {
   getPiaTemplate,
   getPiaByManagedApplicationUuid,
   submitPiaByManagedApplicationUuid,
+  removePiaByManagedApplicationUuid,
 } from "../API/Applications/applicationAPI";
 import { PIA } from "../models/PIA";
 
@@ -33,7 +34,7 @@ export const fetchPiaTemplate = async (force: boolean = false) => {
   return result;
 };
 
-export const handleGetPrivacyImpactAssessment = async (applicationUuid: string) => {
+export const handleGetPrivacyImpactAssessment = async (applicationUuid: string): Promise<PIA | null> => {
     try {
       console.log(
         "Trying to get Privacy Impact Assessment for application: ",
@@ -53,12 +54,22 @@ export const handleGetPrivacyImpactAssessment = async (applicationUuid: string) 
 export const submitPiaTemplate = async (
     applicationUuid: string,
     piaTemplate: any,
-  ) => {
+  ): Promise<void> => {
     try {
       await submitPiaByManagedApplicationUuid(applicationUuid, piaTemplate);
       console.log("Privacy Impact Assessment submitted successfully");
-      return;
     } catch (err) {
-      console.error("Error submitting privacy impact assessment:", err);
+      throw err;
+    }
+  };
+
+export const removePiaTemplate = async (
+    applicationUuid: string,
+  ): Promise<void> => {
+    try {
+      await removePiaByManagedApplicationUuid(applicationUuid);
+      console.log("Privacy Impact Assessment removed successfully");
+    } catch (err) {
+      throw err;
     }
   };

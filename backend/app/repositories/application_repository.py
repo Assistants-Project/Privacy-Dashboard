@@ -330,6 +330,12 @@ class ApplicationRepository:
         application.privacy_impact_assessment = pia_data
         db.session.commit()
 
+    @staticmethod
+    def remove_pia_for_application(application_id: int) -> None:
+        application = db.session.get(Application, application_id)
+        application.privacy_impact_assessment = None
+        db.session.commit()
+
     #retrieves for every application the applications details and assigned data controllers and dpo
     @staticmethod
     def get_available_application() -> List[Tuple[Application, User | None]]:

@@ -1,7 +1,7 @@
-import {Button,Card,CloseButton,Col,Row,Stack} from "react-bootstrap";
+import { Button, Card, CloseButton, Col, Row, Stack } from "react-bootstrap";
 import { useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill";
-import {fetchPrivacyNoticeTemplate,handleRemovePrivacyNotice,handleSubmitPrivacyNotice,} from "../../services/PrivacyNoticeService";
+import { fetchPrivacyNoticeTemplate, handleSubmitPrivacyNotice, } from "../../services/PrivacyNoticeService";
 import "react-quill/dist/quill.snow.css";
 import { useApp } from "../../contexts/AppsContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -9,15 +9,15 @@ import { Role } from "../../models/user";
 
 type Props = { closePanel: () => void; setPanelExpanded?: (expanded: boolean) => void };
 
-function PrivacyNoticeEditor({closePanel,setPanelExpanded,}: Props) {
-  const [value,setValue,] = useState("");
-  const {loadPrivacyNotice,PrivacyNoticeByAppUUID,selectedAppUUID,selectedApp,reloadApps} = useApp();
+function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
+  const [value, setValue,] = useState("");
+  const { loadPrivacyNotice, PrivacyNoticeByAppUUID, selectedAppUUID, selectedApp} = useApp();
   const { user } = useAuth();
 
   const draftRef = useRef<string>("");
   const templateHtmlRef = useRef<string>("");
   const quillRef = useRef<ReactQuill | null>(null);
-  const [editMode,setEditMode,] = useState(false);
+  const [editMode, setEditMode,] = useState(false);
   const pn = selectedAppUUID ? PrivacyNoticeByAppUUID[selectedAppUUID] : undefined;
   const canEdit = user?.role !== Role.DataSubject;
   const hasPn = !!(pn?.content && pn.content.trim() !== "");
@@ -25,7 +25,7 @@ function PrivacyNoticeEditor({closePanel,setPanelExpanded,}: Props) {
 
   useEffect(() => {
     setPanelExpanded?.(editMode);
-  },[editMode,setPanelExpanded,]);
+  }, [editMode, setPanelExpanded,]);
 
   const ensureTemplateLoaded = async (): Promise<string> => {
     if (templateHtmlRef.current) return templateHtmlRef.current;
@@ -41,8 +41,8 @@ function PrivacyNoticeEditor({closePanel,setPanelExpanded,}: Props) {
     templateHtmlRef.current = "";
 
     if (!selectedAppUUID) return;
-    void loadPrivacyNotice(selectedAppUUID,false);
-  },[loadPrivacyNotice,selectedAppUUID,]);
+    void loadPrivacyNotice(selectedAppUUID, false);
+  }, [loadPrivacyNotice, selectedAppUUID,]);
 
   const handleSubmit = async () => {
     if (!selectedAppUUID) {
@@ -50,12 +50,11 @@ function PrivacyNoticeEditor({closePanel,setPanelExpanded,}: Props) {
       return;
     }
     try {
-      await handleRemovePrivacyNotice(selectedAppUUID);
-      await handleSubmitPrivacyNotice(selectedAppUUID,value);
-      void loadPrivacyNotice(selectedAppUUID,true);
-      reloadApps();
+      await handleSubmitPrivacyNotice(selectedAppUUID, value);
+      await loadPrivacyNotice(selectedAppUUID, true);
     } catch (err) {
-      console.error("Error submitting privacy notice:",err);
+      //find a place where to print it
+      console.error("Error submitting privacy notice:", err);
     }
   };
 
@@ -82,7 +81,7 @@ function PrivacyNoticeEditor({closePanel,setPanelExpanded,}: Props) {
     if (editor) {
       const selection = editor.getSelection?.();
       const index = selection?.index ?? editor.getLength?.() ?? 0;
-      editor.clipboard?.dangerouslyPasteHTML(index,templateHtml);
+      editor.clipboard?.dangerouslyPasteHTML(index, templateHtml);
       const nextHtml = editor.root?.innerHTML;
       if (typeof nextHtml === "string") {
         setValue(nextHtml);
@@ -178,7 +177,7 @@ function PrivacyNoticeEditor({closePanel,setPanelExpanded,}: Props) {
                     </Col>
                   </Row>
                   <div className="flex-grow-1 mb-3" style={{ minHeight: 0 }}>
-                    <ReactQuill className="pn-quill" ref={quillRef as any} theme="snow" value={value} onChange={(html) => {setValue(html);draftRef.current = html;}} />
+                    <ReactQuill className="pn-quill" ref={quillRef as any} theme="snow" value={value} onChange={(html) => { setValue(html); draftRef.current = html; }} />
                   </div>
                   <div>
                     <Button variant="dark" onClick={handleSubmit}>
@@ -197,7 +196,7 @@ function PrivacyNoticeEditor({closePanel,setPanelExpanded,}: Props) {
                   </Row>
                   <hr className="my-3" />
                   <div className="overflow-auto" style={{ maxHeight: "60vh" }}>
-                      <div dangerouslySetInnerHTML={{ __html: pn?.content ?? "" }} />
+                    <div dangerouslySetInnerHTML={{ __html: pn?.content ?? "" }} />
                   </div>
                 </Card.Body>
               </Card>

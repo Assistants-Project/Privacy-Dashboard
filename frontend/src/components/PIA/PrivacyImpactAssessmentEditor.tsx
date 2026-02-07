@@ -2,54 +2,34 @@ import {Accordion,Button,Card,CloseButton,Col,OverlayTrigger,Row,Stack,Tooltip} 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {ColDef,GridReadyEvent,ILargeTextEditorParams,ISelectCellEditorParams} from "ag-grid-community";
-import {fetchPiaTemplate,submitPiaTemplate,} from "../../services/PrivacyImpactAssessmentService";
+import {fetchPiaTemplate,removePiaTemplate,submitPiaTemplate,} from "../../services/PrivacyImpactAssessmentService";
 import { useApp } from "../../contexts/AppsContext";
 import { DocumentStatus } from "../../models/app";
-import { PIA } from "../../models/PIA";
 
 type Props = { closePanel: () => void };
 
 function PrivacyImpactAssessmentEditor({closePanel,}: Props) {
-  const {loadPIA,selectedAppUUID,selectedApp,reloadApps} = useApp();
+  const {loadPIA,PIAByAppUUID,selectedAppUUID,selectedApp,} = useApp();
 
   const [editMode,setEditMode,] = useState(false);
-  const [pia,setPia,] = useState<PIA | null | undefined>(undefined);
   const [draftContent,setDraftContent,] = useState<any | undefined>(undefined);
   const [activeTableKeys,setActiveTableKeys,] = useState<string[]>([]);
 
   const gridApisRef = useRef<Record<string, any>>({});
+  const pia = selectedAppUUID ? PIAByAppUUID[selectedAppUUID] : undefined;
 
   const hasPia = !!pia?.content?.sections;
   const piaForbidden = selectedApp?.pia_status === DocumentStatus.Forbidden;
   const canEditThisApp = !piaForbidden;
 
   useEffect(() => {
-    if (!selectedAppUUID) {
-      setEditMode(false);
-      setPia(undefined);
-      setDraftContent(undefined);
-      gridApisRef.current = {};
-      return;
-    }
-
     setEditMode(false);
-    setPia(undefined);
     setDraftContent(undefined);
     gridApisRef.current = {};
 
-    if (selectedApp?.pia_status === DocumentStatus.Forbidden) {
-      setPia(undefined);
-      return;
-    }
-    if (selectedApp?.pia_status === DocumentStatus.Missing) {
-      setPia(null);
-      return;
-    }
-
-    void loadPIA(selectedAppUUID,false).then((res) => {
-      setPia(res);
-    });
-  },[loadPIA,selectedApp?.pia_status,selectedAppUUID,]);
+    if (!selectedAppUUID) return;
+    void loadPIA(selectedAppUUID,false);
+  },[loadPIA,selectedAppUUID,]);
 
   useEffect(() => {
     if (editMode) return;
@@ -166,14 +146,28 @@ function PrivacyImpactAssessmentEditor({closePanel,}: Props) {
       }
 
       await submitPiaTemplate(selectedAppUUID,updatedTemplate);
-      loadPIA(selectedAppUUID,true);
-      setPia(new PIA(selectedAppUUID,updatedTemplate));
-      reloadApps();
+      await loadPIA(selectedAppUUID,true);
       setEditMode(false);
       setDraftContent(undefined);
       gridApisRef.current = {};
     } catch (err) {
       console.error("Error submitting privacy impact assessment:",err);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedAppUUID) return;
+    if (!canEditThisApp) return;
+    if (!hasPia) return;
+
+    try {
+      await removePiaTemplate(selectedAppUUID);
+      await loadPIA(selectedAppUUID,true);
+      setEditMode(false);
+      setDraftContent(undefined);
+      gridApisRef.current = {};
+    } catch (err) {
+      console.error("Error removing privacy impact assessment:",err);
     }
   };
 
@@ -219,7 +213,7 @@ function PrivacyImpactAssessmentEditor({closePanel,}: Props) {
                     </Button>
                   </Col>
                   <Col xs="auto">
-                    <Button type="button" variant="outline-danger" size="sm" disabled>
+                    <Button type="button" variant="outline-danger" size="sm" disabled={!hasPia} onClick={() => void handleDelete()}>
                       Delete
                     </Button>
                   </Col>
@@ -231,7 +225,7 @@ function PrivacyImpactAssessmentEditor({closePanel,}: Props) {
                         Press {hasPia ? "Edit to start editing" : "Create to create a new PIA"}.
                       </Row>
                       <Row>
-                        Delete not available
+                        Delete {hasPia ? "is available" : "not available"}
                       </Row>
                     </Col>
                   </Row>
