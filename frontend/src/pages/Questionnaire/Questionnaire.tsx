@@ -6,8 +6,13 @@ import { AppModel, DocumentStatus } from "../../models/app";
 import { QuestionnaireEditor } from "../../components/Questionnaire/QuestionnaireEditor";
 
 function Questionnaire() {
-  const { loadingApps, setSelectedAppUUID, selectedAppUUID, selectedApp, managedApps } =
-    useApp();
+  const {
+    loadingApps,
+    setSelectedAppUUID,
+    selectedAppUUID,
+    selectedApp,
+    managedApps,
+  } = useApp();
 
   const [statusOverrides, setStatusOverrides] = useState<
     Record<string, DocumentStatus>
@@ -57,7 +62,10 @@ function Questionnaire() {
           className="d-flex flex-column overflow-hidden"
           style={{ minHeight: 0 }}
         >
-          <AppsList closePanel={closePanel} getDocumentStatus={getQuestionnaireStatus} />
+          <AppsList
+            closePanel={closePanel}
+            getDocumentStatus={getQuestionnaireStatus}
+          />
         </Col>
 
         <Col
@@ -78,6 +86,7 @@ function Questionnaire() {
               style={{ minHeight: 0 }}
             >
               <Card.Body
+                id="questionnaire-container"
                 className="d-flex flex-column flex-grow-1 gap-3 overflow-hidden"
                 style={{ minHeight: 0 }}
               >
@@ -85,7 +94,8 @@ function Questionnaire() {
                   closePanel={closePanel}
                   onQuestionnaireSaved={markQuestionnaireAvailable}
                   questionnaireAvailable={
-                    getQuestionnaireStatus(selectedApp) === DocumentStatus.Available
+                    getQuestionnaireStatus(selectedApp) ===
+                    DocumentStatus.Available
                   }
                 />
               </Card.Body>

@@ -1,7 +1,7 @@
 :root {
-	  --bg: #f6f8fc;
-	  --text: #0f172a;
-	  --muted: rgba(15, 23, 42, 0.65);
+  --bg: #f6f8fc;
+  --text: #0f172a;
+  --muted: #0f172aa6;
 
   --card-bg: rgba(255, 255, 255, 0.9);
   --border: rgba(15, 23, 42, 0.12);
@@ -15,7 +15,7 @@
   --accent: #2563eb;
   --accent-weak: rgba(37, 99, 235, 0.12);
 
-	  --danger-weak: rgba(220, 38, 38, 0.12);
+  --danger-weak: rgba(220, 38, 38, 0.12);
 }
 
 html {
@@ -58,6 +58,31 @@ html {
   border-radius: 14px;
   padding: 16px;
   box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02);
+}
+
+.accordion-button:not(.collapsed) {
+  color: inherit;
+  background-color: inherit;
+}
+
+#questionnaire-container .accordion-button,
+#questionnaire-container .accordion-body {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.circular-button,
+.circular-button:disabled,
+.circular-button:disabled:hover,
+.circular-button:hover,
+.circular-button:active,
+.circular-button:focus {
+  background-color: #fafafb !important;
+  border-color: #181d1f26 !important;
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1 !important;
 }
 
 body {

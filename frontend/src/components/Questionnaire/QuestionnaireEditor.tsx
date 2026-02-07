@@ -1,4 +1,5 @@
 import {
+  Accordion,
   Badge,
   Button,
   Card,
@@ -19,7 +20,10 @@ import {
   submitQuestionnaire,
 } from "../../services/QuestionnaireService";
 
-type Props = { closePanel: () => void; onQuestionnaireSaved?: (appUUID: string) => void };
+type Props = {
+  closePanel: () => void;
+  onQuestionnaireSaved?: (appUUID: string) => void;
+};
 
 type QuestionnaireEditorProps = Props & { questionnaireAvailable: boolean };
 
@@ -32,15 +36,18 @@ function QuestionnaireEditor({
 
   const answersRef = useRef<Record<string, string>>({});
 
-  const [templateQuestions, setTemplateQuestions] = useState<Question[] | undefined>(
-    undefined,
-  );
-  const [viewQuestions, setViewQuestions] = useState<Question[] | null | undefined>(
-    undefined,
-  );
-  const [localEvaluation, setLocalEvaluation] = useState<Evaluation | undefined>(
-    undefined,
-  );
+  const [templateQuestions, setTemplateQuestions] = useState<
+    Question[] | undefined
+  >(undefined);
+  const [viewQuestions, setViewQuestions] = useState<
+    Question[] | null | undefined
+  >(undefined);
+  const [localEvaluation, setLocalEvaluation] = useState<
+    Evaluation | undefined
+  >(undefined);
+  const [localQuestionnaireSummary, setLocalQuestionnaireSummary] = useState<
+    string | undefined
+  >(undefined);
 
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -48,6 +55,8 @@ function QuestionnaireEditor({
   const [error, setError] = useState<string | undefined>(undefined);
 
   const shownEvaluation = localEvaluation ?? selectedApp?.evaluation;
+  const shownQuestionnaireSummary =
+    localQuestionnaireSummary ?? selectedApp?.questionnaire_summary;
   const hasQuestionnaire = !!shownEvaluation;
 
   const loadTemplateQuestions = useCallback(async () => {
@@ -87,7 +96,10 @@ function QuestionnaireEditor({
     for (const item of given) {
       const questionUuid = item?.question?.uuid;
       const answerContent = item?.answer?.answer_content;
-      if (typeof questionUuid === "string" && typeof answerContent === "string") {
+      if (
+        typeof questionUuid === "string" &&
+        typeof answerContent === "string"
+      ) {
         answersRef.current[questionUuid] = answerContent;
       }
     }
@@ -100,6 +112,7 @@ function QuestionnaireEditor({
     setTemplateQuestions(undefined);
     setViewQuestions(undefined);
     setLocalEvaluation(undefined);
+    setLocalQuestionnaireSummary(undefined);
     answersRef.current = {};
 
     if (!selectedAppUUID) return;
@@ -118,6 +131,7 @@ function QuestionnaireEditor({
           return;
         }
         setLocalEvaluation(res.application_evaluation);
+        setLocalQuestionnaireSummary(res.questionnaire_summary);
         setViewQuestions(mapQuestionnaireResponseToQuestions(res));
         seedAnswersFromResponse(res);
       })
@@ -157,7 +171,10 @@ function QuestionnaireEditor({
 
     setLoading(true);
     try {
-      const submitted = await submitQuestionnaire(selectedAppUUID, submissionPayload);
+      const submitted = await submitQuestionnaire(
+        selectedAppUUID,
+        submissionPayload,
+      );
       if (!submitted) {
         setError("Error submitting the questionnaire.");
         return;
@@ -171,6 +188,7 @@ function QuestionnaireEditor({
 
       reloadApps();
       setLocalEvaluation(res.application_evaluation);
+      setLocalQuestionnaireSummary(res.questionnaire_summary);
       setViewQuestions(mapQuestionnaireResponseToQuestions(res));
       seedAnswersFromResponse(res);
       setEditMode(false);
@@ -188,58 +206,42 @@ function QuestionnaireEditor({
   const questionsToEdit = templateQuestions ?? [];
 
   if (!selectedApp) {
-    return <div className="text-muted">Select an app to see the Questionnaire.</div>;
+    return (
+      <div className="text-muted">Select an app to see the Questionnaire.</div>
+    );
   }
 
   return (
     <>
-      <Row className="align-items-start">
-        <Col>
-          <h3 className="mb-0 ms-1">{title}</h3>
+      <Row className="align-items-center">
+        <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
+          <h3 className="d-inline-block mb-0 ms-1">{title}</h3>
+          <div className="d-flex align-items-center">
+            <Button
+              className="circular-button me-2"
+              disabled={loading || loadingTemplate}
+              style={{
+                color: "#181d1f",
+              }}
+              onClick={() => handleEditClick()}
+            >
+              <i
+                className={`fa-solid fa-${editMode ? "rotate-left" : hasQuestionnaire ? "pencil" : "plus"}`}
+              ></i>
+            </Button>
+            <Button
+              className="circular-button"
+              disabled
+              style={{
+                color: "red",
+              }}
+            >
+              <i className="fa-solid fa-trash"></i>
+            </Button>
+          </div>
         </Col>
         <Col xs="auto">
           <CloseButton onClick={closePanel} />
-        </Col>
-      </Row>
-
-      <Row className="g-3">
-        <Col xs={12} lg={6} xxl={5}>
-          <Card className="p-0">
-            <Card.Body>
-              <Row className="g-2 align-items-center">
-                <Col xs="auto">
-                  <strong>Actions</strong>
-                </Col>
-                <Col className="ms-auto" xs="auto">
-                  <Button
-                    type="button"
-                    variant="outline-secondary"
-                    size="sm"
-                    onClick={() => void handleEditClick()}
-                    disabled={loading || loadingTemplate}
-                  >
-                    {editMode ? "Close" : hasQuestionnaire ? "Edit" : "Create"}
-                  </Button>
-                </Col>
-                <Col xs="auto">
-                  <Button type="button" variant="outline-danger" size="sm" disabled>
-                    Delete
-                  </Button>
-                </Col>
-              </Row>
-              {!editMode ? (
-                <Row className="mt-2">
-                  <Col className="text-muted ms-2">
-                    <Row className="mb-1">
-                      Press {hasQuestionnaire ? "Edit" : "Create"} to{" "}
-                      {hasQuestionnaire ? "update" : "submit"} the questionnaire.
-                    </Row>
-                    <Row>Delete not available</Row>
-                  </Col>
-                </Row>
-              ) : null}
-            </Card.Body>
-          </Card>
         </Col>
       </Row>
 
@@ -249,67 +251,70 @@ function QuestionnaireEditor({
         </Card>
       ) : null}
 
-      <Stack className="flex-grow-1 pe-2 overflow-hidden" style={{ minHeight: 0 }}>
+      <Stack
+        className="flex-grow-1 pe-2 overflow-hidden"
+        style={{ minHeight: 0 }}
+      >
         {loading && !editMode ? (
           <Card className="p-0">
             <Card.Body className="text-muted">Loading questionnaire…</Card.Body>
           </Card>
         ) : editMode ? (
-          <Card className="p-0 flex-grow-1 overflow-hidden d-flex flex-column" style={{ minHeight: 0 }}>
-            <Card.Body className="d-flex flex-column flex-grow-1" style={{ minHeight: 0 }}>
+          <Card
+            className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+            style={{ minHeight: 0 }}
+          >
+            <Card.Body
+              className="d-flex flex-column flex-grow-1"
+              style={{ minHeight: 0 }}
+            >
               <Row className="g-2 mb-3 align-items-center">
                 <Col className="text-muted">
-                  {loadingTemplate ? "Loading template…" : "Fill the questionnaire and submit it."}
+                  {loadingTemplate
+                    ? "Loading template…"
+                    : "Fill the questionnaire and submit it."}
                 </Col>
-                {shownEvaluation ? (
-                  <Col xs="auto">
-                    <Badge bg="light" text="dark" className="border rounded-pill">
-                      {shownEvaluation}
-                    </Badge>
-                  </Col>
-                ) : null}
               </Row>
 
-              <div className="flex-grow-1 overflow-auto" style={{ minHeight: 0, height: 0 }}>
+              <div
+                className="flex-grow-1 overflow-auto"
+                style={{ minHeight: 0, height: 0 }}
+              >
                 {questionsToEdit.map((question, idx) => (
-                  <Card key={`${question.uuid}-${selectedAppUUID || "none"}`} className="p-0 mb-3">
+                  <Card
+                    key={`${question.uuid}-${selectedAppUUID || "none"}`}
+                    className="p-0 mb-3"
+                  >
                     <Card.Body>
-                      <Row className="g-2">
-                        <Col>
-                          <strong>
-                            {idx + 1}. {question.content}
-                          </strong>
-                        </Col>
-                        {question.additionalInformation ? (
-                          <Col xs="auto">
-                            <OverlayTrigger
-                              placement="top"
-                              overlay={
-                                <Tooltip id={`tooltip-${question.uuid}`}>
-                                  {question.additionalInformation}
-                                </Tooltip>
-                              }
-                            >
-                              <span className="text-muted" role="button">
-                                i
-                              </span>
-                            </OverlayTrigger>
-                          </Col>
-                        ) : null}
-                      </Row>
-
+                      <Accordion flush key={`${question.uuid}-${idx}`}>
+                        <Accordion.Item eventKey="0">
+                          <Accordion.Header>
+                            <h6 className="m-0">
+                              {idx + 1}. {question.content}
+                            </h6>
+                          </Accordion.Header>
+                          <Accordion.Body>
+                            {question.additionalInformation}
+                          </Accordion.Body>
+                        </Accordion.Item>
+                      </Accordion>
                       {(question.choices?.length ?? 0) > 0 ? (
                         <Form className="mt-2">
                           {question.choices?.map((choice, choiceIdx) => (
                             <Form.Check
+                              inline
                               key={`choice-${question.uuid}-${choiceIdx}-${selectedAppUUID || "none"}`}
                               label={choice}
                               value={choice}
                               name={`group-${question.uuid}`}
                               type="radio"
                               id={`choice-${question.uuid}-${choiceIdx}-${selectedAppUUID || "none"}`}
-                              defaultChecked={answersRef.current[question.uuid] === choice}
-                              onChange={(e) => saveGivenAnswer(question.uuid, e.target.value)}
+                              defaultChecked={
+                                answersRef.current[question.uuid] === choice
+                              }
+                              onChange={(e) =>
+                                saveGivenAnswer(question.uuid, e.target.value)
+                              }
                             />
                           ))}
                         </Form>
@@ -325,7 +330,9 @@ function QuestionnaireEditor({
                 <Button
                   variant="dark"
                   onClick={() => void handleSubmitAnswers()}
-                  disabled={loading || loadingTemplate || questionsToEdit.length === 0}
+                  disabled={
+                    loading || loadingTemplate || questionsToEdit.length === 0
+                  }
                 >
                   Submit Answers
                 </Button>
@@ -333,35 +340,56 @@ function QuestionnaireEditor({
             </Card.Body>
           </Card>
         ) : (
-          <Card className="p-0 flex-grow-1 overflow-hidden d-flex flex-column" style={{ minHeight: 0 }}>
-            <Card.Body className="d-flex flex-column flex-grow-1" style={{ minHeight: 0 }}>
-              <Row className="g-1 align-items-center">
-                <Col>
-                  <h5 className="mb-0">Questionnaire content:</h5>
-                </Col>
-                {shownEvaluation ? (
-                  <Col xs="auto">
-                    <Badge bg="light" text="dark" className="border rounded-pill">
+          <Card
+            className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+            style={{ minHeight: 0 }}
+          >
+            <Card.Body
+              className="d-flex flex-column flex-grow-1"
+              style={{ minHeight: 0 }}
+            >
+              {shownEvaluation && shownQuestionnaireSummary && (
+                <Row className="g-1 align-items-center">
+                  <p>
+                    <strong>{selectedApp.name}</strong> got the following
+                    evaluation:{" "}
+                    <span
+                      style={{
+                        color: shownEvaluation.toLowerCase(),
+                        fontWeight: "bold",
+                      }}
+                    >
                       {shownEvaluation}
-                    </Badge>
-                  </Col>
-                ) : null}
-              </Row>
+                    </span>
+                  </p>
+                  <p>{shownQuestionnaireSummary}</p>
+                </Row>
+              )}
               <hr className="my-3" />
-              <div className="flex-grow-1 overflow-auto" style={{ minHeight: 0, height: 0 }}>
+              <div
+                className="flex-grow-1 overflow-auto"
+                style={{ minHeight: 0, height: 0 }}
+              >
                 {viewQuestions === null ? (
-                  <div className="text-muted">Press Create to add one</div>
+                  <div className="text-muted">
+                    Press the Plus button to start the questionnaire.
+                  </div>
                 ) : viewQuestions?.length ? (
                   viewQuestions.map((question, idx) => (
                     <Card key={`${question.uuid}-${idx}`} className="p-0 mb-3">
                       <Card.Body>
-                        <Row className="g-2">
-                          <Col>
-                            <strong>
-                              {idx + 1}. {question.content}
-                            </strong>
-                          </Col>
-                        </Row>
+                        <Accordion flush key={`${question.uuid}-${idx}`}>
+                          <Accordion.Item eventKey="0">
+                            <Accordion.Header>
+                              <h6 className="m-0">
+                                {idx + 1}. {question.content}
+                              </h6>
+                            </Accordion.Header>
+                            <Accordion.Body>
+                              {question.additionalInformation}
+                            </Accordion.Body>
+                          </Accordion.Item>
+                        </Accordion>
                         <div className="mt-2">
                           <div className="text-muted">Answer</div>
                           <div>{question.answerContent}</div>
@@ -369,7 +397,14 @@ function QuestionnaireEditor({
                         {question.evaluation ? (
                           <div className="mt-2">
                             <div className="text-muted">Evaluation</div>
-                            <div>{question.evaluation}</div>
+                            <div
+                              style={{
+                                color: question.evaluation.toLowerCase(),
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {question.evaluation}
+                            </div>
                           </div>
                         ) : null}
                       </Card.Body>
