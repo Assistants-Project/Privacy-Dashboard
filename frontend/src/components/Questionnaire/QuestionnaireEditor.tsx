@@ -19,20 +19,20 @@ import {
   handleGetQuestionnaireByApplication,
   submitQuestionnaire,
 } from "../../services/QuestionnaireService";
+import { DocumentStatus } from "../../models/app";
 
-type Props = {
+type QuestionnaireEditorProps = {
   closePanel: () => void;
-  onQuestionnaireSaved?: (appUUID: string) => void;
 };
 
-type QuestionnaireEditorProps = Props & { questionnaireAvailable: boolean };
-
-function QuestionnaireEditor({
-  closePanel,
-  onQuestionnaireSaved,
-  questionnaireAvailable,
-}: QuestionnaireEditorProps) {
-  const { selectedAppUUID, selectedApp, reloadApps } = useApp();
+function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
+  const {
+    loadQuestionnaire,
+    QuestionnaireByAppUUID,
+    selectedAppUUID,
+    selectedApp,
+    reloadApps,
+  } = useApp();
 
   const answersRef = useRef<Record<string, string>>({});
 
@@ -54,13 +54,28 @@ function QuestionnaireEditor({
   const [loadingTemplate, setLoadingTemplate] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const shownEvaluation = localEvaluation ?? selectedApp?.evaluation;
+  const questionnaire = selectedAppUUID
+    ? QuestionnaireByAppUUID[selectedAppUUID]
+    : undefined;
+  const shownEvaluation =
+    localEvaluation ?? questionnaire?.application_evaluation;
   const shownQuestionnaireSummary =
-    localQuestionnaireSummary ?? selectedApp?.questionnaire_summary;
+    localQuestionnaireSummary ?? questionnaire?.questionnaire_summary;
   const hasQuestionnaire = !!shownEvaluation;
+  const questionnaireForbidden =
+    selectedApp?.pia_status === DocumentStatus.Forbidden; // TODO check if it is correct that a questionnaire is forbidden when the PIA is forbidden, so that we don't need a separate status for it?
 
   const loadTemplateQuestions = useCallback(async () => {
-    if (templateQuestions) return templateQuestions;
+    if (templateQuestions) {
+      if (!hasQuestionnaire) {
+        // if there is no questionnaire we want to reset the answers when opening the template
+        answersRef.current = {};
+      } else if (viewQuestions) {
+        // if there is already a questionnaire loaded we want to seed the answers from it when opening the template
+        seedAnswersFromResponse(viewQuestions);
+      }
+      return templateQuestions;
+    }
 
     setLoadingTemplate(true);
     try {
@@ -76,36 +91,6 @@ function QuestionnaireEditor({
     }
   }, [templateQuestions]);
 
-  const mapQuestionnaireResponseToQuestions = (res: any): Question[] => {
-    const given = Array.isArray(res?.given_answers) ? res.given_answers : [];
-    return given.map(
-      (q: any) =>
-        ({
-          uuid: q.question.uuid,
-          content: q.question.content,
-          additionalInformation: q.question.additional_information,
-          answerContent: q.answer.answer_content,
-          evaluation: q.answer.evaluation,
-        }) as Question,
-    );
-  };
-
-  const seedAnswersFromResponse = (res: any) => {
-    answersRef.current = {};
-    const given = Array.isArray(res?.given_answers) ? res.given_answers : [];
-    for (const item of given) {
-      const questionUuid = item?.question?.uuid;
-      const answerContent = item?.answer?.answer_content;
-      if (
-        typeof questionUuid === "string" &&
-        typeof answerContent === "string"
-      ) {
-        answersRef.current[questionUuid] = answerContent;
-      }
-    }
-  };
-
-  // Load current questionnaire (view mode) when selecting an app.
   useEffect(() => {
     setEditMode(false);
     setError(undefined);
@@ -117,28 +102,37 @@ function QuestionnaireEditor({
 
     if (!selectedAppUUID) return;
 
-    if (!questionnaireAvailable) {
-      setViewQuestions(null);
-      return;
-    }
-
     setLoading(true);
-    void handleGetQuestionnaireByApplication(selectedAppUUID)
+    loadQuestionnaire(selectedAppUUID, false)
       .then((res) => {
         if (!res) {
-          setError("Unable to load the questionnaire.");
-          setViewQuestions(undefined);
+          setViewQuestions(null);
           return;
         }
+
         setLocalEvaluation(res.application_evaluation);
         setLocalQuestionnaireSummary(res.questionnaire_summary);
-        setViewQuestions(mapQuestionnaireResponseToQuestions(res));
-        seedAnswersFromResponse(res);
+        setViewQuestions(res.questions);
+        seedAnswersFromResponse(res.questions);
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [questionnaireAvailable, selectedAppUUID]);
+  }, [loadQuestionnaire, selectedAppUUID]);
+
+  const seedAnswersFromResponse = (answeredQuestions: Question[]) => {
+    answersRef.current = {};
+    for (const item of answeredQuestions) {
+      const questionUuid = item?.uuid;
+      const answerContent = item?.answerContent;
+      if (
+        typeof questionUuid === "string" &&
+        typeof answerContent === "string"
+      ) {
+        answersRef.current[questionUuid] = answerContent;
+      }
+    }
+  };
 
   const handleEditClick = async () => {
     if (!selectedAppUUID) return;
@@ -158,7 +152,14 @@ function QuestionnaireEditor({
   };
 
   const handleSubmitAnswers = async () => {
-    if (!selectedAppUUID) return;
+    if (!selectedAppUUID) {
+      alert("Please select an application.");
+      return;
+    }
+    if (questionnaireForbidden) {
+      alert("Questionnaire is not available for this application.");
+      return;
+    }
 
     setError(undefined);
     const submissionPayload = {
@@ -180,7 +181,7 @@ function QuestionnaireEditor({
         return;
       }
 
-      const res = await handleGetQuestionnaireByApplication(selectedAppUUID);
+      const res = await loadQuestionnaire(selectedAppUUID, true);
       if (!res) {
         setError("Questionnaire submitted, but reloading failed.");
         return;
@@ -189,10 +190,9 @@ function QuestionnaireEditor({
       reloadApps();
       setLocalEvaluation(res.application_evaluation);
       setLocalQuestionnaireSummary(res.questionnaire_summary);
-      setViewQuestions(mapQuestionnaireResponseToQuestions(res));
-      seedAnswersFromResponse(res);
+      setViewQuestions(res.questions);
+      seedAnswersFromResponse(res.questions);
       setEditMode(false);
-      onQuestionnaireSaved?.(selectedAppUUID);
     } finally {
       setLoading(false);
     }
@@ -213,211 +213,233 @@ function QuestionnaireEditor({
 
   return (
     <>
-      <Row className="align-items-center">
-        <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
-          <h3 className="d-inline-block mb-0 ms-1">{title}</h3>
-          <div className="d-flex align-items-center">
-            <Button
-              className="circular-button me-2"
-              disabled={loading || loadingTemplate}
-              style={{
-                color: "#181d1f",
-              }}
-              onClick={() => handleEditClick()}
-            >
-              <i
-                className={`fa-solid fa-${editMode ? "rotate-left" : hasQuestionnaire ? "pencil" : "plus"}`}
-              ></i>
-            </Button>
-            <Button
-              className="circular-button"
-              disabled
-              style={{
-                color: "red",
-              }}
-            >
-              <i className="fa-solid fa-trash"></i>
-            </Button>
-          </div>
-        </Col>
-        <Col xs="auto">
-          <CloseButton onClick={closePanel} />
-        </Col>
-      </Row>
-
-      {error ? (
+      {questionnaireForbidden ? (
         <Card className="p-0">
-          <Card.Body className="text-danger">{error}</Card.Body>
+          <Card.Body className="text-muted">
+            You are not allowed to view or edit the questionnaire for this app.
+          </Card.Body>
         </Card>
-      ) : null}
-
-      <Stack
-        className="flex-grow-1 pe-2 overflow-hidden"
-        style={{ minHeight: 0 }}
-      >
-        {loading && !editMode ? (
-          <Card className="p-0">
-            <Card.Body className="text-muted">Loading questionnaire…</Card.Body>
-          </Card>
-        ) : editMode ? (
-          <Card
-            className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
-            style={{ minHeight: 0 }}
-          >
-            <Card.Body
-              className="d-flex flex-column flex-grow-1"
-              style={{ minHeight: 0 }}
-            >
-              <Row className="g-2 mb-3 align-items-center">
-                <Col className="text-muted">
-                  {loadingTemplate
-                    ? "Loading template…"
-                    : "Fill the questionnaire and submit it."}
-                </Col>
-              </Row>
-
-              <div
-                className="flex-grow-1 overflow-auto"
-                style={{ minHeight: 0, height: 0 }}
-              >
-                {questionsToEdit.map((question, idx) => (
-                  <Card
-                    key={`${question.uuid}-${selectedAppUUID || "none"}`}
-                    className="p-0 mb-3"
-                  >
-                    <Card.Body>
-                      <Accordion flush key={`${question.uuid}-${idx}`}>
-                        <Accordion.Item eventKey="0">
-                          <Accordion.Header>
-                            <h6 className="m-0">
-                              {idx + 1}. {question.content}
-                            </h6>
-                          </Accordion.Header>
-                          <Accordion.Body>
-                            {question.additionalInformation}
-                          </Accordion.Body>
-                        </Accordion.Item>
-                      </Accordion>
-                      {(question.choices?.length ?? 0) > 0 ? (
-                        <Form className="mt-2">
-                          {question.choices?.map((choice, choiceIdx) => (
-                            <Form.Check
-                              inline
-                              key={`choice-${question.uuid}-${choiceIdx}-${selectedAppUUID || "none"}`}
-                              label={choice}
-                              value={choice}
-                              name={`group-${question.uuid}`}
-                              type="radio"
-                              id={`choice-${question.uuid}-${choiceIdx}-${selectedAppUUID || "none"}`}
-                              defaultChecked={
-                                answersRef.current[question.uuid] === choice
-                              }
-                              onChange={(e) =>
-                                saveGivenAnswer(question.uuid, e.target.value)
-                              }
-                            />
-                          ))}
-                        </Form>
-                      ) : (
-                        <div className="text-muted mt-2">(no choices)</div>
-                      )}
-                    </Card.Body>
-                  </Card>
-                ))}
-              </div>
-
-              <div className="mt-3">
+      ) : (
+        <>
+          <Row className="align-items-center">
+            <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
+              <h3 className="d-inline-block mb-0 ms-1">{title}</h3>
+              <div className="d-flex align-items-center">
                 <Button
-                  variant="dark"
-                  onClick={() => void handleSubmitAnswers()}
-                  disabled={
-                    loading || loadingTemplate || questionsToEdit.length === 0
-                  }
+                  className="circular-button me-2"
+                  disabled={loading || loadingTemplate}
+                  style={{
+                    color: "#181d1f",
+                  }}
+                  onClick={() => handleEditClick()}
                 >
-                  Submit Answers
+                  <i
+                    className={`fa-solid fa-${editMode ? "rotate-left" : hasQuestionnaire ? "pencil" : "plus"}`}
+                  ></i>
+                </Button>
+                <Button
+                  className="circular-button"
+                  disabled
+                  style={{
+                    color: "red",
+                  }}
+                >
+                  <i className="fa-solid fa-trash"></i>
                 </Button>
               </div>
-            </Card.Body>
-          </Card>
-        ) : (
-          <Card
-            className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+            </Col>
+            <Col xs="auto">
+              <CloseButton onClick={closePanel} />
+            </Col>
+          </Row>
+
+          {error ? (
+            <Card className="p-0">
+              <Card.Body className="text-danger">{error}</Card.Body>
+            </Card>
+          ) : null}
+
+          <Stack
+            className="flex-grow-1 pe-2 overflow-hidden"
             style={{ minHeight: 0 }}
           >
-            <Card.Body
-              className="d-flex flex-column flex-grow-1"
-              style={{ minHeight: 0 }}
-            >
-              {shownEvaluation && shownQuestionnaireSummary && (
-                <Row className="g-1 align-items-center">
-                  <p>
-                    <strong>{selectedApp.name}</strong> got the following
-                    evaluation:{" "}
-                    <span
-                      style={{
-                        color: shownEvaluation.toLowerCase(),
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {shownEvaluation}
-                    </span>
-                  </p>
-                  <p>{shownQuestionnaireSummary}</p>
-                </Row>
-              )}
-              <hr className="my-3" />
-              <div
-                className="flex-grow-1 overflow-auto"
-                style={{ minHeight: 0, height: 0 }}
+            {loading && !editMode ? (
+              <Card className="p-0">
+                <Card.Body className="text-muted">
+                  Loading questionnaire…
+                </Card.Body>
+              </Card>
+            ) : editMode ? (
+              <Card
+                className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+                style={{ minHeight: 0 }}
               >
-                {viewQuestions === null ? (
-                  <div className="text-muted">
-                    Press the Plus button to start the questionnaire.
+                <Card.Body
+                  className="d-flex flex-column flex-grow-1"
+                  style={{ minHeight: 0 }}
+                >
+                  <Row className="g-2 mb-3 align-items-center">
+                    <Col className="text-muted">
+                      {loadingTemplate
+                        ? "Loading template…"
+                        : "Fill the questionnaire and submit it."}
+                    </Col>
+                  </Row>
+
+                  <div
+                    className="flex-grow-1 overflow-auto"
+                    style={{ minHeight: 0, height: 0 }}
+                  >
+                    {questionsToEdit.map((question, idx) => (
+                      <Card
+                        key={`${question.uuid}-${selectedAppUUID || "none"}`}
+                        className="p-0 mb-3"
+                      >
+                        <Card.Body>
+                          <Accordion flush key={`${question.uuid}-${idx}`}>
+                            <Accordion.Item eventKey="0">
+                              <Accordion.Header>
+                                <h6 className="m-0">
+                                  {idx + 1}. {question.content}
+                                </h6>
+                              </Accordion.Header>
+                              <Accordion.Body>
+                                {question.additionalInformation}
+                              </Accordion.Body>
+                            </Accordion.Item>
+                          </Accordion>
+                          {(question.choices?.length ?? 0) > 0 ? (
+                            <Form className="mt-2">
+                              {question.choices?.map((choice, choiceIdx) => (
+                                <Form.Check
+                                  inline
+                                  key={`choice-${question.uuid}-${choiceIdx}-${selectedAppUUID || "none"}`}
+                                  label={choice}
+                                  value={choice}
+                                  name={`group-${question.uuid}`}
+                                  type="radio"
+                                  id={`choice-${question.uuid}-${choiceIdx}-${selectedAppUUID || "none"}`}
+                                  defaultChecked={
+                                    answersRef.current[question.uuid] === choice
+                                  }
+                                  onChange={(e) =>
+                                    saveGivenAnswer(
+                                      question.uuid,
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                              ))}
+                            </Form>
+                          ) : (
+                            <div className="text-muted mt-2">(no choices)</div>
+                          )}
+                        </Card.Body>
+                      </Card>
+                    ))}
                   </div>
-                ) : viewQuestions?.length ? (
-                  viewQuestions.map((question, idx) => (
-                    <Card key={`${question.uuid}-${idx}`} className="p-0 mb-3">
-                      <Card.Body>
-                        <Accordion flush key={`${question.uuid}-${idx}`}>
-                          <Accordion.Item eventKey="0">
-                            <Accordion.Header>
-                              <h6 className="m-0">
-                                {idx + 1}. {question.content}
-                              </h6>
-                            </Accordion.Header>
-                            <Accordion.Body>
-                              {question.additionalInformation}
-                            </Accordion.Body>
-                          </Accordion.Item>
-                        </Accordion>
-                        <div className="mt-2">
-                          <div className="text-muted">Answer</div>
-                          <div>{question.answerContent}</div>
-                        </div>
-                        {question.evaluation ? (
-                          <div className="mt-2">
-                            <div className="text-muted">Evaluation</div>
-                            <div
-                              style={{
-                                color: question.evaluation.toLowerCase(),
-                                fontWeight: "bold",
-                              }}
-                            >
-                              {question.evaluation}
+
+                  <div className="mt-3">
+                    <Button
+                      variant="dark"
+                      onClick={() => void handleSubmitAnswers()}
+                      disabled={
+                        loading ||
+                        loadingTemplate ||
+                        questionsToEdit.length === 0
+                      }
+                    >
+                      Submit Answers
+                    </Button>
+                  </div>
+                </Card.Body>
+              </Card>
+            ) : (
+              <Card
+                className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+                style={{ minHeight: 0 }}
+              >
+                <Card.Body
+                  className="d-flex flex-column flex-grow-1"
+                  style={{ minHeight: 0 }}
+                >
+                  {shownEvaluation && shownQuestionnaireSummary && (
+                    <Row className="g-1 align-items-center">
+                      <p>
+                        <strong>{selectedApp.name}</strong> got the following
+                        evaluation:{" "}
+                        <span
+                          style={{
+                            color: shownEvaluation.toLowerCase(),
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {shownEvaluation}
+                        </span>
+                      </p>
+                      <p>{shownQuestionnaireSummary}</p>
+                    </Row>
+                  )}
+                  <hr className="my-3" />
+                  <div
+                    className="flex-grow-1 overflow-auto"
+                    style={{ minHeight: 0, height: 0 }}
+                  >
+                    {viewQuestions === null ? (
+                      <div className="text-muted">
+                        Press the Plus button to start the questionnaire.
+                      </div>
+                    ) : viewQuestions?.length ? (
+                      viewQuestions.map((question, idx) => (
+                        <Card
+                          key={`${question.uuid}-${idx}`}
+                          className="p-0 mb-3"
+                        >
+                          <Card.Body>
+                            <Accordion flush key={`${question.uuid}-${idx}`}>
+                              <Accordion.Item eventKey="0">
+                                <Accordion.Header>
+                                  <h6 className="m-0">
+                                    {idx + 1}. {question.content}
+                                  </h6>
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                  {question.additionalInformation}
+                                </Accordion.Body>
+                              </Accordion.Item>
+                            </Accordion>
+                            <div className="mt-2">
+                              <div className="text-muted">Answer</div>
+                              <div>{question.answerContent}</div>
                             </div>
-                          </div>
-                        ) : null}
-                      </Card.Body>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="text-muted">No questionnaire available.</div>
-                )}
-              </div>
-            </Card.Body>
-          </Card>
-        )}
-      </Stack>
+                            {question.evaluation ? (
+                              <div className="mt-2">
+                                <div className="text-muted">Evaluation</div>
+                                <div
+                                  style={{
+                                    color: question.evaluation.toLowerCase(),
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  {question.evaluation}
+                                </div>
+                              </div>
+                            ) : null}
+                          </Card.Body>
+                        </Card>
+                      ))
+                    ) : (
+                      <div className="text-muted">
+                        No questionnaire available.
+                      </div>
+                    )}
+                  </div>
+                </Card.Body>
+              </Card>
+            )}
+          </Stack>
+        </>
+      )}
     </>
   );
 }

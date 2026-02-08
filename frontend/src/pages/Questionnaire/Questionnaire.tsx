@@ -30,20 +30,6 @@ function Questionnaire() {
     if (!isManaged) setSelectedAppUUID(undefined);
   }, [loadingApps, managedApps, selectedAppUUID, setSelectedAppUUID]);
 
-  const markQuestionnaireAvailable = useCallback((appUUID: string) => {
-    setStatusOverrides((prev) => ({
-      ...prev,
-      [appUUID]: DocumentStatus.Available,
-    }));
-  }, []);
-
-  const getQuestionnaireStatus = useCallback(
-    (app: AppModel): DocumentStatus =>
-      statusOverrides[app.uuid] ??
-      (app.evaluation ? DocumentStatus.Available : DocumentStatus.Missing),
-    [statusOverrides],
-  );
-
   return (
     <Container
       fluid
@@ -64,7 +50,9 @@ function Questionnaire() {
         >
           <AppsList
             closePanel={closePanel}
-            getDocumentStatus={getQuestionnaireStatus}
+            getDocumentStatus={(app) =>
+              app.evaluation ? DocumentStatus.Available : DocumentStatus.Missing
+            }
           />
         </Col>
 
@@ -90,14 +78,7 @@ function Questionnaire() {
                 className="d-flex flex-column flex-grow-1 gap-3 overflow-hidden"
                 style={{ minHeight: 0 }}
               >
-                <QuestionnaireEditor
-                  closePanel={closePanel}
-                  onQuestionnaireSaved={markQuestionnaireAvailable}
-                  questionnaireAvailable={
-                    getQuestionnaireStatus(selectedApp) ===
-                    DocumentStatus.Available
-                  }
-                />
+                <QuestionnaireEditor closePanel={closePanel} />
               </Card.Body>
             </Card>
           )}
