@@ -1,3 +1,4 @@
+import { getApiError } from "../apiError";
 import baseURL from "../baseUrl";
 
 async function getQuestionnaireQuestions() {
@@ -9,12 +10,7 @@ async function getQuestionnaireQuestions() {
     const questionnaireQuestions = await response.json();
     return questionnaireQuestions;
   } else {
-    const errDetail = await response.json();
-    if (errDetail?.message) {
-      throw new Error(errDetail.message);
-    }
-
-    throw new Error("Something went wrong");
+    throw await getApiError(response);
   }
 }
 
@@ -32,23 +28,7 @@ async function getQuestionnaireByManagedApplicationUuid(
     const result = await response.json();
     return result;
   } else {
-    const errDetail = await response.json();
-    // Flask-smorest validation error
-    if (errDetail?.errors) {
-      const jsonErrors = errDetail.errors.json;
-      if (jsonErrors && typeof jsonErrors === "object") {
-        const msgs = Object.values(jsonErrors).flat().join("\n");
-        throw new Error(msgs || "Validation error");
-      }
-      if (typeof errDetail.errors === "string") {
-        throw new Error(errDetail.errors);
-      }
-    }
-    if (errDetail?.message) {
-      throw new Error(errDetail.message);
-    }
-
-    throw new Error("Something went wrong");
+    throw await getApiError(response);
   }
 }
 
@@ -71,23 +51,7 @@ async function submitQuestionnaireByManagedApplicationUuid(
     const result = await response.json();
     return result;
   } else {
-    const errDetail = await response.json();
-    // Flask-smorest validation error
-    if (errDetail?.errors) {
-      const jsonErrors = errDetail.errors.json;
-      if (jsonErrors && typeof jsonErrors === "object") {
-        const msgs = Object.values(jsonErrors).flat().join("\n");
-        throw new Error(msgs || "Validation error");
-      }
-      if (typeof errDetail.errors === "string") {
-        throw new Error(errDetail.errors);
-      }
-    }
-    if (errDetail?.message) {
-      throw new Error(errDetail.message);
-    }
-
-    throw new Error("Something went wrong");
+    throw await getApiError(response);
   }
 }
 

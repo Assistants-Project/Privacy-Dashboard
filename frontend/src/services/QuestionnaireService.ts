@@ -33,10 +33,13 @@ const handleGetQuestionnaireByApplication = async (
   }
 };
 
-const fetchQuestionnaire = async (): Promise<Question[] | undefined> => {
+const fetchQuestionnaire = async (): Promise<Question[] | null> => {
   try {
     const result = await getQuestionnaireQuestions();
     console.log("Questionnaire template retrieved successfully");
+    if (!Array.isArray(result) || result.length === 0) {
+      return null
+    }
     return result.map(
       (q: any) =>
         ({
@@ -47,7 +50,7 @@ const fetchQuestionnaire = async (): Promise<Question[] | undefined> => {
         }) as Question,
     );
   } catch (err) {
-    console.error("Error getting questionnaire template:", err);
+    throw err;
   }
 };
 

@@ -31,7 +31,6 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
     QuestionnaireByAppUUID,
     selectedAppUUID,
     selectedApp,
-    reloadApps,
   } = useApp();
 
   const answersRef = useRef<Record<string, string>>({});
@@ -81,12 +80,16 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
     try {
       const template = await fetchQuestionnaire();
       if (!template) {
-        setError("Unable to load questionnaire template.");
+        //is a error both if is null or error in the query
+        setError("Questionnaire template is empty!");
         return undefined;
       }
       setTemplateQuestions(template);
       return template;
-    } finally {
+    } catch {
+      setError("Unable to load questionnaire template.");
+    }
+    finally {
       setLoadingTemplate(false);
     }
   }, [templateQuestions]);
@@ -187,7 +190,6 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
         return;
       }
 
-      reloadApps();
       setLocalEvaluation(res.application_evaluation);
       setLocalQuestionnaireSummary(res.questionnaire_summary);
       setViewQuestions(res.questions);

@@ -1,27 +1,8 @@
-import {
-  Accordion,
-  Button,
-  Card,
-  CloseButton,
-  Col,
-  OverlayTrigger,
-  Row,
-  Stack,
-  Tooltip,
-} from "react-bootstrap";
+import {Accordion,Button,Card,CloseButton,Col,OverlayTrigger,Row,Stack,Tooltip,} from "react-bootstrap";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import {
-  ColDef,
-  GridReadyEvent,
-  ILargeTextEditorParams,
-  ISelectCellEditorParams,
-} from "ag-grid-community";
-import {
-  fetchPiaTemplate,
-  removePiaTemplate,
-  submitPiaTemplate,
-} from "../../services/PrivacyImpactAssessmentService";
+import {ColDef,GridReadyEvent,ILargeTextEditorParams,ISelectCellEditorParams,} from "ag-grid-community";
+import {fetchPiaTemplate,removePiaTemplate,submitPiaTemplate,} from "../../services/PrivacyImpactAssessmentService";
 import { useApp } from "../../contexts/AppsContext";
 import { DocumentStatus } from "../../models/app";
 
