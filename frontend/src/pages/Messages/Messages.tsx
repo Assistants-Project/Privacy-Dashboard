@@ -79,16 +79,16 @@ export function Messages() {
   };
 
   return (
-    <Container fluid className="py-2 d-flex flex-column overflow-hidden h-100" style={{ minHeight: 0 }}>
-      <Row className="flex-grow-1 overflow-hidden border border-1 rounded" style={{ minHeight: 0 }}>
+    <Container fluid className="py-2 d-flex flex-column h-100">
+      <Row className="flex-grow-1 border border-1 rounded" style={{ minHeight: 0 }}>
         <Col
           md={4}
-          className="d-flex flex-column overflow-hidden px-0"
-          style={{ minHeight: 0, backgroundColor: "white", border: "1px solid #dee2e6" }}
+          className="d-flex flex-column h-100 px-0 position-relative"
+          style={{ backgroundColor: "white", border: "1px solid #dee2e6" }}
         >
           <ListGroup
             variant="flush"
-            className="flex-grow-1 overflow-auto position-relative"
+            className="flex-grow-1 overflow-auto"
             style={{ scrollbarWidth: "thin" }}
           >
             {messagedContacts?.map((contact) => (
@@ -154,7 +154,7 @@ export function Messages() {
           </ListGroup>
         </Col>
         {messagedContacts && (
-          <Col md={8} className="d-flex flex-column overflow-hidden" style={{ minHeight: 0,  backgroundColor: "white" }}>
+          <Col md={8} className="d-flex flex-column h-100" style={{ backgroundColor: "white" }}>
             {selectedContact ? (
               <>
                 <Row
