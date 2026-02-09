@@ -22,13 +22,6 @@ function PrivacyImpactAssessment() {
 
   return (
     <Container fluid className="mx-auto py-2 d-flex flex-column overflow-hidden h-100" style={{ minHeight: 0 }}>
-      <Row className="mb-3 flex-shrink-0">
-        <Col>
-          <h1 className="mb-0">
-            Privacy Impact Assessment
-          </h1>
-        </Col>
-      </Row>
       <Row className="g-3 flex-grow-1 overflow-hidden" style={{ minHeight: 0 }}>
         <Col xs={3} lg={4} className="d-flex flex-column overflow-hidden" style={{ minHeight: 0 }}>
           <AppsList closePanel={closePanel} getDocumentStatus={(app) => app.pia_status} />
@@ -38,7 +31,7 @@ function PrivacyImpactAssessment() {
           {!selectedApp ? (
             <Card className="p-0">
               <Card.Body className="text-muted">
-                Select an app to see the PIA.
+                Select an app to see the Privacy Impact Assessment.
               </Card.Body>
             </Card>
           ) : (

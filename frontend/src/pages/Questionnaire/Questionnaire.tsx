@@ -36,11 +36,6 @@ function Questionnaire() {
       className="py-2 d-flex flex-column overflow-hidden h-100"
       style={{ minHeight: 0 }}
     >
-      <Row className="mb-3 flex-shrink-0">
-        <Col>
-          <h1 className="mb-0">Questionnaire</h1>
-        </Col>
-      </Row>
       <Row className="g-3 flex-grow-1 overflow-hidden" style={{ minHeight: 0 }}>
         <Col
           xs={3}

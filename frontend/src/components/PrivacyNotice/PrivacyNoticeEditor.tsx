@@ -116,15 +116,11 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
       ? selectedApp.name
       : "Nome non impostato";
 
-  if (!selectedApp) {
-    return <div className="text-muted">Select an app to see the PN.</div>;
-  }
-
   return (
     <>
       <Row className="align-items-center">
         <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
-          <h3 className="d-inline-block mb-0 ms-1">{title}</h3>
+          <h5 className="d-inline-block mb-0 ms-1">Privacy Notice | {title}</h5>
           {canEdit && (
             <div className="d-flex align-items-center">
               <Button

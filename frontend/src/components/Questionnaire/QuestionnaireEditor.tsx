@@ -206,12 +206,6 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
 
   const questionsToEdit = templateQuestions ?? [];
 
-  if (!selectedApp) {
-    return (
-      <div className="text-muted">Select an app to see the Questionnaire.</div>
-    );
-  }
-
   return (
     <>
       {questionnaireForbidden ? (
@@ -224,7 +218,7 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
         <>
           <Row className="align-items-center">
             <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
-              <h3 className="d-inline-block mb-0 ms-1">{title}</h3>
+              <h5 className="d-inline-block mb-0 ms-1">Questionnaire | {title}</h5>
               <div className="d-flex align-items-center">
                 <Button
                   className="circular-button me-2"
@@ -367,7 +361,7 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
                   {shownEvaluation && shownQuestionnaireSummary && (
                     <Row className="g-1 align-items-center">
                       <p>
-                        <strong>{selectedApp.name}</strong> got the following
+                        <strong>{selectedApp?.name}</strong> got the following
                         evaluation:{" "}
                         <span
                           style={{

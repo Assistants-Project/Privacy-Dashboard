@@ -80,13 +80,6 @@ export function Messages() {
 
   return (
     <Container fluid className="py-2 d-flex flex-column overflow-hidden h-100" style={{ minHeight: 0 }}>
-      <Row className="mb-3 flex-shrink-0">
-        <Col>
-          <h1 className="mb-0">
-            Messages
-          </h1>
-        </Col>
-      </Row>
       <Row className="flex-grow-1 overflow-hidden border border-1 rounded" style={{ minHeight: 0 }}>
         <Col
           md={4}

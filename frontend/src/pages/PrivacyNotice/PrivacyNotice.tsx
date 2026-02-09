@@ -23,13 +23,6 @@ function PrivacyNotice() {
 
   return (
     <Container fluid className="py-2 d-flex flex-column overflow-hidden h-100" style={{ minHeight: 0 }}>
-      <Row className="mb-3 flex-shrink-0">
-        <Col>
-          <h1 className="mb-0">
-            Privacy Notice
-          </h1>
-        </Col>
-      </Row>
       <Row className="g-3 flex-grow-1 overflow-hidden" style={{ minHeight: 0 }}>
         <Col xs={3} lg={4} className="d-flex flex-column overflow-hidden" style={{ minHeight: 0 }}>
           <AppsList closePanel={closePanel} getDocumentStatus={(app) => app.pn_status} />
@@ -39,7 +32,7 @@ function PrivacyNotice() {
           {!selectedApp ? (
             <Card className="p-0">
               <Card.Body className="text-muted">
-                Select an app to see the PN.
+                Select an app to see the Privacy Notice.
               </Card.Body>
             </Card>
 	          ) : (

@@ -110,6 +110,20 @@ html,
   overflow: auto;
 }
 
+.navbar {
+  height: 55px;
+  background-color: white;
+}
+.nav-link {
+  transition: none;
+}
+
+.nav-link.active {
+  background-color: #fafafb;
+  border-right: 1px solid var(--border-strong);
+  border-left: 1px solid var(--border-strong);
+}
+
 .list-item-active {
   color: black;
   background-color: #f8f9fa;

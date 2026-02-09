@@ -211,23 +211,19 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
       ? selectedApp.name
       : "Nome non impostato";
 
-  if (!selectedApp) {
-    return <div className="text-muted">Select an app to see the PIA.</div>;
-  }
-
   return (
     <>
       {piaForbidden ? (
         <Card className="p-0">
           <Card.Body className="text-muted">
-            You are not allowed to view or edit the PIA for this app.
+            You are not allowed to view or edit the Privacy Impact Assessment for this app.
           </Card.Body>
         </Card>
       ) : (
         <>
           <Row className="align-items-center">
             <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
-              <h3 className="d-inline-block mb-0 ms-1">{title}</h3>
+              <h5 className="d-inline-block mb-0 ms-1">Privacy Impact Assessment | {title}</h5>
               {canEditThisApp && (
                 <div className="d-flex align-items-center">
                   <Button

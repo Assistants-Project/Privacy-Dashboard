@@ -26,9 +26,9 @@ export function TopNavBar() {
 
   return (
     <div className="app-shell">
-      <Navbar bg="light" variant="light" expand="lg"
-        className="border-bottom shadow-sm flex-shrink-0" >
-        <Container fluid>
+      <Navbar variant="light" expand="lg"
+        className="border-bottom shadow-sm flex-shrink-0 py-0">
+        <Container fluid className="h-100">
           <Nav className="align-items-center gap-2 flex-nowrap">
             <Navbar.Brand as={NavLink} to="/" end className="me-0">
               Privacy Dashboard {isDataSubject ? "|" : ""}
@@ -42,39 +42,39 @@ export function TopNavBar() {
 
           <Navbar.Toggle aria-controls="main-navbar" className="ms-auto" />
 
-          <Navbar.Collapse id="main-navbar" className="w-100">
-            <Nav className="flex-grow-1 justify-content-lg-center flex-nowrap gap-3 gap-lg-4"
+          <Navbar.Collapse id="main-navbar" className="w-100 h-100">
+            <Nav className="flex-grow-1 justify-content-lg-center flex-nowrap gap-3 gap-lg-4 h-100"
               activeKey={location.pathname}
             >
-              <Nav.Link as={NavLink} to="/" end eventKey="/">
+              <Nav.Link as={NavLink} to="/" end eventKey="/" className="d-flex align-items-center">
                 Home
               </Nav.Link>
-              <Nav.Link as={NavLink} to="/privacy-notice" eventKey="/privacy-notice">
+              <Nav.Link as={NavLink} to="/privacy-notice" eventKey="/privacy-notice" className="d-flex align-items-center">
                 Privacy Notice
               </Nav.Link>
-              <Nav.Link as={NavLink} to={isDataSubject ? "/installed-apps" : "/catalog"} eventKey={isDataSubject ? "/installed-apps" : "/catalog"}>
+              <Nav.Link as={NavLink} to={isDataSubject ? "/installed-apps" : "/catalog"} eventKey={isDataSubject ? "/installed-apps" : "/catalog"} className="d-flex align-items-center">
                 {isDataSubject ? "Installed Apps" : "Apps Catalog"}
               </Nav.Link>
               {!isDataSubject && (
-                <Nav.Link as={NavLink} to="/privacy-impact-assessment" eventKey="/privacy-impact-assessment">
+                <Nav.Link as={NavLink} to="/privacy-impact-assessment" eventKey="/privacy-impact-assessment" className="d-flex align-items-center">
                   Privacy Impact Assessment
                 </Nav.Link>
               )}
               {showQuestionnaire && (
-                <Nav.Link as={NavLink} to="/questionnaire" eventKey="/questionnaire">
+                <Nav.Link as={NavLink} to="/questionnaire" eventKey="/questionnaire" className="d-flex align-items-center">
                   Questionnaire
                 </Nav.Link>
               )}
               {isDataSubject &&
-                <Nav.Link as={NavLink} to="/policy-translation" eventKey="/policy-translation">
+                <Nav.Link as={NavLink} to="/policy-translation" eventKey="/policy-translation" className="d-flex align-items-center">
                   Policy Translation
                 </Nav.Link>
               }
-              <Nav.Link as={NavLink} to="/rights" eventKey="/rights">
+              <Nav.Link as={NavLink} to="/rights" eventKey="/rights" className="d-flex align-items-center">
                 {isDataSubject ? "Rights Request" : "Rights Request"}
               </Nav.Link>
 
-              <Nav.Link as={NavLink} to="/messages" eventKey="/messages">
+              <Nav.Link as={NavLink} to="/messages" eventKey="/messages" className="d-flex align-items-center">
                 Messages
               </Nav.Link>
             </Nav>
@@ -136,7 +136,7 @@ export function TopNavBar() {
         </Container>
       </Navbar>
 
-      <Container fluid className="mx-auto app-shell-content" style={{maxWidth: 1800}}>
+      <Container fluid className="mx-auto app-shell-content py-2" style={{maxWidth: 1800}}>
         <Outlet />
       </Container>
     </div>
