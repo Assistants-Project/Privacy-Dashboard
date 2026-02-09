@@ -129,6 +129,20 @@ html,
   background-color: #f8f9fa;
 }
 
+.insert-template-btn {
+  color: black !important;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  border: none !important;
+}
+
+.insert-template-btn:hover,
+.insert-template-btn:focus,
+.insert-template-btn:active {
+  color: #06c !important;
+}
+
 .message-bubble {
   width: fit-content;
   max-width: 100%;

@@ -174,23 +174,10 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
                   className="d-flex flex-column flex-grow-1"
                   style={{ minHeight: 0 }}
                 >
-                  <Row className="g-2 mb-3 align-items-center">
-                    <Col className="text-muted">
-                      Insert template will paste the template into your current
-                      document.
-                    </Col>
-                    <Col xs="auto">
-                      <Button
-                        type="button"
-                        variant="outline-secondary"
-                        size="sm"
-                        onClick={() => void handleInsertTemplate()}
-                      >
-                        Insert template
-                      </Button>
-                    </Col>
-                  </Row>
-                  <div className="flex-grow-1 mb-3" style={{ minHeight: 0 }}>
+                  <div
+                    className="flex-grow-1 mb-3 position-relative"
+                    style={{ minHeight: 0 }}
+                  >
                     <ReactQuill
                       className="pn-quill"
                       ref={quillRef as any}
@@ -201,6 +188,13 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
                         draftRef.current = html;
                       }}
                     />
+                    <button
+                      type="button"
+                      className="btn btn-sm insert-template-btn"
+                      onClick={() => void handleInsertTemplate()}
+                    >
+                      <strong>Insert Template</strong>
+                    </button>
                   </div>
                   <div>
                     <Button variant="dark" onClick={handleSubmit}>
