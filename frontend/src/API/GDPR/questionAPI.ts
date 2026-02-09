@@ -28,6 +28,9 @@ async function getQuestionnaireByManagedApplicationUuid(
     const result = await response.json();
     return result;
   } else {
+    if (response.status === 404) {
+      return null; //questionnaire not found for the given application UUID
+    }
     throw await getApiError(response);
   }
 }

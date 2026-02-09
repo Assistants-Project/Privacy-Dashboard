@@ -47,9 +47,9 @@ export function Apps() {
     >
       <Row className="mb-3 flex-shrink-0">
         <Col>
-          <h1 className="mb-0">
+          <h3 className="mb-0">
             {isDataSubject ? "Installed Apps" : "Catalog Apps"}
-          </h1>
+          </h3>
         </Col>
       </Row>
 
