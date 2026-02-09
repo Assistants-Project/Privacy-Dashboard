@@ -88,8 +88,7 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
       return template;
     } catch {
       setError("Unable to load questionnaire template.");
-    }
-    finally {
+    } finally {
       setLoadingTemplate(false);
     }
   }, [templateQuestions]);
@@ -380,16 +379,16 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
                         </span>
                       </p>
                       <p>{shownQuestionnaireSummary}</p>
+                      <hr className="my-3" />
                     </Row>
                   )}
-                  <hr className="my-3" />
                   <div
                     className="flex-grow-1 overflow-auto"
                     style={{ minHeight: 0, height: 0 }}
                   >
                     {viewQuestions === null ? (
                       <div className="text-muted">
-                        Press the Plus button to start the questionnaire.
+                        Press the Plus button to fill out the questionnaire.
                       </div>
                     ) : viewQuestions?.length ? (
                       viewQuestions.map((question, idx) => (

@@ -25,7 +25,7 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
 
   useEffect(() => {
     setPanelExpanded?.(editMode);
-  }, [editMode, setPanelExpanded,]);
+  }, [editMode, setPanelExpanded]);
 
   const ensureTemplateLoaded = async (): Promise<string> => {
     if (templateHtmlRef.current) return templateHtmlRef.current;
@@ -42,7 +42,7 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
 
     if (!selectedAppUUID) return;
     void loadPrivacyNotice(selectedAppUUID, false);
-  }, [loadPrivacyNotice, selectedAppUUID,]);
+  }, [loadPrivacyNotice, selectedAppUUID]);
 
   const handleSubmit = async () => {
     if (!selectedAppUUID) {
@@ -59,18 +59,34 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
   };
 
   const handleEditClick = () => {
-    setEditMode((v) => {
-      const next = !v;
-      if (next) {
-        templateHtmlRef.current = "";
-        if (!draftRef.current) draftRef.current = pn?.content || "";
-        setValue(draftRef.current);
-      } else {
-        draftRef.current = value;
-        setValue("");
+    if (editMode) {
+      setEditMode(false);
+      return;
+    }
+
+    // Reset editor content: if no PN loaded, clear editor; otherwise restore PN content.
+    const editor = (quillRef.current as any)?.getEditor?.();
+
+    if (!hasPn) {
+      if (editor) {
+        try {
+          editor.setContents([]);
+        } catch (e) {
+          if (editor.root) editor.root.innerHTML = "";
+        }
       }
-      return next;
-    });
+      setValue("");
+      draftRef.current = "";
+    } else {
+      // Restore the fetched privacy notice content
+      const content = pn?.content ?? "";
+      if (editor) {
+        editor.clipboard?.dangerouslyPasteHTML(0, content);
+      }
+      setValue(content);
+      draftRef.current = content;
+    }
+    setEditMode(true);
   };
 
   const handleInsertTemplate = async () => {
@@ -95,89 +111,100 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
     draftRef.current = merged;
   };
 
+  const title =
+    selectedApp?.name && selectedApp.name.trim() !== ""
+      ? selectedApp.name
+      : "Nome non impostato";
+
   if (!selectedApp) {
-    return (
-      <div className="text-muted">
-        Select an app to see the PN.
-      </div>
-    );
+    return <div className="text-muted">Select an app to see the PN.</div>;
   }
 
   return (
     <>
-      <Row className="align-items-start">
-        <Col>
-          <h3 className="mb-0 ms-1">
-            {selectedApp?.name && selectedApp.name.trim() !== "" ? selectedApp.name : "Nome non impostato"}
-          </h3>
+      <Row className="align-items-center">
+        <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
+          <h3 className="d-inline-block mb-0 ms-1">{title}</h3>
+          {canEdit && (
+            <div className="d-flex align-items-center">
+              <Button
+                className="circular-button me-2"
+                style={{
+                  color: "#181d1f",
+                }}
+                onClick={() => handleEditClick()}
+              >
+                <i
+                  className={`fa-solid fa-${editMode ? "rotate-left" : hasPn ? "pencil" : "plus"}`}
+                ></i>
+              </Button>
+              <Button
+                className="circular-button"
+                disabled
+                style={{
+                  color: "red",
+                }}
+              >
+                <i className="fa-solid fa-trash"></i>
+              </Button>
+            </div>
+          )}
         </Col>
         <Col xs="auto">
           <CloseButton onClick={closePanel} />
         </Col>
       </Row>
 
-      {canEdit ? (
-        <Row className="g-3">
-          <Col xs={12} lg={6} xxl={5}>
-            <Card className="p-0">
-              <Card.Body>
-                <Row className="g-2 align-items-center">
-                  <Col xs="auto">
-                    <strong>Actions</strong>
-                  </Col>
-                  <Col className="ms-auto" xs="auto">
-                    <Button type="button" variant="outline-secondary" size="sm" onClick={handleEditClick}>
-                      {editMode ? "Close" : hasPn ? "Edit" : "Create"}
-                    </Button>
-                  </Col>
-                  <Col xs="auto">
-                    <Button type="button" variant="outline-danger" size="sm">
-                      Delete
-                    </Button>
-                  </Col>
-                </Row>
-                {!editMode ? (
-                  <Row className="mt-2">
-                    <Col className="text-muted ms-2">
-                      <Row className="mb-1">
-                        Press {hasPn ? "Edit to start editing" : "Create to create a new PN"}.
-                      </Row>
-                      <Row>
-                        Delete is not available yet.
-                      </Row>
-                    </Col>
-                  </Row>
-                ) : null}
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      ) : null}
-
       {showEmptyPn ? (
         <Card className="p-0">
           <Card.Body className="text-muted">
-            Press Create to add one
+            {canEdit
+              ? "Press the Plus button to start writing the Privacy Notice."
+              : "No Privacy Notice available."}
           </Card.Body>
         </Card>
       ) : (
-        <Stack className="flex-grow-1 pe-2 overflow-hidden" style={{ minHeight: 0 }}>
+        <Stack
+          className="flex-grow-1 pe-2 overflow-hidden"
+          style={{ minHeight: 0 }}
+        >
           {canEdit ? (
             editMode ? (
-              <Card className="p-0 flex-grow-1 overflow-hidden d-flex flex-column" style={{ minHeight: 0 }}>
-                <Card.Body className="d-flex flex-column flex-grow-1" style={{ minHeight: 0 }}>
+              <Card
+                className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+                style={{ minHeight: 0 }}
+              >
+                <Card.Body
+                  className="d-flex flex-column flex-grow-1"
+                  style={{ minHeight: 0 }}
+                >
                   <Row className="g-2 mb-3 align-items-center">
                     <Col className="text-muted">
-                      Insert template will paste the template into your current document.
+                      Insert template will paste the template into your current
+                      document.
                     </Col>
                     <Col xs="auto">
-                      <Button type="button" variant="outline-primary" size="sm" onClick={() => void handleInsertTemplate()}>
+                      <Button
+                        type="button"
+                        variant="outline-secondary"
+                        size="sm"
+                        onClick={() => void handleInsertTemplate()}
+                      >
                         Insert template
                       </Button>
                     </Col>
                   </Row>
                   <div className="flex-grow-1 mb-3" style={{ minHeight: 0 }}>
-                    <ReactQuill className="pn-quill" ref={quillRef as any} theme="snow" value={value} onChange={(html) => { setValue(html); draftRef.current = html; }} />
+                    <ReactQuill
+                      className="pn-quill"
+                      ref={quillRef as any}
+                      theme="snow"
+                      value={value}
+                      onChange={(html) => {
+                        setValue(html);
+                        draftRef.current = html;
+                      }}
+                    />
                   </div>
                   <div>
                     <Button variant="dark" onClick={handleSubmit}>
@@ -196,7 +223,9 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
                   </Row>
                   <hr className="my-3" />
                   <div className="overflow-auto" style={{ maxHeight: "60vh" }}>
-                    <div dangerouslySetInnerHTML={{ __html: pn?.content ?? "" }} />
+                    <div
+                      dangerouslySetInnerHTML={{ __html: pn?.content ?? "" }}
+                    />
                   </div>
                 </Card.Body>
               </Card>

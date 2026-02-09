@@ -141,7 +141,6 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
     if (!canEditThisApp) return;
     try {
       setDraftContent(structuredClone((await fetchPiaTemplate()) ?? {}));
-      gridApisRef.current = {};
     } catch (err) {
       console.error("Error resetting PIA template:", err);
     }
@@ -207,179 +206,131 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
     }
   };
 
+  const title =
+    selectedApp?.name && selectedApp.name.trim() !== ""
+      ? selectedApp.name
+      : "Nome non impostato";
+
   if (!selectedApp) {
     return <div className="text-muted">Select an app to see the PIA.</div>;
   }
 
   return (
     <>
-      <Row className="align-items-start">
-        <Col>
-          <h3 className="mb-0 ms-1">
-            {selectedApp?.name && selectedApp.name.trim() !== ""
-              ? selectedApp.name
-              : "Nome non impostato"}
-          </h3>
-        </Col>
-        <Col xs="auto">
-          <CloseButton onClick={closePanel} />
-        </Col>
-      </Row>
-
       {piaForbidden ? (
         <Card className="p-0">
           <Card.Body className="text-muted">
             You are not allowed to view or edit the PIA for this app.
           </Card.Body>
         </Card>
-      ) : canEditThisApp ? (
-        <Row className="g-3">
-          <Col xs={12} lg={6} xxl={5}>
-            <Card className="p-0">
-              <Card.Body>
-                <Row className="g-2 align-items-center">
-                  <Col xs="auto">
-                    <strong>Actions</strong>
-                  </Col>
-                  <Col className="ms-auto" xs="auto">
-                    <Button
-                      type="button"
-                      variant="outline-secondary"
-                      size="sm"
-                      onClick={handleEditClick}
-                    >
-                      {editMode ? "Close" : hasPia ? "Edit" : "Create"}
-                    </Button>
-                  </Col>
-                  <Col xs="auto">
-                    <Button
-                      type="button"
-                      variant="outline-danger"
-                      size="sm"
-                      disabled={!hasPia}
-                      onClick={() => void handleDelete()}
-                    >
-                      Delete
-                    </Button>
-                  </Col>
-                </Row>
-                {!editMode ? (
-                  <Row className="mt-2">
-                    <Col className="text-muted ms-2">
-                      <Row className="mb-1">
-                        Press{" "}
-                        {hasPia
-                          ? "Edit to start editing"
-                          : "Create to create a new PIA"}
-                        .
-                      </Row>
-                      <Row>
-                        Delete {hasPia ? "is available" : "not available"}
-                      </Row>
-                    </Col>
-                  </Row>
-                ) : null}
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      ) : null}
+      ) : (
+        <>
+          <Row className="align-items-center">
+            <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
+              <h3 className="d-inline-block mb-0 ms-1">{title}</h3>
+              {canEditThisApp && (
+                <div className="d-flex align-items-center">
+                  <Button
+                    className="circular-button me-2"
+                    style={{
+                      color: "#181d1f",
+                    }}
+                    onClick={() => handleEditClick()}
+                  >
+                    <i
+                      className={`fa-solid fa-${editMode ? "rotate-left" : hasPia ? "pencil" : "plus"}`}
+                    ></i>
+                  </Button>
+                  <Button
+                    className="circular-button"
+                    disabled={!hasPia}
+                    onClick={() => handleDelete()}
+                    style={{
+                      color: "red",
+                    }}
+                  >
+                    <i className="fa-solid fa-trash"></i>
+                  </Button>
+                </div>
+              )}
+            </Col>
+            <Col xs="auto">
+              <CloseButton onClick={closePanel} />
+            </Col>
+          </Row>
 
-      <Stack
-        className="flex-grow-1 pe-2 overflow-hidden"
-        style={{ minHeight: 0 }}
-      >
-        {piaForbidden ? (
-          <Card
-            className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+          <Stack
+            className="flex-grow-1 pe-2 overflow-hidden"
             style={{ minHeight: 0 }}
           >
-            <Card.Body
-              className="d-flex flex-column flex-grow-1"
-              style={{ minHeight: 0 }}
-            >
-              <div className="text-muted">
-                PIA is not available for this app.
-              </div>
-            </Card.Body>
-          </Card>
-        ) : canEditThisApp ? (
-          editMode ? (
-            <Card
-              className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
-              style={{ minHeight: 0 }}
-            >
-              <Card.Body
-                className="d-flex flex-column flex-grow-1"
+            {editMode ? (
+              <Card
+                className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
                 style={{ minHeight: 0 }}
               >
-                <Row className="g-2 mb-3 align-items-center">
-                  <Col className="text-muted">
-                    Edit the PIA tables. Use "Reset to template" to start again
-                    from the provided template.
-                  </Col>
-                  <Col xs="auto">
-                    <Button
-                      type="button"
-                      variant="outline-primary"
-                      size="sm"
-                      onClick={() => void handleResetToTemplate()}
-                    >
-                      Reset to template
-                    </Button>
-                  </Col>
-                </Row>
-
-                <div
-                  className="flex-grow-1 overflow-auto"
-                  style={{ minHeight: 0, height: 0 }}
+                <Card.Body
+                  className="d-flex flex-column flex-grow-1"
+                  style={{ minHeight: 0 }}
                 >
-                  {draftContent?.sections ? (
-                    draftContent.sections.map((section: any) => (
-                      <Card key={section.section_key} className="p-0 mb-3">
-                        <Card.Body>
-                          <h4 className="mb-3">{section.label}</h4>
-                          {section.subsections?.map((subsection: any) => (
-                            <Card
-                              key={subsection.subsection_key}
-                              className="p-0 mb-3"
-                            >
-                              <Card.Body>
-                                <h5 className="mb-3">{subsection.label}</h5>
-                                {subsection.tables?.map((table: any) => (
-                                  <div
-                                    key={table.table_key}
-                                    style={{ width: "100%" }}
-                                    className="mb-4"
-                                  >
-                                    <h6 className="mt-2">{table.title}</h6>
-                                    <AgGridReact
-                                      onGridReady={(params) =>
-                                        onGridReady(params, table.table_key)
-                                      }
-                                      rowData={structuredClone(
-                                        table.initial_rows || [],
-                                      )}
-                                      columnDefs={createColDefs(
-                                        table.columns,
-                                        table.table_key,
-                                        table.addOrDeleteRowsEnabled,
-                                        true,
-                                      )}
-                                      defaultColDef={{ flex: 1 }}
-                                      domLayout={"autoHeight"}
-                                      stopEditingWhenCellsLoseFocus={true}
-                                    />
-                                    {table.addOrDeleteRowsEnabled ? (
-                                      <div className="w-100 d-flex justify-content-center mt-2">
-                                        <OverlayTrigger
-                                          placement={"top"}
-                                          overlay={
-                                            <Tooltip id={`tooltip-top`}>
-                                              Add Row
-                                            </Tooltip>
-                                          }
-                                        >
+                  <Row className="g-2 mb-3 align-items-center">
+                    <Col className="text-muted">
+                      Edit the PIA tables. Use "Reset to template" to start
+                      again from the provided template.
+                    </Col>
+                    <Col xs="auto">
+                      <Button
+                        type="button"
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={() => void handleResetToTemplate()}
+                      >
+                        Reset to template
+                      </Button>
+                    </Col>
+                  </Row>
+
+                  <div
+                    className="flex-grow-1 overflow-auto"
+                    style={{ minHeight: 0, height: 0 }}
+                  >
+                    {draftContent?.sections ? (
+                      draftContent.sections.map((section: any) => (
+                        <Card key={section.section_key} className="p-0 mb-3">
+                          <Card.Body>
+                            <h4 className="mb-3">{section.label}</h4>
+                            {section.subsections?.map((subsection: any) => (
+                              <Card
+                                key={subsection.subsection_key}
+                                className="p-0 mb-3"
+                              >
+                                <Card.Body>
+                                  <h5 className="mb-3">{subsection.label}</h5>
+                                  {subsection.tables?.map((table: any) => (
+                                    <div
+                                      key={table.table_key}
+                                      style={{ width: "100%" }}
+                                      className="mb-4"
+                                    >
+                                      <h6 className="mt-2">{table.title}</h6>
+                                      <AgGridReact
+                                        onGridReady={(params) =>
+                                          onGridReady(params, table.table_key)
+                                        }
+                                        rowData={structuredClone(
+                                          table.initial_rows || [],
+                                        )}
+                                        columnDefs={createColDefs(
+                                          table.columns,
+                                          table.table_key,
+                                          table.addOrDeleteRowsEnabled,
+                                          true,
+                                        )}
+                                        defaultColDef={{ flex: 1 }}
+                                        domLayout={"autoHeight"}
+                                        stopEditingWhenCellsLoseFocus={true}
+                                      />
+                                      {table.addOrDeleteRowsEnabled ? (
+                                        <div className="w-100 d-flex justify-content-center mt-2">
                                           <Button
                                             className="circular-button"
                                             style={{ color: "#181d1f" }}
@@ -389,165 +340,140 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
                                           >
                                             <i className="fa-solid fa-plus"></i>
                                           </Button>
-                                        </OverlayTrigger>
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                ))}
-                              </Card.Body>
-                            </Card>
-                          ))}
-                        </Card.Body>
-                      </Card>
-                    ))
-                  ) : (
-                    <div className="text-muted">Loading template…</div>
-                  )}
-                </div>
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  ))}
+                                </Card.Body>
+                              </Card>
+                            ))}
+                          </Card.Body>
+                        </Card>
+                      ))
+                    ) : (
+                      <div className="text-muted">Loading template…</div>
+                    )}
+                  </div>
 
-                <div className="mt-3">
-                  <Button variant="dark" onClick={handleSubmit}>
-                    Submit PIA
-                  </Button>
-                </div>
-              </Card.Body>
-            </Card>
-          ) : (
-            <Card
-              className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
-              style={{ minHeight: 0 }}
-            >
-              <Card.Body
-                className="d-flex flex-column flex-grow-1"
+                  <div className="mt-3">
+                    <Button variant="dark" onClick={handleSubmit}>
+                      Submit PIA
+                    </Button>
+                  </div>
+                </Card.Body>
+              </Card>
+            ) : (
+              <Card
+                className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
                 style={{ minHeight: 0 }}
               >
-                <Row className="g-1">
-                  <Col>
-                    <h5 className="mb-0">PIA content:</h5>
-                  </Col>
-                </Row>
-                <hr className="my-3" />
-                <div
-                  className="flex-grow-1 overflow-auto"
-                  style={{ minHeight: 0, height: 0 }}
+                <Card.Body
+                  className="d-flex flex-column flex-grow-1"
+                  style={{ minHeight: 0 }}
                 >
-                  {pia?.content?.sections ? (
-                    pia.content.sections.map((section: any) => (
-                      <Card key={section.section_key} className="p-0 mb-3">
-                        <Card.Body>
-                          <h4 className="mb-3">{section.label}</h4>
-                          {section.subsections?.map((subsection: any) => (
-                            <Card
-                              key={subsection.subsection_key}
-                              className="p-0 mb-3"
-                            >
-                              <Card.Body>
-                                <h5 className="mb-3">{subsection.label}</h5>
-                                <Accordion
-                                  alwaysOpen
-                                  activeKey={activeTableKeys}
-                                  onSelect={(eventKey) =>
-                                    Array.isArray(eventKey)
-                                      ? setActiveTableKeys(eventKey)
-                                      : typeof eventKey === "string"
-                                        ? setActiveTableKeys((prev) =>
-                                            prev.includes(eventKey)
-                                              ? prev.filter(
-                                                  (k) => k !== eventKey,
-                                                )
-                                              : [...prev, eventKey],
-                                          )
-                                        : setActiveTableKeys([])
-                                  }
-                                >
-                                  {subsection.tables?.map((table: any) => (
-                                    <Accordion.Item
-                                      eventKey={table.table_key}
-                                      key={table.table_key}
-                                    >
-                                      <Accordion.Header>
-                                        {table.title}
-                                      </Accordion.Header>
-                                      <Accordion.Body>
-                                        {activeTableKeys.includes(
-                                          table.table_key,
-                                        ) ? (
-                                          <AgGridReact
-                                            rowData={table.initial_rows || []}
-                                            columnDefs={createColDefs(
-                                              table.columns,
-                                              table.table_key,
-                                              table.addOrDeleteRowsEnabled,
-                                              false,
-                                            )}
-                                            defaultColDef={{ flex: 1 }}
-                                            domLayout={"autoHeight"}
-                                          />
-                                        ) : null}
-                                      </Accordion.Body>
-                                    </Accordion.Item>
-                                  ))}
-                                </Accordion>
-                              </Card.Body>
-                            </Card>
-                          ))}
-                        </Card.Body>
-                      </Card>
-                    ))
-                  ) : (
-                    <div className="text-muted">Press Create to add one</div>
+                  {hasPia && (
+                    <>
+                      <Row className="g-1">
+                        <Col>
+                          <h5 className="mb-0">PIA content:</h5>
+                        </Col>
+                      </Row>
+                      <hr className="my-3" />
+                    </>
                   )}
-                </div>
-              </Card.Body>
-            </Card>
-          )
-        ) : (
-          <Card
-            className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
-            style={{ minHeight: 0 }}
-          >
-            <Card.Body
-              className="d-flex flex-column flex-grow-1"
-              style={{ minHeight: 0 }}
-            >
-              <Row className="g-1">
-                <Col>
-                  <h5 className="mb-0">PIA content</h5>
-                </Col>
-              </Row>
-              <hr className="my-3" />
-              <div
-                className="flex-grow-1 overflow-auto"
-                style={{ minHeight: 0, height: 0 }}
-              >
-                <div className="text-muted">
-                  Privacy Impact Assessment is not available.
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        )}
-      </Stack>
+                  <div
+                    className="flex-grow-1 overflow-auto"
+                    style={{ minHeight: 0, height: 0 }}
+                  >
+                    {pia?.content?.sections ? (
+                      pia.content.sections.map((section: any) => (
+                        <Card key={section.section_key} className="p-0 mb-3">
+                          <Card.Body>
+                            <h4 className="mb-3">{section.label}</h4>
+                            {section.subsections?.map((subsection: any) => (
+                              <Card
+                                key={subsection.subsection_key}
+                                className="p-0 mb-3"
+                              >
+                                <Card.Body>
+                                  <h5 className="mb-3">{subsection.label}</h5>
+                                  <Accordion
+                                    alwaysOpen
+                                    activeKey={activeTableKeys}
+                                    onSelect={(eventKey) =>
+                                      Array.isArray(eventKey)
+                                        ? setActiveTableKeys(eventKey)
+                                        : typeof eventKey === "string"
+                                          ? setActiveTableKeys((prev) =>
+                                              prev.includes(eventKey)
+                                                ? prev.filter(
+                                                    (k) => k !== eventKey,
+                                                  )
+                                                : [...prev, eventKey],
+                                            )
+                                          : setActiveTableKeys([])
+                                    }
+                                  >
+                                    {subsection.tables?.map((table: any) => (
+                                      <Accordion.Item
+                                        eventKey={table.table_key}
+                                        key={table.table_key}
+                                      >
+                                        <Accordion.Header>
+                                          {table.title}
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                          {activeTableKeys.includes(
+                                            table.table_key,
+                                          ) ? (
+                                            <AgGridReact
+                                              rowData={table.initial_rows || []}
+                                              columnDefs={createColDefs(
+                                                table.columns,
+                                                table.table_key,
+                                                table.addOrDeleteRowsEnabled,
+                                                false,
+                                              )}
+                                              defaultColDef={{ flex: 1 }}
+                                              domLayout={"autoHeight"}
+                                            />
+                                          ) : null}
+                                        </Accordion.Body>
+                                      </Accordion.Item>
+                                    ))}
+                                  </Accordion>
+                                </Card.Body>
+                              </Card>
+                            ))}
+                          </Card.Body>
+                        </Card>
+                      ))
+                    ) : (
+                      <div className="text-muted">
+                        Press the Plus button to fill out the Privacy Impact
+                        Assessment.
+                      </div>
+                    )}
+                  </div>
+                </Card.Body>
+              </Card>
+            )}
+          </Stack>
+        </>
+      )}
     </>
   );
 }
 
 function DeleteButtonComponent(props: any) {
   return (
-    <OverlayTrigger
-      placement={"right"}
-      overlay={<Tooltip id={`tooltip-right`}>Delete Row</Tooltip>}
+    <Button
+      className="circular-button"
+      onClick={() => props.api.applyTransaction({ remove: [props.node.data] })}
+      style={{ color: "red" }}
     >
-      <Button
-        className="circular-button"
-        onClick={() =>
-          props.api.applyTransaction({ remove: [props.node.data] })
-        }
-        style={{ color: "red" }}
-      >
-        <i className="fa-solid fa-minus"></i>
-      </Button>
-    </OverlayTrigger>
+      <i className="fa-solid fa-minus"></i>
+    </Button>
   );
 }
 
