@@ -22,7 +22,7 @@ class User {
  */
 enum Role {
     DataSubject = "DATA_SUBJECT",
-    DatController = "DATA_CONTROLLER",
+    DataController = "DATA_CONTROLLER",
     DPO = "DATA_PROTECTION_OFFICER"
 }
 

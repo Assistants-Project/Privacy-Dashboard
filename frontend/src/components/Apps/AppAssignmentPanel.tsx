@@ -14,7 +14,7 @@ function AppAssignmentPanel() {
     const {selectedApp, claimManagedApplication,assignDpoToManagedApplication, managedApps, selectedAppUUID} = useApp();
 
 
-    const isDataController = user?.role === Role.DatController;
+    const isDataController = user?.role === Role.DataController;
 
     
     //magari si può semplificare anche questo con un flag se managed oppure no invece di guardare in managedApps

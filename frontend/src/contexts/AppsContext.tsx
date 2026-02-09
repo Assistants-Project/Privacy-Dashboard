@@ -113,7 +113,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
 
     if (user.role === Role.DataSubject) return list;
 
-    if (user.role === Role.DatController) {
+    if (user.role === Role.DataController) {
       return list.filter(
         (app) =>
           app.data_controllers?.some((dc) => dc.uuid === user.uuid) ?? false,
@@ -295,7 +295,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
 
   const claimManagedApplication = useCallback(async (appUUID: string): Promise<boolean | undefined> => {
       if (!user) return undefined;
-      if (user.role !== Role.DatController) return undefined;
+      if (user.role !== Role.DataController) return undefined;
 
         const done = await claimApplicationAsDataController(appUUID);
         //non è una procedura che si fa sempre quindi per semplicità ricarichiamo tutte le apps
@@ -307,7 +307,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
 
   const assignDpoToManagedApplication = useCallback(async (appUUID: string, dpoUUID: string): Promise<boolean | undefined> => {
       if (!user) return undefined;
-      if (user.role !== Role.DatController) return undefined;
+      if (user.role !== Role.DataController) return undefined;
 
         const done = await assignDpoToApplication(appUUID, dpoUUID);
         //non è una procedura che si fa sempre quindi per semplicità ricarichiamo tutte le apps

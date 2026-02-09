@@ -1,40 +1,47 @@
 import { useState } from 'react';
-import { Alert, Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { Alert, Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { useAuth } from "../../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import { Registration } from './Registration';
+import { Registration } from '../../components/Authentication/Registration';
 
-function Login(props: any) {
+function Login() {
     const auth = useAuth();
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("");
+    const [waitingLogin, setWaitingLogin] = useState("");
 
     if (auth.user) {
         return <Navigate to="/" replace />;
     }
 
-    const handleSubmit = async (event: any) => {
+    const handleLogin = async (event: any) => {
+
+        setError("");
         event.preventDefault();
 
         let valid = true;
-        let msg = '';
+        let msg = "";
 
-        if (!email || email === '') {
+        if (email === "") {
             valid = false;
-            msg += 'Please insert a valid username\r\n'
+            msg += "Please insert a valid email.\n"
         }
 
-        if (!password || password === '') {
+        if (password === "") {
             valid = false;
-            msg += 'Please insert a valid password\r\n'
+            msg += "Please insert a valid password.\n"
         }
 
         if (valid) {
             try {
-                await auth.login(email, password); 
+                setWaitingLogin("Signing in... ");
+                await auth.login(email, password);
             } catch (err) {
                 setError(err instanceof Error ? err.message : String(err))
+            }
+            finally {
+                setWaitingLogin("");
             }
         }
         else {
@@ -44,33 +51,41 @@ function Login(props: any) {
 
 
     return (
-        <Container fluid className="loginContainer">
+        <Container fluid className="min-vh-100 d-flex flex-column justify-content-center">
 
-            <Row className="loginTitle">
-                <i className="bi bi-diagram-2">Privacy Dashboard</i>
-            </Row>
-            <Row>
-                <Col>
-                    <Row className="loginFormContainer">
-                        <h2>Login</h2>
-                        {error ? <Alert className="error" variant='danger' onClose={() => setError("")} dismissible>{error}</Alert> : false}
-                        <Form.Group className="form" controlId='login'>
-                            <Form.Control placeholder="Email" type='email' value={email} onChange={ev => setEmail(ev.target.value)} />
-                            <Form.Control className="mt-3" placeholder="Password" type='password' value={password} onChange={ev => setPassword(ev.target.value)} />
-                        </Form.Group>
-                        <Button variant='warning' className='loginBtn' type='submit' onClick={handleSubmit}>LOGIN</Button>
-                        <hr></hr>
-                    </Row>
-                </Col>
-                <Col >
-                    <Row className="loginFormContainer">
-                        <Registration
-                          setRegistrationMessage={setError}
-                        />
-                    </Row>
+            <Row className="justify-content-center my-4">
+                <Col xs="auto">
+                    <h1>Privacy Dashboard</h1>
                 </Col>
             </Row>
-
+            <Row className="justify-content-center">
+                <Col xs="auto" className="mx-3">
+                    <Card>
+                        <Card.Body>
+                            <Card.Title>Login</Card.Title>
+                            <Row className="justify-content-center mt-4">
+                                <Col xs="auto">
+                                    <Form onSubmit={handleLogin} className="d-flex flex-column gap-4">
+                                        <Form.Group>
+                                            <Form.Control placeholder="Email" type="email" value={email} onChange={ev => setEmail(ev.target.value)} />
+                                            <Form.Control className="mt-3" placeholder="Password" type="password" value={password} onChange={ev => setPassword(ev.target.value)} />
+                                        </Form.Group>
+                                        <Button variant="secondary" className="align-self-center w-auto" type="submit" disabled={waitingLogin? true : false}>
+                                            {waitingLogin ? waitingLogin : "Login"}
+                                            {waitingLogin ? <Spinner animation="border" size="sm" /> : undefined}
+                                                
+                                        </Button>
+                                    </Form>
+                                </Col>
+                            </Row>
+                        </Card.Body>
+                        {error ? <Alert variant='danger' onClose={() => setError("")} style={{ whiteSpace: "pre-line" }} dismissible>{error}</Alert> : undefined}
+                    </Card>
+                </Col>
+                <Col xs="auto" className="mx-3">
+                    <Registration/>
+                </Col>
+            </Row>
         </Container>
     )
 }

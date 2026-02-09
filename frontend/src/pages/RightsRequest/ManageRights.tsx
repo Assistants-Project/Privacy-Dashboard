@@ -23,7 +23,7 @@ export function ManageRights() {
 
   const closePanel = () => setSelectedRequestUuid(undefined);
   const isDataSubject = user?.role === Role.DataSubject;
-  const isManager = user?.role === Role.DatController || user?.role === Role.DPO;
+  const isManager = user?.role === Role.DataController || user?.role === Role.DPO;
 
   const statusBadge = (status: RequestStatus) => {
     if (status === RequestStatus.HANDLED) return "success";

@@ -22,7 +22,7 @@ export function Apps() {
   const [showSubmitRightModal, setShowSubmitRightModal] = useState(false);
 
   const isDataSubject = user?.role === Role.DataSubject;
-  const isDataController = user?.role === Role.DatController;
+  const isDataController = user?.role === Role.DataController;
   const showQuestionnaire = !isDataSubject;
 
   const closePanel = () => setSelectedAppUUID(undefined);
