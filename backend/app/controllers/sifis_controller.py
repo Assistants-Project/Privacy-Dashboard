@@ -6,7 +6,7 @@ from io import BytesIO
 import zipfile
 from pathlib import Path
 
-from ..services import OWLService, XACMLService, DHTService
+from ..services import OWLService, XACMLService
 from ..services.rule_service import RuleService
 from ..services.petrinet_service import PetriNetService
 from ..repositories.user_repository import UserRepository
@@ -35,7 +35,6 @@ try:
     }
     owl_service = OWLService(owl_config)
     xacml_service = XACMLService(owl_service)
-    dht_service = DHTService(BaseConfig.DHT_ENDPOINT)
     rule_service = RuleService(owl_service)
     petrinet_service = PetriNetService(owl_service)
     user_repo = UserRepository()
@@ -44,7 +43,6 @@ except Exception as e:
     logging.error(f"Failed to initialize services: {e}")
     owl_service = None
     xacml_service = None
-    dht_service = None
     rule_service = None
     petrinet_service = None
 
@@ -289,11 +287,11 @@ def get_defined_triggers(current_user, home_uuid):
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/homes/<home_uuid>/rules/<int:rule_id>/translate", methods=["POST"])
+@sifis_bp.route("/homes/<home_uuid>/rules/<int:rule_id>/download", methods=["POST"])
 @ds_required()
-def translate_rule(home_uuid, rule_id, current_user):
-    """Translate a rule into XACML policies and publish to DHT"""
-    if not rule_service or not xacml_service or not dht_service:
+def download_rule(home_uuid, rule_id, current_user):
+    """Translate a rule into XACML policies and download"""
+    if not rule_service or not xacml_service:
         return jsonify({"error": "Services not available"}), 500
 
     try:
@@ -307,17 +305,38 @@ def translate_rule(home_uuid, rule_id, current_user):
              return jsonify({"error": "Rule not found or access denied"}), 404
 
         # Use new service method
-        success = rule_service.translate_and_publish_rule(
-            rule_id, home, xacml_service, dht_service
+        xacml_policies = rule_service.translate_rule(
+            rule_id, home, xacml_service
         )
         
-        if success:
-            return (
-                jsonify({"message": "Policies translated and published successfully"}),
-                200,
+        if not xacml_policies:
+             return jsonify({"error": "Failed to translate rule"}), 500
+
+        # If single policy, return as XML file
+        if len(xacml_policies) == 1:
+            mem = BytesIO()
+            mem.write(xacml_policies[0].encode("utf-8"))
+            mem.seek(0)
+            return send_file(
+                mem,
+                as_attachment=True,
+                download_name=f"rule_{rule_id}.xml",
+                mimetype="application/xml"
             )
-        else:
-             return jsonify({"error": "Failed to translate or publish rule"}), 500
+        
+        # If multiple policies, return as ZIP
+        mem = BytesIO()
+        with zipfile.ZipFile(mem, "w", zipfile.ZIP_DEFLATED) as zf:
+            for i, policy in enumerate(xacml_policies):
+                zf.writestr(f"rule_{rule_id}_{i}.xml", policy)
+        mem.seek(0)
+        
+        return send_file(
+            mem,
+            as_attachment=True,
+            download_name=f"rule_{rule_id}.zip",
+            mimetype="application/zip"
+        )
 
     except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
         return jsonify({"error": str(e)}), e.code
@@ -326,39 +345,7 @@ def translate_rule(home_uuid, rule_id, current_user):
         return jsonify({"error": str(e)}), 500
 
 
-@sifis_bp.route("/homes/<home_uuid>/download", methods=["GET"])
-@ds_required()
-def download_policies(current_user, home_uuid):
-    """Download all policies as a ZIP file"""
-    try:
-        SmartHomeService.verify_home_access(home_uuid, current_user)
-        
-        # Get policies directory
-        policies_dir = Path(BaseConfig.POLICIES_DIRECTORY)
 
-        if not policies_dir.exists() or not any(policies_dir.glob("*.xml")):
-            return jsonify({"error": "No policies available for download"}), 404
-
-        # Create ZIP file in memory
-        memory_file = BytesIO()
-        with zipfile.ZipFile(memory_file, "w", zipfile.ZIP_DEFLATED) as zf:
-            for policy_file in policies_dir.glob("*.xml"):
-                zf.write(policy_file, arcname=policy_file.name)
-
-        memory_file.seek(0)
-
-        return send_file(
-            memory_file,
-            mimetype="application/zip",
-            as_attachment=True,
-            download_name="policies.zip",
-        )
-
-    except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
-        return jsonify({"error": str(e)}), e.code
-    except Exception as e:
-        logging.error(f"Error downloading policies: {e}")
-        return jsonify({"error": str(e)}), 500
 
 
 @sifis_bp.route("/homes/<home_uuid>/rules/<int:rule_id>/check", methods=["GET"])

@@ -53,6 +53,7 @@ def create_app(env_name: Optional[str] = None) -> Flask:
         resources={r"/*": {"origins": allowed_origins}},
         supports_credentials=True,
         allow_headers=["Content-Type", "Authorization"],
+        expose_headers=["Content-Disposition"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     )
 

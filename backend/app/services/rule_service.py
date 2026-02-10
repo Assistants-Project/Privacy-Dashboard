@@ -13,7 +13,7 @@ from ..models.entities.sifis.owl.rule import Rule
 from ..repositories.rule_repository import RuleRepository
 from ..services.owl_service import OWLService
 from ..services.xacml_service import XACMLService
-from ..services.dht_service import DHTService
+
 from config import BaseConfig
 
 
@@ -245,48 +245,22 @@ class RuleService:
             
         return self._rehydrate_rule(db_rule, str(smart_home.uuid))
 
-    def translate_and_publish_rule(
+    def translate_rule(
         self, 
         rule_id: int, 
         smart_home: SmartHome,
-        xacml_service: XACMLService, 
-        dht_service: DHTService
-    ) -> bool:
+        xacml_service: XACMLService
+    ) -> Optional[List[str]]:
         """
-        Refactored: Translate rule to XACML, save to file system, and publish to DHT.
+        Translate rule to XACML and return the XML strings.
         """
         # 1. Get rehydrated rule
         rule = self.get_rule_by_id(rule_id, smart_home)
         if not rule:
-            return False
+            return None
 
-        # 2. Prepare policies directory
-        policies_dir = Path(BaseConfig.POLICIES_DIRECTORY)
-        policies_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Clean existing XML files
-        for file in policies_dir.glob("*.xml"):
-            file.unlink()
-
-        # 3. Translate rule
-        policies_xml = xacml_service.translate(rule.to_dict(), str(smart_home.uuid))
-
-        # 4. Save and Publish
-        for i, policy_xml in enumerate(policies_xml):
-            timestamp = int(datetime.now().timestamp() * 1000)
-            policy_id = f"policy_{timestamp}_{i}"
-
-            # Save to file
-            policy_file = policies_dir / f"{policy_id}.xml"
-            with open(policy_file, "w", encoding="utf-8") as f:
-                f.write(policy_xml)
-
-            # Publish to DHT
-            pub_result = dht_service.publish_policy(policy_xml, policy_id)
-            if pub_result is None:
-                self.logger.warning(f"Failed to publish policy {policy_id} to DHT")
-        
-        return True
+        # 2. Translate rule
+        return xacml_service.translate(rule.to_dict(), str(smart_home.uuid))
 
     def _rehydrate_rule(self, db_rule: DbRule, home_uuid: str) -> Optional[Rule]:
         """
