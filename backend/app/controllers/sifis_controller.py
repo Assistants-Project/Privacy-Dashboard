@@ -186,7 +186,7 @@ def get_rules(current_user, home_uuid):
             return jsonify({"error": "User not found"}), 404
 
         home = SmartHomeService.verify_home_access(home_uuid, user)
-        rules = rule_service.get_rules_by_type("sifis", user, str(home.uuid))
+        rules = rule_service.get_rules_by_type("sifis", home)
 
         # Convert Rule objects to dict for JSON serialization
         rules_data = []
@@ -227,7 +227,7 @@ def save_rule(current_user, home_uuid, **rule_data):
             return jsonify({"error": "User not found"}), 404
 
         home = SmartHomeService.verify_home_access(home_uuid, user)
-        rule_id = rule_service.save_rule(rule_data, "sifis", user, str(home.uuid))
+        rule_id = rule_service.save_rule(rule_data, "sifis", home)
 
         return jsonify({"id": rule_id}), 200
     except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
@@ -250,10 +250,10 @@ def delete_rule(home_uuid, rule_id, current_user):
         if not user:
             return jsonify({"error": "User not found"}), 404
         
-        SmartHomeService.verify_home_access(home_uuid, user)
+        home = SmartHomeService.verify_home_access(home_uuid, user)
         
         # Delete rule through service layer (proper architecture)
-        deleted = rule_service.delete_rule_by_user(rule_id, user)
+        deleted = rule_service.delete_rule_by_home(rule_id, home)
         
         if not deleted:
             return jsonify({"error": "Rule not found or access denied"}), 404
@@ -280,7 +280,7 @@ def get_defined_triggers(current_user, home_uuid):
             return jsonify({"error": "User not found"}), 404
 
         home = SmartHomeService.verify_home_access(home_uuid, user)
-        triggers = rule_service.get_defined_triggers_by_type("sifis", user, str(home.uuid))
+        triggers = rule_service.get_defined_triggers_by_type("sifis", home)
         return jsonify([trigger.to_dict() for trigger in triggers])
     except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
         return jsonify({"error": str(e)}), e.code
@@ -303,12 +303,12 @@ def translate_rule(home_uuid, rule_id, current_user):
 
         # Verify rule ownership
         home = SmartHomeService.verify_home_access(home_uuid, user)
-        if not rule_service.verify_rule_ownership(rule_id, user):
+        if not rule_service.verify_rule_ownership(rule_id, home):
              return jsonify({"error": "Rule not found or access denied"}), 404
 
         # Use new service method
         success = rule_service.translate_and_publish_rule(
-            rule_id, user, str(home.uuid), xacml_service, dht_service
+            rule_id, home, xacml_service, dht_service
         )
         
         if success:
@@ -377,12 +377,12 @@ def check_rule(home_uuid, rule_id, current_user):
 
         # Verify rule ownership and get rehydrated rule
         home = SmartHomeService.verify_home_access(home_uuid, user)
-        rule = rule_service.get_rule_by_id(rule_id, user, str(home.uuid))
+        rule = rule_service.get_rule_by_id(rule_id, home)
         if not rule:
              return jsonify({"error": "Rule not found or access denied"}), 404
 
         # Get all existing rules
-        rules = rule_service.get_rules_by_type("sifis", user, str(home.uuid))
+        rules = rule_service.get_rules_by_type("sifis", home)
 
         # Check rule using PetriNet service logic
         result = petrinet_service.check_rule(rule, rules, str(home.uuid))
@@ -414,7 +414,7 @@ def start_simulation(current_user, home_uuid):
             return jsonify({"error": "Trigger data required"}), 400
 
         # Get rules for user
-        rules = rule_service.get_rules_by_type("sifis", user, str(home.uuid))
+        rules = rule_service.get_rules_by_type("sifis", home)
 
         # Parse trigger from request
         trigger_data = data["trigger"]

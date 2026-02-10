@@ -1,8 +1,11 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...extensions import db
+
+if TYPE_CHECKING:
+    from .sifis.db import DbRule, DbEntity
 
 
 class SmartHome(db.Model):
@@ -49,6 +52,12 @@ class SmartHome(db.Model):
     )
     devices: Mapped[List["Device"]] = relationship(  # noqa: F821 # type: ignore
         backref="smart_home", cascade="all, delete-orphan", passive_deletes=True
+    )
+    rules: Mapped[List["DbRule"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="smart_home", cascade="all, delete-orphan", passive_deletes=True
+    )
+    entities: Mapped[List["DbEntity"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="smart_home", cascade="all, delete-orphan", passive_deletes=True
     )
 
     def __repr__(self) -> str:

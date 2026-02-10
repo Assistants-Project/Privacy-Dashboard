@@ -5,6 +5,7 @@ from sqlalchemy.orm import joinedload
 from ..extensions import db
 from ..models.entities.sifis.db import DbRule, DbEntity, DbTrigger, DbAction
 from ..models.entities.user import User
+from ..models.entities.smart_home import SmartHome
 
 
 class RuleRepository:
@@ -19,11 +20,11 @@ class RuleRepository:
         return rule
 
     @staticmethod
-    def get_rules_by_user_and_type(user: User, rule_type: str) -> List[DbRule]:
-        """Get all rules for a user by type"""
+    def get_rules_by_home_and_type(smart_home: SmartHome, rule_type: str) -> List[DbRule]:
+        """Get all rules for a home by type"""
         stmt = (
             select(DbRule)
-            .where(DbRule.user_id == user.id, DbRule.type == rule_type)
+            .where(DbRule.smart_home_id == smart_home.id, DbRule.type == rule_type)
             .options(
                 joinedload(DbRule.triggers).joinedload(DbTrigger.entity),
                 joinedload(DbRule.triggers).joinedload(DbTrigger.details),
@@ -34,20 +35,20 @@ class RuleRepository:
         return list(db.session.execute(stmt).scalars().unique().all())
 
     @staticmethod
-    def delete_rule_by_id_and_user(rule_id: int, user_id: int) -> bool:
+    def delete_rule_by_id_and_home(rule_id: int, smart_home_id: int) -> bool:
         """
-        Delete a rule if it belongs to the specified user.
+        Delete a rule if it belongs to the specified home.
         
         Args:
             rule_id: ID of the rule to delete
-            user_id: ID of the user who must own the rule
+            smart_home_id: ID of the home where the rule belongs
             
         Returns:
             True if rule was found and deleted, False otherwise
         """
         stmt = select(DbRule).where(
             DbRule.id == rule_id,
-            DbRule.user_id == user_id
+            DbRule.smart_home_id == smart_home_id
         )
         rule = db.session.execute(stmt).scalars().first()
         
@@ -59,23 +60,23 @@ class RuleRepository:
         return False
 
     @staticmethod
-    def get_rule_by_id_and_user(rule_id: int, user_id: int) -> Optional[DbRule]:
-        """Get a rule by ID ensuring it belongs to the user"""
+    def get_rule_by_id_and_home(rule_id: int, smart_home_id: int) -> Optional[DbRule]:
+        """Get a rule by ID ensuring it belongs to the home"""
         stmt = select(DbRule).where(
             DbRule.id == rule_id,
-            DbRule.user_id == user_id
+            DbRule.smart_home_id == smart_home_id
         )
         return db.session.execute(stmt).scalars().first()
 
     @staticmethod
-    def find_or_create_entity(url: str, user: User) -> DbEntity:
-        """Find entity by URL and user or create new one"""
+    def find_or_create_entity(url: str, smart_home: SmartHome) -> DbEntity:
+        """Find entity by URL and home or create new one"""
         entity = db.session.execute(
-            select(DbEntity).where(DbEntity.url == url, DbEntity.user_id == user.id)
+            select(DbEntity).where(DbEntity.url == url, DbEntity.smart_home_id == smart_home.id)
         ).scalar_one_or_none()
 
         if not entity:
-            entity = DbEntity(url=url, user_id=user.id)
+            entity = DbEntity(url=url, smart_home_id=smart_home.id)
             db.session.add(entity)
             db.session.flush()
 

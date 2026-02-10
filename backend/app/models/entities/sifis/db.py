@@ -6,6 +6,7 @@ from ....extensions import db
 
 if TYPE_CHECKING:
     from ..user import User
+    from ..smart_home import SmartHome
 
 
 class DbEntity(db.Model):
@@ -15,11 +16,11 @@ class DbEntity(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     url: Mapped[str] = mapped_column(String(500), nullable=False)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    smart_home_id: Mapped[int] = mapped_column(
+        ForeignKey("smart_homes.id", ondelete="CASCADE"), nullable=False
     )
 
-    user: Mapped["User"] = relationship("User")
+    smart_home: Mapped["SmartHome"] = relationship("SmartHome", back_populates="entities")
     triggers: Mapped[List["DbTrigger"]] = relationship(back_populates="entity")
     actions: Mapped[List["DbAction"]] = relationship(back_populates="entity")
 
@@ -30,8 +31,8 @@ class DbRule(db.Model):
     __tablename__ = "dbrule"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    smart_home_id: Mapped[int] = mapped_column(
+        ForeignKey("smart_homes.id", ondelete="CASCADE"), nullable=False
     )
     type: Mapped[str] = mapped_column(String(50), nullable=False)  # 'sifis'
     effect: Mapped[str] = mapped_column(String(50), nullable=True)
@@ -40,7 +41,7 @@ class DbRule(db.Model):
         BigInteger, nullable=False
     )  # Unix timestamp in milliseconds
 
-    user: Mapped["User"] = relationship("User")
+    smart_home: Mapped["SmartHome"] = relationship("SmartHome", back_populates="rules")
     triggers: Mapped[List["DbTrigger"]] = relationship(
         back_populates="rule", cascade="all, delete-orphan"
     )

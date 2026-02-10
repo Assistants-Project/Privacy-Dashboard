@@ -6,6 +6,7 @@ from datetime import datetime
 
 from ..models.entities.sifis.db import DbRule, DbTrigger, DbAction, DbDetail
 from ..models.entities.user import User
+from ..models.entities.smart_home import SmartHome
 from ..models.entities.sifis.owl.trigger import Trigger
 from ..models.entities.sifis.owl.action import Action
 from ..models.entities.sifis.owl.rule import Rule
@@ -27,7 +28,7 @@ class RuleService:
         self.logger.setLevel(logging.INFO)
 
     def save_rule(
-        self, rule_data: Dict[str, Any], rule_type: str, user: User, home_uuid: str
+        self, rule_data: Dict[str, Any], rule_type: str, smart_home: SmartHome
     ) -> int:
         """
         Save a rule to the database
@@ -35,8 +36,7 @@ class RuleService:
         Args:
             rule_data: Validated dictionary (from DTO schema) containing trigger, action, effect, subject, timestamp
             rule_type: Type of rule (e.g., 'sifis')
-            user: User creating the rule
-            home_uuid: UUID of the home where the rule applies
+            smart_home: SmartHome where the rule applies
 
         Returns:
             ID of the saved rule
@@ -48,7 +48,7 @@ class RuleService:
         self.logger.info(f"Saving rule with timestamp: {timestamp}")
         
         db_rule = DbRule(
-            user_id=user.id,
+            smart_home_id=smart_home.id,
             type=rule_type,
             effect=rule_data.get("effect"),
             subject=rule_data.get("subject"),
@@ -57,11 +57,11 @@ class RuleService:
 
         # Process trigger
         trigger_data = rule_data["trigger"]
-        db_trigger = self._process_trigger_data(trigger_data, user, home_uuid)
+        db_trigger = self._process_trigger_data(trigger_data, smart_home)
         
         # Process action
         action_data = rule_data["action"]
-        db_action = self._process_action_data(action_data, user, home_uuid)
+        db_action = self._process_action_data(action_data, smart_home)
 
         # Link trigger and action to rule
         db_rule.triggers.append(db_trigger)
@@ -71,7 +71,7 @@ class RuleService:
         saved_rule = self.rule_repo.save_rule(db_rule)
         return saved_rule.id
 
-    def _process_trigger_data(self, trigger_data: Dict[str, Any], user: User, home_uuid: str) -> DbTrigger:
+    def _process_trigger_data(self, trigger_data: Dict[str, Any], smart_home: SmartHome) -> DbTrigger:
         """Process trigger data and create DbTrigger entity"""
         db_trigger = DbTrigger(url=trigger_data["url"])
         location_url = None
@@ -81,7 +81,7 @@ class RuleService:
                 entity_value = detail.get("value", {})
                 if entity_value:
                     entity = self.rule_repo.find_or_create_entity(
-                        entity_value["url"], user
+                        entity_value["url"], smart_home
                     )
                     db_trigger.entity = entity
             elif detail["type"] == "location":
@@ -105,13 +105,13 @@ class RuleService:
 
         # If no entity specified, try to find default entity for service
         if not db_trigger.entity:
-            service_id = self._resolve_service_id(trigger_data, home_uuid, is_trigger=True)
+            service_id = self._resolve_service_id(trigger_data, str(smart_home.uuid), is_trigger=True)
             if service_id:
-                self._find_and_set_default_entity(db_trigger, service_id, home_uuid, user, location_url)
+                self._find_and_set_default_entity(db_trigger, service_id, smart_home, location_url)
         
         return db_trigger
 
-    def _process_action_data(self, action_data: Dict[str, Any], user: User, home_uuid: str) -> DbAction:
+    def _process_action_data(self, action_data: Dict[str, Any], smart_home: SmartHome) -> DbAction:
         """Process action data and create DbAction entity"""
         db_action = DbAction(url=action_data["url"])
         location_url = None
@@ -121,7 +121,7 @@ class RuleService:
                 entity_value = detail.get("value", {})
                 if entity_value:
                     entity = self.rule_repo.find_or_create_entity(
-                        entity_value["url"], user
+                        entity_value["url"], smart_home
                     )
                     db_action.entity = entity
             elif detail["type"] == "location":
@@ -145,9 +145,9 @@ class RuleService:
 
         # If no entity specified, try to find default entity for service
         if not db_action.entity:
-            service_id = self._resolve_service_id(action_data, home_uuid, is_trigger=False)
+            service_id = self._resolve_service_id(action_data, str(smart_home.uuid), is_trigger=False)
             if service_id:
-                self._find_and_set_default_entity(db_action, service_id, home_uuid, user, location_url)
+                self._find_and_set_default_entity(db_action, service_id, smart_home, location_url)
         
         return db_action
 
@@ -168,89 +168,87 @@ class RuleService:
         self, 
         db_item: Any, 
         service_id: str, 
-        home_uuid: str, 
-        user: User, 
+        smart_home: SmartHome,
         location_url: Optional[str]
     ):
         """Find default entity for service and set it on the db item"""
         entities = self.owl_service._get_entities_by_service(
-            service_id, home_uuid, location_url=location_url
+            service_id, str(smart_home.uuid), location_url=location_url
         )
         if entities:
             entity = self.rule_repo.find_or_create_entity(
-                entities[0]["url"], user
+                entities[0]["url"], smart_home
             )
             db_item.entity = entity
 
-    def get_rules_by_type(self, rule_type: str, user: User, home_uuid: str) -> List[Rule]:
+    def get_rules_by_type(self, rule_type: str, smart_home: SmartHome) -> List[Rule]:
         """
-        Get all rules for a user by type
+        Get all rules for a home by type
 
         Args:
             rule_type: Type of rule (e.g., 'sifis')
-            user: User to get rules for
+            smart_home: SmartHome object
 
         Returns:
             List of Rule objects with populated trigger/action details
         """
         self.logger.info(
-            f"Fetching rules of type '{rule_type}' for user '{str(user.uuid)}' home '{home_uuid}'"
+            f"Fetching rules of type '{rule_type}' for home '{str(smart_home.uuid)}'"
         )
-        db_rules = self.rule_repo.get_rules_by_user_and_type(user, rule_type)
+        db_rules = self.rule_repo.get_rules_by_home_and_type(smart_home, rule_type)
         rules = []
 
         for db_rule in db_rules:
             try:
-                rule = self._rehydrate_rule(db_rule, home_uuid)
+                rule = self._rehydrate_rule(db_rule, str(smart_home.uuid))
                 if rule:
                     rules.append(rule)
             except Exception as e:
                 # Log error but continue processing other rules
-                print(f"Error processing rule {db_rule.id}: {e}")
+                self.logger.error(f"Error processing rule {db_rule.id}: {e}")
                 continue
 
         return rules
     
-    def delete_rule_by_user(self, rule_id: int, user: User) -> bool:
+    def delete_rule_by_home(self, rule_id: int, smart_home: SmartHome) -> bool:
         """
-        Delete a rule if it belongs to the specified user.
+        Delete a rule if it belongs to the specified home.
         
         Args:
             rule_id: ID of the rule to delete
-            user: User who must own the rule
+            smart_home: SmartHome object
             
         Returns:
             True if rule was found and deleted, False otherwise
         """
-        return self.rule_repo.delete_rule_by_id_and_user(rule_id, user.id)
+        return self.rule_repo.delete_rule_by_id_and_home(rule_id, smart_home.id)
 
-    def verify_rule_ownership(self, rule_id: int, user: User) -> bool:
-        """Check if a rule exists and belongs to the user"""
-        rule = self.rule_repo.get_rule_by_id_and_user(rule_id, user.id)
+    def verify_rule_ownership(self, rule_id: int, smart_home: SmartHome) -> bool:
+        """Check if a rule exists and belongs to the home"""
+        rule = self.rule_repo.get_rule_by_id_and_home(rule_id, smart_home.id)
         return rule is not None
 
-    def get_defined_triggers_by_type(self, rule_type: str, user: User, home_uuid: str) -> Set[Trigger]:
+    def get_defined_triggers_by_type(self, rule_type: str, smart_home: SmartHome) -> Set[Trigger]:
         """Get all unique triggers used in rules"""
-        rules = self.get_rules_by_type(rule_type, user, home_uuid)
+        rules = self.get_rules_by_type(rule_type, smart_home)
         triggers = set()
         for rule in rules:
             if rule.trigger:
                 triggers.add(rule.trigger)
         return triggers
         
-    def get_rule_by_id(self, rule_id: int, user: User, home_uuid: str) -> Optional[Rule]:
+    def get_rule_by_id(self, rule_id: int, smart_home: SmartHome) -> Optional[Rule]:
         """Get a single fully rehydrated rule by ID"""
-        db_rule = self.rule_repo.get_rule_by_id_and_user(rule_id, user.id)
+        db_rule = self.rule_repo.get_rule_by_id_and_home(rule_id, smart_home.id)
         if not db_rule:
             return None
             
-        return self._rehydrate_rule(db_rule, home_uuid)
+        return self._rehydrate_rule(db_rule, str(smart_home.uuid))
 
     def translate_and_publish_rule(
         self, 
         rule_id: int, 
-        user: User, 
-        home_uuid: str, 
+        smart_home: SmartHome,
         xacml_service: XACMLService, 
         dht_service: DHTService
     ) -> bool:
@@ -258,7 +256,7 @@ class RuleService:
         Refactored: Translate rule to XACML, save to file system, and publish to DHT.
         """
         # 1. Get rehydrated rule
-        rule = self.get_rule_by_id(rule_id, user, home_uuid)
+        rule = self.get_rule_by_id(rule_id, smart_home)
         if not rule:
             return False
 
@@ -271,7 +269,7 @@ class RuleService:
             file.unlink()
 
         # 3. Translate rule
-        policies_xml = xacml_service.translate(rule.to_dict(), home_uuid)
+        policies_xml = xacml_service.translate(rule.to_dict(), str(smart_home.uuid))
 
         # 4. Save and Publish
         for i, policy_xml in enumerate(policies_xml):
