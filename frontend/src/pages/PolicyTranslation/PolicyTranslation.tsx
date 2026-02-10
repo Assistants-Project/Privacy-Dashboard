@@ -16,7 +16,7 @@ import {
   getRules,
   saveRule,
   deleteRule,
-  translateRule,
+  downloadRule,
   checkRule,
 } from "../../API/SIFIS/sifisAPI";
 import RuleList from "../../components/PolicyTranslation/RuleList";
@@ -96,14 +96,14 @@ function PolicyTranslation() {
     setRuleToDelete(null);
   };
 
-  const handleTranslateRule = async (id: number) => {
+  const handleDownloadRule = async (id: number) => {
     if (!current_home_uuid) return;
     try {
-      await translateRule(current_home_uuid, id);
-      setSuccess("Rule translated and published to DHT!");
+      await downloadRule(current_home_uuid, id);
+      setSuccess("Rule downloaded successfully!");
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      setError("Translation failed: " + err.message);
+      setError("Download failed: " + err.message);
     }
   };
 
@@ -150,7 +150,7 @@ function PolicyTranslation() {
                 <RuleList
                   rules={rules}
                   onDelete={requestDeleteRule}
-                  onTranslate={handleTranslateRule}
+                  onDownload={handleDownloadRule}
                   onCheck={handleCheckRule}
                 />
               </>

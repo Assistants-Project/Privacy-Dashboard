@@ -116,15 +116,35 @@ async function deleteRule(homeUuid: string, ruleId: number) {
   return await response.json();
 }
 
-async function translateRule(homeUuid: string, ruleId: number) {
+async function downloadRule(homeUuid: string, ruleId: number) {
   const response = await fetch(
-    `${baseURL}sifis/homes/${homeUuid}/rules/${ruleId}/translate`,
+    `${baseURL}sifis/homes/${homeUuid}/rules/${ruleId}/download`,
     {
       method: "POST",
       credentials: "include",
     },
   );
   if (!response.ok) throw await _handleError(response);
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+
+  const contentDisposition = response.headers.get("Content-Disposition");
+  let filename = `rule_${ruleId}.xml`;
+  if (contentDisposition) {
+    const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+    if (filenameMatch && filenameMatch.length === 2)
+      filename = filenameMatch[1];
+  }
+
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+
   return true;
 }
 
@@ -161,6 +181,6 @@ export {
   getRules,
   saveRule,
   deleteRule,
-  translateRule,
+  downloadRule,
   checkRule,
 };
