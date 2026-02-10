@@ -6,6 +6,7 @@ import "react-quill/dist/quill.snow.css";
 import { useApp } from "../../contexts/AppsContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { Role } from "../../models/user";
+import { PdfDownloadButton } from "./PdfDownloadButton";
 
 type Props = { closePanel: () => void; setPanelExpanded?: (expanded: boolean) => void };
 
@@ -121,8 +122,14 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
       <Row className="align-items-center">
         <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
           <h5 className="d-inline-block mb-0 ms-1">Privacy Notice | {title}</h5>
-          {canEdit && (
+          {canEdit ? (
             <div className="d-flex align-items-center">
+              {hasPn && (
+                <PdfDownloadButton
+                  htmlContent={pn?.content ?? ""}
+                  applicationName={title}
+                />
+              )}
               <Button
                 className="circular-button me-2"
                 style={{
@@ -144,6 +151,13 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
                 <i className="fa-solid fa-trash"></i>
               </Button>
             </div>
+          ) : (
+            hasPn && (
+              <PdfDownloadButton
+                htmlContent={pn?.content ?? ""}
+                applicationName={title}
+              />
+            )
           )}
         </Col>
         <Col xs="auto">
