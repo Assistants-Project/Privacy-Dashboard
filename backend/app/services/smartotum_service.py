@@ -12,9 +12,11 @@ from ..repositories.smart_home_repository import SmartHomeRepository
 from ..models import Application
 from ..models import Room
 from ..models import User
+from ..models import UserRole
 from ..models import SmartHome
 from ..models import Device
 from ..repositories.device_repository import DeviceRepository
+from ..repositories.user_repository import UserRepository
 from ..exceptions.entities.room_exceptions import RoomNotFoundException
 from ..extensions import db
 from ..integrations.smartotum.client import SmartotumRule
@@ -202,13 +204,24 @@ class SmartotumService:
                     access_token, system.home_uuid
                 )
                 applications_payload: list[Application] = []
+                manager_email_by_app_name: dict[str, str] = {}
                 for smartotum_application in smartotum_applications:
+                    app_name = (smartotum_application.name or "").strip()
+                    if not app_name:
+                        continue
                     applications_payload.append(
                         Application(
-                            name=smartotum_application.name,
+                            name=app_name,
                             description=smartotum_application.description,
                         )
                     )
+                    if (
+                        isinstance(smartotum_application.data_controller_email, str)
+                        and smartotum_application.data_controller_email.strip()
+                    ):
+                        manager_email_by_app_name[app_name] = (
+                            smartotum_application.data_controller_email.strip()
+                        )
 
                 found_home = SmartHomeRepository.get_home_by_uuid(system.home_uuid)
 
@@ -222,6 +235,27 @@ class SmartotumService:
                     smart_home_id=found_home.id,
                     applications=applications_payload,
                 )
+
+                for app_name, dc_email in manager_email_by_app_name.items():
+                    application = ApplicationRepository.get_application_by_name(app_name)
+                    if not application:
+                        continue
+
+                    data_controller = UserRepository.get_user_by_email(dc_email)
+                    if not data_controller:
+                        #per il momento se il data controller non è stato trovato (non è ancora registrato sulla dashboard -> ritorniamo errore)
+                        #si potrebbe valutare se invece non far fallire il refresh
+                        raise SmartotumSyncException(
+                            f"Data Controller with email {dc_email} not found for application {app_name}."
+                        )
+                    if data_controller.role != UserRole.DATA_CONTROLLER:
+                        raise SmartotumSyncException(
+                            f"User {dc_email} is not a Data Controller."
+                        )
+
+                    ApplicationRepository.replace_data_controller_for_application(
+                        application.id, data_controller.id
+                    )
                 
             session.commit()
 

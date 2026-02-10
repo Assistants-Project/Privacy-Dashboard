@@ -34,15 +34,15 @@ function Registration() {
         let message = ""
 
 
-        if (email === "") {
+        if (email.trim() === "") {
             valid = false
             message += "Please insert a valid email\n"
         }
-        if (firstname === "") {
+        if (firstname.trim() === "") {
             valid = false
             message += "Please insert a valid name\n"
         }
-        if (lastname === "") {
+        if (lastname.trim() === "") {
             valid = false
             message += "Please insert a valid surname\n"
         }
@@ -56,7 +56,7 @@ function Registration() {
         }
         if (valid) {
             try {
-                await auth.register(email, firstname, lastname, password, role)
+                await auth.register(email.trim(), firstname.trim(), lastname.trim(), password, role)
                 setSuccess("Registration Successful\nPlease Log In!");
                 setEmail("");
                 setError("");

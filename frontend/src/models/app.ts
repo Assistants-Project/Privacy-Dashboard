@@ -8,6 +8,15 @@ export enum DocumentStatus {
     Forbidden = "FORBIDDEN"
 }
 
+export type CreateApplicationRequest = {
+    name: string;
+    description?: string;
+};
+
+export type CreateApplicationResponse = {
+    application_uuid: string;
+};
+
 export class AppModel {
 
     uuid: string
@@ -35,30 +44,3 @@ export class AppModel {
         this.pia_status = undefined
     }
 }
-
-
-// "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-//       "name": "string",
-//       "description": "string",
-//       "evaluation": "GREEN",
-//       "questionnaire_summary": "string"
-
-
-//       "data_controllers": [
-//       {
-//         "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-//         "firstname": "string",
-//         "lastname": "string",
-//         "email": "string",
-//         "profile_picture": "string",
-//         "role": "DATA_SUBJECT"
-//       }
-//     ],
-//     "dpo": {
-//       "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-//       "firstname": "string",
-//       "lastname": "string",
-//       "email": "string",
-//       "profile_picture": "string",
-//       "role": "DATA_PROTECTION_OFFICER"
-//     }

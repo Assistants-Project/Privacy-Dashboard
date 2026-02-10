@@ -47,6 +47,23 @@ async function getCatalogApplications() {
 
 }
 
+async function createApplication(name: string, description?: string): Promise<unknown> {
+  const response = await fetch(baseURL + "applications", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name, description }),
+  });
+
+  if (response.status === 201) {
+    return await response.json();
+  }
+
+  throw await getApiError(response);
+}
+
 async function claimManagedApplication(applicationUuid: string): Promise<boolean> {
   const response = await fetch(
     baseURL + `applications/managed/${encodeURIComponent(applicationUuid)}`,
@@ -62,9 +79,9 @@ async function claimManagedApplication(applicationUuid: string): Promise<boolean
   throw await getApiError(response);
 }
 
-async function assignDpoToManagedApplication(applicationUuid: string,dpoUuid: string): Promise<boolean> {
-  const response = await fetch(baseURL +`applications/managed/${encodeURIComponent(applicationUuid)}/dpo`,
-{
+async function assignDpoToManagedApplication(applicationUuid: string, dpoUuid: string): Promise<boolean> {
+  const response = await fetch(baseURL + `applications/managed/${encodeURIComponent(applicationUuid)}/dpo`,
+    {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -81,7 +98,7 @@ async function assignDpoToManagedApplication(applicationUuid: string,dpoUuid: st
 }
 
 async function UpdateApps() {
-  let response = await fetch(baseURL + "applications/refresh", {method: "POST",credentials: "include"});
+  let response = await fetch(baseURL + "applications/refresh", { method: "POST", credentials: "include" });
   if (response.ok) {
     return true;
   }
@@ -183,6 +200,7 @@ export {
   removePiaByManagedApplicationUuid,
   getInstalledApplications,
   getCatalogApplications,
+  createApplication,
   claimManagedApplication,
   assignDpoToManagedApplication,
   UpdateApps

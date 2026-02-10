@@ -2,11 +2,12 @@ import {
   getManagedApplications,
   getInstalledApplications,
   getCatalogApplications,
+  createApplication,
   claimManagedApplication,
   assignDpoToManagedApplication,
   UpdateApps
 } from "../API/Applications/applicationAPI";
-import { AppModel, DocumentStatus } from "../models/app"
+import { AppModel, CreateApplicationRequest, DocumentStatus } from "../models/app"
 import { Evaluation } from "../models/question";
 import { Role, User } from "../models/user";
 
@@ -166,6 +167,17 @@ export const claimApplicationAsDataController = async (
 export const assignDpoToApplication = async (applicationUuid: string,dpoUuid: string): Promise<boolean> => {
   try {
     return await assignDpoToManagedApplication(applicationUuid, dpoUuid);
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const createApplicationByDataController = async (payload: CreateApplicationRequest,): Promise<AppModel> => {
+  const name = payload.name;
+  const description = normalizeOptionalString(payload.description);
+  try {
+    const createdApplication = (await createApplication(name,description)) as ApplicationDto;
+    return toAppModel(createdApplication);
   } catch (err) {
     throw err;
   }

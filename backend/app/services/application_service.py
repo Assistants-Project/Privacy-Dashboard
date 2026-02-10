@@ -4,12 +4,16 @@ from typing import List, TypedDict
 from uuid import UUID
 
 from jsonschema import ValidationError, validate
+from sqlalchemy.exc import IntegrityError
 
 from .. import initial_data
 from ..exceptions import (
+    ApplicationAlreadyAssignedException,
+    ApplicationAlreadyExistsException,
     ApplicationNotFoundException,
     ApplicationNotManagedException,
     DpoAlreadyAssignedException,
+    InvalidApplicationNameException,
     InvalidPrivacyImpactAssessmentException,
     MissingDpoUuidException,
     MissingPrivacyImpactAssessmentException,
@@ -313,10 +317,62 @@ class ApplicationService:
             db.session.commit()
 
     @staticmethod
-    def claim_application(current_user: User, application_uuid) -> bool:
+    def create_application_managed_by_data_controller(
+        current_user: User, name: str, description: str | None = None
+    ) -> ApplicationCatalogItem:
+        #Permette ad un DC di creare un app e assegnarla automaticamente a se stesso
+        if current_user.role != UserRole.DATA_CONTROLLER:
+            raise WrongUserRoleException("User is not a Data Controller!")
+
+        normalized_name = name.strip()
+        if not normalized_name:
+            raise InvalidApplicationNameException("Application name cannot be blank!")
+
+        normalized_description = None
+        if isinstance(description, str):
+            description = description.strip()
+            normalized_description = description if description else None
+
+        existing_application = ApplicationRepository.get_application_by_name(
+            normalized_name
+        )
+        if existing_application:
+            raise ApplicationAlreadyExistsException(
+                f"Application with name '{normalized_name}' already exists!"
+            )
+
+        try:
+            application = ApplicationRepository.create_application(
+                normalized_name, normalized_description
+            )
+            ApplicationRepository.ensure_application_managed_by_user(
+                current_user.id, application.id
+            )
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            #protezione da race condition (applicazione con lo stesso nome è stata aggiunta dopo
+            #l'ultimo controllo)
+            raise ApplicationAlreadyExistsException(
+                f"Application with name '{normalized_name}' already exists!"
+            )
+
+        return {
+            "application": application,
+            "data_controllers": [current_user],
+            "dpo": None,
+            "pn_status": ApplicationService.DOC_STATUS_MISSING,
+            "pia_status": ApplicationService.DOC_STATUS_MISSING,
+        }
+
+    @staticmethod
+    def claim_application(
+        current_user: User, application_uuid, force: bool = False
+    ) -> bool:
         # Permette ad un Data Controller di "prendersi in carico" (claim) un'app
         # Se la relazione DC-App non esiste, la crea e ritorna True (201)
-        # Se la relazione esiste già, non cambia nulla e ritorna False (204)
+        # Se force=True, sostituisce l'eventuale Data Controller precedente.
+        # Se force=False e la relazione esiste già, solleva errore.
         if current_user.role != UserRole.DATA_CONTROLLER:
             raise WrongUserRoleException("User is not a Data Controller!")
 
@@ -326,9 +382,17 @@ class ApplicationService:
                 f"Application with uuid {application_uuid} not found!"
             )
 
-        created = ApplicationRepository.ensure_application_managed_by_user(
-            current_user.id, application.id
-        )
+        if force:
+            created = ApplicationRepository.replace_data_controller_for_application(application.id, current_user.id)
+            db.session.commit()
+            return created
+
+        #per il momento manteniamo il vecchio comportamento, possibile più di un data controller per app
+        created = ApplicationRepository.ensure_application_managed_by_user(current_user.id, application.id)
+        if not created:
+            raise ApplicationAlreadyAssignedException(
+                f"Application with uuid {application_uuid} is already assigned to this Data Controller!"
+            )
         db.session.commit()
         return created
 

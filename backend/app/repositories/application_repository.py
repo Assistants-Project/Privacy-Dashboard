@@ -16,6 +16,18 @@ class ApplicationRepository:
         return db.session.scalar(statement)
 
     @staticmethod
+    def get_application_by_name(application_name: str) -> Application | None:
+        statement = db.select(Application).where(Application.name == application_name)
+        return db.session.scalar(statement)
+
+    @staticmethod
+    def create_application(name: str, description: str | None) -> Application:
+        application = Application(name=name, description=description)
+        db.session.add(application)
+        db.session.flush()
+        return application
+
+    @staticmethod
     def get_applications_by_dc_or_dpo_id(
         user_id: int,
     ) -> Iterator[Tuple[Application, datetime]]:
@@ -220,6 +232,46 @@ class ApplicationRepository:
         # Relazione non presente: la creiamo (user_id + application_id) come "managed" (smart_home_id = NULL)
         relation = UserSmartHomeApplication()
         relation.user_id = user_id
+        relation.smart_home_id = None
+        relation.application_id = application_id
+        relation.installed_at = datetime.now()
+        db.session.add(relation)
+        return True
+
+    @staticmethod
+    def replace_data_controller_for_application( application_id: int, data_controller_user_id: int) -> bool:
+        """Ensures that the given Data Controller is the only DC manager of the application.
+
+        Returns:
+            True if a new relation is created or an old DC relation is replaced.
+            False if the selected Data Controller was already the only assigned one.
+        """
+
+        statement = (
+            db.select(UserSmartHomeApplication)
+            .join(User, User.id == UserSmartHomeApplication.user_id)
+            .where(
+                UserSmartHomeApplication.application_id == application_id,
+                UserSmartHomeApplication.smart_home_id.is_(None),
+                User.role == UserRole.DATA_CONTROLLER,
+            )
+        )
+        relations = list(db.session.scalars(statement).all())
+
+        kept = None
+        changed = False
+        for relation in relations:
+            if relation.user_id == data_controller_user_id and kept is None:
+                kept = relation
+                continue
+            db.session.delete(relation)
+            changed = True
+
+        if kept is not None:
+            return changed
+
+        relation = UserSmartHomeApplication()
+        relation.user_id = data_controller_user_id
         relation.smart_home_id = None
         relation.application_id = application_id
         relation.installed_at = datetime.now()

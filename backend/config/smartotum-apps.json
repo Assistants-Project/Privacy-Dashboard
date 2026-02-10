@@ -1,14 +1,14 @@
 [
-  { "name": "appdaemon", "description": "for managing automations" },
-  { "name": "domo-ir-controller", "description": "for managing air conditioning devices with a fake IR remote controller"},
-  { "name": "domo-mosquitto", "description": "for managing MQTT connections" },
-  { "name": "domo-scheduler", "description": "for managing the schedule of different gateways"},
-  { "name": "domo-shelly-stock-manager", "description": "for managing actuators" },
-  { "name": "esphome-updater", "description": "for managing updates of esphome devices" },
-  { "name": "file-sync", "description": "to sync remote and local dht" },
-  { "name": "homeassistant", "description": "for managing the ui and the home system" },
-  { "name": "smartotum-asterisk", "description": "for managing videodoorbell voip calls" },
-  { "name": "smartotum-camera-manager", "description": "for managing cameras" },
-  { "name": "smartotum-certbot", "description": "for managing SSL HTTPS certificates" },
-  { "name": "domo-vpn", "description": "for managing vpn connections with the cloud" }
+  { "name": "appdaemon", "description": "for managing automations", "data_controller_email": "controller.smartotum@example.com" },
+  { "name": "domo-ir-controller", "description": "for managing air conditioning devices with a fake IR remote controller", "data_controller_email": "controller.smartotum@example.com" },
+  { "name": "domo-mosquitto", "description": "for managing MQTT connections", "data_controller_email": "controller.smartotum@example.com" },
+  { "name": "domo-scheduler", "description": "for managing the schedule of different gateways", "data_controller_email": "controller.smartotum@example.com" },
+  { "name": "domo-shelly-stock-manager", "description": "for managing actuators", "data_controller_email": "controller.smartotum@example.com" },
+  { "name": "esphome-updater", "description": "for managing updates of esphome devices", "data_controller_email": "controller.smartotum@example.com" },
+  { "name": "file-sync", "description": "to sync remote and local dht", "data_controller_email": "controller.smartotum@example.com" },
+  { "name": "homeassistant", "description": "for managing the ui and the home system", "data_controller_email": "controller.smartotum@example.com" },
+  { "name": "smartotum-asterisk", "description": "for managing videodoorbell voip calls", "data_controller_email": "controller.smartotum@example.com" },
+  { "name": "smartotum-camera-manager", "description": "for managing cameras", "data_controller_email": "controller.smartotum@example.com" },
+  { "name": "smartotum-certbot", "description": "for managing SSL HTTPS certificates", "data_controller_email": "controller.smartotum@example.com" },
+  { "name": "domo-vpn", "description": "for managing vpn connections with the cloud", "data_controller_email": "controller.smartotum@example.com" }
 ]

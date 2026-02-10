@@ -17,6 +17,22 @@ class ApplicationNotManagedException(Exception):
         self.status = HTTP_STATUS_CODES[self.code]
 
 
+class ApplicationAlreadyExistsException(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.code = Conflict.code
+        self.status = HTTP_STATUS_CODES[self.code]
+
+
+class InvalidApplicationNameException(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.code = BadRequest.code
+        self.status = HTTP_STATUS_CODES[self.code]
+
+
 class MissingPrivacyImpactAssessmentException(Exception):
     def __init__(self, message: str) -> None:
         super().__init__(message)
@@ -65,6 +81,14 @@ class MissingDpoUuidException(Exception):
 
 
 class DpoAlreadyAssignedException(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.code = Conflict.code
+        self.status = HTTP_STATUS_CODES[self.code]
+
+
+class ApplicationAlreadyAssignedException(Exception):
     def __init__(self, message: str) -> None:
         super().__init__(message)
         self.message = message

@@ -1,6 +1,7 @@
 import {
   Badge, Button, Card, CloseButton, Col, Container, Form, Row,
 } from "react-bootstrap";
+import { PlusCircle } from "react-bootstrap-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { Role, User } from "../../models/user";
 import { useState } from "react";
@@ -8,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "../../contexts/AppsContext";
 
 import { AppAssignmentPanel } from "../../components/Apps/AppAssignmentPanel";
+import { AppCreationPanel } from "../../components/Apps/AppCreationPanel";
 import { DocumentStatus } from "../../models/app"
 import { SubmitRightRequestModal } from "../../components/Rights/RightRequestSubmitForm";
 import { AppsList } from "../../components/Apps/AppsList";
@@ -18,8 +20,8 @@ export function Apps() {
   const { user, loading } = useAuth();
   const { loadingApps, selectedApp, setSelectedAppUUID, selectedAppUUID, errorApps, apps, managedApps } = useApp();
 
-  const [query, setQuery] = useState("");
   const [showSubmitRightModal, setShowSubmitRightModal] = useState(false);
+  const [showCreateAppModal, setShowCreateAppModal] = useState(false);
 
   const isDataSubject = user?.role === Role.DataSubject;
   const isDataController = user?.role === Role.DataController;
@@ -41,17 +43,7 @@ export function Apps() {
   const questionnaireMissing = !selectedApp?.evaluation;
 
   return (
-    <Container fluid
-      className="py-2 apps-page"
-      style={{ minHeight: 0 }}
-    >
-      <Row className="mb-3 flex-shrink-0">
-        <Col>
-          <h3 className="mb-0">
-            {isDataSubject ? "Installed Apps" : "Catalog Apps"}
-          </h3>
-        </Col>
-      </Row>
+    <Container fluid className="py-2 apps-page" style={{ minHeight: 0 }}>
 
       {loadingApps ? (
         <Card className="mb-3 p-0 flex-shrink-0">
@@ -73,6 +65,22 @@ export function Apps() {
           </Col>
 
           <Col xs={12} lg={5} className="apps-detail-col">
+          
+            {isDataController ? (
+              <div className="d-flex justify-content-end mb-2">
+                <Button
+                  variant="link"
+                  className="d-inline-flex align-items-center justify-content-center p-0 border-0 bg-transparent text-primary"
+                  style={{ width: "34px", height: "34px" }}
+                  onClick={() => setShowCreateAppModal(true)}
+                  aria-label="Create application"
+                  title="Create application"
+                >
+                  <PlusCircle size={28} />
+                </Button>
+              </div>
+            ) : undefined}
+
             <Card className="p-0 sticky-top z-1" style={{ top: "1rem" }} >
               <Card.Body className="d-flex flex-column gap-3">
                 {!selectedApp ? (
@@ -278,6 +286,13 @@ export function Apps() {
         <SubmitRightRequestModal
           show={showSubmitRightModal}
           onHide={() => setShowSubmitRightModal(false)}
+        />
+      ) : undefined}
+
+      {isDataController ? (
+        <AppCreationPanel
+          show={showCreateAppModal}
+          onHide={() => setShowCreateAppModal(false)}
         />
       ) : undefined}
     </Container>

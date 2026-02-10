@@ -43,6 +43,7 @@ class SmartotumApplicationResult:
     application_uuid: UUID
     name: str
     description: str | None = None
+    data_controller_email: str | None = None
 
 @dataclass
 class SmartotumDeviceResult:
@@ -324,12 +325,27 @@ class SmartotumClient:
                 description = item.get("description")
                 if description is not None and not isinstance(description, str):
                     raise ValueError(f"apps[{i}].description must be a string or null")
+                data_controller_email = item.get("data_controller_email")
+                if data_controller_email is not None and not isinstance(
+                    data_controller_email, str
+                ):
+                    raise ValueError(
+                        f"apps[{i}].data_controller_email must be a string or null"
+                    )
+                normalized_email = (
+                    data_controller_email.strip()
+                    if isinstance(data_controller_email, str)
+                    else None
+                )
+                if normalized_email == "":
+                    normalized_email = None
 
                 applications.append(
                     SmartotumApplicationResult(
                         application_uuid = UUID(str(uuid.uuid4())),
                         name=str(name),
                         description=str(description),
+                        data_controller_email=normalized_email,
                     )
                 )
 
@@ -372,6 +388,7 @@ class SmartotumClient:
                     application_uuid=topic_uuid,
                     name=str(name),
                     description=description,
+                    data_controller_email=None,
                 )
             )
 

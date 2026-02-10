@@ -4,6 +4,7 @@ from .request.application_and_privacy_notice_uuid_req_schema import (
 from .request.application_and_user_uuid_req_schema import (
     ApplicationAndUserUuidReqSchema,
 )
+from .request.application_create_req_schema import ApplicationCreateReqSchema
 from .request.application_uuid_req_schema import ApplicationUuidReqSchema
 from .request.auth_req_schema import AuthReqSchema
 from .request.available_consents_req_schema import AvailableConsentsReqSchema
@@ -49,6 +50,7 @@ from .response.user_res_schema import UserResSchema
 __all__ = [
     "ApplicationAndPrivacyNoticeUuidReqSchema",
     "ApplicationAndUserUuidReqSchema",
+    "ApplicationCreateReqSchema",
     "ApplicationUuidReqSchema",
     "AuthReqSchema",
     "AvailableConsentsReqSchema",

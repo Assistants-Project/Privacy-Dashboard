@@ -4,6 +4,7 @@ from flask_smorest import Blueprint
 from .. import initial_data
 from ..exceptions import MissingTemplateException
 from ..schemas import (
+    ApplicationCreateReqSchema,
     ApplicationResSchema,
     ApplicationUuidReqSchema,
     SmartHomeUuidReqSchema,
@@ -38,6 +39,16 @@ def get_managed_applications(current_user):
 @dc_or_dpo_required()
 def get_available_applications(current_user):
     return ApplicationService.get_available_applications_service(current_user)
+
+@application_bp.route("", methods=["POST"])
+@application_bp.arguments(ApplicationCreateReqSchema, location="json", as_kwargs=True)
+@application_bp.response(201, ApplicationCatalogItemResSchema)
+@dc_required()
+def create_application(name: str, current_user, description: str | None = None):
+    created_application = ApplicationService.create_application_managed_by_data_controller(
+        current_user, name, description
+    )
+    return created_application
 
 #serve per permettere ad un data controller di assegnarsi ad un app (visto che manca un marketplace che lo aggiunge)
 @application_bp.route("/managed/<application_uuid>", methods=["POST"])
