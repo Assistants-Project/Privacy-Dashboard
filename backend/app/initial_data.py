@@ -144,103 +144,103 @@ def init_data(app: Flask) -> None:
             # application2.available_consents.append(available_consent3)
             # application2.available_consents.append(available_consent4)
             # Data Subject 1 owns Smart Homes 1 and 2
-            data_subject1_smart_home1 = UserSmartHome()
-            data_subject1_smart_home2 = UserSmartHome()
-            db.session.add_all([data_subject1_smart_home1, data_subject1_smart_home2])
+            # data_subject1_smart_home1 = UserSmartHome()
+            # data_subject1_smart_home2 = UserSmartHome()
+            # db.session.add_all([data_subject1_smart_home1, data_subject1_smart_home2])
             # data_subject1_smart_home1.smart_home = smart_home1
-            data_subject1.owned_smart_homes.append(data_subject1_smart_home1)
+            # data_subject1.owned_smart_homes.append(data_subject1_smart_home1)
             # data_subject1_smart_home2.smart_home = smart_home2
-            data_subject1.owned_smart_homes.append(data_subject1_smart_home2)
+            # data_subject1.owned_smart_homes.append(data_subject1_smart_home2)
             # Data Subject 2 owns Smart Homes 2 and 3
-            data_subject2_smart_home2 = UserSmartHome()
-            data_subject2_smart_home3 = UserSmartHome()
-            db.session.add_all([data_subject2_smart_home2, data_subject2_smart_home3])
+            # data_subject2_smart_home2 = UserSmartHome()
+            # data_subject2_smart_home3 = UserSmartHome()
+            # db.session.add_all([data_subject2_smart_home2, data_subject2_smart_home3])
             # data_subject2_smart_home2.smart_home = smart_home2
             # data_subject2.owned_smart_homes.append(data_subject2_smart_home2)
             # data_subject2_smart_home3.smart_home = smart_home3
             # data_subject2.owned_smart_homes.append(data_subject2_smart_home3)
             # Data Subject 1 installed Application 1 on Smart Homes 1 and 2 and Application 2 on Smart Home 2
-            data_subject1_smart_home1_application1 = UserSmartHomeApplication()
-            data_subject1_smart_home2_application1 = UserSmartHomeApplication()
-            data_subject1_smart_home2_application2 = UserSmartHomeApplication()
-            db.session.add_all(
-                [
-                    data_subject1_smart_home1_application1,
-                    data_subject1_smart_home2_application1,
-                    data_subject1_smart_home2_application2,
-                ]
-            )
+            # data_subject1_smart_home1_application1 = UserSmartHomeApplication()
+            # data_subject1_smart_home2_application1 = UserSmartHomeApplication()
+            # data_subject1_smart_home2_application2 = UserSmartHomeApplication()
+            # db.session.add_all(
+            #     [
+            #         data_subject1_smart_home1_application1,
+            #         data_subject1_smart_home2_application1,
+            #         data_subject1_smart_home2_application2,
+            #     ]
+            # )
             # data_subject1_smart_home1_application1.smart_home = smart_home1
             # data_subject1_smart_home1_application1.application = application1
-            data_subject1.installed_applications.append(
-                data_subject1_smart_home1_application1
-            )
+            # data_subject1.installed_applications.append(
+            #     data_subject1_smart_home1_application1
+            # )
             # data_subject1_smart_home2_application1.smart_home = smart_home2
             # data_subject1_smart_home2_application1.application = application1
-            data_subject1.installed_applications.append(
-                data_subject1_smart_home2_application1
-            )
+            # data_subject1.installed_applications.append(
+            #     data_subject1_smart_home2_application1
+            # )
             # data_subject1_smart_home2_application2.smart_home = smart_home2
             # data_subject1_smart_home2_application2.application = application2
-            data_subject1.installed_applications.append(
-                data_subject1_smart_home2_application2
-            )
+            # data_subject1.installed_applications.append(
+            #     data_subject1_smart_home2_application2
+            # )
             # Data Subject 2 installed Application 2 on Smart Home 2
-            data_subject2_smart_home2_application2 = UserSmartHomeApplication()
-            db.session.add(data_subject2_smart_home2_application2)
+            # data_subject2_smart_home2_application2 = UserSmartHomeApplication()
+            # db.session.add(data_subject2_smart_home2_application2)
             # data_subject2_smart_home2_application2.smart_home = smart_home2
             # data_subject2_smart_home2_application2.application = application2
             # data_subject2.installed_applications.append(
             #     data_subject2_smart_home2_application2
             # )
             # Data Controller 1 manages Application 1 and Application 2
-            data_controller1_application1 = UserSmartHomeApplication()
-            data_controller1_application2 = UserSmartHomeApplication()
-            db.session.add_all(
-                [data_controller1_application1, data_controller1_application2]
-            )
+            # data_controller1_application1 = UserSmartHomeApplication()
+            # data_controller1_application2 = UserSmartHomeApplication()
+            # db.session.add_all(
+            #     [data_controller1_application1, data_controller1_application2]
+            # )
             # data_controller1_application1.application = application1
-            data_controller1.installed_applications.append(
-                data_controller1_application1
-            )
+            # data_controller1.installed_applications.append(
+            #     data_controller1_application1
+            # )
             # data_controller1_application2.application = application2
-            data_controller1.installed_applications.append(
-                data_controller1_application2
-            )
+            # data_controller1.installed_applications.append(
+            #     data_controller1_application2
+            # )
             # Data Controller 2 manages Application 2
-            data_controller2_application2 = UserSmartHomeApplication()
-            db.session.add(data_controller2_application2)
+            # data_controller2_application2 = UserSmartHomeApplication()
+            # db.session.add(data_controller2_application2)
             # data_controller2_application2.application = application2
-            data_controller2.installed_applications.append(
-                data_controller2_application2
-            )
+            # data_controller2.installed_applications.append(
+            #     data_controller2_application2
+            # )
             # Data Subject 1 gave Consent 1 in Smart Home 1, Consent 2 in Smart Home 2
-            data_subject1_smart_home1_available_consent1 = (
-                UserSmartHomeAvailableConsent()
-            )
-            data_subject1_smart_home2_available_consent2 = (
-                UserSmartHomeAvailableConsent()
-            )
-            db.session.add_all(
-                [
-                    data_subject1_smart_home1_available_consent1,
-                    data_subject1_smart_home2_available_consent2,
-                ]
-            )
+            # data_subject1_smart_home1_available_consent1 = (
+            #     UserSmartHomeAvailableConsent()
+            # )
+            # data_subject1_smart_home2_available_consent2 = (
+            #     UserSmartHomeAvailableConsent()
+            # )
+            # db.session.add_all(
+            #     [
+            #         data_subject1_smart_home1_available_consent1,
+            #         data_subject1_smart_home2_available_consent2,
+            #     ]
+            # )
             # data_subject1_smart_home1_available_consent1.smart_home = smart_home1
             # data_subject1_smart_home1_available_consent1.available_consent = (
             #     available_consent1
             # )
-            data_subject1.given_consents.append(
-                data_subject1_smart_home1_available_consent1
-            )
+            # data_subject1.given_consents.append(
+            #     data_subject1_smart_home1_available_consent1
+            # )
             # data_subject1_smart_home2_available_consent2.smart_home = smart_home2
             # data_subject1_smart_home2_available_consent2.available_consent = (
             #     available_consent2
             # )
-            data_subject1.given_consents.append(
-                data_subject1_smart_home2_available_consent2
-            )
+            # data_subject1.given_consents.append(
+            #     data_subject1_smart_home2_available_consent2
+            # )
             # Data Controller 1 exchanged messages with Data Controller 2
             # can data controllers talk to each other?
             # data_controller1_data_controller2_message1 = Message(
@@ -272,39 +272,39 @@ def init_data(app: Flask) -> None:
             # data_controller1_data_controller2_message4.sender = data_controller2
             # data_controller1_data_controller2_message4.receiver = data_controller1
             # Data Controller 1 exchanged messages with Data Subject 1
-            data_controller1_data_subject1_message1 = Message(
-                content="Hello DS1, I am Data Controller 1"
-            )
-            data_controller1_data_subject1_message2 = Message(
-                content="Hello DC1, I am Data Subject 1"
-            )
-            db.session.add_all(
-                [
-                    data_controller1_data_subject1_message1,
-                    data_controller1_data_subject1_message2,
-                ]
-            )
-            data_controller1_data_subject1_message1.sender = data_controller1
-            data_controller1_data_subject1_message1.receiver = data_subject1
-            data_controller1_data_subject1_message2.sender = data_subject1
-            data_controller1_data_subject1_message2.receiver = data_controller1
-            # Data Controller 2 exchanged messages with Data Subject 1
-            data_controller2_data_subject1_message1 = Message(
-                content="Hello DS1, I am Data Controller 2"
-            )
-            data_controller2_data_subject1_message2 = Message(
-                content="Hello DC2, I am Data Subject 1"
-            )
-            db.session.add_all(
-                [
-                    data_controller2_data_subject1_message1,
-                    data_controller2_data_subject1_message2,
-                ]
-            )
-            data_controller2_data_subject1_message1.sender = data_controller2
-            data_controller2_data_subject1_message1.receiver = data_subject1
-            data_controller2_data_subject1_message2.sender = data_subject1
-            data_controller2_data_subject1_message2.receiver = data_controller2
+            # data_controller1_data_subject1_message1 = Message(
+            #     content="Hello DS1, I am Data Controller 1"
+            # )
+            # data_controller1_data_subject1_message2 = Message(
+            #     content="Hello DC1, I am Data Subject 1"
+            # )
+            # db.session.add_all(
+            #     [
+            #         data_controller1_data_subject1_message1,
+            #         data_controller1_data_subject1_message2,
+            #     ]
+            # )
+            # data_controller1_data_subject1_message1.sender = data_controller1
+            # data_controller1_data_subject1_message1.receiver = data_subject1
+            # data_controller1_data_subject1_message2.sender = data_subject1
+            # data_controller1_data_subject1_message2.receiver = data_controller1
+            # # Data Controller 2 exchanged messages with Data Subject 1
+            # data_controller2_data_subject1_message1 = Message(
+            #     content="Hello DS1, I am Data Controller 2"
+            # )
+            # data_controller2_data_subject1_message2 = Message(
+            #     content="Hello DC2, I am Data Subject 1"
+            # )
+            # db.session.add_all(
+            #     [
+            #         data_controller2_data_subject1_message1,
+            #         data_controller2_data_subject1_message2,
+            #     ]
+            # )
+            # data_controller2_data_subject1_message1.sender = data_controller2
+            # data_controller2_data_subject1_message1.receiver = data_subject1
+            # data_controller2_data_subject1_message2.sender = data_subject1
+            # data_controller2_data_subject1_message2.receiver = data_controller2
             # Data Subject 1 created a Request for Application 1
             # data_subject1_request1 = Request(
             #     right_type=RightType.WITHDRAW_CONSENT,
