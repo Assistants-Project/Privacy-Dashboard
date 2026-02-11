@@ -26,7 +26,7 @@ def register(email, password, role, firstname, lastname):
 
 @auth_bp.route("/login", methods=["POST"])
 @auth_bp.arguments(AuthReqSchema, as_kwargs=True)
-@unlogged_required()
+#@unlogged_required()
 def login(email: str, password: str):
     result = AuthService.login(email, password)
 
