@@ -1,10 +1,11 @@
-import {Accordion,Button,Card,CloseButton,Col,OverlayTrigger,Row,Stack,Tooltip,} from "react-bootstrap";
+import {Accordion,Button,Card,CloseButton,Col,Row,Stack,} from "react-bootstrap";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {ColDef,GridReadyEvent,ILargeTextEditorParams,ISelectCellEditorParams,} from "ag-grid-community";
 import {fetchPiaTemplate,removePiaTemplate,submitPiaTemplate,} from "../../services/PrivacyImpactAssessmentService";
 import { useApp } from "../../contexts/AppsContext";
 import { DocumentStatus } from "../../models/app";
+import { PdfDownloadButton } from "../PdfDownloadButton";
 
 type Props = { closePanel: () => void };
 
@@ -216,16 +217,26 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
       {piaForbidden ? (
         <Card className="p-0">
           <Card.Body className="text-muted">
-            You are not allowed to view or edit the Privacy Impact Assessment for this app.
+            You are not allowed to view or edit the Privacy Impact Assessment
+            for this app.
           </Card.Body>
         </Card>
       ) : (
         <>
           <Row className="align-items-center">
             <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
-              <h5 className="d-inline-block mb-0 ms-1">Privacy Impact Assessment | {title}</h5>
+              <h5 className="d-inline-block mb-0 ms-1">
+                Privacy Impact Assessment | {title}
+              </h5>
               {canEditThisApp && (
                 <div className="d-flex align-items-center">
+                  {hasPia && !editMode && (
+                    <PdfDownloadButton
+                      htmlContent={piaObjectToHtmlString(pia?.content ?? {})}
+                      applicationName={title}
+                      documentType="Privacy Impact Assessment"
+                    />
+                  )}
                   <Button
                     className="circular-button me-2"
                     style={{
@@ -471,6 +482,37 @@ function DeleteButtonComponent(props: any) {
       <i className="fa-solid fa-minus"></i>
     </Button>
   );
+}
+
+function piaObjectToHtmlString(obj: any): string {
+  return obj.sections
+    .map(
+      (section: any) =>
+        `<div key=${section.section_key}><h3>${section.label}</h3>${section.subsections
+          ?.map(
+            (subsection: any) =>
+              `<div key=${subsection.subsection_key}><h4>${subsection.label}</h4>${subsection.tables
+                ?.map(
+                  (table: any) =>
+                    `<div><h5>${table.title}</h5><table key=${table.table_key}><tr>${table.columns
+                      .map((col: any) => `<th key=${col.key}>${col.label}</th>`)
+                      .join("")}</tr>${table.initial_rows
+                      .map(
+                        (row: any, rowIndex: number) =>
+                          `<tr key=${rowIndex}>${table.columns
+                            .map(
+                              (col: any) =>
+                                `<td key=${col.key}>${row[col.key]}</td>`,
+                            )
+                            .join("")}</tr>`,
+                      )
+                      .join("")}</table></div>`,
+                )
+                .join("")}</div>`,
+          )
+          .join("")}</div>`,
+    )
+    .join("");
 }
 
 export { PrivacyImpactAssessmentEditor };

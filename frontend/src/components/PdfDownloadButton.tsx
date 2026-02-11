@@ -20,15 +20,36 @@ const htmlStyles = {
   li: { fontSize: 11, margin: 4 },
   h1: { fontSize: 18, margin: 10 },
   h2: { fontSize: 16, margin: 8 },
-  h3: { fontSize: 14, margin: 6 },
+  h3: { fontSize: 14, margin: 10 },
+  h4: { fontSize: 13, margin: 8 },
+  h5: { fontSize: 12, margin: 6 },
+  table: { margin: 4, border: "1px solid #000", borderCollapse: "collapse" },
+  td: {
+    fontSize: 11,
+    padding: 4,
+    border: "1px solid #000",
+    borderCollapse: "collapse",
+  },
+  th: {
+    fontSize: 11,
+    padding: 4,
+    border: "1px solid #000",
+    borderCollapse: "collapse",
+    backgroundColor: "#181d1f26",
+  },
 };
 
 type PdfDownloadButtonProps = {
   htmlContent: string;
   applicationName: string;
+  documentType?: string;
 };
 
-function PdfDownloadButton({ htmlContent, applicationName }: PdfDownloadButtonProps) {
+function PdfDownloadButton({
+  htmlContent,
+  applicationName,
+  documentType,
+}: PdfDownloadButtonProps) {
   return (
     <>
       <PDFDownloadLink
@@ -38,7 +59,7 @@ function PdfDownloadButton({ htmlContent, applicationName }: PdfDownloadButtonPr
               <Text
                 style={{ fontSize: 16, marginBottom: 10, fontWeight: "bold" }}
               >
-                Privacy Notice | {applicationName}
+                {documentType} | {applicationName}
               </Text>
               <Text
                 style={{
@@ -58,7 +79,7 @@ function PdfDownloadButton({ htmlContent, applicationName }: PdfDownloadButtonPr
             </Page>
           </Document>
         }
-        fileName={`privacy_notice_${new Date().toLocaleDateString().replace(/\//g, "_")}_${new Date().toLocaleTimeString().replace(/:/g, "_")}.pdf`}
+        fileName={`${documentType?.toLowerCase().replace(/\s+/g, "_")}_${new Date().toLocaleDateString().replace(/\//g, "_")}_${new Date().toLocaleTimeString().replace(/:/g, "_")}.pdf`}
         className="btn circular-button me-2"
       >
         <i className="fa-solid fa-download"></i>
