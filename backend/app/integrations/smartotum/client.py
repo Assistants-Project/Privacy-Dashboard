@@ -43,7 +43,8 @@ class SmartotumApplicationResult:
     application_uuid: UUID
     name: str
     description: str | None = None
-    data_controller_email: str | None = None
+    data_controllers_email: list[str] | None = None
+    available_consents: list[str] | None = None
 
 @dataclass
 class SmartotumDeviceResult:
@@ -314,38 +315,60 @@ class SmartotumClient:
             applications: List[SmartotumApplicationResult] = []
 
             for i,item in enumerate(payload):
-                    
                 if not isinstance(item, dict):
                     raise ValueError(f"apps[{i}] must be an object")
 
                 name = item.get("name")
                 if not isinstance(name, str) or not name.strip():
                     raise ValueError(f"apps[{i}].name is required and must not be empty")
+                normalized_name = name.strip()
 
                 description = item.get("description")
                 if description is not None and not isinstance(description, str):
                     raise ValueError(f"apps[{i}].description must be a string or null")
-                data_controller_email = item.get("data_controller_email")
-                if data_controller_email is not None and not isinstance(
-                    data_controller_email, str
-                ):
-                    raise ValueError(
-                        f"apps[{i}].data_controller_email must be a string or null"
-                    )
-                normalized_email = (
-                    data_controller_email.strip()
-                    if isinstance(data_controller_email, str)
-                    else None
-                )
-                if normalized_email == "":
-                    normalized_email = None
+                normalized_description = description.strip() if isinstance(description, str) else None
+                if normalized_description == "":
+                    normalized_description = None
+                
+                data_controllers_email = item.get("data_controllers_email", [])
+                # deve essere un array di stringhe
+                if not isinstance(data_controllers_email, list):
+                    raise ValueError(f"apps[{i}].data_controllers_email must be an array of strings")
+                
+                # per ciascuna email controlliamo tipo e normalizziamo spazi
+                normalized_data_controllers_email: list[str] = []
+                for email in data_controllers_email:
+                    if not isinstance(email, str):
+                        raise ValueError(f"apps[{i}].data_controllers_email must contain only strings")
+                    
+                    normalized_email = email.strip()
+                    if normalized_email == "":
+                        continue
+                    normalized_data_controllers_email.append(normalized_email)
 
+                available_consents = item.get("available_consents", [])
+                # stessa validazione per i consensi disponibili
+                if not isinstance(available_consents, list):
+                    raise ValueError(f"apps[{i}].available_consents must be an array of strings")
+
+                normalized_available_consents: list[str] = []
+                for consent in available_consents:
+                    if not isinstance(consent, str):
+                        raise ValueError(f"apps[{i}].available_consents must contain only strings")
+                    
+                    normalized_consent = consent.strip()
+                    if normalized_consent == "":
+                        continue
+                    normalized_available_consents.append(normalized_consent)
+
+                # creiamo l'oggetto applicazione finale già normalizzato
                 applications.append(
                     SmartotumApplicationResult(
                         application_uuid = UUID(str(uuid.uuid4())),
-                        name=str(name),
-                        description=str(description),
-                        data_controller_email=normalized_email,
+                        name=normalized_name,
+                        description=normalized_description,
+                        data_controllers_email=list(dict.fromkeys(normalized_data_controllers_email)),
+                        available_consents=list(dict.fromkeys(normalized_available_consents)),
                     )
                 )
 
@@ -379,6 +402,8 @@ class SmartotumClient:
             topic_uuid = UUID(item.get("topic_uuid"))
             value = item.get("value", {})
             name = value.get("name")
+            if not isinstance(name, str) or not name.strip():
+                continue
             #there is also a field called id in value, for using it an idea is to edit the application table to show for every home the applications for that home
             #so the value.id can be unique in a home 
             description = None
@@ -386,9 +411,10 @@ class SmartotumClient:
             applications.append(
                 SmartotumApplicationResult(
                     application_uuid=topic_uuid,
-                    name=str(name),
+                    name=name.strip(),
                     description=description,
-                    data_controller_email=None,
+                    data_controllers_email=[],
+                    available_consents=[],
                 )
             )
 

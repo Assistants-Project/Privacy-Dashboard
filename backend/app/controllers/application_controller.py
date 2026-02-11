@@ -44,9 +44,14 @@ def get_available_applications(current_user):
 @application_bp.arguments(ApplicationCreateReqSchema, location="json", as_kwargs=True)
 @application_bp.response(201, ApplicationCatalogItemResSchema)
 @dc_required()
-def create_application(name: str, current_user, description: str | None = None):
+def create_application(
+    name: str,
+    current_user,
+    description: str | None = None,
+    available_consents: list[str] | None = None,
+):
     created_application = ApplicationService.create_application_managed_by_data_controller(
-        current_user, name, description
+        current_user, name, description, available_consents
     )
     return created_application
 

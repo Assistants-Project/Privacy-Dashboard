@@ -11,6 +11,7 @@ export enum DocumentStatus {
 export type CreateApplicationRequest = {
     name: string;
     description?: string;
+    available_consents?: string[];
 };
 
 export type CreateApplicationResponse = {

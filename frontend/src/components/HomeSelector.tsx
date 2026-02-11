@@ -68,9 +68,9 @@ function HomeSelector() {
                     </Col>
                 ) : (
                     <Col className="card">
-                        <div>Nessuna casa disponibile.</div>
+                        <div>No Homes Available</div>
                         <div className="muted">
-                            La lista potrebbe essere vuota oppure non caricata.
+                            Please refresh the homes with the button on the top right 
                         </div>
                     </Col>
                 )}

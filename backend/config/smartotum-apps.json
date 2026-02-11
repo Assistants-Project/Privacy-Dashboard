@@ -1,14 +1,74 @@
 [
-  { "name": "appdaemon", "description": "for managing automations", "data_controller_email": "controller.smartotum@example.com" },
-  { "name": "domo-ir-controller", "description": "for managing air conditioning devices with a fake IR remote controller", "data_controller_email": "controller.smartotum@example.com" },
-  { "name": "domo-mosquitto", "description": "for managing MQTT connections", "data_controller_email": "controller.smartotum@example.com" },
-  { "name": "domo-scheduler", "description": "for managing the schedule of different gateways", "data_controller_email": "controller.smartotum@example.com" },
-  { "name": "domo-shelly-stock-manager", "description": "for managing actuators", "data_controller_email": "controller.smartotum@example.com" },
-  { "name": "esphome-updater", "description": "for managing updates of esphome devices", "data_controller_email": "controller.smartotum@example.com" },
-  { "name": "file-sync", "description": "to sync remote and local dht", "data_controller_email": "controller.smartotum@example.com" },
-  { "name": "homeassistant", "description": "for managing the ui and the home system", "data_controller_email": "controller.smartotum@example.com" },
-  { "name": "smartotum-asterisk", "description": "for managing videodoorbell voip calls", "data_controller_email": "controller.smartotum@example.com" },
-  { "name": "smartotum-camera-manager", "description": "for managing cameras", "data_controller_email": "controller.smartotum@example.com" },
-  { "name": "smartotum-certbot", "description": "for managing SSL HTTPS certificates", "data_controller_email": "controller.smartotum@example.com" },
-  { "name": "domo-vpn", "description": "for managing vpn connections with the cloud", "data_controller_email": "controller.smartotum@example.com" }
+  {
+    "name": "appdaemon",
+    "description": "for managing automations",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  },
+  {
+    "name": "domo-ir-controller",
+    "description": "for managing air conditioning devices with a fake IR remote controller",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  },
+  {
+    "name": "domo-mosquitto",
+    "description": "for managing MQTT connections",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  },
+  {
+    "name": "domo-scheduler",
+    "description": "for managing the schedule of different gateways",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  },
+  {
+    "name": "domo-shelly-stock-manager",
+    "description": "for managing actuators",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  },
+  {
+    "name": "esphome-updater",
+    "description": "for managing updates of esphome devices",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  },
+  {
+    "name": "file-sync",
+    "description": "to sync remote and local dht",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  },
+  {
+    "name": "homeassistant",
+    "description": "for managing the ui and the home system",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  },
+  {
+    "name": "smartotum-asterisk",
+    "description": "for managing videodoorbell voip calls",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  },
+  {
+    "name": "smartotum-camera-manager",
+    "description": "for managing cameras",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  },
+  {
+    "name": "smartotum-certbot",
+    "description": "for managing SSL HTTPS certificates",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  },
+  {
+    "name": "domo-vpn",
+    "description": "for managing vpn connections with the cloud",
+    "data_controllers_email": ["controller.smartotum@example.com"],
+    "available_consents": ["processing of personal information to provide the service"]
+  }
 ]

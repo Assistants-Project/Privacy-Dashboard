@@ -1,11 +1,12 @@
 import {Badge,Card,CloseButton,Col,Container,Form,Row,Spinner} from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext";
 import { Role } from "../../models/user";
-import { useState } from "react";
-import { RequestStatus, RIGHT_TYPE_LABELS } from "../../models/request";
+import { useEffect, useState } from "react";
+import { RequestStatus, RIGHT_TYPE_LABELS, RightType } from "../../models/request";
 import { RightRequestHandleForm } from "../../components/Rights/RightRequestHandleForm";
 import { useRightsRequests } from "../../hooks/useRightsRequests";
 import { formatIsoDateOrTime } from "../../services/MessageService";
+import { fetchAvailableConsentsByApplication } from "../../services/AvailableConsentService";
 
 export function ManageRights() {
 
@@ -16,6 +17,9 @@ export function ManageRights() {
   const [selectedRequestUuid, setSelectedRequestUuid] = useState<string | undefined>(undefined);
   const selectedItem = selectedRequestUuid? requests?.find((r) => r.request.uuid === selectedRequestUuid): undefined;
   const selectedRequest = selectedItem?.request;
+  const [consentContentByUuid, setConsentContentByUuid] = useState<Record<string, string>>({});
+  const [loadingRequestedConsents, setLoadingRequestedConsents] = useState<boolean>(false);
+  const [errorRequestedConsents, setErrorRequestedConsents] = useState<string | undefined>(undefined);
   
   const [query, setQuery] = useState<string>("");
   //filtro semplice: cerchiamo solo per nome applicazione
@@ -29,6 +33,58 @@ export function ManageRights() {
     if (status === RequestStatus.HANDLED) return "success";
     return "warning";
   };
+
+  useEffect(() => {
+    if (!selectedRequest || selectedRequest.right_type !== RightType.WITHDRAW_CONSENT) {
+      setConsentContentByUuid({});
+      setLoadingRequestedConsents(false);
+      setErrorRequestedConsents(undefined);
+      return;
+    }
+
+    const selectedConsents = selectedRequest.selected_consents ?? [];
+    if (selectedConsents.length === 0) {
+      setConsentContentByUuid({});
+      setLoadingRequestedConsents(false);
+      setErrorRequestedConsents(undefined);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingRequestedConsents(true);
+    setErrorRequestedConsents(undefined);
+
+    const loadConsentContents = async () => {
+      try {
+        const availableConsents = await fetchAvailableConsentsByApplication(
+          selectedRequest.application_uuid,
+        );
+        if (cancelled) return;
+
+        const contentByUuid: Record<string, string> = {};
+        (availableConsents ?? []).forEach((consent) => {
+          contentByUuid[consent.uuid] = consent.content;
+        });
+        setConsentContentByUuid(contentByUuid);
+      } catch (err) {
+        if (cancelled) return;
+        setConsentContentByUuid({});
+        setErrorRequestedConsents(err instanceof Error ? err.message : "Errore inatteso");
+      } finally {
+        if (!cancelled) setLoadingRequestedConsents(false);
+      }
+    };
+
+    void loadConsentContents();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    selectedRequest?.uuid,
+    selectedRequest?.application_uuid,
+    selectedRequest?.right_type,
+  ]);
 
 
   return (
@@ -202,6 +258,34 @@ export function ManageRights() {
                         </div>
                       </Card.Body>
                     </Card>
+
+                    {selectedRequest!.right_type === RightType.WITHDRAW_CONSENT ? (
+                      <Card className="p-0">
+                        <Card.Body>
+                          <strong>Selected consents to withdraw</strong>
+                          {loadingRequestedConsents ? (
+                            <div className="mt-2 d-inline-flex align-items-center gap-2 text-muted">
+                              <Spinner animation="border" size="sm" />
+                              Loading consent details…
+                            </div>
+                          ) : selectedRequest!.selected_consents?.length ? (
+                            <ul className="mt-2 mb-0">
+                              {selectedRequest!.selected_consents.map((consentUuid) => (
+                                <li key={consentUuid}>
+                                  {consentContentByUuid[consentUuid] ?? consentUuid}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <div className="mt-2 text-muted">No consents selected.</div>
+                          )}
+
+                          {errorRequestedConsents ? (
+                            <div className="mt-2 text-danger small">{errorRequestedConsents}</div>
+                          ) : undefined}
+                        </Card.Body>
+                      </Card>
+                    ) : undefined}
 
                     {selectedRequest!.response ? (
                       <Card className="p-0">

@@ -23,6 +23,7 @@ type RequestDto = {
   uuid: string;
   right_type: RightType;
   additional_information: string;
+  selected_consents?: string[] | null;
   response: string | null; //può arrivare vuota dal backend
   created_at: string;
   handled_at: string | null;
@@ -43,6 +44,7 @@ type SubmitRequestDto = {
   additional_information: string;
   smart_home_uuid: string;
   application_uuid: string;
+  selected_consents?: string[];
 };
 
 //DTO per la handle della request (DC/DPO)
@@ -67,6 +69,18 @@ const normalizeString = (value: unknown): string =>
 const normalizeOptionalString = (value: unknown): string | undefined =>
   typeof value === "string" && value.trim() !== "" ? value : undefined;
 
+const normalizeOptionalStringArray = (value: unknown): string[] | undefined => {
+  if (!Array.isArray(value)) return undefined;
+
+  const normalized = value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter((item) => item !== "");
+
+  if (normalized.length === 0) return undefined;
+  return [...new Set(normalized)];
+};
+
 //trasforma quello che riceve dal backend nel nostro RequestModel
 //application_uuid non è dentro request ma arriva nel wrapper della response
 const toRequestModel = (dto: RequestDto, application_uuid: unknown): RequestModel => {
@@ -80,6 +94,7 @@ const toRequestModel = (dto: RequestDto, application_uuid: unknown): RequestMode
   );
 
   //questi due campi possono essere null o stringa vuota, quindi li mappiamo a undefined
+  model.selected_consents = normalizeOptionalStringArray(dto.selected_consents);
   model.response = normalizeOptionalString(dto.response);
   model.handled_at = normalizeOptionalString(dto.handled_at);
 

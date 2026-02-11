@@ -2,6 +2,7 @@ class RequestModel {
     uuid: string
     right_type: RightType
     additional_information: string
+    selected_consents: string[] | undefined
     response: string | undefined
     created_at: string //sempre presente
     handled_at: string | undefined
@@ -18,6 +19,7 @@ class RequestModel {
         this.additional_information = additional_information
         this.status = status
 
+        this.selected_consents = undefined
         this.response = undefined
         this.handled_at = undefined
     }

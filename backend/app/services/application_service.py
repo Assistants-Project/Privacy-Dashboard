@@ -12,6 +12,7 @@ from ..exceptions import (
     ApplicationAlreadyExistsException,
     ApplicationNotFoundException,
     ApplicationNotManagedException,
+    AvailableConsentWrongListException,
     DpoAlreadyAssignedException,
     InvalidApplicationNameException,
     InvalidPrivacyImpactAssessmentException,
@@ -24,7 +25,12 @@ from ..exceptions import (
     WrongUserRoleException,
 )
 from ..models import Application
-from ..repositories import ApplicationRepository, SmartHomeRepository, UserRepository
+from ..repositories import (
+    ApplicationRepository,
+    AvailableConsentRepository,
+    SmartHomeRepository,
+    UserRepository,
+)
 
 from ..models import UserRole
 from ..models import User
@@ -316,11 +322,10 @@ class ApplicationService:
             ApplicationRepository.upsert_applications(applications_payload)
             db.session.commit()
 
+    #Permette ad un DC di creare un app e assegnarla automaticamente a se stesso
     @staticmethod
-    def create_application_managed_by_data_controller(
-        current_user: User, name: str, description: str | None = None
-    ) -> ApplicationCatalogItem:
-        #Permette ad un DC di creare un app e assegnarla automaticamente a se stesso
+    def create_application_managed_by_data_controller(current_user: User,name: str,description: str | None = None,available_consents: list[str] | None = None,) -> ApplicationCatalogItem:
+        
         if current_user.role != UserRole.DATA_CONTROLLER:
             raise WrongUserRoleException("User is not a Data Controller!")
 
@@ -332,6 +337,19 @@ class ApplicationService:
         if isinstance(description, str):
             description = description.strip()
             normalized_description = description if description else None
+
+        normalized_available_consents: list[str] = []
+        if available_consents is not None:
+            for available_consent in available_consents:
+                if not isinstance(available_consent, str):
+                    raise AvailableConsentWrongListException("Available consents must be a list of non-empty strings!")
+                normalized_available_consent = available_consent.strip()
+                if not normalized_available_consent:
+                    raise AvailableConsentWrongListException("Available consents must be a list of non-empty strings!")
+                normalized_available_consents.append(normalized_available_consent)
+
+            if len(normalized_available_consents) != len(set(normalized_available_consents)):
+                raise AvailableConsentWrongListException("Duplicate consents selected!")
 
         existing_application = ApplicationRepository.get_application_by_name(
             normalized_name
@@ -348,6 +366,7 @@ class ApplicationService:
             ApplicationRepository.ensure_application_managed_by_user(
                 current_user.id, application.id
             )
+            AvailableConsentRepository.upsert_available_consents_for_application(application.id, normalized_available_consents)
             db.session.commit()
         except IntegrityError:
             db.session.rollback()

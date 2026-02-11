@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Form, Spinner } from "react-bootstrap";
-import { RequestModel, RequestStatus } from "../../models/request";
+import { RequestModel, RequestStatus, RightType } from "../../models/request";
 import { handleRightRequest } from "../../services/RightsService";
 
 type RightRequestHandleFormProps = {
@@ -74,6 +74,11 @@ function RightRequestHandleForm({ request, onSaved }: RightRequestHandleFormProp
             <option value={RequestStatus.PENDING}>Pending</option>
             <option value={RequestStatus.HANDLED}>Handled</option>
           </Form.Select>
+          {request.right_type === RightType.WITHDRAW_CONSENT ? (
+            <Form.Text className="text-muted">
+              Setting status to Handled will revoke the selected consents automatically.
+            </Form.Text>
+          ) : undefined}
         </Form.Group>
 
         <Button variant="primary" onClick={handleSave} disabled={handling}>
@@ -92,4 +97,3 @@ function RightRequestHandleForm({ request, onSaved }: RightRequestHandleFormProp
 }
 
 export { RightRequestHandleForm };
-

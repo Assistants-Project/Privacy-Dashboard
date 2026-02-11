@@ -4,6 +4,8 @@ from typing import List
 from uuid import UUID, uuid4
 
 from sqlalchemy import Enum, ForeignKey, Text
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...extensions import db
@@ -35,6 +37,8 @@ class Request(db.Model):
         uuid: A unique randomly generated UUID that identifies the request.
         right_type: An enum that represents the type of right requested by the Data Subject.
         additional_information: A text field that represents additional information about the request.
+        selected_consents: An optional list of consent UUIDs selected by the Data Subject
+            when the request type is `WITHDRAW_CONSENT`.
         response: A text field that represents the response given by the Data Controller or DPO to the request, if any.
         created_at: A datetime object that represents the date and time the request was created.
             It is set to the current date and time by default.
@@ -56,6 +60,7 @@ class Request(db.Model):
     uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
     right_type = mapped_column(Enum(RightType, validate_strings=True), nullable=False)
     additional_information = mapped_column(Text, nullable=False)
+    selected_consents: Mapped[list[UUID] | None] = mapped_column(ARRAY(PG_UUID(as_uuid=True)), default=None) #avoid having another table
     response = mapped_column(Text, default=None, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())
     handled_at: Mapped[datetime] = mapped_column(default=None, nullable=True)
@@ -76,4 +81,5 @@ class Request(db.Model):
     def __repr__(self) -> str:
         return f"Request(id={self.id!r}, uuid={self.uuid}, right_type={self.right_type!r}, \
             additional_information={self.additional_information!r}, \
+            selected_consents={self.selected_consents!r}, \
             response={self.response!r}, created_at={self.created_at!r}, status={self.status!r})"

@@ -38,6 +38,7 @@ type SubmitRequestDto = {
   additional_information: string;
   smart_home_uuid: string;
   application_uuid: string;
+  selected_consents?: string[];
 };
 
 async function submitRequest(dto: SubmitRequestDto) {
@@ -83,5 +84,4 @@ export {
     submitRequest,
     handleRequest,
 };
-
 

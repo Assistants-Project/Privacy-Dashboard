@@ -119,10 +119,12 @@ class RequestRepository:
         right_type: RightType,
         additional_information: str,
         user_smart_home_application_id: int,
+        selected_consents: list[UUID] | None = None,
     ) -> Request:
         request = Request(
             right_type=right_type,
             additional_information=additional_information,
+            selected_consents=selected_consents,
             user_smart_home_application_relation_id=user_smart_home_application_id,
             created_at=datetime.now(),
         )

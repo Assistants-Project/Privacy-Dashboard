@@ -175,8 +175,14 @@ export const assignDpoToApplication = async (applicationUuid: string,dpoUuid: st
 export const createApplicationByDataController = async (payload: CreateApplicationRequest,): Promise<AppModel> => {
   const name = payload.name;
   const description = normalizeOptionalString(payload.description);
-  try {
-    const createdApplication = (await createApplication(name,description)) as ApplicationDto;
+  const availableConsents = Array.isArray(payload.available_consents)
+    ? [...new Set(payload.available_consents.map((consent) => consent.trim()).filter((consent) => consent !== ""))]
+    : undefined;
+  
+    try {
+    const createdApplication = (await createApplication(name,description,
+      availableConsents && availableConsents.length > 0 ? availableConsents : undefined,
+    )) as ApplicationDto;
     return toAppModel(createdApplication);
   } catch (err) {
     throw err;

@@ -47,14 +47,28 @@ async function getCatalogApplications() {
 
 }
 
-async function createApplication(name: string, description?: string): Promise<unknown> {
+async function createApplication(name: string,description?: string,availableConsents?: string[]): Promise<unknown> {
+  
+  const payload: {
+    name: string;
+    description?: string;
+    available_consents?: string[];
+  } = { name };
+
+  if (description !== undefined) {
+    payload.description = description;
+  }
+  if (availableConsents && availableConsents.length > 0) {
+    payload.available_consents = availableConsents;
+  }
+
   const response = await fetch(baseURL + "applications", {
     method: "POST",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name, description }),
+    body: JSON.stringify(payload),
   });
 
   if (response.status === 201) {

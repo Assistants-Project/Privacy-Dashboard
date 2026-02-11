@@ -10,6 +10,7 @@ import { useApp } from "../../contexts/AppsContext";
 
 import { AppAssignmentPanel } from "../../components/Apps/AppAssignmentPanel";
 import { AppCreationPanel } from "../../components/Apps/AppCreationPanel";
+import { AppConsentsPanel } from "../../components/Apps/AppConsentsPanel";
 import { DocumentStatus } from "../../models/app"
 import { SubmitRightRequestModal } from "../../components/Rights/RightRequestSubmitForm";
 import { AppsList } from "../../components/Apps/AppsList";
@@ -61,11 +62,11 @@ export function Apps() {
         <Row
           className="g-3 align-items-start align-items-lg-stretch apps-page-body">
           <Col xs={12} lg={7} className="apps-list-col" >
-            <AppsList closePanel={closePanel} getVote={(app) => app.evaluation ? app.evaluation : "no vote"} dataToRender={apps ?? []}  />
+            <AppsList closePanel={closePanel} getVote={(app) => app.evaluation ? app.evaluation : "no vote"} dataToRender={apps ?? []} />
           </Col>
 
           <Col xs={12} lg={5} className="apps-detail-col">
-          
+
             {isDataController ? (
               <div className="d-flex justify-content-end mb-2">
                 <Button
@@ -114,10 +115,10 @@ export function Apps() {
                       </div>
                     ) : undefined}
 
-	                    <Container fluid className="d-flex flex-wrap gap-2 ps-0">
-	                      <Link
-	                        className={[
-	                          "btn btn-sm border-2",
+                    <Container fluid className="d-flex flex-wrap gap-2 ps-0">
+                      <Link
+                        className={[
+                          "btn btn-sm border-2",
                           PNforbidden ? "btn-outline-secondary disabled" //se no disabilitiamo perchè significa che non possiamo leggere il privacy notice
                             : PNmissing ? "btn-outline-danger" //se pn undefined significa che non è mai stato scaricato o tentativo di fetch è fallito
                               : "btn-outline-success"
@@ -130,52 +131,52 @@ export function Apps() {
                             e.preventDefault();
                           }
                         }}
-		                      >
-		                        Privacy Notice
-		                      </Link>
-		                      {!isDataSubject && (
-		                        <Link
-		                          className={[
-		                            "btn btn-sm border-2",
-		                            questionnaireForbidden
-		                              ? "btn-outline-secondary disabled"
-		                              : questionnaireMissing
-		                                ? "btn-outline-danger"
-		                                : "btn-outline-success",
-		                          ].join(" ")}
-		                          to="/questionnaire"
-		                          aria-disabled={questionnaireForbidden}
-		                          onClick={(e) => {
-		                            if (questionnaireForbidden) {
-		                              e.preventDefault();
-		                            }
-		                          }}
-		                        >
-		                          Questionnaire
-		                        </Link>
-		                      )}
-		                      {!isDataSubject && (
-		                        <Link
-		                          className={[
-		                            "btn btn-sm border-2",
-		                            PIAforbidden
-		                              ? "btn-outline-secondary disabled"
-		                              : PIAmissing
-		                                ? "btn-outline-danger"
-		                                : "btn-outline-success",
-		                          ].join(" ")}
-		                          to="/privacy-impact-assessment"
-		                          aria-disabled={PIAforbidden}
-		                          onClick={(e) => {
-		                            if (PIAforbidden) {
-		                              e.preventDefault();
-		                            }
-		                          }}
-		                        >
-		                          Privacy Impact Assessment
-		                        </Link>
-		                      )}
-		                    </Container>
+                      >
+                        Privacy Notice
+                      </Link>
+                      {!isDataSubject && (
+                        <Link
+                          className={[
+                            "btn btn-sm border-2",
+                            questionnaireForbidden
+                              ? "btn-outline-secondary disabled"
+                              : questionnaireMissing
+                                ? "btn-outline-danger"
+                                : "btn-outline-success",
+                          ].join(" ")}
+                          to="/questionnaire"
+                          aria-disabled={questionnaireForbidden}
+                          onClick={(e) => {
+                            if (questionnaireForbidden) {
+                              e.preventDefault();
+                            }
+                          }}
+                        >
+                          Questionnaire
+                        </Link>
+                      )}
+                      {!isDataSubject && (
+                        <Link
+                          className={[
+                            "btn btn-sm border-2",
+                            PIAforbidden
+                              ? "btn-outline-secondary disabled"
+                              : PIAmissing
+                                ? "btn-outline-danger"
+                                : "btn-outline-success",
+                          ].join(" ")}
+                          to="/privacy-impact-assessment"
+                          aria-disabled={PIAforbidden}
+                          onClick={(e) => {
+                            if (PIAforbidden) {
+                              e.preventDefault();
+                            }
+                          }}
+                        >
+                          Privacy Impact Assessment
+                        </Link>
+                      )}
+                    </Container>
 
                     <Row xs={1} md={2} className="g-3">
                       <Col>
@@ -238,7 +239,7 @@ export function Apps() {
                             <div className="mt-2" />
                             {isDataSubject ? (
                               <Button variant="outline-primary" size="sm" onClick={() => setShowSubmitRightModal(true)}>
-                                Exercise a right
+                                Exercise Rights / Withdraw Consent
                               </Button>
                             ) : (
                               <Button variant={(PIAforbidden || PNforbidden) ? "btn-outline-secondary disabled" : "outline-primary"} size="sm" onClick={() => navigate("/rights")}>
@@ -249,11 +250,18 @@ export function Apps() {
                         </Card>
                       </Col>
                     </Row>
+                    {isDataController && selectedApp ? (
+                      <Row>
+                        <Col>
+                          <AppAssignmentPanel />
 
+                        </Col>
+                      </Row>
+                    ) : undefined}
                     <Row>
                       <Col>
-                        {isDataController && selectedApp ? (
-                          <AppAssignmentPanel />
+                        {isDataSubject && selectedApp ? (
+                          <AppConsentsPanel />
                         ) : undefined}
                       </Col>
                     </Row>

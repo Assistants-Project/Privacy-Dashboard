@@ -199,29 +199,19 @@ class SmartotumService:
 
             #for ever home owned by the user
             for system in systems_new:
+
                 # update installed applications for the home
-                smartotum_applications = client.get_home_applications(
-                    access_token, system.home_uuid
-                )
+                smartotum_applications = client.get_home_applications(access_token, system.home_uuid)
+
                 applications_payload: list[Application] = []
-                manager_email_by_app_name: dict[str, str] = {}
+                manager_emails_by_app_name: dict[str, list[str]] = {}
+                available_consents_by_app_name: dict[str, list[str]] = {}
+
                 for smartotum_application in smartotum_applications:
-                    app_name = (smartotum_application.name or "").strip()
-                    if not app_name:
-                        continue
-                    applications_payload.append(
-                        Application(
-                            name=app_name,
-                            description=smartotum_application.description,
-                        )
-                    )
-                    if (
-                        isinstance(smartotum_application.data_controller_email, str)
-                        and smartotum_application.data_controller_email.strip()
-                    ):
-                        manager_email_by_app_name[app_name] = (
-                            smartotum_application.data_controller_email.strip()
-                        )
+                    app_name = smartotum_application.name
+                    applications_payload.append(Application(name=app_name, description=smartotum_application.description))
+                    manager_emails_by_app_name[app_name] = smartotum_application.data_controllers_email or []
+                    available_consents_by_app_name[app_name] = smartotum_application.available_consents or []
 
                 found_home = SmartHomeRepository.get_home_by_uuid(system.home_uuid)
 
@@ -236,32 +226,47 @@ class SmartotumService:
                     applications=applications_payload,
                 )
 
-                for app_name, dc_email in manager_email_by_app_name.items():
+                #collega applicazione a DC
+                for app_name, data_controllers_email in manager_emails_by_app_name.items():
+
                     application = ApplicationRepository.get_application_by_name(app_name)
+
                     if not application:
                         continue
 
-                    data_controller = UserRepository.get_user_by_email(dc_email)
-                    if not data_controller:
+                    for data_controller_email in data_controllers_email:
+
+                        data_controller = UserRepository.get_user_by_email(data_controller_email)
+
                         #per il momento se il data controller non è stato trovato (non è ancora registrato sulla dashboard -> ritorniamo errore)
                         #si potrebbe valutare se invece non far fallire il refresh
-                        raise SmartotumSyncException(
-                            f"Data Controller with email {dc_email} not found for application {app_name}."
-                        )
-                    if data_controller.role != UserRole.DATA_CONTROLLER:
-                        raise SmartotumSyncException(
-                            f"User {dc_email} is not a Data Controller."
-                        )
+                        if not data_controller:
+                            raise SmartotumSyncException(f"Data Controller with email {data_controller_email} not found for application {app_name}.")
+                        
+                        if data_controller.role != UserRole.DATA_CONTROLLER:
+                            raise SmartotumSyncException(f"User {data_controller_email} is not a Data Controller.")
+                        
+                    
+                        #collega DC a app
+                        ApplicationRepository.ensure_application_managed_by_user(data_controller.id, application.id)
 
-                    ApplicationRepository.replace_data_controller_for_application(
-                        application.id, data_controller.id
-                    )
+                #aggiorna available consent per Applicazione
+                for app_name, available_consents in available_consents_by_app_name.items():
+
+                    application = ApplicationRepository.get_application_by_name(app_name)
+
+                    if not application:
+                        continue
                 
+                    #collega consenso ad app
+                    AvailableConsentRepository.upsert_available_consents_for_application(application.id, available_consents)
+                
+            #committiamo una sola volta alla fine cosi se ci sono errori è facile fare il revert
             session.commit()
 
         except SQLAlchemyError as exc:
             session.rollback()
-            raise SmartotumSyncException("Failed to synchronize Smartotum data") from exc
+            raise SmartotumSyncException("Failed to synchronize Smartotum applications") from exc
         except Exception as exc:
             session.rollback()
-            raise SmartotumSyncException("Smartotum synchronization failed") from exc
+            raise SmartotumSyncException("Smartotum applications synchronization failed") from exc

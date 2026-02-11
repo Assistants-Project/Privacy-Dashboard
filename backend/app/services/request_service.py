@@ -1,20 +1,24 @@
-from typing import List, TypedDict
+from typing import List, NotRequired, TypedDict
 from uuid import UUID
 
 from ..exceptions import (
     ApplicationNotFoundException,
+    AvailableConsentApplicationMismatchException,
+    AvailableConsentEmptyListException,
+    AvailableConsentNotFoundException,
+    AvailableConsentWrongListException,
     RequestNotFoundException,
     SmartHomeNotFoundException,
     UserNotFoundException,
 )
-from ..models import Request, Status
+from ..models import Request, RightType, Status
 from ..repositories import (
     ApplicationRepository,
+    AvailableConsentRepository,
     RequestRepository,
     SmartHomeRepository,
     UserRepository,
 )
-from ..schemas import RequestReqSchema
 
 
 class RequestDict(TypedDict):
@@ -22,6 +26,13 @@ class RequestDict(TypedDict):
     user_email: str
     application_name: str
     application_uuid: UUID
+
+class RequestSubmitPayload(TypedDict):
+    right_type: RightType
+    additional_information: str
+    smart_home_uuid: str
+    application_uuid: UUID
+    selected_consents: NotRequired[list[UUID] | None]
 
 
 class RequestService:
@@ -141,7 +152,7 @@ class RequestService:
         ]
 
     @staticmethod
-    def submit_request(current_user_id: int, request: RequestReqSchema) -> Request:
+    def submit_request(current_user_id: int, request: RequestSubmitPayload) -> Request:
         """Submits a request for a given application in a given smart home for a given user.
 
         Args:
@@ -170,11 +181,68 @@ class RequestService:
             raise ApplicationNotFoundException(
                 f"Application with uuid {request['application_uuid']} not found among the installed applications of smart home with uuid {request['smart_home_uuid']}!"
             )
+
+        selected_consents = None
+        if request["right_type"] == RightType.WITHDRAW_CONSENT:
+            selected_consents = (
+                RequestService._validate_selected_consents_for_withdraw_request(
+                    current_user_id,
+                    smart_home.id,
+                    user_smart_home_application.application_id,
+                    request.get("selected_consents"),
+                )
+            )
+
         return RequestRepository.create_request(
             request["right_type"],
             request["additional_information"],
             user_smart_home_application.id,
+            selected_consents,
         )
+    
+    #valida i consensi essendo scritti in testo
+    #controlla che il consenso esista
+    #controlla che il consenso appartenga all'app da cui provinee la richiesta
+    #controlla che il consenso sia stato dato
+    # se tutto ok lo ritorna a submit_request che lo considera validato
+    @staticmethod
+    def _validate_selected_consents_for_withdraw_request(current_user_id: int,smart_home_id: int,application_id: int,selected_consents_uuids: list[UUID] | None,) -> list[UUID]:
+        
+        #nessun consenso
+        if not selected_consents_uuids:
+            raise AvailableConsentEmptyListException("No consents selected!")
+        
+        #consensi duplicati
+        if len(selected_consents_uuids) != len(set(selected_consents_uuids)):
+            raise AvailableConsentWrongListException("Duplicate consents selected!")
+
+        selected_consents: list[UUID] = []
+
+        for consent_uuid in selected_consents_uuids:
+
+            available_consent = AvailableConsentRepository.get_available_consent_by_uuid(consent_uuid)
+
+            if not available_consent:
+                raise AvailableConsentNotFoundException(
+                    f"Available Consent with uuid {consent_uuid} not found!"
+                )
+            
+            #controllare per ciascun uuid a che applicazione appartiene
+            #deve appartenere alla stessa applicazione a cui è stato dato
+            if available_consent.application_id != application_id:
+                raise AvailableConsentApplicationMismatchException(
+                    "Selected consents do not all belong to the requested application!"
+                )
+            given_consent = AvailableConsentRepository.get_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_available_consent_id(
+                current_user_id, smart_home_id, available_consent.id
+            )
+            if not given_consent:
+                raise AvailableConsentNotFoundException(
+                    f"Available Consent with uuid {consent_uuid} is not currently given in this smart home!"
+                )
+            selected_consents.append(consent_uuid)
+
+        return selected_consents
 
     @staticmethod
     def handle_request(
@@ -201,6 +269,40 @@ class RequestService:
             raise RequestNotFoundException(
                 f"Request with uuid {request_uuid} not found among the requests of the managed applications!"
             )
-        return RequestRepository.update_request_status_and_response(
-            request.id, response, status
+        
+        #se la richiesta è di tipo Withdraw_Consent e il data controller la mette come gestita
+        if (status == Status.HANDLED and request.right_type == RightType.WITHDRAW_CONSENT):
+
+            #chiama il metodo che si occupa di fare withdraw della richiesta
+            RequestService._withdraw_selected_consents_for_request(request)
+
+        #aggiorna la richiesta e ritorna quella aggiornata
+        return RequestRepository.update_request_status_and_response(request.id, response, status)
+
+    #permette di revocare i consensi nella richiesta
+    @staticmethod
+    def _withdraw_selected_consents_for_request(request: Request) -> None:
+
+        relation = request.user_smart_home_application_relation
+        if relation.smart_home_id is None or not request.selected_consents:
+            return
+
+        available_consent_ids: list[int] = []
+        for consent_uuid in request.selected_consents:
+
+            available_consent = AvailableConsentRepository.get_available_consent_by_uuid(consent_uuid)
+            
+            if not available_consent:
+                continue
+            
+            if available_consent.application_id != relation.application_id:
+                continue
+            
+            available_consent_ids.append(available_consent.id)
+
+        unique_available_consent_ids = list(set(available_consent_ids))
+
+        AvailableConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id_and_available_consent_ids(
+            relation.user_id, relation.smart_home_id, unique_available_consent_ids
         )
+        return
