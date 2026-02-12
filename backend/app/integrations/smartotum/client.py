@@ -55,9 +55,9 @@ class SmartotumDeviceResult:
 
 @dataclass
 class SmartotumRule:
-    rule_uuid: UUID
+    rule_uuid: str
     rule_topic_name: str
-    target_uuid: UUID
+    target_uuid: str
     target_topic_name: str
     time_start: str | None = None
     time_end: str | None = None
@@ -188,11 +188,9 @@ class SmartotumClient:
 
         for rule_response in rules_response:
 
-            rule_uuid = UUID(rule_response.get("topic_uuid"))
-
-
+            rule_uuid = rule_response.get("topic_uuid")
             value = rule_response.get("value", {}) or {}
-            target_uuid = UUID(value.get("target_uuid"))
+            target_uuid = value.get("target_uuid")
             target_topic = value.get("target_topic")
             days_value = value.get("days", [])
             days = [str(day) for day in days_value]
@@ -201,14 +199,14 @@ class SmartotumClient:
 
             rules.append(
                 SmartotumRule(
-                    rule_uuid=rule_uuid,
+                    rule_uuid=str(rule_uuid),
                     rule_topic_name=self._rule_topic,
-                    target_uuid=target_uuid,
+                    target_uuid=str(target_uuid),
                     target_topic_name=str(target_topic),
-                    time_start=value.get("TIME_START"),
-                    time_end=value.get("TIME_END"),
+                    time_start=value.get("time_start"),
+                    time_end=value.get("time_end"),
                     days=days,
-                    expiration_date=value.get("EXPIRATION_DATE"),
+                    expiration_date=value.get("expiration_date"),
                 )
             )
 

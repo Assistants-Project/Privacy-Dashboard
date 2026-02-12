@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 from sqlalchemy import ForeignKey, String, BigInteger, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -7,22 +7,7 @@ from ....extensions import db
 if TYPE_CHECKING:
     from ..user import User
     from ..smart_home import SmartHome
-
-
-class DbEntity(db.Model):
-    """IoT Entity stored in database"""
-
-    __tablename__ = "dbentity"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    url: Mapped[str] = mapped_column(String(500), nullable=False)
-    smart_home_id: Mapped[int] = mapped_column(
-        ForeignKey("smart_homes.id", ondelete="CASCADE"), nullable=False
-    )
-
-    smart_home: Mapped["SmartHome"] = relationship("SmartHome", back_populates="entities")
-    triggers: Mapped[List["DbTrigger"]] = relationship(back_populates="entity")
-    actions: Mapped[List["DbAction"]] = relationship(back_populates="entity")
+    from ..device import Device
 
 
 class DbRule(db.Model):
@@ -40,6 +25,8 @@ class DbRule(db.Model):
     timestamp: Mapped[int] = mapped_column(
         BigInteger, nullable=False
     )  # Unix timestamp in milliseconds
+    rule_uuid: Mapped[str] = mapped_column(String(36), unique=True, nullable=True)
+    expiration_date: Mapped[str] = mapped_column(String(20), nullable=True)
 
     smart_home: Mapped["SmartHome"] = relationship("SmartHome", back_populates="rules")
     triggers: Mapped[List["DbTrigger"]] = relationship(
@@ -59,13 +46,13 @@ class DbTrigger(db.Model):
     rule_id: Mapped[int] = mapped_column(
         ForeignKey("dbrule.id", ondelete="CASCADE"), nullable=False
     )
-    entity_id: Mapped[int] = mapped_column(
-        ForeignKey("dbentity.id", ondelete="SET NULL"), nullable=True
-    )
-    url: Mapped[str] = mapped_column(String(500), nullable=False)
-
     rule: Mapped["DbRule"] = relationship(back_populates="triggers")
-    entity: Mapped["DbEntity"] = relationship(back_populates="triggers")
+    url: Mapped[str] = mapped_column(String(500), nullable=False)
+    device_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("devices.device_id", ondelete="SET NULL"), nullable=True
+    )
+    device: Mapped["Device"] = relationship("Device")
+    
     details: Mapped[List["DbDetail"]] = relationship(
         back_populates="trigger",
         cascade="all, delete-orphan",
@@ -82,13 +69,13 @@ class DbAction(db.Model):
     rule_id: Mapped[int] = mapped_column(
         ForeignKey("dbrule.id", ondelete="CASCADE"), nullable=False
     )
-    entity_id: Mapped[int] = mapped_column(
-        ForeignKey("dbentity.id", ondelete="SET NULL"), nullable=True
-    )
-    url: Mapped[str] = mapped_column(String(500), nullable=False)
-
     rule: Mapped["DbRule"] = relationship(back_populates="actions")
-    entity: Mapped["DbEntity"] = relationship(back_populates="actions")
+    url: Mapped[str] = mapped_column(String(500), nullable=False)
+    device_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("devices.device_id", ondelete="SET NULL"), nullable=True
+    )
+    device: Mapped["Device"] = relationship("Device")
+
     details: Mapped[List["DbDetail"]] = relationship(
         back_populates="action",
         cascade="all, delete-orphan",

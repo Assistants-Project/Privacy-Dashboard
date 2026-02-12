@@ -45,6 +45,7 @@ class RuleRequestSchema(Schema):
     action = fields.Nested(RuleActionSchema, required=True)
     effect = fields.Str(required=True)
     subject = fields.Str(allow_none=True)
+    expirationDate = fields.Str(allow_none=True)
 
 
 class RuleResponseSchema(Schema):

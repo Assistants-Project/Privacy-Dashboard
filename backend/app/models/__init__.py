@@ -7,7 +7,7 @@ from .entities.privacy_notice import PrivacyNotice
 from .entities.question import Question
 from .entities.request import Request, RightType, Status
 from .entities.room import Room
-from .entities.sifis.db import DbAction, DbDetail, DbEntity, DbRule, DbTrigger
+from .entities.sifis.db import DbAction, DbDetail, DbRule, DbTrigger
 from .entities.smart_home import SmartHome
 from .entities.user import User, UserRole
 from .relations.question_application import QuestionApplication
@@ -35,7 +35,6 @@ __all__ = [
     "DbTrigger",
     "DbAction",
     "DbDetail",
-    "DbEntity",
     "QuestionApplication",
     "UserNotification",
     "UserSmartHome",
