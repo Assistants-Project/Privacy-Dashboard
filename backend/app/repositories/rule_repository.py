@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from ..extensions import db
-from ..models.entities.sifis.db import DbRule, DbEntity, DbTrigger, DbAction
+from ..models.entities.sifis.db import DbRule, DbTrigger, DbAction
 from ..models.entities.user import User
 from ..models.entities.smart_home import SmartHome
 
@@ -26,9 +26,9 @@ class RuleRepository:
             select(DbRule)
             .where(DbRule.smart_home_id == smart_home.id, DbRule.type == rule_type)
             .options(
-                joinedload(DbRule.triggers).joinedload(DbTrigger.entity),
+                joinedload(DbRule.triggers).joinedload(DbTrigger.device),
                 joinedload(DbRule.triggers).joinedload(DbTrigger.details),
-                joinedload(DbRule.actions).joinedload(DbAction.entity),
+                joinedload(DbRule.actions).joinedload(DbAction.device),
                 joinedload(DbRule.actions).joinedload(DbAction.details),
             )
         )
@@ -69,15 +69,8 @@ class RuleRepository:
         return db.session.execute(stmt).scalars().first()
 
     @staticmethod
-    def find_or_create_entity(url: str, smart_home: SmartHome) -> DbEntity:
-        """Find entity by URL and home or create new one"""
-        entity = db.session.execute(
-            select(DbEntity).where(DbEntity.url == url, DbEntity.smart_home_id == smart_home.id)
-        ).scalar_one_or_none()
+    def get_rule_by_uuid(rule_uuid: str) -> Optional[DbRule]:
+        """Get a rule by its UUID"""
+        stmt = select(DbRule).where(DbRule.rule_uuid == rule_uuid)
+        return db.session.execute(stmt).scalars().first()
 
-        if not entity:
-            entity = DbEntity(url=url, smart_home_id=smart_home.id)
-            db.session.add(entity)
-            db.session.flush()
-
-        return entity

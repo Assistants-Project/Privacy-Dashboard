@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Iterable, Iterator, List, Tuple
+from typing import Iterable, Iterator, List, Tuple, Optional
 from uuid import UUID
 from sqlalchemy.exc import IntegrityError
 
@@ -64,3 +64,9 @@ class DeviceRepository:
         for existing_uuid, existing_device in devices_dict_present.items():
             if existing_uuid not in devices_input_uuid:
                 db.session.delete(existing_device)
+    
+    @staticmethod
+    def get_device_by_uuid(device_uuid: str) -> Optional[Device]:
+        """Get a device by its UUID"""
+        statement = db.select(Device).filter(Device.device_uuid == device_uuid)
+        return db.session.execute(statement).scalars().first()
