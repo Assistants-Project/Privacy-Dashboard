@@ -61,3 +61,4 @@ class RuleResponseSchema(Schema):
     effect = fields.Str(allow_none=True)
     subject = fields.Str(allow_none=True)
     timestamp = fields.DateTime(allow_none=True)
+    expirationDate = fields.Str(attribute="expiration_date", allow_none=True)

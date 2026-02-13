@@ -27,6 +27,7 @@ interface Rule {
   effect: string; // "permit" or "deny"
   subject: string;
   timestamp: number;
+  expirationDate?: string;
   trigger: TriggerAction;
   action: TriggerAction;
 }
@@ -100,6 +101,13 @@ const RuleList: React.FC<RuleListProps> = ({
                 <span className="fw-bold text-dark">
                   {rule.action?.service?.name || "Action"}
                 </span>
+
+                {rule.expirationDate && (
+                  <span className="text-muted small ms-2">
+                    (Expires:{" "}
+                    {rule.expirationDate.split(/[-/]/).reverse().join("/")})
+                  </span>
+                )}
 
                 <div className="ms-auto d-flex align-items-center gap-3">
                   <small className="text-muted border-end pe-3 me-1">

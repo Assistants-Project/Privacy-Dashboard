@@ -195,6 +195,7 @@ def get_rules(current_user, home_uuid):
                 "effect": rule.effect,
                 "subject": rule.subject,
                 "timestamp": rule.timestamp,
+                "expirationDate": rule.expiration_date,
                 "trigger": rule.trigger.to_dict() if rule.trigger else None,
                 "action": rule.action.to_dict() if rule.action else None,
             }

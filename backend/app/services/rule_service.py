@@ -424,6 +424,7 @@ class RuleService:
                 effect=db_rule.effect,
                 subject=db_rule.subject,
                 timestamp=db_rule.timestamp,
+                expiration_date=db_rule.expiration_date,
                 trigger=trigger,
                 action=action,
             )

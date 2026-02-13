@@ -17,6 +17,7 @@ class Rule:
     type: Optional[str] = None
     effect: Optional[str] = None
     subject: Optional[str] = None
+    expiration_date: Optional[str] = None
 
     def __eq__(self, other: object) -> bool:
         """Check equality with another Rule instance.
@@ -82,6 +83,7 @@ class Rule:
             "effect": self.effect,
             "subject": self.subject,
             "timestamp": self.timestamp,
+            "expirationDate": self.expiration_date,
             "trigger": self.trigger.to_dict() if self.trigger else None,
             "action": self.action.to_dict() if self.action else None,
             "parents": [p.to_dict() for p in self.parents] if self.parents else [],
