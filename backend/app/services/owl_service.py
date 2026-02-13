@@ -18,25 +18,17 @@ from ..models.entities.sifis.owl.detail import Detail
 
 class OWLService:
     def __init__(self, config: Dict = None):
-        # Load configuration
         self.config = config or {}
-
         self.logger = self._setup_logging()
-
-        # Cache for user locations to avoid re-loading ontology
         self._locations_cache = {}
-
-        # Load ontology and setup reasoner
         self._initialize_ontology()
 
     def _setup_logging(self) -> logging.Logger:
         """Setup logging configuration"""
         level = self.config.get("LOGGING_LEVEL", "INFO")
 
-        # Create logger
         logger = logging.getLogger(__name__)
 
-        # Only configure if not already configured
         if not logger.handlers:
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
@@ -75,7 +67,6 @@ class OWLService:
         self.onto = world.get_ontology(ontology_iri).load(only_local=True)
         self.world = world
 
-        # Setup namespaces
         self.sifis_ns = self.onto.get_namespace(
             "http://elite.polito.it/ontologies/sifis-home.owl#"
         )
@@ -83,7 +74,6 @@ class OWLService:
             "http://elite.polito.it/ontologies/eupont.owl#"
         )
 
-        # Initialize reasoner
         self._setup_reasoner()
 
         self.logger.info("Ontology initialized successfully")
@@ -246,7 +236,7 @@ class OWLService:
                 )
 
                 trigger.details = self._get_details_for_instance(
-                    trigger_instance, service_id, username, is_action=False
+                    trigger_instance, service_id, is_action=False
                 )
                 triggers.append(trigger)
 
@@ -257,7 +247,7 @@ class OWLService:
             return []
 
     def _get_details_for_instance(
-        self, instance, service_id: str, username: Optional[str] = "ptp-demo", is_action: bool = False
+        self, instance, service_id: str, is_action: bool = False, home_uuid: Optional[str] = None
     ) -> List[Detail]:
         """Get configuration details/parameters for a trigger or action instance."""
         details = []
@@ -283,12 +273,12 @@ class OWLService:
                 if detail_type == "entity":
                     has_entity_detail = True
                     detail.alternatives = self._get_entities_by_service(
-                        service_id, username
+                        service_id, home_uuid=home_uuid
                     )
                 elif detail_type == "location":
                     # Filter locations only for Actions
                     action_filter = instance.name if is_action else None
-                    detail.alternatives = self._get_locations(username, action_id=action_filter)
+                    detail.alternatives = self._get_locations(home_uuid=home_uuid, action_id=action_filter)
                 else:
                     detail.alternatives = []
 
@@ -296,13 +286,13 @@ class OWLService:
 
             # Add implicit entity detail if needed
             if not has_entity_detail:
-                entities = self._get_entities_by_service(service_id, username)
+                entities = self._get_entities_by_service(service_id, home_uuid=home_uuid)
                 if entities:
                     details.append(
                         Detail(
                             url="entity_detail",
                             id="entity_detail",
-                            name="Which entity?",
+                            name="Device",
                             type="entity",
                             alternatives=entities,
                         )
@@ -315,7 +305,7 @@ class OWLService:
             return []
 
     def get_trigger_details(
-        self, service_id: str, trigger_id: str, username: Optional[str] = "ptp-demo"
+        self, service_id: str, trigger_id: str, home_uuid: Optional[str] = None
     ) -> List[Detail]:
         """Get configuration details/parameters for a specific trigger."""
         try:
@@ -327,7 +317,7 @@ class OWLService:
                 return []
 
             return self._get_details_for_instance(
-                trigger_instance, service_id, username, is_action=False
+                trigger_instance, service_id, is_action=False, home_uuid=home_uuid
             )
 
         except Exception as e:
@@ -335,7 +325,7 @@ class OWLService:
             return []
 
     def get_action_details(
-        self, service_id: str, action_id: str, username: Optional[str] = "ptp-demo"
+        self, service_id: str, action_id: str, home_uuid: Optional[str] = None
     ) -> List[Detail]:
         """Get configuration details/parameters for a specific action."""
         try:
@@ -347,7 +337,7 @@ class OWLService:
                 return []
 
             return self._get_details_for_instance(
-                action_instance, service_id, username, is_action=True
+                action_instance, service_id, is_action=True, home_uuid=home_uuid
             )
 
         except Exception as e:
@@ -370,32 +360,100 @@ class OWLService:
             if not home_world:
                 return []
 
-            # Build service IRI
-            service_iri = f"http://elite.polito.it/ontologies/sifis-home.owl/{home_uuid}#{service_id}"
+            # Determine Service Class from service_id (generic mapping)
 
-            # Find all individuals that have this service
+            service_class_name = None
+            for key, cls_name in self.SERVICE_CLASS_MAPPING.items():
+                if key in service_id:
+                    service_class_name = cls_name
+                    break
+            
+            # Find all individuals that have a service of this type
             entities = []
-            for individual in home_world.individuals():
-                services = getattr(individual, "hasService", [])
-                for service in services:
-                    if str(service.iri) == service_iri:
-                        # If location filtering is requested, check position
-                        if location_url:
-                            positions = getattr(individual, "position", [])
-                            # Check if any of the positions matches the location_url
-                            if not any(str(pos.iri) == location_url for pos in positions):
-                                continue
+            
+            # Prepare device name mapping for user-friendly display
+            device_name_map = {}
+            try:
+                from ..models.entities.smart_home import SmartHome
+                home = SmartHome.query.filter_by(uuid=home_uuid).first()
+                if home:
+                    # Map device UUID (string) to Name - use device_uuid not device_id
+                    device_name_map = {str(d.device_uuid): d.name for d in home.devices}
+            except Exception as e:
+                self.logger.warning(f"Failed to load device names from DB: {e}")
 
-                        entities.append(
-                            {
-                                "url": str(individual.iri),
-                                "name": self._safe_get_property(individual, "id")
-                                or self._safe_get_property(individual, "name")
-                                or individual.name,
-                                "id": individual.name,
-                            }
-                        )
-                        break
+            # If we found a mapping, use class-based lookup
+            if service_class_name:
+                 ServiceClass = self._get_class(self.onto, service_class_name)
+                 
+                 # Get IRI of the service class for robust comparison
+                 service_class_iri = ServiceClass.iri if ServiceClass else None
+                 
+                 if service_class_iri:
+                     for individual in home_world.individuals():
+                         # Check services
+                         services = getattr(individual, "hasService", [])
+                         has_service = False
+                         for s in services:
+                             # Check if any of the classes in s.is_a matches the ServiceClass IRI
+                             for cls in s.is_a:
+                                 if hasattr(cls, 'iri') and cls.iri == service_class_iri:
+                                     has_service = True
+                                     break
+                             if has_service:
+                                 break
+                         
+                         if has_service:
+                             # Get Location
+                             positions = getattr(individual, "position", [])
+                             loc_iri = str(positions[0].iri) if positions else None
+                             
+                             # Filter by location if requested
+                             if location_url and loc_iri != location_url:
+                                 continue
+                             
+                             # Determine Name
+                             ind_name = individual.name
+                             device_uuid = ind_name.removeprefix("d-") if ind_name.startswith("d-") else ind_name
+                             
+                             friendly_name = device_name_map.get(device_uuid)
+                             
+                             final_name = friendly_name or ind_name
+                                 
+                             entities.append(
+                                 {
+                                     "url": str(individual.iri),
+                                     "name": final_name,
+                                     "id": individual.name,
+                                     "location_url": loc_iri,
+                                 }
+                             )
+            
+            # Fallback to direct IRI matching (for specific services or backwards compat)
+            else:
+                service_iri = f"http://elite.polito.it/ontologies/sifis-home.owl/{home_uuid}#{service_id}"
+                for individual in home_world.individuals():
+                    services = getattr(individual, "hasService", [])
+                    for service in services:
+                        if str(service.iri) == service_iri:
+                            # If location filtering is requested, check position
+                            positions = getattr(individual, "position", [])
+                            loc_iri = str(positions[0].iri) if positions else None
+                            
+                            if location_url and loc_iri != location_url:
+                                continue
+    
+                            entities.append(
+                                {
+                                    "url": str(individual.iri),
+                                    "name": self._safe_get_property(individual, "id")
+                                    or self._safe_get_property(individual, "name")
+                                    or individual.name,
+                                    "id": individual.name,
+                                    "location_url": loc_iri
+                                }
+                            )
+                            break
 
             return entities
         except Exception as e:
@@ -632,7 +690,7 @@ class OWLService:
                 )
 
                 action.details = self._get_details_for_instance(
-                    action_instance, service_id, username, is_action=True
+                    action_instance, service_id, is_action=True
                 )
                 actions.append(action)
 
@@ -707,8 +765,8 @@ class OWLService:
             trigger.details = self._get_details_for_instance(
                 trigger_instance,
                 service_instance.name if service_instance else "",
-                home_uuid,
-                is_action=False
+                is_action=False,
+                home_uuid=home_uuid
             )
 
             return trigger
@@ -746,8 +804,8 @@ class OWLService:
             action.details = self._get_details_for_instance(
                 action_instance,
                 service_instance.name if service_instance else "",
-                home_uuid,
-                is_action=True
+                is_action=True,
+                home_uuid=home_uuid
             )
 
             return action
@@ -782,10 +840,9 @@ class OWLService:
             return None
 
     def _get_home_world(self, home_uuid: str):
-        """Helper to load home world (can be cached later if needed)"""
+        """Load home world"""
         try:
             ontology_dir = Path(self._get_ontology_dir())
-            
             home_ontology_path = ontology_dir / "homes" / f"{home_uuid}.owl" 
                        
             if not home_ontology_path.exists():
@@ -835,7 +892,6 @@ class OWLService:
             # Load home world
             home_world = self._get_home_world(home_uuid)
             if not home_world:
-                self.logger.warning(f"Could not load home world for {home_uuid}")
                 return commands
 
             # Re-run reasoner with inferences
@@ -866,10 +922,10 @@ class OWLService:
                 self.logger.warning(f"Action {action.url} not found in home world")
                 return commands
 
-            # Get commands via reproduceBy property (direct) or allowTo property (inverse)
+            # Get commands via reproduceBy or allowTo
             reproduce_by_commands = getattr(home_action, "reproduceBy", [])
 
-            # Fallback: Manually search for commands that allowTo this action (if inference missed some)
+            # Fallback: Search for commands via allowTo
             if not reproduce_by_commands or len(reproduce_by_commands) < 2:
                 manual_commands = []
                 for ind in home_world.individuals():
@@ -978,13 +1034,11 @@ class OWLService:
             if not action_individual:
                 return False
 
-            # Get the 'triggers' property from eupont namespace
             triggers_prop = getattr(self.eupont_ns, "triggers", None)
             if not triggers_prop:
-                self.logger.warning("triggers property not found in ontology")
                 return False
 
-            # Get all triggers that this action can trigger (using reasoner inferences)
+            # Get all triggers for this action
             triggered_individuals = getattr(action_individual, "triggers", [])
 
             # Check if the given trigger is in the list
@@ -1353,45 +1407,143 @@ class OWLService:
         CloseNotification = OWLService._get_class(base_onto, "CloseNotification")
         OpenNotification = OWLService._get_class(base_onto, "OpenNotification")
 
-        # 2. Setup Actions Dictionary (for AllowTo linking)
-        actions = {
-            "all_audio": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_audio_actions",
-            "rec_audio": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_record_audio_action",
-            "stop_audio": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_stop_record_audio_action",
-            "all_video": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_video_actions",
-            "rec_video": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_record_video_action",
-            "stop_video": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_stop_record_video_action",
-            "all_light": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions",
-            "on_light": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action",
-            "off_light": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action",
-            "all_heat": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_heating_actions",
-            "on_heat": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_heating_action",
-            "off_heat": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_heating_action",
-            "all_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions",
-            "open_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_windows_action",
-            "close_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_windows_action"
-        }
+    # ========================================
+    # Device Mapping Configuration
+    # ========================================
+    
+    SERVICE_CLASS_MAPPING = {
+        "light": "LightingService",
+        "video": "VideoRecordingService",
+        "camera": "VideoRecordingService",
+        "audio": "AudioRecordingService",
+        "heat": "HeatingService",
+        "hvac": "HeatingService",
+        "window": "SmartEnvironmentService",
+        "shutter": "SmartEnvironmentService",
+        "power": "PowerService",
+        "switch": "PowerService"
+    }
 
-        # Triggers (referenced by IRI)
-        triggers = {
-             "win_open": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_windows_open_trigger",
-             "win_close": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_windows_close_trigger",
-             "morning": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_morning_trigger",
-             "afternoon": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_afternoon_trigger",
-             "evening": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_evening_trigger",
-             "night": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_night_trigger",
-             "day": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_day_trigger"
-        }
+    SIFIS_ACTIONS = {
+        "all_audio": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_audio_actions",
+        "rec_audio": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_record_audio_action",
+        "stop_audio": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_stop_record_audio_action",
+        "all_video": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_video_actions",
+        "rec_video": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_record_video_action",
+        "stop_video": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_stop_record_video_action",
+        "all_light": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions",
+        "on_light": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action",
+        "off_light": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action",
+        "all_heat": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_heating_actions",
+        "on_heat": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_heating_action",
+        "off_heat": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_heating_action",
+        "all_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions",
+        "open_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_windows_action",
+        "close_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_windows_action"
+    }
 
+    SIFIS_TRIGGERS = {
+         "win_open": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_windows_open_trigger",
+         "win_close": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_windows_close_trigger",
+         "morning": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_morning_trigger",
+         "afternoon": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_afternoon_trigger",
+         "evening": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_evening_trigger",
+         "night": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_night_trigger",
+         "day": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_day_trigger"
+    }
+
+    # (TargetClass, ServiceClass, [CommandClass, ...], [ {ActionKey: ActionIRI}, ... ])
+    DEVICE_TYPE_MAPPING = {
+         # Lighting
+         "domo_light": ("Lamp", "LightingService", ["TurnOnCommand", "TurnOffCommand"], 
+                        [("all_light", "on_light"), ("all_light", "off_light")]),
+         "domo_light_dimmable": ("Lamp", "LightingService", ["TurnOnCommand", "TurnOffCommand"],
+                                 [("all_light", "on_light"), ("all_light", "off_light")]),
+         "domo_rgbw_light": ("Lamp", "LightingService", ["TurnOnCommand", "TurnOffCommand"],
+                             [("all_light", "on_light"), ("all_light", "off_light")]),
+         
+         # Camera
+         "domo_camera": ("Camera", "VideoRecordingService", ["StartCommand", "StopCommand"],
+                         [("all_video", "rec_video"), ("all_video", "stop_video")]),
+         
+         # HVAC
+         "domo_ac_unit": ("AirConditioner", "CoolingService", ["TurnOnCommand", "TurnOffCommand"],
+                          [("all_heat", "on_heat"), ("all_heat", "off_heat")]),
+                          
+         # Windows / Shutters -> Mapped to SmartWindow
+         "domo_roller_shutter": ("SmartWindow", "SmartEnvironmentService", ["OpenCommand", "CloseCommand"],
+                                 [("all_win", "open_win"), ("all_win", "close_win")]),
+                                 
+         # Switches / Plugs (Generic)
+         "domo_switch": ("Appliance", "PowerService", ["TurnOnCommand", "TurnOffCommand"],
+                         [("all_light", "on_light"), ("all_light", "off_light")]), 
+                         
+         # Sensors
+         "domo_window_sensor": ("Sensor", "SmartEnvironmentService", [], [], ["OpenNotification", "CloseNotification"], ["win_open", "win_close"]),
+         "domo_ble_contact": ("Sensor", "SmartEnvironmentService", [], []),
+         "domo_ble_thermometer": ("Sensor", "SmartEnvironmentService", [], []), 
+         "domo_ble_valve": ("Appliance", "SmartEnvironmentService", ["OpenCommand", "CloseCommand"],
+                            [("all_win", "open_win"), ("all_win", "close_win")]), 
+    }
+
+    @staticmethod
+    def get_action_urls_for_device_type(topic_name: str) -> List[str]:
+        """
+        Get the specific action IRIs (e.g., TurnOn, TurnOff) associated with a device topic.
+        Used for mapping DHT rules to SIFIS actions.
+        """
+        if not topic_name:
+            return []
+            
+        mapping = OWLService.DEVICE_TYPE_MAPPING.get(topic_name)
+        if not mapping:
+            return []
+
+        if len(mapping) < 4:
+            return []
+            
+        action_keys_list = mapping[3] 
+        
+        action_urls = set()
+        for keys_tuple in action_keys_list:
+            iri = None
+            generic_key = None
+            specific_key = None
+
+            if len(keys_tuple) >= 1:
+                generic_key = keys_tuple[0]
+            if len(keys_tuple) >= 2:
+                specific_key = keys_tuple[1]
+            
+            # Prefer generic action (e.g. "all_video") if available and mapped
+            if generic_key:
+                iri = OWLService.SIFIS_ACTIONS.get(generic_key)
+            
+            # Fallback to specific action if generic not found or maps to nothing
+            if not iri and specific_key:
+                iri = OWLService.SIFIS_ACTIONS.get(specific_key)
+                
+            if iri:
+                action_urls.add(iri)
+                    
+        return list(action_urls)
+
+    @staticmethod
+    def _create_dynamic_devices(onto, base_onto, home, locations):
+        """
+        Dynamically create devices, services, and commands based on DB models.
+        Infers device capabilities/class from the device name.
+        """
+        
         def get_action(key):
-            iri = actions.get(key)
+            iri = OWLService.SIFIS_ACTIONS.get(key)
             if not iri: return None
             res = base_onto.search_one(iri=iri)
             if not res: res = onto.world.search_one(iri=iri)
             return res
 
         def get_trigger(key):
-            iri = triggers.get(key)
+            iri = OWLService.SIFIS_TRIGGERS.get(key)
             if not iri: return None
             res = base_onto.search_one(iri=iri)
             if not res: res = onto.world.search_one(iri=iri)
@@ -1400,13 +1552,23 @@ class OWLService:
         def safe_list(*args):
              return [a for a in args if a]
 
-        # 3. Global System Services (e.g. Timer/Calendar) - One per home
+        # 3. Global System Services 
+        TimerService = OWLService._get_class(base_onto, "TimerService")
+        TimeNotification = OWLService._get_class(base_onto, "TimeNotification")
+        
         # Assuming one global timer for now
         s_timer = OWLService._create_individual(onto, TimerService, "s-calendar-alarm")
         if s_timer:
-            # Create notification
+            # Create notification with ALL time-based triggers
             t_moments = [get_trigger(k) for k in ["morning", "afternoon", "evening", "night", "day"]]
             t_moments = [t for t in t_moments if t]
+            
+            # Add weekly timer trigger
+            weekly_timer_trigger = base_onto.search_one(iri="http://elite.polito.it/ontologies/sifis-home.owl#sifis_weekly_timer_trigger")
+            if not weekly_timer_trigger:
+                weekly_timer_trigger = onto.world.search_one(iri="http://elite.polito.it/ontologies/sifis-home.owl#sifis_weekly_timer_trigger")
+            if weekly_timer_trigger:
+                t_moments.append(weekly_timer_trigger)
             
             OWLService._create_individual(onto, TimeNotification, "n-calendar1-alarm", props={
                 "id": "calendar1-alarm",
@@ -1414,50 +1576,13 @@ class OWLService:
             })
             s_timer.hasNotification.append(onto["n-calendar1-alarm"])
 
-
-
         # 4. Iterate DB Devices
-        # --- MAPPING TABLE ---
-        # (TargetClass, ServiceClass, [CommandClass, ...], [ {ActionKey: ActionIRI}, ... ])
-        mapping = {
-             # Lighting
-             "domo_light": ("Lamp", "LightingService", ["TurnOnCommand", "TurnOffCommand"], 
-                            [("all_light", "on_light"), ("all_light", "off_light")]),
-             "domo_light_dimmable": ("Lamp", "LightingService", ["TurnOnCommand", "TurnOffCommand"],
-                                     [("all_light", "on_light"), ("all_light", "off_light")]),
-             "domo_rgbw_light": ("Lamp", "LightingService", ["TurnOnCommand", "TurnOffCommand"],
-                                 [("all_light", "on_light"), ("all_light", "off_light")]),
-             
-             # Camera
-             "domo_camera": ("Camera", "VideoRecordingService", ["StartCommand", "StopCommand"],
-                             [("all_video", "rec_video"), ("all_video", "stop_video")]),
-             
-             # HVAC
-             "domo_ac_unit": ("AirConditioner", "CoolingService", ["TurnOnCommand", "TurnOffCommand"],
-                              [("all_heat", "on_heat"), ("all_heat", "off_heat")]),
-                              
-             # Windows / Shutters -> Mapped to SmartWindow
-             "domo_roller_shutter": ("SmartWindow", "SmartEnvironmentService", ["OpenCommand", "CloseCommand"],
-                                     [("all_win", "open_win"), ("all_win", "close_win")]),
-                                     
-             # Switches / Plugs (Generic)
-             "domo_switch": ("Appliance", "PowerService", ["TurnOnCommand", "TurnOffCommand"],
-                             [("all_light", "on_light"), ("all_light", "off_light")]), 
-                             
-             # Sensors
-             "domo_window_sensor": ("Sensor", "SmartEnvironmentService", [], [], ["OpenNotification", "CloseNotification"], ["win_open", "win_close"]),
-             "domo_ble_contact": ("Sensor", "SmartEnvironmentService", [], []),
-             "domo_ble_thermometer": ("Sensor", "SmartEnvironmentService", [], []), 
-             "domo_ble_valve": ("Appliance", "SmartEnvironmentService", ["OpenCommand", "CloseCommand"],
-                                [("all_win", "open_win"), ("all_win", "close_win")]), 
-        }
-
         for device in home.devices:
             d_name = device.name.lower()
             d_uuid = str(device.device_uuid)
             d_topic = device.topic_name if device.topic_name else f"topic-{d_uuid}"
 
-            matched_config = mapping.get(d_topic)
+            matched_config = OWLService.DEVICE_TYPE_MAPPING.get(d_topic)
             d_ind = None
             if matched_config:
                 # Unpack config with optional notification support (backwards compatible)
@@ -1465,14 +1590,14 @@ class OWLService:
                 notif_class_strs = rest[0] if len(rest) > 0 else []
                 trigger_keys_list = rest[1] if len(rest) > 1 else []
                 
-                DevClass = locals().get(d_class_str) or OWLService._get_class(base_onto, d_class_str) or OWLService._get_class(onto, d_class_str)
+                DevClass = OWLService._get_class(base_onto, d_class_str) or OWLService._get_class(onto, d_class_str)
                 if not DevClass: DevClass = OWLService._get_class(base_onto, "IoTEntity")
 
                 # Use device UUID for unique ID instead of topic (which is shared by all devices of same type)
                 d_ind = OWLService._create_individual(onto, DevClass, f"d-{d_uuid}", props={"id": str(d_uuid)})
                 
                 if d_ind:
-                     ServClass = locals().get(s_class_str) or OWLService._get_class(base_onto, s_class_str)
+                     ServClass = OWLService._get_class(base_onto, s_class_str)
                      if ServClass:
                          # Use device UUID for unique service ID
                          s_ind = OWLService._create_individual(onto, ServClass, f"s-{d_uuid}", 
@@ -1482,7 +1607,7 @@ class OWLService:
                              
                              # 1. Create Commands (Actions)
                              for idx, cmd_str in enumerate(cmd_class_strs):
-                                 CmdClass = locals().get(cmd_str) or OWLService._get_class(base_onto, cmd_str)
+                                 CmdClass = OWLService._get_class(base_onto, cmd_str)
                                  if CmdClass and idx < len(action_keys_list):
                                       allow_keys = action_keys_list[idx]
                                       allow_iris = safe_list(get_action(allow_keys[0]), get_action(allow_keys[1]))
@@ -1501,7 +1626,7 @@ class OWLService:
 
                              # 2. Create Notifications (Triggers)
                              for idx, notif_str in enumerate(notif_class_strs):
-                                 NotifClass = locals().get(notif_str) or OWLService._get_class(base_onto, notif_str)
+                                 NotifClass = OWLService._get_class(base_onto, notif_str)
                                  if NotifClass and idx < len(trigger_keys_list):
                                      trig_key = trigger_keys_list[idx]
                                      trig_iri = get_trigger(trig_key)
