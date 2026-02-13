@@ -28,7 +28,7 @@ class RuleService:
     def __init__(self, owl_service: Optional[OWLService] = None):
         self.owl_service = owl_service
         self.rule_repo = RuleRepository()
-        self.dht_service = DHTService(BaseConfig.SMARTOTUM_DHT_URL)
+        self.dht_service = DHTService(BaseConfig.SMARTOTUM_DHT_URL, BaseConfig.SMARTOTUM_RULE_TOPIC)
 
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
@@ -309,7 +309,7 @@ class RuleService:
     
     def delete_rule_by_home(self, rule_id: int, smart_home: SmartHome) -> bool:
         """
-        Delete a rule if it belongs to the specified home.
+        Delete a rule from both DHT and DB if it belongs to the specified home.
         
         Args:
             rule_id: ID of the rule to delete
@@ -318,6 +318,34 @@ class RuleService:
         Returns:
             True if rule was found and deleted, False otherwise
         """
+        # Get rule before deletion to retrieve rule_uuid
+        rule = self.rule_repo.get_rule_by_id_and_home(rule_id, smart_home.id)
+        if not rule:
+            return False
+        
+        # Delete from DHT first
+        if rule.rule_uuid:
+            try:
+                from flask import request
+                access_token = request.cookies.get('st_access_token')
+                
+                if not access_token and request.headers.get('Authorization'):
+                    auth_header = request.headers.get('Authorization')
+                    if auth_header.startswith('Bearer '):
+                        access_token = auth_header.split(' ')[1]
+
+                if access_token:
+                    self.dht_service.delete_rule(
+                        rule_uuid=str(rule.rule_uuid),
+                        home_uuid=str(smart_home.uuid),
+                        access_token=access_token
+                    )
+                else:
+                    self.logger.warning(f"Skipping DHT deletion for rule {rule.rule_uuid}: Access token not found")
+            except Exception as e:
+                self.logger.warning(f"Failed to delete rule {rule.rule_uuid} from DHT: {e}")
+        
+        # Delete from DB
         return self.rule_repo.delete_rule_by_id_and_home(rule_id, smart_home.id)
 
     def verify_rule_ownership(self, rule_id: int, smart_home: SmartHome) -> bool:
@@ -445,10 +473,10 @@ class RuleService:
                         "service", 
                     ]:
                         detail.value = db_detail.value
-    def sync_rules_for_home(self, home: SmartHome, smartotum_rules: List["SmartotumRule"]):
+    def sync_rules_for_home(self, home: SmartHome, smartotum_rules: List["SmartotumRule"], access_token: str = None):
         """
         Full synchronization of rules for a home:
-        - Delete local rules not in Smartotum
+        - Delete local rules not in Smartotum (from both DHT and DB)
         - Create local rules present in Smartotum but not locally
         - Update local rules present in both
         """
@@ -466,6 +494,19 @@ class RuleService:
             if rule_uuid not in smartotum_rules_map:
                 if db_rule.effect == 'deny':
                     self.logger.info(f"Sync: Deleting local deny rule {rule_uuid} (not in DHT)")
+                    
+                    # Delete from DHT first
+                    if access_token:
+                        try:
+                            self.dht_service.delete_rule(
+                                rule_uuid=rule_uuid,
+                                home_uuid=str(home.uuid),
+                                access_token=access_token
+                            )
+                        except Exception as e:
+                            self.logger.warning(f"DHT deletion failed for {rule_uuid}: {e}")
+                    
+                    # Delete from DB
                     self.rule_repo.delete_rule_by_id_and_home(db_rule.id, home.id)
 
         # 4. Identify Creations and Updates
@@ -683,19 +724,20 @@ class RuleService:
         else:
              self.logger.debug(f"Sync: No updates for rule {rule.rule_uuid}")
 
-    def cleanup_orphaned_rules(self, smart_home: SmartHome) -> int:
+    def cleanup_orphaned_rules(self, smart_home: SmartHome, access_token: str = None) -> int:
         """
-        Delete rules whose devices no longer exist (device_id is NULL).
+        Delete rules whose devices no longer exist (device_id is NULL) from both DHT and DB.
         
         Args:
             smart_home: SmartHome object
+            access_token: Smartotum access token for DHT deletion (optional)
             
         Returns:
             Number of orphaned rules deleted
         """
         from ..extensions import db
         
-        rules_to_delete = []
+        rules_to_delete = []  # Store tuples of (rule_id, rule_uuid)
         
         for rule in smart_home.rules:
             is_orphaned = False
@@ -717,12 +759,24 @@ class RuleService:
             
             if is_orphaned:
                 self.logger.info(f"Cleanup: Deleting orphaned rule {rule.id} (rule_uuid: {rule.rule_uuid})")
-                rules_to_delete.append(rule.id)
+                rules_to_delete.append((rule.id, rule.rule_uuid))
         
         # Delete orphaned rules
         deleted_count = 0
-        for rule_id in rules_to_delete:
+        for rule_id, rule_uuid in rules_to_delete:
             try:
+                # Delete from DHT first
+                if rule_uuid and access_token:
+                    try:
+                        self.dht_service.delete_rule(
+                            rule_uuid=str(rule_uuid),
+                            home_uuid=str(smart_home.uuid),
+                            access_token=access_token
+                        )
+                    except Exception as e:
+                        self.logger.warning(f"DHT deletion failed for {rule_uuid}: {e}")
+                
+                # Delete from DB
                 self.rule_repo.delete_rule_by_id_and_home(rule_id, smart_home.id)
                 deleted_count += 1
             except Exception as e:

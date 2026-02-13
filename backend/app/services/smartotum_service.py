@@ -139,10 +139,10 @@ class SmartotumService:
                 try:
                      rules = client.get_rules(access_token, system.home_uuid)
                      # perform full sync (create, update, delete)
-                     rule_service.sync_rules_for_home(home, rules) # user `home` which is the Db SmartHome object from upsert_home
+                     rule_service.sync_rules_for_home(home, rules, access_token)
                      
                      # cleanup rules with deleted devices
-                     rule_service.cleanup_orphaned_rules(home)
+                     rule_service.cleanup_orphaned_rules(home, access_token)
                      
                      # update rule locations to match device locations
                      rule_service.update_rule_locations(home)

@@ -17,13 +17,15 @@ import requests
 class DHTService:
     """Service for publishing policies to the DHT."""
 
-    def __init__(self, dht_endpoint: str):
+    def __init__(self, dht_endpoint: str, rule_topic: str = "privacy_rule"):
         """Initialize DHT service.
 
         Args:
             dht_endpoint: DHT endpoint url
+            rule_topic: The topic name for privacy rules
         """
         self.dht_endpoint = dht_endpoint
+        self.rule_topic = rule_topic
         self.logger = logging.getLogger(__name__)
 
     def publish_policy(self, policy_xml: str, policy_id: str) -> Optional[str]:
@@ -88,7 +90,7 @@ class DHTService:
     def publish_rule(self, topic_uuid: str, payload: dict, home_uuid: str, access_token: str) -> bool:
         """Publish a rule to a specific DHT topic path.
         
-        URL Format: {dht_endpoint}/topic_name/privacy_rule/topic_uuid/{topic_uuid}
+        URL Format: {dht_endpoint}/topic_name/{rule_topic}/topic_uuid/{topic_uuid}
         
         Args:
             topic_uuid: The UUID of the rule/topic
@@ -103,7 +105,8 @@ class DHTService:
             
             base = self.dht_endpoint.replace("house_name", str(home_uuid))
             
-            url = f"{base}topic_name/privacy_rule/topic_uuid/{topic_uuid}"
+            # Use configured rule topic
+            url = f"{base}topic_name/{self.rule_topic}/topic_uuid/{topic_uuid}"
 
             self.logger.info(f"Publishing rule to DHT URL: {url}")
             self.logger.debug(f"Payload: {payload}")
@@ -122,4 +125,38 @@ class DHTService:
                 return False
         except Exception as e:
             self.logger.error(f"Error publishing rule to DHT: {e}")
+            return False
+
+    def delete_rule(self, rule_uuid: str, home_uuid: str, access_token: str) -> bool:
+        """Delete a rule from the DHT.
+        
+        Args:
+            rule_uuid: The UUID of the rule to delete
+            home_uuid: The UUID of the smart home
+            access_token: The Smartotum access token
+        """
+        try:
+            # Construct URL - assume standard topic structure as used in publish_rule
+            base = self.dht_endpoint.replace("house_name", str(home_uuid))
+            
+            # Use configured rule topic
+            url = f"{base}topic_name/{self.rule_topic}/topic_uuid/{rule_uuid}"
+            
+            headers = {}
+            if access_token:
+                headers["Authorization"] = f"Bearer {access_token}"
+            
+            self.logger.info(f"Deleting rule from DHT URL: {url}")
+            
+            response = requests.delete(url, headers=headers, timeout=10)
+            
+            if response.status_code in [200, 204]:
+                self.logger.info(f"Successfully deleted rule {rule_uuid} from DHT")
+                return True
+            else:
+                self.logger.error(f"Failed to delete rule {rule_uuid}: {response.status_code} {response.text}")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Error deleting rule from DHT: {e}")
             return False
