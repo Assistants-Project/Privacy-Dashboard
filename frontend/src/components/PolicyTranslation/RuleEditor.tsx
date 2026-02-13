@@ -144,9 +144,55 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
     }
   }, [selectedAction, selectedActionService, homeUuid, actions]);
 
+  // Check if form is complete and valid
+  const isFormValid = () => {
+    // Basic fields required
+    if (!selectedTrigger || !selectedAction || !user || !expirationDate)
+      return false;
+
+    // Trigger details validation
+    if (triggerDetails.length > 0) {
+      for (const d of triggerDetails) {
+        const val = triggerDetailsValues[d.url];
+
+        if (d.type === "days") {
+          // Must select at least one day
+          if (!Array.isArray(val) || val.length === 0) return false;
+        } else if (d.type === "location") {
+          // Must select a location (object with url)
+          if (!val || !val.url) return false;
+        } else if (d.type === "time") {
+          // Must have a value
+          if (!val) return false;
+        } else {
+          // Default: must have value
+          if (!val) return false;
+        }
+      }
+    }
+
+    // Action details validation
+    if (actionDetails.length > 0) {
+      for (const d of actionDetails) {
+        const val = actionDetailsValues[d.url];
+
+        if (d.type === "entity") {
+          // Must select at least one entity (device)
+          if (!Array.isArray(val) || val.length === 0) return false;
+        } else if (d.type === "location") {
+          if (!val || !val.url) return false;
+        } else {
+          if (!val) return false;
+        }
+      }
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTrigger || !selectedAction || !user) return;
+    if (!isFormValid() || !user) return;
 
     // Find if there is an entity detail in the action
     const entityDetail = actionDetails.find((d) => d.type === "entity");
@@ -530,11 +576,7 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
             <Button variant="secondary" onClick={onCancel}>
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              disabled={!selectedTrigger || !selectedAction}
-            >
+            <Button variant="primary" type="submit" disabled={!isFormValid()}>
               Save Policy
             </Button>
           </div>
