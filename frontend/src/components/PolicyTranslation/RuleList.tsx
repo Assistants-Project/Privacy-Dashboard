@@ -50,9 +50,17 @@ const RuleList: React.FC<RuleListProps> = ({
       <div className="mt-2 ps-3 border-start">
         {details.map((d, idx) => {
           let displayValue = d.value;
-          if (typeof d.value === "object" && d.value !== null) {
+
+          if (Array.isArray(d.value)) {
+            displayValue = d.value
+              .map((v: any) => String(v).replace(/['"]/g, ""))
+              .join(", ");
+          } else if (typeof d.value === "string" && d.value.startsWith("[")) {
+            displayValue = d.value.replace(/[\[\]'"]/g, "");
+          } else if (typeof d.value === "object" && d.value) {
             displayValue = d.value.name || JSON.stringify(d.value);
           }
+
           return (
             <div key={idx} className="text-muted small">
               <strong>{d.name || "Parameter"}:</strong> {displayValue}
