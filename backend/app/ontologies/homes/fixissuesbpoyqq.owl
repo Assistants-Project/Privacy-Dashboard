@@ -31,52 +31,12 @@
 <owl:NamedIndividual rdf:about="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
-  <sifis-home:name xml:lang="en">Stanza 1</sifis-home:name>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#location-c5fc53be-3ee1-447c-8aa6-5abcda14a893">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
-  <sifis-home:name xml:lang="en">Stanza 3</sifis-home:name>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#location-8bb74662-3098-4b2f-bf37-4e4516b17d72">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
-  <sifis-home:name xml:lang="en">Stanza 5</sifis-home:name>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#location-6a5c9328-2977-4dba-aca0-0e9ccc9ae15c">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
-  <sifis-home:name xml:lang="en">Stanza 6</sifis-home:name>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#location-39dbc0c9-7d07-485c-9637-d27dea65d72a">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
-  <sifis-home:name xml:lang="en">S2</sifis-home:name>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#location-87cbc063-d35d-4e5a-ab55-a86a115c13ba">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
-  <sifis-home:name xml:lang="en">S1</sifis-home:name>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#location-ca47d4bd-b485-4bd4-93e2-e35087dceca9">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
-  <sifis-home:name xml:lang="en">T2</sifis-home:name>
+  <sifis-home:name xml:lang="en">Laboratorio</sifis-home:name>
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#location-c810b04d-8bdb-42ed-8876-78fa6bd7205d">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
-  <sifis-home:name xml:lang="en">Stanza 2</sifis-home:name>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#location-b4e63a54-6262-498f-b936-e2876395d047">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
-  <sifis-home:name xml:lang="en">Stanza 4</sifis-home:name>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#location-816ba288-a89d-473e-8291-433176b13675">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Location"/>
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Room"/>
-  <sifis-home:name xml:lang="en">Fiera</sifis-home:name>
+  <sifis-home:name xml:lang="en">Soggiorno</sifis-home:name>
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#s-calendar-alarm">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TimerService"/>
@@ -84,765 +44,34 @@
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#n-calendar1-alarm">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TimeNotification"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_afternoon_trigger"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_night_trigger"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_weekly_timer_trigger"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_day_trigger"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_morning_trigger"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_evening_trigger"/>
   <sifis-home:id>calendar1-alarm</sifis-home:id>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-5d5ab482-3e02-4fdc-8b2b-83308ec446b6">
+<owl:NamedIndividual rdf:about="#d-01f421c3-a037-4a9d-9058-43adb44ae3c4">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-5d5ab482-3e02-4fdc-8b2b-83308ec446b6"/>
+  <eupont:hasService rdf:resource="#s-01f421c3-a037-4a9d-9058-43adb44ae3c4"/>
   <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>5d5ab482-3e02-4fdc-8b2b-83308ec446b6</sifis-home:id>
+  <sifis-home:id>01f421c3-a037-4a9d-9058-43adb44ae3c4</sifis-home:id>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-5d5ab482-3e02-4fdc-8b2b-83308ec446b6">
+<owl:NamedIndividual rdf:about="#s-01f421c3-a037-4a9d-9058-43adb44ae3c4">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-5d5ab482-3e02-4fdc-8b2b-83308ec446b6-0"/>
-  <eupont:hasCommand rdf:resource="#c-5d5ab482-3e02-4fdc-8b2b-83308ec446b6-1"/>
-  <sifis-home:id>s-5d5ab482-3e02-4fdc-8b2b-83308ec446b6</sifis-home:id>
+  <eupont:hasCommand rdf:resource="#c-01f421c3-a037-4a9d-9058-43adb44ae3c4-0"/>
+  <eupont:hasCommand rdf:resource="#c-01f421c3-a037-4a9d-9058-43adb44ae3c4-1"/>
+  <sifis-home:id>s-01f421c3-a037-4a9d-9058-43adb44ae3c4</sifis-home:id>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-5d5ab482-3e02-4fdc-8b2b-83308ec446b6-0">
+<owl:NamedIndividual rdf:about="#c-01f421c3-a037-4a9d-9058-43adb44ae3c4-0">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>5d5ab482-3e02-4fdc-8b2b-83308ec446b6-cmd-0</sifis-home:id>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
+  <sifis-home:id>01f421c3-a037-4a9d-9058-43adb44ae3c4-cmd-0</sifis-home:id>
   <eupont:type>turn_on</eupont:type>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-5d5ab482-3e02-4fdc-8b2b-83308ec446b6-1">
+<owl:NamedIndividual rdf:about="#c-01f421c3-a037-4a9d-9058-43adb44ae3c4-1">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>5d5ab482-3e02-4fdc-8b2b-83308ec446b6-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-30b4bd14-029a-48fe-b57c-a9028aca2bbc">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-30b4bd14-029a-48fe-b57c-a9028aca2bbc"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>30b4bd14-029a-48fe-b57c-a9028aca2bbc</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-30b4bd14-029a-48fe-b57c-a9028aca2bbc">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-30b4bd14-029a-48fe-b57c-a9028aca2bbc-0"/>
-  <eupont:hasCommand rdf:resource="#c-30b4bd14-029a-48fe-b57c-a9028aca2bbc-1"/>
-  <sifis-home:id>s-30b4bd14-029a-48fe-b57c-a9028aca2bbc</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-30b4bd14-029a-48fe-b57c-a9028aca2bbc-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>30b4bd14-029a-48fe-b57c-a9028aca2bbc-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-30b4bd14-029a-48fe-b57c-a9028aca2bbc-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>30b4bd14-029a-48fe-b57c-a9028aca2bbc-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-92cbf65f-393b-472a-aa5f-45f5d32580da">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-92cbf65f-393b-472a-aa5f-45f5d32580da"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>92cbf65f-393b-472a-aa5f-45f5d32580da</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-92cbf65f-393b-472a-aa5f-45f5d32580da">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-92cbf65f-393b-472a-aa5f-45f5d32580da-0"/>
-  <eupont:hasCommand rdf:resource="#c-92cbf65f-393b-472a-aa5f-45f5d32580da-1"/>
-  <sifis-home:id>s-92cbf65f-393b-472a-aa5f-45f5d32580da</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-92cbf65f-393b-472a-aa5f-45f5d32580da-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>92cbf65f-393b-472a-aa5f-45f5d32580da-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-92cbf65f-393b-472a-aa5f-45f5d32580da-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>92cbf65f-393b-472a-aa5f-45f5d32580da-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-367e58ef-d35e-4f83-aa9a-cac60a9e5e47">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-367e58ef-d35e-4f83-aa9a-cac60a9e5e47"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>367e58ef-d35e-4f83-aa9a-cac60a9e5e47</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-367e58ef-d35e-4f83-aa9a-cac60a9e5e47">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-367e58ef-d35e-4f83-aa9a-cac60a9e5e47-0"/>
-  <eupont:hasCommand rdf:resource="#c-367e58ef-d35e-4f83-aa9a-cac60a9e5e47-1"/>
-  <sifis-home:id>s-367e58ef-d35e-4f83-aa9a-cac60a9e5e47</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-367e58ef-d35e-4f83-aa9a-cac60a9e5e47-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>367e58ef-d35e-4f83-aa9a-cac60a9e5e47-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-367e58ef-d35e-4f83-aa9a-cac60a9e5e47-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>367e58ef-d35e-4f83-aa9a-cac60a9e5e47-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-3cd25e4a-e251-4d35-9e80-bc915e275f79">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-3cd25e4a-e251-4d35-9e80-bc915e275f79"/>
-  <eupont:position rdf:resource="#location-87cbc063-d35d-4e5a-ab55-a86a115c13ba"/>
-  <sifis-home:id>3cd25e4a-e251-4d35-9e80-bc915e275f79</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-3cd25e4a-e251-4d35-9e80-bc915e275f79">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-3cd25e4a-e251-4d35-9e80-bc915e275f79-0"/>
-  <eupont:hasCommand rdf:resource="#c-3cd25e4a-e251-4d35-9e80-bc915e275f79-1"/>
-  <sifis-home:id>s-3cd25e4a-e251-4d35-9e80-bc915e275f79</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-3cd25e4a-e251-4d35-9e80-bc915e275f79-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>3cd25e4a-e251-4d35-9e80-bc915e275f79-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-3cd25e4a-e251-4d35-9e80-bc915e275f79-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>3cd25e4a-e251-4d35-9e80-bc915e275f79-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-fe36b90f-6e0d-4675-a494-13bc32c87414">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-fe36b90f-6e0d-4675-a494-13bc32c87414"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>fe36b90f-6e0d-4675-a494-13bc32c87414</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-fe36b90f-6e0d-4675-a494-13bc32c87414">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-fe36b90f-6e0d-4675-a494-13bc32c87414-0"/>
-  <eupont:hasCommand rdf:resource="#c-fe36b90f-6e0d-4675-a494-13bc32c87414-1"/>
-  <sifis-home:id>s-fe36b90f-6e0d-4675-a494-13bc32c87414</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-fe36b90f-6e0d-4675-a494-13bc32c87414-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>fe36b90f-6e0d-4675-a494-13bc32c87414-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-fe36b90f-6e0d-4675-a494-13bc32c87414-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>fe36b90f-6e0d-4675-a494-13bc32c87414-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-2ae4ed30-7365-48a6-ba6c-7bbae2124cd0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-2ae4ed30-7365-48a6-ba6c-7bbae2124cd0"/>
-  <eupont:position rdf:resource="#location-b4e63a54-6262-498f-b936-e2876395d047"/>
-  <sifis-home:id>2ae4ed30-7365-48a6-ba6c-7bbae2124cd0</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-2ae4ed30-7365-48a6-ba6c-7bbae2124cd0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-2ae4ed30-7365-48a6-ba6c-7bbae2124cd0-0"/>
-  <eupont:hasCommand rdf:resource="#c-2ae4ed30-7365-48a6-ba6c-7bbae2124cd0-1"/>
-  <sifis-home:id>s-2ae4ed30-7365-48a6-ba6c-7bbae2124cd0</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-2ae4ed30-7365-48a6-ba6c-7bbae2124cd0-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>2ae4ed30-7365-48a6-ba6c-7bbae2124cd0-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-2ae4ed30-7365-48a6-ba6c-7bbae2124cd0-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>2ae4ed30-7365-48a6-ba6c-7bbae2124cd0-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-2e563d4f-1d58-4656-8f31-f8051c9ad969">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-2e563d4f-1d58-4656-8f31-f8051c9ad969"/>
-  <eupont:position rdf:resource="#location-6a5c9328-2977-4dba-aca0-0e9ccc9ae15c"/>
-  <sifis-home:id>2e563d4f-1d58-4656-8f31-f8051c9ad969</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-2e563d4f-1d58-4656-8f31-f8051c9ad969">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-2e563d4f-1d58-4656-8f31-f8051c9ad969-0"/>
-  <eupont:hasCommand rdf:resource="#c-2e563d4f-1d58-4656-8f31-f8051c9ad969-1"/>
-  <sifis-home:id>s-2e563d4f-1d58-4656-8f31-f8051c9ad969</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-2e563d4f-1d58-4656-8f31-f8051c9ad969-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>2e563d4f-1d58-4656-8f31-f8051c9ad969-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-2e563d4f-1d58-4656-8f31-f8051c9ad969-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>2e563d4f-1d58-4656-8f31-f8051c9ad969-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-708050f8-3610-47b6-a602-e7245aebaad8">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-708050f8-3610-47b6-a602-e7245aebaad8"/>
-  <eupont:position rdf:resource="#location-ca47d4bd-b485-4bd4-93e2-e35087dceca9"/>
-  <sifis-home:id>708050f8-3610-47b6-a602-e7245aebaad8</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-708050f8-3610-47b6-a602-e7245aebaad8">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-708050f8-3610-47b6-a602-e7245aebaad8-0"/>
-  <eupont:hasCommand rdf:resource="#c-708050f8-3610-47b6-a602-e7245aebaad8-1"/>
-  <sifis-home:id>s-708050f8-3610-47b6-a602-e7245aebaad8</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-708050f8-3610-47b6-a602-e7245aebaad8-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>708050f8-3610-47b6-a602-e7245aebaad8-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-708050f8-3610-47b6-a602-e7245aebaad8-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>708050f8-3610-47b6-a602-e7245aebaad8-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-cad82462-5f18-44b4-ad97-222efa99c424">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-cad82462-5f18-44b4-ad97-222efa99c424"/>
-  <eupont:position rdf:resource="#location-ca47d4bd-b485-4bd4-93e2-e35087dceca9"/>
-  <sifis-home:id>cad82462-5f18-44b4-ad97-222efa99c424</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-cad82462-5f18-44b4-ad97-222efa99c424">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-cad82462-5f18-44b4-ad97-222efa99c424-0"/>
-  <eupont:hasCommand rdf:resource="#c-cad82462-5f18-44b4-ad97-222efa99c424-1"/>
-  <sifis-home:id>s-cad82462-5f18-44b4-ad97-222efa99c424</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-cad82462-5f18-44b4-ad97-222efa99c424-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>cad82462-5f18-44b4-ad97-222efa99c424-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-cad82462-5f18-44b4-ad97-222efa99c424-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>cad82462-5f18-44b4-ad97-222efa99c424-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-29340e68-b688-41f9-aea7-662d074f2f07">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-29340e68-b688-41f9-aea7-662d074f2f07"/>
-  <eupont:position rdf:resource="#location-c810b04d-8bdb-42ed-8876-78fa6bd7205d"/>
-  <sifis-home:id>29340e68-b688-41f9-aea7-662d074f2f07</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-29340e68-b688-41f9-aea7-662d074f2f07">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-29340e68-b688-41f9-aea7-662d074f2f07-0"/>
-  <eupont:hasCommand rdf:resource="#c-29340e68-b688-41f9-aea7-662d074f2f07-1"/>
-  <sifis-home:id>s-29340e68-b688-41f9-aea7-662d074f2f07</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-29340e68-b688-41f9-aea7-662d074f2f07-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>29340e68-b688-41f9-aea7-662d074f2f07-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-29340e68-b688-41f9-aea7-662d074f2f07-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>29340e68-b688-41f9-aea7-662d074f2f07-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-f7f68151-ae3a-4bbc-ab10-0f4e2f4fff1a">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-f7f68151-ae3a-4bbc-ab10-0f4e2f4fff1a"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>f7f68151-ae3a-4bbc-ab10-0f4e2f4fff1a</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-f7f68151-ae3a-4bbc-ab10-0f4e2f4fff1a">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-f7f68151-ae3a-4bbc-ab10-0f4e2f4fff1a-0"/>
-  <eupont:hasCommand rdf:resource="#c-f7f68151-ae3a-4bbc-ab10-0f4e2f4fff1a-1"/>
-  <sifis-home:id>s-f7f68151-ae3a-4bbc-ab10-0f4e2f4fff1a</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-f7f68151-ae3a-4bbc-ab10-0f4e2f4fff1a-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>f7f68151-ae3a-4bbc-ab10-0f4e2f4fff1a-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-f7f68151-ae3a-4bbc-ab10-0f4e2f4fff1a-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>f7f68151-ae3a-4bbc-ab10-0f4e2f4fff1a-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-f238a0dc-5208-423c-8a87-b6b40bbf4901">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-f238a0dc-5208-423c-8a87-b6b40bbf4901"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>f238a0dc-5208-423c-8a87-b6b40bbf4901</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-f238a0dc-5208-423c-8a87-b6b40bbf4901">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-f238a0dc-5208-423c-8a87-b6b40bbf4901-0"/>
-  <eupont:hasCommand rdf:resource="#c-f238a0dc-5208-423c-8a87-b6b40bbf4901-1"/>
-  <sifis-home:id>s-f238a0dc-5208-423c-8a87-b6b40bbf4901</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-f238a0dc-5208-423c-8a87-b6b40bbf4901-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>f238a0dc-5208-423c-8a87-b6b40bbf4901-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-f238a0dc-5208-423c-8a87-b6b40bbf4901-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>f238a0dc-5208-423c-8a87-b6b40bbf4901-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-5ea6d2fd-5525-4aba-9e05-9c4d4d2648c5">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-5ea6d2fd-5525-4aba-9e05-9c4d4d2648c5"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>5ea6d2fd-5525-4aba-9e05-9c4d4d2648c5</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-5ea6d2fd-5525-4aba-9e05-9c4d4d2648c5">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-5ea6d2fd-5525-4aba-9e05-9c4d4d2648c5-0"/>
-  <eupont:hasCommand rdf:resource="#c-5ea6d2fd-5525-4aba-9e05-9c4d4d2648c5-1"/>
-  <sifis-home:id>s-5ea6d2fd-5525-4aba-9e05-9c4d4d2648c5</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-5ea6d2fd-5525-4aba-9e05-9c4d4d2648c5-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>5ea6d2fd-5525-4aba-9e05-9c4d4d2648c5-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-5ea6d2fd-5525-4aba-9e05-9c4d4d2648c5-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>5ea6d2fd-5525-4aba-9e05-9c4d4d2648c5-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-ca09b953-7663-499d-acb3-fe3d04a91af8">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-ca09b953-7663-499d-acb3-fe3d04a91af8"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>ca09b953-7663-499d-acb3-fe3d04a91af8</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-ca09b953-7663-499d-acb3-fe3d04a91af8">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-ca09b953-7663-499d-acb3-fe3d04a91af8-0"/>
-  <eupont:hasCommand rdf:resource="#c-ca09b953-7663-499d-acb3-fe3d04a91af8-1"/>
-  <sifis-home:id>s-ca09b953-7663-499d-acb3-fe3d04a91af8</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-ca09b953-7663-499d-acb3-fe3d04a91af8-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>ca09b953-7663-499d-acb3-fe3d04a91af8-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-ca09b953-7663-499d-acb3-fe3d04a91af8-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>ca09b953-7663-499d-acb3-fe3d04a91af8-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-2cad6dfb-808f-4c6e-ab0d-af250165b545">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-2cad6dfb-808f-4c6e-ab0d-af250165b545"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>2cad6dfb-808f-4c6e-ab0d-af250165b545</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-2cad6dfb-808f-4c6e-ab0d-af250165b545">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-2cad6dfb-808f-4c6e-ab0d-af250165b545-0"/>
-  <eupont:hasCommand rdf:resource="#c-2cad6dfb-808f-4c6e-ab0d-af250165b545-1"/>
-  <sifis-home:id>s-2cad6dfb-808f-4c6e-ab0d-af250165b545</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-2cad6dfb-808f-4c6e-ab0d-af250165b545-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>2cad6dfb-808f-4c6e-ab0d-af250165b545-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-2cad6dfb-808f-4c6e-ab0d-af250165b545-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>2cad6dfb-808f-4c6e-ab0d-af250165b545-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-d73b0dbc-9b02-43a8-93fa-369cbcf1ac0a">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-d73b0dbc-9b02-43a8-93fa-369cbcf1ac0a"/>
-  <eupont:position rdf:resource="#location-816ba288-a89d-473e-8291-433176b13675"/>
-  <sifis-home:id>d73b0dbc-9b02-43a8-93fa-369cbcf1ac0a</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-d73b0dbc-9b02-43a8-93fa-369cbcf1ac0a">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-d73b0dbc-9b02-43a8-93fa-369cbcf1ac0a-0"/>
-  <eupont:hasCommand rdf:resource="#c-d73b0dbc-9b02-43a8-93fa-369cbcf1ac0a-1"/>
-  <sifis-home:id>s-d73b0dbc-9b02-43a8-93fa-369cbcf1ac0a</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-d73b0dbc-9b02-43a8-93fa-369cbcf1ac0a-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>d73b0dbc-9b02-43a8-93fa-369cbcf1ac0a-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-d73b0dbc-9b02-43a8-93fa-369cbcf1ac0a-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>d73b0dbc-9b02-43a8-93fa-369cbcf1ac0a-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-63266187-c9fb-41cb-9332-b80635171658">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-63266187-c9fb-41cb-9332-b80635171658"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>63266187-c9fb-41cb-9332-b80635171658</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-63266187-c9fb-41cb-9332-b80635171658">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-63266187-c9fb-41cb-9332-b80635171658-0"/>
-  <eupont:hasCommand rdf:resource="#c-63266187-c9fb-41cb-9332-b80635171658-1"/>
-  <sifis-home:id>s-63266187-c9fb-41cb-9332-b80635171658</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-63266187-c9fb-41cb-9332-b80635171658-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>63266187-c9fb-41cb-9332-b80635171658-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-63266187-c9fb-41cb-9332-b80635171658-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>63266187-c9fb-41cb-9332-b80635171658-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-ee491b81-597b-4270-9e7a-0383d7abc8be">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-ee491b81-597b-4270-9e7a-0383d7abc8be"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>ee491b81-597b-4270-9e7a-0383d7abc8be</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-ee491b81-597b-4270-9e7a-0383d7abc8be">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-ee491b81-597b-4270-9e7a-0383d7abc8be-0"/>
-  <eupont:hasCommand rdf:resource="#c-ee491b81-597b-4270-9e7a-0383d7abc8be-1"/>
-  <sifis-home:id>s-ee491b81-597b-4270-9e7a-0383d7abc8be</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-ee491b81-597b-4270-9e7a-0383d7abc8be-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>ee491b81-597b-4270-9e7a-0383d7abc8be-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-ee491b81-597b-4270-9e7a-0383d7abc8be-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>ee491b81-597b-4270-9e7a-0383d7abc8be-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-747cfbb2-152e-46db-b666-43874d182ebb">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-747cfbb2-152e-46db-b666-43874d182ebb"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>747cfbb2-152e-46db-b666-43874d182ebb</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-747cfbb2-152e-46db-b666-43874d182ebb">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-747cfbb2-152e-46db-b666-43874d182ebb-0"/>
-  <eupont:hasCommand rdf:resource="#c-747cfbb2-152e-46db-b666-43874d182ebb-1"/>
-  <sifis-home:id>s-747cfbb2-152e-46db-b666-43874d182ebb</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-747cfbb2-152e-46db-b666-43874d182ebb-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>747cfbb2-152e-46db-b666-43874d182ebb-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-747cfbb2-152e-46db-b666-43874d182ebb-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>747cfbb2-152e-46db-b666-43874d182ebb-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-26b6ef93-c0d5-488b-aae5-ec005395ccb6">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-26b6ef93-c0d5-488b-aae5-ec005395ccb6"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>26b6ef93-c0d5-488b-aae5-ec005395ccb6</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-26b6ef93-c0d5-488b-aae5-ec005395ccb6">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-26b6ef93-c0d5-488b-aae5-ec005395ccb6-0"/>
-  <eupont:hasCommand rdf:resource="#c-26b6ef93-c0d5-488b-aae5-ec005395ccb6-1"/>
-  <sifis-home:id>s-26b6ef93-c0d5-488b-aae5-ec005395ccb6</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-26b6ef93-c0d5-488b-aae5-ec005395ccb6-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>26b6ef93-c0d5-488b-aae5-ec005395ccb6-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-26b6ef93-c0d5-488b-aae5-ec005395ccb6-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>26b6ef93-c0d5-488b-aae5-ec005395ccb6-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-ea1bdd22-a3b8-485e-aa56-6ae7fc6955c6">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-ea1bdd22-a3b8-485e-aa56-6ae7fc6955c6"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>ea1bdd22-a3b8-485e-aa56-6ae7fc6955c6</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-ea1bdd22-a3b8-485e-aa56-6ae7fc6955c6">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-ea1bdd22-a3b8-485e-aa56-6ae7fc6955c6-0"/>
-  <eupont:hasCommand rdf:resource="#c-ea1bdd22-a3b8-485e-aa56-6ae7fc6955c6-1"/>
-  <sifis-home:id>s-ea1bdd22-a3b8-485e-aa56-6ae7fc6955c6</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-ea1bdd22-a3b8-485e-aa56-6ae7fc6955c6-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>ea1bdd22-a3b8-485e-aa56-6ae7fc6955c6-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-ea1bdd22-a3b8-485e-aa56-6ae7fc6955c6-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>ea1bdd22-a3b8-485e-aa56-6ae7fc6955c6-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-4be40968-05e8-49a3-9ee4-56c2c0bec14e">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-4be40968-05e8-49a3-9ee4-56c2c0bec14e"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>4be40968-05e8-49a3-9ee4-56c2c0bec14e</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-4be40968-05e8-49a3-9ee4-56c2c0bec14e">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-4be40968-05e8-49a3-9ee4-56c2c0bec14e-0"/>
-  <eupont:hasCommand rdf:resource="#c-4be40968-05e8-49a3-9ee4-56c2c0bec14e-1"/>
-  <sifis-home:id>s-4be40968-05e8-49a3-9ee4-56c2c0bec14e</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-4be40968-05e8-49a3-9ee4-56c2c0bec14e-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>4be40968-05e8-49a3-9ee4-56c2c0bec14e-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-4be40968-05e8-49a3-9ee4-56c2c0bec14e-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>4be40968-05e8-49a3-9ee4-56c2c0bec14e-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-338aee35-d78a-4d3e-93a6-860aa6bc1a98">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-338aee35-d78a-4d3e-93a6-860aa6bc1a98"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>338aee35-d78a-4d3e-93a6-860aa6bc1a98</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-338aee35-d78a-4d3e-93a6-860aa6bc1a98">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-338aee35-d78a-4d3e-93a6-860aa6bc1a98-0"/>
-  <eupont:hasCommand rdf:resource="#c-338aee35-d78a-4d3e-93a6-860aa6bc1a98-1"/>
-  <sifis-home:id>s-338aee35-d78a-4d3e-93a6-860aa6bc1a98</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-338aee35-d78a-4d3e-93a6-860aa6bc1a98-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>338aee35-d78a-4d3e-93a6-860aa6bc1a98-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-338aee35-d78a-4d3e-93a6-860aa6bc1a98-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>338aee35-d78a-4d3e-93a6-860aa6bc1a98-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-63effe4a-bf40-4c23-8cef-bf287dce44f7">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-63effe4a-bf40-4c23-8cef-bf287dce44f7"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>63effe4a-bf40-4c23-8cef-bf287dce44f7</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-63effe4a-bf40-4c23-8cef-bf287dce44f7">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-63effe4a-bf40-4c23-8cef-bf287dce44f7-0"/>
-  <eupont:hasCommand rdf:resource="#c-63effe4a-bf40-4c23-8cef-bf287dce44f7-1"/>
-  <sifis-home:id>s-63effe4a-bf40-4c23-8cef-bf287dce44f7</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-63effe4a-bf40-4c23-8cef-bf287dce44f7-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>63effe4a-bf40-4c23-8cef-bf287dce44f7-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-63effe4a-bf40-4c23-8cef-bf287dce44f7-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>63effe4a-bf40-4c23-8cef-bf287dce44f7-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-1ee758d3-6426-4bee-b001-0ed41d34d46e">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-1ee758d3-6426-4bee-b001-0ed41d34d46e"/>
-  <eupont:position rdf:resource="#location-8bb74662-3098-4b2f-bf37-4e4516b17d72"/>
-  <sifis-home:id>1ee758d3-6426-4bee-b001-0ed41d34d46e</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-1ee758d3-6426-4bee-b001-0ed41d34d46e">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-1ee758d3-6426-4bee-b001-0ed41d34d46e-0"/>
-  <eupont:hasCommand rdf:resource="#c-1ee758d3-6426-4bee-b001-0ed41d34d46e-1"/>
-  <sifis-home:id>s-1ee758d3-6426-4bee-b001-0ed41d34d46e</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-1ee758d3-6426-4bee-b001-0ed41d34d46e-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>1ee758d3-6426-4bee-b001-0ed41d34d46e-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-1ee758d3-6426-4bee-b001-0ed41d34d46e-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>1ee758d3-6426-4bee-b001-0ed41d34d46e-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-ba794744-542d-4720-be53-37bd04a5aba4">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-ba794744-542d-4720-be53-37bd04a5aba4"/>
-  <eupont:position rdf:resource="#location-8bb74662-3098-4b2f-bf37-4e4516b17d72"/>
-  <sifis-home:id>ba794744-542d-4720-be53-37bd04a5aba4</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-ba794744-542d-4720-be53-37bd04a5aba4">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-ba794744-542d-4720-be53-37bd04a5aba4-0"/>
-  <eupont:hasCommand rdf:resource="#c-ba794744-542d-4720-be53-37bd04a5aba4-1"/>
-  <sifis-home:id>s-ba794744-542d-4720-be53-37bd04a5aba4</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-ba794744-542d-4720-be53-37bd04a5aba4-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>ba794744-542d-4720-be53-37bd04a5aba4-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-ba794744-542d-4720-be53-37bd04a5aba4-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>ba794744-542d-4720-be53-37bd04a5aba4-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-0b0f0e17-d4f7-4471-b4e2-0538f0dda701">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-0b0f0e17-d4f7-4471-b4e2-0538f0dda701"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>0b0f0e17-d4f7-4471-b4e2-0538f0dda701</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-0b0f0e17-d4f7-4471-b4e2-0538f0dda701">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-0b0f0e17-d4f7-4471-b4e2-0538f0dda701-0"/>
-  <eupont:hasCommand rdf:resource="#c-0b0f0e17-d4f7-4471-b4e2-0538f0dda701-1"/>
-  <sifis-home:id>s-0b0f0e17-d4f7-4471-b4e2-0538f0dda701</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-0b0f0e17-d4f7-4471-b4e2-0538f0dda701-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>0b0f0e17-d4f7-4471-b4e2-0538f0dda701-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-0b0f0e17-d4f7-4471-b4e2-0538f0dda701-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>0b0f0e17-d4f7-4471-b4e2-0538f0dda701-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-e0fbb8ff-9598-4deb-9849-d3e3f303d909">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-e0fbb8ff-9598-4deb-9849-d3e3f303d909"/>
-  <eupont:position rdf:resource="#location-816ba288-a89d-473e-8291-433176b13675"/>
-  <sifis-home:id>e0fbb8ff-9598-4deb-9849-d3e3f303d909</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-e0fbb8ff-9598-4deb-9849-d3e3f303d909">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-e0fbb8ff-9598-4deb-9849-d3e3f303d909-0"/>
-  <eupont:hasCommand rdf:resource="#c-e0fbb8ff-9598-4deb-9849-d3e3f303d909-1"/>
-  <sifis-home:id>s-e0fbb8ff-9598-4deb-9849-d3e3f303d909</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-e0fbb8ff-9598-4deb-9849-d3e3f303d909-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>e0fbb8ff-9598-4deb-9849-d3e3f303d909-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-e0fbb8ff-9598-4deb-9849-d3e3f303d909-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>e0fbb8ff-9598-4deb-9849-d3e3f303d909-cmd-1</sifis-home:id>
+  <sifis-home:id>01f421c3-a037-4a9d-9058-43adb44ae3c4-cmd-1</sifis-home:id>
   <eupont:type>turn_off</eupont:type>
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#d-f4da10c5-b96c-4493-ac6d-88259caaf5ed">
@@ -859,172 +88,42 @@
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#c-f4da10c5-b96c-4493-ac6d-88259caaf5ed-0">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
   <sifis-home:id>f4da10c5-b96c-4493-ac6d-88259caaf5ed-cmd-0</sifis-home:id>
   <eupont:type>turn_on</eupont:type>
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#c-f4da10c5-b96c-4493-ac6d-88259caaf5ed-1">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
   <sifis-home:id>f4da10c5-b96c-4493-ac6d-88259caaf5ed-cmd-1</sifis-home:id>
   <eupont:type>turn_off</eupont:type>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-42bf14ce-aba0-47fc-895d-df6b559d6aad">
+<owl:NamedIndividual rdf:about="#d-c6341481-353e-4b52-ba41-030343507c71">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-42bf14ce-aba0-47fc-895d-df6b559d6aad"/>
+  <eupont:hasService rdf:resource="#s-c6341481-353e-4b52-ba41-030343507c71"/>
   <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>42bf14ce-aba0-47fc-895d-df6b559d6aad</sifis-home:id>
+  <sifis-home:id>c6341481-353e-4b52-ba41-030343507c71</sifis-home:id>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-42bf14ce-aba0-47fc-895d-df6b559d6aad">
+<owl:NamedIndividual rdf:about="#s-c6341481-353e-4b52-ba41-030343507c71">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-42bf14ce-aba0-47fc-895d-df6b559d6aad-0"/>
-  <eupont:hasCommand rdf:resource="#c-42bf14ce-aba0-47fc-895d-df6b559d6aad-1"/>
-  <sifis-home:id>s-42bf14ce-aba0-47fc-895d-df6b559d6aad</sifis-home:id>
+  <eupont:hasCommand rdf:resource="#c-c6341481-353e-4b52-ba41-030343507c71-0"/>
+  <eupont:hasCommand rdf:resource="#c-c6341481-353e-4b52-ba41-030343507c71-1"/>
+  <sifis-home:id>s-c6341481-353e-4b52-ba41-030343507c71</sifis-home:id>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-42bf14ce-aba0-47fc-895d-df6b559d6aad-0">
+<owl:NamedIndividual rdf:about="#c-c6341481-353e-4b52-ba41-030343507c71-0">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>42bf14ce-aba0-47fc-895d-df6b559d6aad-cmd-0</sifis-home:id>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
+  <sifis-home:id>c6341481-353e-4b52-ba41-030343507c71-cmd-0</sifis-home:id>
   <eupont:type>turn_on</eupont:type>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-42bf14ce-aba0-47fc-895d-df6b559d6aad-1">
+<owl:NamedIndividual rdf:about="#c-c6341481-353e-4b52-ba41-030343507c71-1">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>42bf14ce-aba0-47fc-895d-df6b559d6aad-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-13ac56ac-9bc3-447d-8188-d48372f010b0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-13ac56ac-9bc3-447d-8188-d48372f010b0"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>13ac56ac-9bc3-447d-8188-d48372f010b0</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-13ac56ac-9bc3-447d-8188-d48372f010b0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-13ac56ac-9bc3-447d-8188-d48372f010b0-0"/>
-  <eupont:hasCommand rdf:resource="#c-13ac56ac-9bc3-447d-8188-d48372f010b0-1"/>
-  <sifis-home:id>s-13ac56ac-9bc3-447d-8188-d48372f010b0</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-13ac56ac-9bc3-447d-8188-d48372f010b0-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>13ac56ac-9bc3-447d-8188-d48372f010b0-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-13ac56ac-9bc3-447d-8188-d48372f010b0-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>13ac56ac-9bc3-447d-8188-d48372f010b0-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-664acc2b-d64a-43c2-b3de-4bee225f8526">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-664acc2b-d64a-43c2-b3de-4bee225f8526"/>
-  <eupont:position rdf:resource="#location-8bb74662-3098-4b2f-bf37-4e4516b17d72"/>
-  <sifis-home:id>664acc2b-d64a-43c2-b3de-4bee225f8526</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-664acc2b-d64a-43c2-b3de-4bee225f8526">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-664acc2b-d64a-43c2-b3de-4bee225f8526-0"/>
-  <eupont:hasCommand rdf:resource="#c-664acc2b-d64a-43c2-b3de-4bee225f8526-1"/>
-  <sifis-home:id>s-664acc2b-d64a-43c2-b3de-4bee225f8526</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-664acc2b-d64a-43c2-b3de-4bee225f8526-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>664acc2b-d64a-43c2-b3de-4bee225f8526-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-664acc2b-d64a-43c2-b3de-4bee225f8526-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>664acc2b-d64a-43c2-b3de-4bee225f8526-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-b4575fd9-4734-45e1-a5d7-46ffbb67e829">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-b4575fd9-4734-45e1-a5d7-46ffbb67e829"/>
-  <eupont:position rdf:resource="#location-8bb74662-3098-4b2f-bf37-4e4516b17d72"/>
-  <sifis-home:id>b4575fd9-4734-45e1-a5d7-46ffbb67e829</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-b4575fd9-4734-45e1-a5d7-46ffbb67e829">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-b4575fd9-4734-45e1-a5d7-46ffbb67e829-0"/>
-  <eupont:hasCommand rdf:resource="#c-b4575fd9-4734-45e1-a5d7-46ffbb67e829-1"/>
-  <sifis-home:id>s-b4575fd9-4734-45e1-a5d7-46ffbb67e829</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-b4575fd9-4734-45e1-a5d7-46ffbb67e829-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>b4575fd9-4734-45e1-a5d7-46ffbb67e829-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-b4575fd9-4734-45e1-a5d7-46ffbb67e829-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>b4575fd9-4734-45e1-a5d7-46ffbb67e829-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-512b5e7b-43ed-4d07-89fc-5bc441c4bfe6">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-512b5e7b-43ed-4d07-89fc-5bc441c4bfe6"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>512b5e7b-43ed-4d07-89fc-5bc441c4bfe6</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-512b5e7b-43ed-4d07-89fc-5bc441c4bfe6">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-512b5e7b-43ed-4d07-89fc-5bc441c4bfe6-0"/>
-  <eupont:hasCommand rdf:resource="#c-512b5e7b-43ed-4d07-89fc-5bc441c4bfe6-1"/>
-  <sifis-home:id>s-512b5e7b-43ed-4d07-89fc-5bc441c4bfe6</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-512b5e7b-43ed-4d07-89fc-5bc441c4bfe6-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>512b5e7b-43ed-4d07-89fc-5bc441c4bfe6-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-512b5e7b-43ed-4d07-89fc-5bc441c4bfe6-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>512b5e7b-43ed-4d07-89fc-5bc441c4bfe6-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-05dc84f2-a15d-4e2e-94b7-3953186ccd51">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Lamp"/>
-  <eupont:hasService rdf:resource="#s-05dc84f2-a15d-4e2e-94b7-3953186ccd51"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>05dc84f2-a15d-4e2e-94b7-3953186ccd51</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-05dc84f2-a15d-4e2e-94b7-3953186ccd51">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#LightingService"/>
-  <eupont:hasCommand rdf:resource="#c-05dc84f2-a15d-4e2e-94b7-3953186ccd51-0"/>
-  <eupont:hasCommand rdf:resource="#c-05dc84f2-a15d-4e2e-94b7-3953186ccd51-1"/>
-  <sifis-home:id>s-05dc84f2-a15d-4e2e-94b7-3953186ccd51</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-05dc84f2-a15d-4e2e-94b7-3953186ccd51-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>05dc84f2-a15d-4e2e-94b7-3953186ccd51-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-05dc84f2-a15d-4e2e-94b7-3953186ccd51-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>05dc84f2-a15d-4e2e-94b7-3953186ccd51-cmd-1</sifis-home:id>
+  <sifis-home:id>c6341481-353e-4b52-ba41-030343507c71-cmd-1</sifis-home:id>
   <eupont:type>turn_off</eupont:type>
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#d-e5a6deec-402a-478f-83ee-a54e72278cd8">
@@ -1041,15 +140,15 @@
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#c-e5a6deec-402a-478f-83ee-a54e72278cd8-0">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
   <sifis-home:id>e5a6deec-402a-478f-83ee-a54e72278cd8-cmd-0</sifis-home:id>
   <eupont:type>turn_on</eupont:type>
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#c-e5a6deec-402a-478f-83ee-a54e72278cd8-1">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
   <sifis-home:id>e5a6deec-402a-478f-83ee-a54e72278cd8-cmd-1</sifis-home:id>
   <eupont:type>turn_off</eupont:type>
 </owl:NamedIndividual>
@@ -1067,146 +166,16 @@
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#c-11e09d29-f918-4ea4-9234-bf6838afcd2b-0">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
   <sifis-home:id>11e09d29-f918-4ea4-9234-bf6838afcd2b-cmd-0</sifis-home:id>
   <eupont:type>turn_on</eupont:type>
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#c-11e09d29-f918-4ea4-9234-bf6838afcd2b-1">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
+  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
   <sifis-home:id>11e09d29-f918-4ea4-9234-bf6838afcd2b-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-bb220959-5882-49ed-951c-557a9d11132c">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Appliance"/>
-  <eupont:hasService rdf:resource="#s-bb220959-5882-49ed-951c-557a9d11132c"/>
-  <eupont:position rdf:resource="#location-c810b04d-8bdb-42ed-8876-78fa6bd7205d"/>
-  <sifis-home:id>bb220959-5882-49ed-951c-557a9d11132c</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-bb220959-5882-49ed-951c-557a9d11132c">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#PowerService"/>
-  <eupont:hasCommand rdf:resource="#c-bb220959-5882-49ed-951c-557a9d11132c-0"/>
-  <eupont:hasCommand rdf:resource="#c-bb220959-5882-49ed-951c-557a9d11132c-1"/>
-  <sifis-home:id>s-bb220959-5882-49ed-951c-557a9d11132c</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-bb220959-5882-49ed-951c-557a9d11132c-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>bb220959-5882-49ed-951c-557a9d11132c-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-bb220959-5882-49ed-951c-557a9d11132c-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>bb220959-5882-49ed-951c-557a9d11132c-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-b0998948-6578-4a22-a293-f47fcc28360a">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Appliance"/>
-  <eupont:hasService rdf:resource="#s-b0998948-6578-4a22-a293-f47fcc28360a"/>
-  <eupont:position rdf:resource="#location-87cbc063-d35d-4e5a-ab55-a86a115c13ba"/>
-  <sifis-home:id>b0998948-6578-4a22-a293-f47fcc28360a</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-b0998948-6578-4a22-a293-f47fcc28360a">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#PowerService"/>
-  <eupont:hasCommand rdf:resource="#c-b0998948-6578-4a22-a293-f47fcc28360a-0"/>
-  <eupont:hasCommand rdf:resource="#c-b0998948-6578-4a22-a293-f47fcc28360a-1"/>
-  <sifis-home:id>s-b0998948-6578-4a22-a293-f47fcc28360a</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-b0998948-6578-4a22-a293-f47fcc28360a-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>b0998948-6578-4a22-a293-f47fcc28360a-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-b0998948-6578-4a22-a293-f47fcc28360a-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>b0998948-6578-4a22-a293-f47fcc28360a-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-96e18c16-37b5-49a8-b2a4-f080f8f93b1e">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Appliance"/>
-  <eupont:hasService rdf:resource="#s-96e18c16-37b5-49a8-b2a4-f080f8f93b1e"/>
-  <eupont:position rdf:resource="#location-87cbc063-d35d-4e5a-ab55-a86a115c13ba"/>
-  <sifis-home:id>96e18c16-37b5-49a8-b2a4-f080f8f93b1e</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-96e18c16-37b5-49a8-b2a4-f080f8f93b1e">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#PowerService"/>
-  <eupont:hasCommand rdf:resource="#c-96e18c16-37b5-49a8-b2a4-f080f8f93b1e-0"/>
-  <eupont:hasCommand rdf:resource="#c-96e18c16-37b5-49a8-b2a4-f080f8f93b1e-1"/>
-  <sifis-home:id>s-96e18c16-37b5-49a8-b2a4-f080f8f93b1e</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-96e18c16-37b5-49a8-b2a4-f080f8f93b1e-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>96e18c16-37b5-49a8-b2a4-f080f8f93b1e-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-96e18c16-37b5-49a8-b2a4-f080f8f93b1e-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>96e18c16-37b5-49a8-b2a4-f080f8f93b1e-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-3eeae82b-a44b-462f-95b5-be2b2956019b">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Appliance"/>
-  <eupont:hasService rdf:resource="#s-3eeae82b-a44b-462f-95b5-be2b2956019b"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>3eeae82b-a44b-462f-95b5-be2b2956019b</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-3eeae82b-a44b-462f-95b5-be2b2956019b">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#PowerService"/>
-  <eupont:hasCommand rdf:resource="#c-3eeae82b-a44b-462f-95b5-be2b2956019b-0"/>
-  <eupont:hasCommand rdf:resource="#c-3eeae82b-a44b-462f-95b5-be2b2956019b-1"/>
-  <sifis-home:id>s-3eeae82b-a44b-462f-95b5-be2b2956019b</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-3eeae82b-a44b-462f-95b5-be2b2956019b-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>3eeae82b-a44b-462f-95b5-be2b2956019b-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-3eeae82b-a44b-462f-95b5-be2b2956019b-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>3eeae82b-a44b-462f-95b5-be2b2956019b-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-35fed934-0b9b-470c-b127-e405648725cd">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Appliance"/>
-  <eupont:hasService rdf:resource="#s-35fed934-0b9b-470c-b127-e405648725cd"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>35fed934-0b9b-470c-b127-e405648725cd</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-35fed934-0b9b-470c-b127-e405648725cd">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#PowerService"/>
-  <eupont:hasCommand rdf:resource="#c-35fed934-0b9b-470c-b127-e405648725cd-0"/>
-  <eupont:hasCommand rdf:resource="#c-35fed934-0b9b-470c-b127-e405648725cd-1"/>
-  <sifis-home:id>s-35fed934-0b9b-470c-b127-e405648725cd</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-35fed934-0b9b-470c-b127-e405648725cd-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>35fed934-0b9b-470c-b127-e405648725cd-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-35fed934-0b9b-470c-b127-e405648725cd-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_lights_action"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_lighting_actions"/>
-  <sifis-home:id>35fed934-0b9b-470c-b127-e405648725cd-cmd-1</sifis-home:id>
   <eupont:type>turn_off</eupont:type>
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#d-e9be7afb-731b-42a2-a26b-0264b081102a">
@@ -1235,136 +204,6 @@
   <sifis-home:id>e9be7afb-731b-42a2-a26b-0264b081102a-cmd-1</sifis-home:id>
   <eupont:type>turn_off</eupont:type>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-0a5ff8ca-06db-492d-bb5a-3f2dd5c935d0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#SmartWindow"/>
-  <eupont:hasService rdf:resource="#s-0a5ff8ca-06db-492d-bb5a-3f2dd5c935d0"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>0a5ff8ca-06db-492d-bb5a-3f2dd5c935d0</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-0a5ff8ca-06db-492d-bb5a-3f2dd5c935d0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#SmartEnvironmentService"/>
-  <eupont:hasCommand rdf:resource="#c-0a5ff8ca-06db-492d-bb5a-3f2dd5c935d0-0"/>
-  <eupont:hasCommand rdf:resource="#c-0a5ff8ca-06db-492d-bb5a-3f2dd5c935d0-1"/>
-  <sifis-home:id>s-0a5ff8ca-06db-492d-bb5a-3f2dd5c935d0</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-0a5ff8ca-06db-492d-bb5a-3f2dd5c935d0-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#OpenCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_windows_action"/>
-  <sifis-home:id>0a5ff8ca-06db-492d-bb5a-3f2dd5c935d0-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-0a5ff8ca-06db-492d-bb5a-3f2dd5c935d0-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#CloseCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_windows_action"/>
-  <sifis-home:id>0a5ff8ca-06db-492d-bb5a-3f2dd5c935d0-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-bbde9632-ef13-4b3f-a660-33a6071ae599">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#SmartWindow"/>
-  <eupont:hasService rdf:resource="#s-bbde9632-ef13-4b3f-a660-33a6071ae599"/>
-  <eupont:position rdf:resource="#location-b4e63a54-6262-498f-b936-e2876395d047"/>
-  <sifis-home:id>bbde9632-ef13-4b3f-a660-33a6071ae599</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-bbde9632-ef13-4b3f-a660-33a6071ae599">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#SmartEnvironmentService"/>
-  <eupont:hasCommand rdf:resource="#c-bbde9632-ef13-4b3f-a660-33a6071ae599-0"/>
-  <eupont:hasCommand rdf:resource="#c-bbde9632-ef13-4b3f-a660-33a6071ae599-1"/>
-  <sifis-home:id>s-bbde9632-ef13-4b3f-a660-33a6071ae599</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-bbde9632-ef13-4b3f-a660-33a6071ae599-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#OpenCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_windows_action"/>
-  <sifis-home:id>bbde9632-ef13-4b3f-a660-33a6071ae599-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-bbde9632-ef13-4b3f-a660-33a6071ae599-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#CloseCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_windows_action"/>
-  <sifis-home:id>bbde9632-ef13-4b3f-a660-33a6071ae599-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-9c307d4a-c8c1-40be-b144-eb5828a9bf63">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#SmartWindow"/>
-  <eupont:hasService rdf:resource="#s-9c307d4a-c8c1-40be-b144-eb5828a9bf63"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>9c307d4a-c8c1-40be-b144-eb5828a9bf63</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-9c307d4a-c8c1-40be-b144-eb5828a9bf63">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#SmartEnvironmentService"/>
-  <eupont:hasCommand rdf:resource="#c-9c307d4a-c8c1-40be-b144-eb5828a9bf63-0"/>
-  <eupont:hasCommand rdf:resource="#c-9c307d4a-c8c1-40be-b144-eb5828a9bf63-1"/>
-  <sifis-home:id>s-9c307d4a-c8c1-40be-b144-eb5828a9bf63</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-9c307d4a-c8c1-40be-b144-eb5828a9bf63-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#OpenCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_windows_action"/>
-  <sifis-home:id>9c307d4a-c8c1-40be-b144-eb5828a9bf63-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-9c307d4a-c8c1-40be-b144-eb5828a9bf63-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#CloseCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_windows_action"/>
-  <sifis-home:id>9c307d4a-c8c1-40be-b144-eb5828a9bf63-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-fd7bc0da-64b5-495f-92a8-92045735492d">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#SmartWindow"/>
-  <eupont:hasService rdf:resource="#s-fd7bc0da-64b5-495f-92a8-92045735492d"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>fd7bc0da-64b5-495f-92a8-92045735492d</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-fd7bc0da-64b5-495f-92a8-92045735492d">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#SmartEnvironmentService"/>
-  <eupont:hasCommand rdf:resource="#c-fd7bc0da-64b5-495f-92a8-92045735492d-0"/>
-  <eupont:hasCommand rdf:resource="#c-fd7bc0da-64b5-495f-92a8-92045735492d-1"/>
-  <sifis-home:id>s-fd7bc0da-64b5-495f-92a8-92045735492d</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-fd7bc0da-64b5-495f-92a8-92045735492d-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#OpenCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_windows_action"/>
-  <sifis-home:id>fd7bc0da-64b5-495f-92a8-92045735492d-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-fd7bc0da-64b5-495f-92a8-92045735492d-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#CloseCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_windows_action"/>
-  <sifis-home:id>fd7bc0da-64b5-495f-92a8-92045735492d-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-735ae930-4330-4f51-8c92-770113155318">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#SmartWindow"/>
-  <eupont:hasService rdf:resource="#s-735ae930-4330-4f51-8c92-770113155318"/>
-  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
-  <sifis-home:id>735ae930-4330-4f51-8c92-770113155318</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-735ae930-4330-4f51-8c92-770113155318">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#SmartEnvironmentService"/>
-  <eupont:hasCommand rdf:resource="#c-735ae930-4330-4f51-8c92-770113155318-0"/>
-  <eupont:hasCommand rdf:resource="#c-735ae930-4330-4f51-8c92-770113155318-1"/>
-  <sifis-home:id>s-735ae930-4330-4f51-8c92-770113155318</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-735ae930-4330-4f51-8c92-770113155318-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#OpenCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_windows_action"/>
-  <sifis-home:id>735ae930-4330-4f51-8c92-770113155318-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-735ae930-4330-4f51-8c92-770113155318-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#CloseCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_windows_action"/>
-  <sifis-home:id>735ae930-4330-4f51-8c92-770113155318-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#d-2d26a942-6337-40a0-a024-173ba32bfb16">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Camera"/>
   <eupont:hasService rdf:resource="#s-2d26a942-6337-40a0-a024-173ba32bfb16"/>
@@ -1389,32 +228,6 @@
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_video_actions"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_stop_record_video_action"/>
   <sifis-home:id>2d26a942-6337-40a0-a024-173ba32bfb16-cmd-1</sifis-home:id>
-  <eupont:type>turn_off</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-6797db8e-fb3a-4985-94f3-956448c48681">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Camera"/>
-  <eupont:hasService rdf:resource="#s-6797db8e-fb3a-4985-94f3-956448c48681"/>
-  <eupont:position rdf:resource="#location-39dbc0c9-7d07-485c-9637-d27dea65d72a"/>
-  <sifis-home:id>6797db8e-fb3a-4985-94f3-956448c48681</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-6797db8e-fb3a-4985-94f3-956448c48681">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#VideoRecordingService"/>
-  <eupont:hasCommand rdf:resource="#c-6797db8e-fb3a-4985-94f3-956448c48681-0"/>
-  <eupont:hasCommand rdf:resource="#c-6797db8e-fb3a-4985-94f3-956448c48681-1"/>
-  <sifis-home:id>s-6797db8e-fb3a-4985-94f3-956448c48681</sifis-home:id>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-6797db8e-fb3a-4985-94f3-956448c48681-0">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#StartCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_video_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_record_video_action"/>
-  <sifis-home:id>6797db8e-fb3a-4985-94f3-956448c48681-cmd-0</sifis-home:id>
-  <eupont:type>turn_on</eupont:type>
-</owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-6797db8e-fb3a-4985-94f3-956448c48681-1">
-  <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#StopCommand"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_video_actions"/>
-  <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_stop_record_video_action"/>
-  <sifis-home:id>6797db8e-fb3a-4985-94f3-956448c48681-cmd-1</sifis-home:id>
   <eupont:type>turn_off</eupont:type>
 </owl:NamedIndividual>
 <owl:NamedIndividual rdf:about="#d-06f58d18-8b71-49da-98d2-c2b5d4692b2a">
@@ -1469,30 +282,30 @@
   <sifis-home:id>d6422b30-f800-4be1-8fd4-ccc36a7efcb8-cmd-1</sifis-home:id>
   <eupont:type>turn_off</eupont:type>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#d-b8e89d0f-babf-46c8-9437-7d248c225373">
+<owl:NamedIndividual rdf:about="#d-e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Camera"/>
-  <eupont:hasService rdf:resource="#s-b8e89d0f-babf-46c8-9437-7d248c225373"/>
-  <eupont:position rdf:resource="#location-8bb74662-3098-4b2f-bf37-4e4516b17d72"/>
-  <sifis-home:id>b8e89d0f-babf-46c8-9437-7d248c225373</sifis-home:id>
+  <eupont:hasService rdf:resource="#s-e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3"/>
+  <eupont:position rdf:resource="#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4"/>
+  <sifis-home:id>e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3</sifis-home:id>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#s-b8e89d0f-babf-46c8-9437-7d248c225373">
+<owl:NamedIndividual rdf:about="#s-e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#VideoRecordingService"/>
-  <eupont:hasCommand rdf:resource="#c-b8e89d0f-babf-46c8-9437-7d248c225373-0"/>
-  <eupont:hasCommand rdf:resource="#c-b8e89d0f-babf-46c8-9437-7d248c225373-1"/>
-  <sifis-home:id>s-b8e89d0f-babf-46c8-9437-7d248c225373</sifis-home:id>
+  <eupont:hasCommand rdf:resource="#c-e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3-0"/>
+  <eupont:hasCommand rdf:resource="#c-e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3-1"/>
+  <sifis-home:id>s-e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3</sifis-home:id>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-b8e89d0f-babf-46c8-9437-7d248c225373-0">
+<owl:NamedIndividual rdf:about="#c-e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3-0">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#StartCommand"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_video_actions"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_record_video_action"/>
-  <sifis-home:id>b8e89d0f-babf-46c8-9437-7d248c225373-cmd-0</sifis-home:id>
+  <sifis-home:id>e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3-cmd-0</sifis-home:id>
   <eupont:type>turn_on</eupont:type>
 </owl:NamedIndividual>
-<owl:NamedIndividual rdf:about="#c-b8e89d0f-babf-46c8-9437-7d248c225373-1">
+<owl:NamedIndividual rdf:about="#c-e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3-1">
   <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#StopCommand"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_video_actions"/>
   <eupont:allowTo rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_stop_record_video_action"/>
-  <sifis-home:id>b8e89d0f-babf-46c8-9437-7d248c225373-cmd-1</sifis-home:id>
+  <sifis-home:id>e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3-cmd-1</sifis-home:id>
   <eupont:type>turn_off</eupont:type>
 </owl:NamedIndividual>
 </rdf:RDF>
