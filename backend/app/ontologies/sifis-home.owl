@@ -265,16 +265,6 @@
     </owl:NamedIndividual>
     
 
-
-    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_afternoon_trigger -->
-
-    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_afternoon_trigger">
-        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#EveryDayTrigger"/>
-        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_from_detail"/>
-        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_to_detail"/>
-        <eupont:description xml:lang="en">This trigger fires every afternoon</eupont:description>
-        <name xml:lang="en">Every Afternoon</name>
-    </owl:NamedIndividual>
     
 
 
@@ -289,41 +279,6 @@
     </owl:NamedIndividual>
     
 
-
-    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_evening_trigger -->
-
-    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_evening_trigger">
-        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#EveryDayTrigger"/>
-        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_from_detail"/>
-        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_to_detail"/>
-        <eupont:description xml:lang="en">This trigger fires every evening</eupont:description>
-        <name xml:lang="en">Every Evening</name>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_morning_trigger -->
-
-    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_morning_trigger">
-        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#EveryDayTrigger"/>
-        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_from_detail"/>
-        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_to_detail"/>
-        <eupont:description xml:lang="en">This trigger fires every morning</eupont:description>
-        <name xml:lang="en">Every Morning</name>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_night_trigger -->
-
-    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_night_trigger">
-        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#EveryDayTrigger"/>
-        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_from_detail"/>
-        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_to_detail"/>
-        <eupont:description xml:lang="en">This trigger fires every night</eupont:description>
-        <name xml:lang="en">Every Night</name>
-    </owl:NamedIndividual>
-    
 
 
     <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_heating -->
@@ -341,12 +296,22 @@
     
 
 
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_days_of_week_detail -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_days_of_week_detail">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Detail"/>
+        <eupont:type rdf:datatype="http://www.w3.org/2001/XMLSchema#string">days</eupont:type>
+        <name xml:lang="en">Days of the Week</name>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_from_detail -->
 
     <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_from_detail">
         <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Detail"/>
-        <eupont:type rdf:datatype="http://www.w3.org/2001/XMLSchema#string">value</eupont:type>
-        <name xml:lang="en">1 - from [hh]</name>
+        <eupont:type rdf:datatype="http://www.w3.org/2001/XMLSchema#string">time</eupont:type>
+        <name xml:lang="en">From</name>
     </owl:NamedIndividual>
     
 
@@ -355,12 +320,10 @@
 
     <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_to_detail">
         <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Detail"/>
-        <eupont:type rdf:datatype="http://www.w3.org/2001/XMLSchema#string">value</eupont:type>
-        <name xml:lang="en">2 - to [hh]</name>
+        <eupont:type rdf:datatype="http://www.w3.org/2001/XMLSchema#string">time</eupont:type>
+        <name xml:lang="en">To</name>
     </owl:NamedIndividual>
     
-
-
     <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_lights -->
 
     <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_lights">
@@ -440,17 +403,26 @@
     </owl:NamedIndividual>
     
 
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_weekly_timer_trigger -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_weekly_timer_trigger">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TemporalTrigger"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_from_detail"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_hour_to_detail"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_days_of_week_detail"/>
+        <eupont:description xml:lang="en">This trigger fires on selected days at a specific time range</eupont:description>
+        <name xml:lang="en">Weekly Timer</name>
+    </owl:NamedIndividual>
+    
+
 
     <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_time -->
 
     <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_time">
         <rdf:type rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#SifisTime"/>
         <eupont:offerTrigger rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_always_trigger"/>
-        <eupont:offerTrigger rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_afternoon_trigger"/>
+        <eupont:offerTrigger rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_weekly_timer_trigger"/>
         <eupont:offerTrigger rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_day_trigger"/>
-        <eupont:offerTrigger rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_evening_trigger"/>
-        <eupont:offerTrigger rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_morning_trigger"/>
-        <eupont:offerTrigger rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_night_trigger"/>
         <color rdf:datatype="http://www.w3.org/2001/XMLSchema#string">rgb(84, 89, 95)</color>
         <id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</id>
         <image rdf:datatype="http://www.w3.org/2001/XMLSchema#string">time.png</image>
