@@ -17,7 +17,7 @@ import requests
 class DHTService:
     """Service for publishing policies to the DHT."""
 
-    def __init__(self, dht_endpoint: str = "http://host.docker.internal:3000/"):
+    def __init__(self, dht_endpoint: str):
         """Initialize DHT service.
 
         Args:
@@ -82,3 +82,44 @@ class DHTService:
         except Exception as e:
             self.logger.error(f"Unexpected error publishing policy: {e}")
             return None
+
+
+
+    def publish_rule(self, topic_uuid: str, payload: dict, home_uuid: str, access_token: str) -> bool:
+        """Publish a rule to a specific DHT topic path.
+        
+        URL Format: {dht_endpoint}/topic_name/privacy_rule/topic_uuid/{topic_uuid}
+        
+        Args:
+            topic_uuid: The UUID of the rule/topic
+            payload: The rule data
+            home_uuid: The UUID of the smart home, used to replace 'house_name' in the URL if present
+            access_token: The Smartotum access token for authentication
+        """
+        try:
+            headers = {"Content-Type": "application/json"}
+            if access_token:
+                headers["Authorization"] = f"Bearer {access_token}"
+            
+            base = self.dht_endpoint.replace("house_name", str(home_uuid))
+            
+            url = f"{base}topic_name/privacy_rule/topic_uuid/{topic_uuid}"
+
+            self.logger.info(f"Publishing rule to DHT URL: {url}")
+            self.logger.debug(f"Payload: {payload}")
+
+            response = requests.post(
+                url, json=payload, headers=headers, timeout=10
+            )
+
+            if response.status_code in [200, 201]:
+                self.logger.info(f"Successfully published rule {topic_uuid} to DHT")
+                return True
+            else:
+                self.logger.error(
+                    f"Failed to publish rule {topic_uuid}: {response.status_code} {response.text}"
+                )
+                return False
+        except Exception as e:
+            self.logger.error(f"Error publishing rule to DHT: {e}")
+            return False

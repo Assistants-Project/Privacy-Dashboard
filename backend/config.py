@@ -49,7 +49,7 @@ class BaseConfig:
     SMARTOTUM_RULE_TOPIC = os.getenv("SMARTOTUM_RULE_TOPIC", "privacy_rule")
     SMARTOTUM_JWKS_URL = os.getenv("SMARTOTUM_JWKS_URL","https://api.smartotum.com/auth/jwt/jwks.json")
     SMARTOTUM_ISSUER = os.getenv("SMARTOTUM_ISSUER", "https://api.smartotum.com/auth")
-    SMARTOTUM_TIMEOUT = float(os.getenv("SMARTOTUM_TIMEOUT", "1")) #max time a http request to smartotum api can last
+    SMARTOTUM_TIMEOUT = float(os.getenv("SMARTOTUM_TIMEOUT", "5")) #max time a http request to smartotum api can last
 
     # --- Ontology ---
     ONTOLOGY_DIRECTORY = os.getenv("ONTOLOGY_DIRECTORY", "app/ontologies/")
@@ -59,9 +59,6 @@ class BaseConfig:
     # --- Reasoner ---
     REASONER_TYPE = os.getenv("REASONER_TYPE", "hermit")
     REASONER_PRECOMPUTE_INFERENCES = os.getenv("REASONER_PRECOMPUTE_INFERENCES", "True").lower() == "true"
-
-    # --- DHT ---
-    DHT_ENDPOINT = os.getenv("DHT_ENDPOINT", "http://localhost:3000/")
 
     # --- Policies ---
     POLICIES_DIRECTORY = os.getenv("POLICIES_DIRECTORY", "data/policies/")

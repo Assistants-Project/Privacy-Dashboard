@@ -32,6 +32,10 @@ class SmartotumService:
             client = SmartotumClient()
             #get system list of the user
             systems_new = client.get_systems(access_token)
+            
+            from ..services.rule_service import RuleService
+            rule_service = RuleService()
+
             new_homes_uuid = set()
 
             #for ever home owned by the user
@@ -123,6 +127,27 @@ class SmartotumService:
 
                 #update all the devices of the home, even if there are none
                 DeviceRepository.update_device_for_home(home.id, updated_devices)
+                
+                # regenerate home ontology with updated devices
+                try:
+                    from app.services.owl_service import OWLService
+                    OWLService.create_home_ontology(str(system.home_uuid))
+                except Exception as e:
+                    print(f"Failed to regenerate ontology for home {system.home_uuid}: {e}")
+                
+                # sync rules
+                try:
+                     rules = client.get_rules(access_token, system.home_uuid)
+                     # perform full sync (create, update, delete)
+                     rule_service.sync_rules_for_home(home, rules) # user `home` which is the Db SmartHome object from upsert_home
+                     
+                     # cleanup rules with deleted devices
+                     rule_service.cleanup_orphaned_rules(home)
+                     
+                     # update rule locations to match device locations
+                     rule_service.update_rule_locations(home)
+                except Exception as e:
+                     print(f"Failed to sync rules for home {system.home_uuid}: {e}")
 
             existing_home: list[SmartHome] = SmartHomeRepository.get_homes_by_user_id(user.id)
 
@@ -148,7 +173,6 @@ class SmartotumService:
             
             session.commit()
 
-            #rule updating should be done in a dedicated endpoint because the update process would become too long
 
         except SQLAlchemyError as exc:
             session.rollback()

@@ -194,14 +194,12 @@ def get_rules(current_user, home_uuid):
                 "type": rule.type,
                 "effect": rule.effect,
                 "subject": rule.subject,
-                "timestamp": rule.timestamp,  # Already an integer (Unix timestamp in milliseconds)
+                "timestamp": rule.timestamp,
                 "trigger": rule.trigger.to_dict() if rule.trigger else None,
                 "action": rule.action.to_dict() if rule.action else None,
             }
             rules_data.append(rule_dict)
 
-        return jsonify(rules_data)
-    except Exception as e:
         return jsonify(rules_data)
     except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
         return jsonify({"error": str(e)}), e.code
