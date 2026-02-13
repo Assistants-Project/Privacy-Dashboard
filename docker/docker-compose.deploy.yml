@@ -15,12 +15,13 @@ services:
       retries: 10
 
   app:
+    image: ${APP_IMAGE:-privacy-dashboard-demo:latest}
     build:
       context: ..
       dockerfile: docker/Dockerfile.deploy
     container_name: "privacy_dashboard_app"
     environment:
-      FLASK_ENV: testing
+      FLASK_ENV: ${FLASK_ENV:-testing}
       LOGGING_LEVEL: ${LOGGING_LEVEL:-INFO}
       SECRET_KEY: ${SECRET_KEY:-30e10900abeadf6f02b786f6f1bcf30a}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-3301947240a7448b5c90462c7d981d10}

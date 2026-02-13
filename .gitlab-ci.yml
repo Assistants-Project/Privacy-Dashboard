@@ -1,0 +1,19 @@
+stages:
+  - deploy
+
+deploy_demo:
+  stage: deploy
+  tags:
+    - deploy_demo
+  variables:
+    DEPLOY_ENV_FILE: "/env/.env.prod"
+    PROJECT_NAME: "privacy-dashboard-demo"
+    APP_IMAGE: "privacy-dashboard-demo:latest"
+    APP_IMAGE_SHA: "privacy-dashboard-demo:${CI_COMMIT_SHORT_SHA}"
+  before_script:
+    - docker version
+    - docker compose version
+  script:
+    - bash docker/scripts/deploy_demo.sh
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "frontend"'
