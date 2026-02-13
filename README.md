@@ -3,10 +3,12 @@
 ## Docker
 
 This repository provides:
+
 - `docker-compose.yml`: PostgreSQL only, used only when developing so Database,Backend and Frontend can be launched separately
 - `docker-compose.deploy.yml`: full stack solution for testing/demo, it includes: frontend + backend + PostgreSQL, when using this flask is in testing mode
 
 ### Prerequisites
+
 - Docker and Docker Compose
 - Python 3.11 or newer (with `pip`)
 
@@ -38,7 +40,7 @@ POSTGRES_PORT=5434
 #1 of this at a time is used based on the FLASK_ENV
 DEV_DATABASE_URI=postgresql+psycopg2://<user>:<password>@localhost:5434/privacy_db #when FLASK_ENV=development
 TEST_DATABASE_URI=postgresql+psycopg2://<user>:<password>@postgres:5432/privacy_db #when FLASK_ENV=testing
-DATABASE_URI=postgresql+psycopg2://<user>:<password>@<host>:<port>/privacy_db #when FLASK_ENV=production 
+DATABASE_URI=postgresql+psycopg2://<user>:<password>@<host>:<port>/privacy_db #when FLASK_ENV=production
 
 #SMARTOTUM
 SMARTOTUM_BASE_URL=https://api.smartotum.com
@@ -56,9 +58,6 @@ SMARTOTUM_TIMEOUT=5
 #If set, Smartotum applications are loaded from this local JSON file instead of calling the remote API
 SMARTOTUM_APPLICATIONS_JSON=./config/smartotum-apps.json
 MARKETPLACE_APPLICATIONS_JSON=./config/marketplace-apps.json
-
-#DHT
-DHT_ENDPOINT=http://localhost:3000/ #not used for now
 
 #ONTOLOGY
 ONTOLOGY_DIRECTORY=app/ontologies/
@@ -93,25 +92,30 @@ CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173 #works for both develop
 - Follow this steps to deploy the application with all the components separately
 
 #### 1. Start PostgreSQL via Docker
+
 ```bash
 docker compose up -d postgres
 # stop when finished (it will delete the container,network,volume)
-docker compose down -v 
+docker compose down -v
 ```
 
 #### 2. Create and activate the virtual environment
+
 ```bash
 python -m venv .venv #or python3 if you use that
 source .venv/bin/activate
 ```
+
 (Use `Scripts\\activate` on Windows.)
 
 #### 3. Install Python dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
 #### 4. Apply database migrations (first run only)
+
 ```bash
 cd backend
 export FLASK_APP=run.py
@@ -120,25 +124,28 @@ flask db upgrade
 
 #### 5. Run the backend server
 
-- When running in development the db is populated with initial_data 
+- When running in development the db is populated with initial_data
 
 ```bash
 export FLASK_APP=run.py   # run this in every new shell session
 flask run --debug --port 5050 #use 5050 to avoid airplay port collision on mac os
 ```
+
 - The backend is now reachable at `http://localhost:5050`.
 
-
 #### 6. Install frontend dependencies
+
 ```bash
 cd frontend
 npm ci
 ```
 
 ### 7. Run Frontend VITE in development
+
 ```bash
 npm run dev
 ```
+
 - The frontend is now reachable by the specified port
 
 ### RUN IN TESTING
@@ -152,16 +159,17 @@ npm run dev
 docker compose --env-file .env -f docker/docker-compose.deploy.yml up -d --build
 docker compose --env-file .env -f docker/docker-compose.deploy.yml down -v #to destroy it
 ```
+
 - env variables that are important in testing phase
+
 ```ini
 FLASK_ENV=testing
 TEST_DATABASE_URI=postgresql+psycopg2://<user>:<password>@postgres:5432/privacy_db #when FLASK_ENV=testing
-VITE_API_BASE_UR= /api/ 
+VITE_API_BASE_UR= /api/
 CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ```
 
 The app is reachable at `http://localhost:5050` (frontend) and `http://localhost:5050/docs/swagger` (API docs).
-
 
 ## Endpoints
 
