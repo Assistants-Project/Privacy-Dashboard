@@ -273,8 +273,6 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
             );
             if (selectedAlt) {
               selectedName = selectedAlt.name;
-            } else if (selectedUrl.endsWith("#location-home")) {
-              selectedName = "Entire Home";
             }
 
             // Set value if valid
@@ -292,11 +290,7 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
           }}
         >
           <option value="">Select Location...</option>
-          <option
-            value={`http://elite.polito.it/ontologies/sifis-home.owl/${homeUuid}#location-home`}
-          >
-            Entire Home
-          </option>
+
           {alternatives.map((alt: any) => (
             <option key={alt.url} value={alt.url}>
               {alt.name}
@@ -327,7 +321,7 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
         const selectedLocUrl = selectedLoc.url;
         locationSelected = true;
 
-        if (selectedLocUrl && !selectedLocUrl.endsWith("location-home")) {
+        if (selectedLocUrl) {
           alternatives = alternatives.filter(
             (a: any) => a.location_url === selectedLocUrl,
           );
