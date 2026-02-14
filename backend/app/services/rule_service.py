@@ -812,26 +812,30 @@ class RuleService:
                 if action.device and action.device.room:
                     # Find location detail in action.details
                     for detail in action.details:
-                        if 'location' in detail.url.lower():
+                        if detail.type == 'location':
                             # Construct new location URL
                             new_location_url = f"http://elite.polito.it/ontologies/sifis-home.owl/{home_uuid}#location-{action.device.room.room_uuid}"
+                            new_location_name = action.device.room.name
                             
                             # Update if changed
-                            if detail.value != new_location_url:
-                                self.logger.info(f"Cleanup: Updating location for rule {rule.id}, action device {action.device.name}")
-                                detail.value = new_location_url
+                            if detail.value_url != new_location_url:
+                                self.logger.info(f"Cleanup: Updating location for rule {rule.id}, action device {action.device.name} -> {new_location_name}")
+                                detail.value = new_location_name
+                                detail.value_url = new_location_url
                                 rule_updated = True
             
             # Update trigger locations (if applicable)
             for trigger in rule.triggers:
                 if trigger.device and trigger.device.room:
                     for detail in trigger.details:
-                        if 'location' in detail.url.lower():
+                        if detail.type == 'location':
                             new_location_url = f"http://elite.polito.it/ontologies/sifis-home.owl/{home_uuid}#location-{trigger.device.room.room_uuid}"
+                            new_location_name = trigger.device.room.name
                             
-                            if detail.value != new_location_url:
-                                self.logger.info(f"Cleanup: Updating location for rule {rule.id}, trigger device {trigger.device.name}")
-                                detail.value = new_location_url
+                            if detail.value_url != new_location_url:
+                                self.logger.info(f"Cleanup: Updating location for rule {rule.id}, trigger device {trigger.device.name} -> {new_location_name}")
+                                detail.value = new_location_name
+                                detail.value_url = new_location_url
                                 rule_updated = True
             
             if rule_updated:
