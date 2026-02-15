@@ -37,6 +37,7 @@ const htmlStyles = {
     borderCollapse: "collapse",
     backgroundColor: "#181d1f26",
   },
+  div: { marginBottom: 20 },
 };
 
 type PdfDownloadButtonProps = {

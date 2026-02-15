@@ -1,25 +1,22 @@
 import {
   Accordion,
-  Badge,
   Button,
   Card,
   CloseButton,
   Col,
   Form,
-  OverlayTrigger,
   Row,
   Stack,
-  Tooltip,
 } from "react-bootstrap";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "../../contexts/AppsContext";
-import { Evaluation, Question } from "../../models/question";
+import { Question, Questionnaire } from "../../models/question";
 import {
   fetchQuestionnaire,
-  handleGetQuestionnaireByApplication,
   submitQuestionnaire,
 } from "../../services/QuestionnaireService";
 import { DocumentStatus } from "../../models/app";
+import { PdfDownloadButton } from "../PdfDownloadButton";
 
 type QuestionnaireEditorProps = {
   closePanel: () => void;
@@ -38,28 +35,17 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
   const [templateQuestions, setTemplateQuestions] = useState<
     Question[] | undefined
   >(undefined);
-  const [viewQuestions, setViewQuestions] = useState<
-    Question[] | null | undefined
-  >(undefined);
-  const [localEvaluation, setLocalEvaluation] = useState<
-    Evaluation | undefined
-  >(undefined);
-  const [localQuestionnaireSummary, setLocalQuestionnaireSummary] = useState<
-    string | undefined
-  >(undefined);
 
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingTemplate, setLoadingTemplate] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
-
   const questionnaire = selectedAppUUID
     ? QuestionnaireByAppUUID[selectedAppUUID]
     : undefined;
-  const shownEvaluation =
-    localEvaluation ?? questionnaire?.application_evaluation;
-  const shownQuestionnaireSummary =
-    localQuestionnaireSummary ?? questionnaire?.questionnaire_summary;
+  const shownEvaluation = questionnaire?.application_evaluation;
+  const shownQuestionnaireSummary = questionnaire?.questionnaire_summary;
+  const viewQuestions = questionnaire?.questions;
   const hasQuestionnaire = !!shownEvaluation;
   const questionnaireForbidden =
     selectedApp?.pia_status === DocumentStatus.Forbidden; // TODO check if it is correct that a questionnaire is forbidden when the PIA is forbidden, so that we don't need a separate status for it?
@@ -97,9 +83,6 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
     setEditMode(false);
     setError(undefined);
     setTemplateQuestions(undefined);
-    setViewQuestions(undefined);
-    setLocalEvaluation(undefined);
-    setLocalQuestionnaireSummary(undefined);
     answersRef.current = {};
 
     if (!selectedAppUUID) return;
@@ -108,14 +91,9 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
     loadQuestionnaire(selectedAppUUID, false)
       .then((res) => {
         if (!res) {
-          setViewQuestions(null);
           return;
         }
-
-        setLocalEvaluation(res.application_evaluation);
-        setLocalQuestionnaireSummary(res.questionnaire_summary);
-        setViewQuestions(res.questions);
-        seedAnswersFromResponse(res.questions);
+        seedAnswersFromResponse(questionnaire?.questions ?? []);
       })
       .finally(() => {
         setLoading(false);
@@ -188,10 +166,6 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
         setError("Questionnaire submitted, but reloading failed.");
         return;
       }
-
-      setLocalEvaluation(res.application_evaluation);
-      setLocalQuestionnaireSummary(res.questionnaire_summary);
-      setViewQuestions(res.questions);
       seedAnswersFromResponse(res.questions);
       setEditMode(false);
     } finally {
@@ -218,8 +192,24 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
         <>
           <Row className="align-items-center">
             <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
-              <h5 className="d-inline-block mb-0 ms-1">Questionnaire | {title}</h5>
+              <h5 className="d-inline-block mb-0 ms-1">
+                Questionnaire | {title}
+              </h5>
               <div className="d-flex align-items-center">
+                {!editMode &&
+                  selectedApp?.name &&
+                  shownEvaluation &&
+                  shownQuestionnaireSummary &&
+                  viewQuestions?.length && (
+                    <PdfDownloadButton
+                      htmlContent={questionnaireObjectToHtmlString(
+                        questionnaire ?? {},
+                        selectedApp?.name,
+                      )}
+                      applicationName={title}
+                      documentType="Questionnaire"
+                    />
+                  )}
                 <Button
                   className="circular-button me-2"
                   disabled={loading || loadingTemplate}
@@ -437,6 +427,18 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
       )}
     </>
   );
+}
+
+function questionnaireObjectToHtmlString(
+  obj: Questionnaire,
+  applicationName: string,
+): string {
+  return `<p><strong>${applicationName}</strong> got the following evaluation: <span style="font-weight: bold; color: ${obj.application_evaluation?.toLowerCase()};">${obj.application_evaluation}</span></p><p>${obj.questionnaire_summary ?? ""}</p><hr/><div>${obj.questions
+    .map(
+      (question, idx) =>
+        `<div key=${question.uuid}><p><strong>${idx + 1}. ${question.content}</strong></p><p><i>${question.additionalInformation ?? ""}</i></p><p><strong>Answer:</strong> ${question.answerContent ?? "No answer given"}</p><p><strong>Evaluation:</strong> <span style="font-weight: bold; color: ${question.evaluation?.toLowerCase()};">${question.evaluation ?? "No evaluation"}</span></p></div>`,
+    )
+    .join("")}</div>`;
 }
 
 export { QuestionnaireEditor };
