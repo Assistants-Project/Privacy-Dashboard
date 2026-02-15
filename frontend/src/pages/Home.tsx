@@ -11,14 +11,13 @@ function Home() {
   const navigate = useNavigate();
   const isDataSubject = user?.role === Role.DataSubject;
   const { managedApps, setSelectedAppUUID } = useApp();
-  const appsNeedingAttention = managedApps.filter((app) => app.pn_status === DocumentStatus.Missing || app.pia_status === DocumentStatus.Missing);
+  const appsNeedingAttention = managedApps.filter((app) => app.pn_status === DocumentStatus.Missing || app.pia_status === DocumentStatus.Missing || !app.evaluation);
 
   return (
     <Container className="py-2">
-      <Row className="mb-3">
+      <Row className="mb-2">
         <Col>
-          <h2>Welcome:</h2>
-          <h3 className="mb-0">{user ? `${user.firstname} ${user.lastname}` : ""}</h3>
+          <h3>Welcome{user ? `, ${user.firstname} ${user.lastname}` : ""}</h3>
         </Col>
       </Row>
       {isDataSubject ? (
@@ -29,7 +28,7 @@ function Home() {
         </Row>
       ) : (
         <>
-          <Row className=" pt-3 mb-3">
+          <Row className=" pt-2 mb-3">
             <Col>
               <h4 className="mb-0">Apps overview</h4>
             </Col>
@@ -56,6 +55,7 @@ function Home() {
 
 	                const pnAvailable = app.pn_status === DocumentStatus.Available;
 	                const piaAvailable = app.pia_status === DocumentStatus.Available;
+                  const questionnaireAvailable = !!app.evaluation;
 
 	                return (
 	                  <Col key={app.uuid}>
@@ -69,6 +69,7 @@ function Home() {
 	                          <Col xs="auto" className="d-flex flex-column align-items-end gap-1">
 	                            <button type="button" className={pnAvailable ? "btn p-0 text-end text-success home-doc-link" : "btn p-0 text-end text-danger home-doc-link"} onClick={() => {setSelectedAppUUID(app.uuid);navigate("/privacy-notice");}}>Privacy Notice</button>
 	                            <button type="button" className={piaAvailable ? "btn p-0 text-end text-success home-doc-link" : "btn p-0 text-end text-danger home-doc-link"} onClick={() => {setSelectedAppUUID(app.uuid);navigate("/privacy-impact-assessment");}}>Privacy Impact Assessment</button>
+	                            <button type="button" className={questionnaireAvailable ? "btn p-0 text-end text-success home-doc-link" : "btn p-0 text-end text-danger home-doc-link"} onClick={() => {setSelectedAppUUID(app.uuid);navigate("/questionnaire");}}>Questionnaire</button>
 	                          </Col>
 	                        </Row>
 	                      </Card.Body>
