@@ -14,6 +14,7 @@ import { AppConsentsPanel } from "../../components/Apps/AppConsentsPanel";
 import { DocumentStatus } from "../../models/app"
 import { SubmitRightRequestModal } from "../../components/Rights/RightRequestSubmitForm";
 import { AppsList } from "../../components/Apps/AppsList";
+import { Evaluation } from "../../models/question";
 
 export function Apps() {
 
@@ -101,9 +102,12 @@ export function Apps() {
                             : "Nome non impostato"}
                         </h2>
                         <div className="text-muted">
+                          <span>Vote:&nbsp;</span>
                           {selectedApp.evaluation
-                            ? `Vote: ${selectedApp.evaluation}`
-                            : "Vote: —"}
+                            ? <Badge bg={evaluationBadge(selectedApp.evaluation)}>
+                                {selectedApp.evaluation}
+                              </Badge>
+                            : "—"}
                         </div>
                       </Container>
                       <CloseButton onClick={closePanel} />
@@ -305,4 +309,17 @@ export function Apps() {
       ) : undefined}
     </Container>
   );
+}
+
+function evaluationBadge(evaluation: Evaluation) {
+  switch (evaluation) {
+    case Evaluation.GREEN:
+      return "success";
+    case Evaluation.ORANGE:
+      return "warning";
+    case Evaluation.RED:
+      return "danger";
+    default:
+      return "secondary";
+  }
 }
