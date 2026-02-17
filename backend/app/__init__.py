@@ -95,8 +95,8 @@ def create_app(env_name: Optional[str] = None) -> Flask:
     app.after_request(refresh_expiring_jwts)
     app.register_error_handler(Exception, global_error_handler)
 
-    # Add dummy initial data in development and testing/demo
-    if env_name in {"development", "testing"}:
+    # Add dummy initial data in development and demo mode
+    if env_name in {"development", "demo"}:
         init_data(app)
 
     from .commands import generate_owls_command

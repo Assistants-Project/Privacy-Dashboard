@@ -1,15 +1,24 @@
 stages:
+  - build
   - deploy
+
+create_image:
+  stage: build
+  tags:
+    - deploy_demo
+  before_script:
+    - docker version
+  script:
+    - bash docker/scripts/create_image.sh
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "frontend"'
 
 deploy_demo:
   stage: deploy
   tags:
     - deploy_demo
-  variables:
-    DEPLOY_ENV_FILE: "/env/.env.prod"
-    PROJECT_NAME: "privacy-dashboard-demo"
-    APP_IMAGE: "privacy-dashboard-demo:latest"
-    APP_IMAGE_SHA: "privacy-dashboard-demo:${CI_COMMIT_SHORT_SHA}"
+  needs:
+    - create_image
   before_script:
     - docker version
     - docker compose version

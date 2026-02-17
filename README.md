@@ -5,7 +5,7 @@
 This repository provides:
 
 - `docker-compose.yml`: PostgreSQL only, used only when developing so Database,Backend and Frontend can be launched separately
-- `docker-compose.deploy.yml`: full stack solution for testing/demo, it includes: frontend + backend + PostgreSQL, when using this flask is in testing mode
+- `docker-compose-demo.yml`: full stack solution for demo, it includes: frontend + backend + PostgreSQL, when using this flask is in demo mode
 
 ### Prerequisites
 
@@ -15,11 +15,11 @@ This repository provides:
 ### Configure environment variables
 
 - Create a `.env` file in the repository root
-- Accurately set the env according to your needs (development|testing|production)
+- Accurately set the env according to your needs (development|demo|production)
 
 ```ini
 #FLASK
-FLASK_ENV=development #development|testing|production
+FLASK_ENV=development #development|demo|production
 LOGGING_LEVEL=INFO
 
 #SECURITY (change these in real deployments)
@@ -39,7 +39,7 @@ POSTGRES_DB=privacy_db
 POSTGRES_PORT=5434
 #1 of this at a time is used based on the FLASK_ENV
 DEV_DATABASE_URI=postgresql+psycopg2://<user>:<password>@localhost:5434/privacy_db #when FLASK_ENV=development
-TEST_DATABASE_URI=postgresql+psycopg2://<user>:<password>@postgres:5432/privacy_db #when FLASK_ENV=testing
+DEMO_DATABASE_URI=postgresql+psycopg2://<user>:<password>@postgres:5432/privacy_db #when FLASK_ENV=demo
 DATABASE_URI=postgresql+psycopg2://<user>:<password>@<host>:<port>/privacy_db #when FLASK_ENV=production
 
 #SMARTOTUM
@@ -61,15 +61,7 @@ MARKETPLACE_APPLICATIONS_JSON=./config/marketplace-apps.json
 
 #ONTOLOGY
 ONTOLOGY_DIRECTORY=app/ontologies/
-ONTOLOGY_BASE_ENDPOINT=https://elite.polito.it/ontologies/eupont.owl
 ONTOLOGY_SIFIS_FILE=sifis-home.owl
-
-#REASONER
-REASONER_TYPE=hermit
-REASONER_PRECOMPUTE_INFERENCES=True
-
-#POLICIES
-POLICIES_DIRECTORY=data/policies/
 
 #TEMPLATES/SCHEMAS
 PRIVACY_NOTICE_TEMPLATE_PATH=./config/privacy-notice-template.json
@@ -79,11 +71,11 @@ PIA_SCHEMA_PATH=./config/privacy-impact-assessment-schema.json
 #FRONTEND
 
 #VITE
-VITE_API_BASE_URL=http://localhost:5050/api/ #choose same port as the one in flask run --port
-VITE_API_BASE_UR= /api/ #when frontend is built in testing
+VITE_API_BASE_URL=http://localhost:5050/api/ #choose same port as the one in flask run --port -> not needed in demo mode
+#VITE_API_BASE_URL=/api/ #optional override when frontend is built for demo mode
 
 #CORS
-CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173 #works for both development and testing, chose the same port where the vite frontend is running
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173 #works for both development and demo mode (because in demo mode frontend and backend are served from the same origin ), chose the same port where the vite frontend is running
 ```
 
 ### RUN IN DEVELOPMENT
@@ -148,24 +140,24 @@ npm run dev
 
 - The frontend is now reachable by the specified port
 
-### RUN IN TESTING
+### RUN IN DEMO
 
-- In testing/demo mode only 1 container is created that contains all the components of the application
+- In demo mode only 1 container is created that contains all the components of the application
 - In this mode **Initial Data are loaded**
 
-#### Start full stack (testing/demo)
+#### Start full stack (demo)
 
 ```bash
-docker compose --env-file .env -f docker/docker-compose.deploy.yml up -d --build
-docker compose --env-file .env -f docker/docker-compose.deploy.yml down -v #to destroy it
+docker compose --env-file .env -f docker/docker-compose-demo.yml up -d --build
+docker compose --env-file .env -f docker/docker-compose-demo.yml down -v #to destroy it
 ```
 
-- env variables that are important in testing phase
+- env variables that are important in demo phase
 
 ```ini
-FLASK_ENV=testing
-TEST_DATABASE_URI=postgresql+psycopg2://<user>:<password>@postgres:5432/privacy_db #when FLASK_ENV=testing
-VITE_API_BASE_UR= /api/
+FLASK_ENV=demo
+DEMO_DATABASE_URI=postgresql+psycopg2://<user>:<password>@postgres:5432/privacy_db #when FLASK_ENV=demo
+VITE_API_BASE_URL=/api/
 CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ```
 

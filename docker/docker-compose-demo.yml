@@ -1,7 +1,8 @@
+name: privacy-dashboard-demo
+
 services:
   postgres:
     image: "postgres:17.4"
-    container_name: "privacy_dashboard_db"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -15,29 +16,21 @@ services:
       retries: 10
 
   app:
-    image: ${APP_IMAGE:-privacy-dashboard-demo:latest}
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.deploy
-    container_name: "privacy_dashboard_app"
+    image: ${APP_IMAGE:-privacydashboard-demo:latest}
     environment:
-      FLASK_ENV: ${FLASK_ENV:-testing}
+      FLASK_ENV: ${FLASK_ENV:-demo}
       LOGGING_LEVEL: ${LOGGING_LEVEL:-INFO}
       SECRET_KEY: ${SECRET_KEY:-30e10900abeadf6f02b786f6f1bcf30a}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-3301947240a7448b5c90462c7d981d10}
       JWT_COOKIE_SECURE: ${JWT_COOKIE_SECURE:-False}
       JWT_COOKIE_CSRF_PROTECT: ${JWT_COOKIE_CSRF_PROTECT:-False}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5050,http://127.0.0.1:5050}
-      TEST_DATABASE_URI: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-privacy_db}
+      DEMO_DATABASE_URI: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-privacy_db}
       SMARTOTUM_DEVICE_TOPICS: ${SMARTOTUM_DEVICE_TOPICS:-domo_light,domo_light_dimmable,domo_rgbw_light,domo_switch,domo_roller_shutter,domo_camera}
       SMARTOTUM_RULE_TOPIC: ${SMARTOTUM_RULE_TOPIC:-privacy_rule}
       SMARTOTUM_TIMEOUT: ${SMARTOTUM_TIMEOUT:-5}
       ONTOLOGY_DIRECTORY: ${ONTOLOGY_DIRECTORY:-app/ontologies/}
-      ONTOLOGY_BASE_ENDPOINT: ${ONTOLOGY_BASE_ENDPOINT:-https://elite.polito.it/ontologies/eupont.owl}
       ONTOLOGY_SIFIS_FILE: ${ONTOLOGY_SIFIS_FILE:-sifis-home.owl}
-      REASONER_TYPE: ${REASONER_TYPE:-hermit}
-      REASONER_PRECOMPUTE_INFERENCES: ${REASONER_PRECOMPUTE_INFERENCES:-True}
-      POLICIES_DIRECTORY: ${POLICIES_DIRECTORY:-data/policies/}
       PRIVACY_NOTICE_TEMPLATE_PATH: ${PRIVACY_NOTICE_TEMPLATE_PATH:-./config/privacy-notice-template.json}
       PIA_TEMPLATE_PATH: ${PIA_TEMPLATE_PATH:-./config/privacy-impact-assessment-template.json}
       PIA_SCHEMA_PATH: ${PIA_SCHEMA_PATH:-./config/privacy-impact-assessment-schema.json}

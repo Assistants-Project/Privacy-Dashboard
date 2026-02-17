@@ -53,15 +53,7 @@ class BaseConfig:
 
     # --- Ontology ---
     ONTOLOGY_DIRECTORY = os.getenv("ONTOLOGY_DIRECTORY", "app/ontologies/")
-    ONTOLOGY_BASE_ENDPOINT = os.getenv("ONTOLOGY_BASE_ENDPOINT", "https://elite.polito.it/ontologies/eupont.owl")
     ONTOLOGY_SIFIS_FILE = os.getenv("ONTOLOGY_SIFIS_FILE", "sifis-home.owl")
-
-    # --- Reasoner ---
-    REASONER_TYPE = os.getenv("REASONER_TYPE", "hermit")
-    REASONER_PRECOMPUTE_INFERENCES = os.getenv("REASONER_PRECOMPUTE_INFERENCES", "True").lower() == "true"
-
-    # --- Policies ---
-    POLICIES_DIRECTORY = os.getenv("POLICIES_DIRECTORY", "data/policies/")
 
     # --- Logging ---
     LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "INFO")
@@ -76,8 +68,8 @@ class DevelopmentConfig(BaseConfig):
     # SQLALCHEMY_ECHO = True  # Commented out to reduce log verbosity
 
 
-class TestingConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_URI")
+class DemoConfig(BaseConfig):
+    SQLALCHEMY_DATABASE_URI = os.getenv("DEMO_DATABASE_URI")
     PRESERVE_CONTEXT_ON_EXCEPTION = False
 
 
@@ -87,6 +79,6 @@ class ProductionConfig(BaseConfig):
 
 config_by_name = {
     "development": DevelopmentConfig,
-    "testing": TestingConfig,
+    "demo": DemoConfig,
     "production": ProductionConfig,
 }
