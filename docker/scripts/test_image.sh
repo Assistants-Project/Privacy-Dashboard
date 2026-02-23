@@ -10,7 +10,9 @@ export MARKETPLACE_INGEST_TOKEN="BS4bieIhYQxIREcnBleLx/qqlBvSnPJ4"
 export COMPOSE_PROJECT_NAME="${TEST_PROJECT_NAME}"
 export FLASK_ENV="testing"
 COLLECTION_PATH="backend/testing/tests/Privacy-Dashboard-API.postman_collection_cleaned.json"
-HEALTHCHECK_URL="http://127.0.0.1:${APP_PORT}/api/sifis/health"
+HEALTHCHECK_URL="http://app:5050/api/sifis/health"
+HEALTHCHECK_RETRIES="${HEALTHCHECK_RETRIES:-60}"
+HEALTHCHECK_INTERVAL_SECONDS="${HEALTHCHECK_INTERVAL_SECONDS:-3}"
 
 if [[ ! -f "${DEPLOY_ENV_FILE}" ]]; then
   echo "Deploy env file not found: ${DEPLOY_ENV_FILE}" >&2
@@ -27,16 +29,17 @@ echo "Starting temporary test stack ${TEST_PROJECT_NAME} on port ${APP_PORT}"
 docker compose -f "${COMPOSE_FILE}" --env-file "${DEPLOY_ENV_FILE}" up -d --remove-orphans --no-build
 
 echo "Waiting for app health check"
-for _ in $(seq 1 60); do
-  if curl -fsS "${HEALTHCHECK_URL}" >/dev/null; then
+for _ in $(seq 1 "${HEALTHCHECK_RETRIES}"); do
+  if docker run --rm --network "${TEST_PROJECT_NAME}_default" curlimages/curl:8.11.1 -fsS "${HEALTHCHECK_URL}" >/dev/null; then
     echo "Test app is healthy"
     break
   fi
-  sleep 2
+  sleep "${HEALTHCHECK_INTERVAL_SECONDS}"
 done
 
-if ! curl -fsS "${HEALTHCHECK_URL}" >/dev/null; then
-  echo "Test app failed health check on port ${APP_PORT}" >&2
+if ! docker run --rm --network "${TEST_PROJECT_NAME}_default" curlimages/curl:8.11.1 -fsS "${HEALTHCHECK_URL}" >/dev/null; then
+  echo "Test app failed health check (${HEALTHCHECK_URL})" >&2
+  docker compose -f "${COMPOSE_FILE}" --env-file "${DEPLOY_ENV_FILE}" logs --no-color app || true
   exit 1
 fi
 
