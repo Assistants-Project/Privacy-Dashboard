@@ -2,7 +2,7 @@ import { getApiError } from "../apiError";
 import baseURL from "../baseUrl";
 
 async function getQuestionnaireQuestions() {
-  let response = await fetch(baseURL + "questions/questionnaire", {
+  let response = await fetch(baseURL + "questionnaires/template", {
     method: "GET",
     credentials: "include",
   });
@@ -14,11 +14,9 @@ async function getQuestionnaireQuestions() {
   }
 }
 
-async function getQuestionnaireByManagedApplicationUuid(
-  applicationUuid: string,
-) {
+async function getQuestionnaireByManagedApplicationUuid(applicationUuid: string) {
   let response = await fetch(
-    baseURL + "questions/view-questionnaire/application/" + applicationUuid,
+    baseURL + "questionnaires/managed-application/" + applicationUuid,
     {
       method: "GET",
       credentials: "include",
@@ -35,12 +33,9 @@ async function getQuestionnaireByManagedApplicationUuid(
   }
 }
 
-async function submitQuestionnaireByManagedApplicationUuid(
-  applicationUuid: string,
-  content: any,
-) {
+async function submitQuestionnaireByManagedApplicationUuid(applicationUuid: string, content: any) {
   let response = await fetch(
-    baseURL + "questions/submit-questionnaire/application/" + applicationUuid,
+    baseURL + "questionnaires/managed-application/" + applicationUuid,
     {
       method: "PUT",
       credentials: "include",

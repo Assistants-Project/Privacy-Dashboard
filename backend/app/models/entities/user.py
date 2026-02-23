@@ -35,6 +35,8 @@ class User(db.Model):
             Represents a one-to-many relationship with the `UserSmartHome` class.
         installed_applications: A list of `UserSmartHomeApplication` instances.
             Represents a one-to-many relationship with the `UserSmartHomeApplication` class.
+        owned_applications: A list of applications owned by the user as Data Controller.
+            Represents a one-to-many relationship with the `Application` class.
         given_consents: A list of `UserSmartHomeAvailableConsent` instances.
             Represents a one-to-many relationship with the `UserSmartHomeAvailableConsent` class.
         sent_messages: A list of messages the user sent.
@@ -64,6 +66,9 @@ class User(db.Model):
     )
     installed_applications: Mapped[List["UserSmartHomeApplication"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
+    owned_applications: Mapped[List["Application"]] = relationship(  # noqa: F821 # type: ignore
+        back_populates="owner", foreign_keys="Application.owner_user_id"
     )
     given_consents: Mapped[List["UserSmartHomeAvailableConsent"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True

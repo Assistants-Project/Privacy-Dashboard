@@ -3,27 +3,23 @@ import { Button, Card, Col, Container, Form, Row, Stack } from "react-bootstrap"
 import { ExclamationDiamondFill } from "react-bootstrap-icons";
 import { useApp } from "../../contexts/AppsContext";
 import { AppModel, DocumentStatus } from "../../models/app";
-import { useAuth } from "../../contexts/AuthContext";
-import { Role } from "../../models/user";
 
 // Componente molto versatile che permette di essere riutilizzato in tante situazioni
 
 type AppsListProps = {
   closePanel: () => void; //per essere chiuso
   getDocumentStatus?: (app: AppModel) => DocumentStatus | undefined; //per essere usato sia dalle pagine PIA,PN e Questionario
-  getVote?: (app: AppModel) => string //se inserito permette di mostrare il voto (come nella pagina installed apps o catalog)
-  dataToRender?: AppModel[] //se c'è una lista di app particolare da mostrare si passa come prop, se no la app list ricade su managedApps che è il caso più probabile
+  getVote?: (app: AppModel) => string
+  dataToRender?: AppModel[]
 };
 
 function AppsList(props: AppsListProps) {
 
-  const { user } = useAuth();
-  const { managedApps, selectedAppUUID, setSelectedAppUUID } = useApp();
+  const { apps, selectedAppUUID, setSelectedAppUUID } = useApp();
   const [docStatusFilter, setDocStatusFilter] = useState<"" | DocumentStatus.Available | DocumentStatus.Missing>("");
   const [query, setQuery] = useState("");
 
-  const data = props.dataToRender ?? managedApps; //fallback a managed apps se non vengono passate apps
-  const managedUuidSet = new Set(managedApps.map((app) => app.uuid)); //per rendere efficente il filtro
+  const data = props.dataToRender ?? apps ?? [];
 
   const getVoteColorClass = (vote?: string) => {
     const normalized = (vote ?? "").trim().toUpperCase();
@@ -55,15 +51,6 @@ function AppsList(props: AppsListProps) {
                 <option value={DocumentStatus.Missing}>Missing</option>
               </Form.Select>
             </Form.Group>
-          ) : user?.role != Role.DataSubject ? (
-            <Form.Group controlId="apps-doc-status">
-              <Form.Label className="mb-2 mt-2">Managed</Form.Label>
-              <Form.Select value={docStatusFilter} onChange={(e) => setDocStatusFilter(e.target.value as "" | DocumentStatus.Available | DocumentStatus.Missing)}>
-                <option value="">All</option>
-                <option value={DocumentStatus.Available}>Managed</option>
-                <option value={DocumentStatus.Missing}>Not managed</option>
-              </Form.Select>
-            </Form.Group>
           ) : undefined}
 
         </Card.Body>
@@ -71,17 +58,17 @@ function AppsList(props: AppsListProps) {
 
       {data.length === 0 ? (
         <Card className="p-0">
-          <Card.Body className="text-muted">{props.dataToRender ? "No apps." : "No managed apps."}</Card.Body>
+          <Card.Body className="text-muted">No apps.</Card.Body>
         </Card>
       ) : (
         <Stack className="flex-grow-1 overflow-auto pe-3" style={{ minHeight: 0, height: 0 }}>
           <Row xs={1} md={props.getDocumentStatus ? 1 : 2} className="g-4">
-            {data.filter((app) => (app.name.includes(query) || app.description?.includes(query)) && (docStatusFilter === "" || (props.getDocumentStatus ? props.getDocumentStatus(app) === docStatusFilter : (docStatusFilter === DocumentStatus.Available ? managedUuidSet.has(app.uuid) : !managedUuidSet.has(app.uuid)))))
+            {data.filter((app) => (app.title.includes(query) || app.name.includes(query) || app.description?.includes(query)) && (docStatusFilter === "" || (props.getDocumentStatus ? props.getDocumentStatus(app) === docStatusFilter : true)))
               .map((app) => {
 
                 const selected = app.uuid === selectedAppUUID;
 
-                const title = app.name && app.name.trim() !== "" ? app.name : "Nome non impostato";
+                const title = app.title && app.title.trim() !== "" ? app.title : app.name;
                 const description = app.description;
                 const warning = props.getDocumentStatus && props.getDocumentStatus(app) === DocumentStatus.Missing;
                 const voteRaw = props.getVote ? props.getVote(app) : undefined;

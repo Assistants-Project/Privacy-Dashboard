@@ -4,7 +4,6 @@ import { AgGridReact } from "ag-grid-react";
 import {ColDef,GridReadyEvent,ILargeTextEditorParams,ISelectCellEditorParams,} from "ag-grid-community";
 import {fetchPiaTemplate,removePiaTemplate,submitPiaTemplate,} from "../../services/PrivacyImpactAssessmentService";
 import { useApp } from "../../contexts/AppsContext";
-import { DocumentStatus } from "../../models/app";
 import { PdfDownloadButton } from "../PdfDownloadButton";
 
 type Props = { closePanel: () => void };
@@ -20,8 +19,6 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
   const pia = selectedAppUUID ? PIAByAppUUID[selectedAppUUID] : undefined;
 
   const hasPia = !!pia?.content?.sections;
-  const piaForbidden = selectedApp?.pia_status === DocumentStatus.Forbidden;
-  const canEditThisApp = !piaForbidden;
 
   useEffect(() => {
     setEditMode(false);
@@ -116,7 +113,6 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
 
   const handleEditClick = async () => {
     if (!selectedAppUUID) return;
-    if (!canEditThisApp) return;
 
     if (editMode) {
       setEditMode(false);
@@ -139,7 +135,6 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
   };
 
   const handleResetToTemplate = async () => {
-    if (!canEditThisApp) return;
     try {
       setDraftContent(structuredClone((await fetchPiaTemplate()) ?? {}));
     } catch (err) {
@@ -152,7 +147,6 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
       alert("Please select an application.");
       return;
     }
-    if (!canEditThisApp) return;
 
     if (!draftContent) {
       alert("No PIA content to submit.");
@@ -193,7 +187,6 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
 
   const handleDelete = async () => {
     if (!selectedAppUUID) return;
-    if (!canEditThisApp) return;
     if (!hasPia) return;
 
     try {
@@ -214,52 +207,42 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
 
   return (
     <>
-      {piaForbidden ? (
-        <Card className="p-0">
-          <Card.Body className="text-muted">
-            You are not allowed to view or edit the Privacy Impact Assessment
-            for this app.
-          </Card.Body>
-        </Card>
-      ) : (
-        <>
+      <>
           <Row className="align-items-center">
             <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
               <h5 className="d-inline-block mb-0 ms-1">
                 Privacy Impact Assessment | {title}
               </h5>
-              {canEditThisApp && (
-                <div className="d-flex align-items-center">
-                  {hasPia && !editMode && (
-                    <PdfDownloadButton
-                      htmlContent={piaObjectToHtmlString(pia?.content ?? {})}
-                      applicationName={title}
-                      documentType="Privacy Impact Assessment"
-                    />
-                  )}
-                  <Button
-                    className="circular-button me-2"
-                    style={{
-                      color: "#181d1f",
-                    }}
-                    onClick={() => handleEditClick()}
-                  >
-                    <i
-                      className={`fa-solid fa-${editMode ? "rotate-left" : hasPia ? "pencil" : "plus"}`}
-                    ></i>
-                  </Button>
-                  <Button
-                    className="circular-button"
-                    disabled={!hasPia}
-                    onClick={() => handleDelete()}
-                    style={{
-                      color: "red",
-                    }}
-                  >
-                    <i className="fa-solid fa-trash"></i>
-                  </Button>
-                </div>
-              )}
+              <div className="d-flex align-items-center">
+                {hasPia && !editMode && (
+                  <PdfDownloadButton
+                    htmlContent={piaObjectToHtmlString(pia?.content ?? {})}
+                    applicationName={title}
+                    documentType="Privacy Impact Assessment"
+                  />
+                )}
+                <Button
+                  className="circular-button me-2"
+                  style={{
+                    color: "#181d1f",
+                  }}
+                  onClick={() => handleEditClick()}
+                >
+                  <i
+                    className={`fa-solid fa-${editMode ? "rotate-left" : hasPia ? "pencil" : "plus"}`}
+                  ></i>
+                </Button>
+                <Button
+                  className="circular-button"
+                  disabled={!hasPia}
+                  onClick={() => handleDelete()}
+                  style={{
+                    color: "red",
+                  }}
+                >
+                  <i className="fa-solid fa-trash"></i>
+                </Button>
+              </div>
             </Col>
             <Col xs="auto">
               <CloseButton onClick={closePanel} />
@@ -464,10 +447,9 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
                   </div>
                 </Card.Body>
               </Card>
-            )}
-          </Stack>
-        </>
-      )}
+                )}
+              </Stack>
+            </>
     </>
   );
 }

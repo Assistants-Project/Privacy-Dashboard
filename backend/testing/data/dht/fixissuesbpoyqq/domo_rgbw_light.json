@@ -1,0 +1,17 @@
+[
+  {
+    "topic_name": "domo_rgbw_light",
+    "topic_uuid": "f4da10c5-b96c-4493-ac6d-88259caaf5ed",
+    "value": {
+      "name": "Luce RGBW",
+      "status": true,
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "w": 0,
+      "gain": 0,
+      "area_name": "bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4",
+      "note": ""
+    }
+  }
+]

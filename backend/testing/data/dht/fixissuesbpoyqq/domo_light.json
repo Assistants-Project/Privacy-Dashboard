@@ -1,0 +1,26 @@
+[
+  {
+    "topic_name": "domo_light",
+    "topic_uuid": "01f421c3-a037-4a9d-9058-43adb44ae3c4",
+    "value": {
+      "name": "Lampada",
+      "status": false,
+      "power": 0,
+      "energy": 0,
+      "area_name": "bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4",
+      "note": ""
+    }
+  },
+  {
+    "topic_name": "domo_light",
+    "topic_uuid": "c6341481-353e-4b52-ba41-030343507c71",
+    "value": {
+      "name": "Led",
+      "status": false,
+      "power": 0,
+      "energy": 0,
+      "area_name": "bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4",
+      "note": ""
+    }
+  }
+]

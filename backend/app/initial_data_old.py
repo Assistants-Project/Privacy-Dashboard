@@ -102,13 +102,13 @@ def init_data(app: Flask) -> None:
                 uuid="smart-home-3", name="Smart Home 3", address="Address 3"
             )
             application1 = Application(
-                name="Application 1", description="Description 1"
+                name="com.demo.app1", title="Application 1", description="Description 1"
             )
             application2 = Application(
-                name="Application 2", description="Description 2"
+                name="com.demo.app2", title="Application 2", description="Description 2"
             )
             application3 = Application(
-                name="Application 3", description="Description 3"
+                name="com.demo.app3", title="Application 3", description="Description 3"
             )
             privacy_notice1 = PrivacyNotice(content="Privacy Notice 1")
             available_consent1 = AvailableConsent(content="Available Consent 1")

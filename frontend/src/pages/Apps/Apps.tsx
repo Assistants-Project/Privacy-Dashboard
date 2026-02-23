@@ -20,7 +20,7 @@ export function Apps() {
 
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { loadingApps, selectedApp, setSelectedAppUUID, selectedAppUUID, errorApps, apps, managedApps } = useApp();
+  const { loadingApps, selectedApp, setSelectedAppUUID, selectedAppUUID, errorApps, apps } = useApp();
 
   const [showSubmitRightModal, setShowSubmitRightModal] = useState(false);
   const [showCreateAppModal, setShowCreateAppModal] = useState(false);
@@ -34,14 +34,12 @@ export function Apps() {
   //direttamente dal flag pn_status possiamo decidere se disponibile, mancante o non di nostra competenza
   const PNavailable = selectedApp?.pn_status === DocumentStatus.Available;
   const PNmissing = selectedApp?.pn_status === DocumentStatus.Missing;
-  const PNforbidden = selectedApp?.pn_status === DocumentStatus.Forbidden;
 
   //stessa cosa per vedere lo stato del PIA
   const PIAavailable = selectedApp?.pia_status === DocumentStatus.Available;
   const PIAmissing = selectedApp?.pia_status === DocumentStatus.Missing;
-  const PIAforbidden = selectedApp?.pia_status === DocumentStatus.Forbidden;
 
-  const questionnaireForbidden = !showQuestionnaire || !selectedApp || !managedApps.some((app) => app.uuid === selectedApp.uuid);
+  const questionnaireForbidden = !showQuestionnaire || !selectedApp;
   const questionnaireMissing = !selectedApp?.evaluation;
 
   return (
@@ -97,7 +95,9 @@ export function Apps() {
                     >
                       <Container fluid className="ps-0">
                         <h2 className="h4">
-                          {selectedApp.name && selectedApp.name.trim() !== ""
+                          {selectedApp.title && selectedApp.title.trim() !== ""
+                            ? selectedApp.title
+                            : selectedApp.name && selectedApp.name.trim() !== ""
                             ? selectedApp.name
                             : "Nome non impostato"}
                         </h2>
@@ -123,18 +123,10 @@ export function Apps() {
                       <Link
                         className={[
                           "btn btn-sm border-2",
-                          PNforbidden ? "btn-outline-secondary disabled" //se no disabilitiamo perchè significa che non possiamo leggere il privacy notice
-                            : PNmissing ? "btn-outline-danger" //se pn undefined significa che non è mai stato scaricato o tentativo di fetch è fallito
+                          PNmissing ? "btn-outline-danger" //se pn undefined significa che non è mai stato scaricato o tentativo di fetch è fallito
                               : "btn-outline-success"
                         ].join(" ")}
                         to="/privacy-notice"
-                        aria-disabled={PNforbidden}
-                        onClick={(e) => {
-                          //nel caso non sia di nostra competenza il bottone se premuto non porta a nulla
-                          if (PNforbidden) {
-                            e.preventDefault();
-                          }
-                        }}
                       >
                         Privacy Notice
                       </Link>
@@ -163,19 +155,11 @@ export function Apps() {
                         <Link
                           className={[
                             "btn btn-sm border-2",
-                            PIAforbidden
-                              ? "btn-outline-secondary disabled"
-                              : PIAmissing
+                            PIAmissing
                                 ? "btn-outline-danger"
                                 : "btn-outline-success",
                           ].join(" ")}
                           to="/privacy-impact-assessment"
-                          aria-disabled={PIAforbidden}
-                          onClick={(e) => {
-                            if (PIAforbidden) {
-                              e.preventDefault();
-                            }
-                          }}
                         >
                           Privacy Impact Assessment
                         </Link>
@@ -246,7 +230,7 @@ export function Apps() {
                                 Exercise Rights / Withdraw Consent
                               </Button>
                             ) : (
-                              <Button variant={(PIAforbidden || PNforbidden) ? "btn-outline-secondary disabled" : "outline-primary"} size="sm" onClick={() => navigate("/rights")}>
+                              <Button variant="outline-primary" size="sm" onClick={() => navigate("/rights")}>
                                 Manage Rights
                               </Button>
                             )}

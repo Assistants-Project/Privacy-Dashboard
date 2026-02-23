@@ -1,24 +1,15 @@
 import { Card, Col, Container, Row } from "react-bootstrap";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useApp } from "../../contexts/AppsContext";
-import { DocumentStatus } from "../../models/app";
 import { AppsList } from "../../components/Apps/AppsList";
 import { PrivacyImpactAssessmentEditor } from "../../components/PIA/PrivacyImpactAssessmentEditor";
 
 function PrivacyImpactAssessment() {
-   const { loadingApps, setSelectedAppUUID, selectedAppUUID, selectedApp, managedApps } = useApp();
+   const { setSelectedAppUUID, selectedApp } = useApp();
 
   const closePanel = useCallback(() => {
     setSelectedAppUUID(undefined);
   }, [setSelectedAppUUID,]);
-
-  //serve per deselezionare selected app uuid se non è managed cosi da non mostrarla nella pagina PN
-  useEffect(() => {
-    if (loadingApps) return;
-    if (!selectedAppUUID) return;
-    const isManaged = selectedApp?.pia_status === DocumentStatus.Forbidden;
-    if (isManaged) setSelectedAppUUID(undefined);
-  }, [loadingApps, managedApps, selectedAppUUID, setSelectedAppUUID,]);
 
   return (
     <Container fluid className="mx-auto py-2 d-flex flex-column overflow-hidden h-100" style={{ minHeight: 0 }}>

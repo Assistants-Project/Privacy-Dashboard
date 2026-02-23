@@ -1,0 +1,67 @@
+[
+  {
+    "topic_name": "domo_camera",
+    "topic_uuid": "2d26a942-6337-40a0-a024-173ba32bfb16",
+    "value": {
+      "id": 8,
+      "name": "Camera 2",
+      "area_name": "bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4",
+      "mac_address": "12:34:56:78:9a:bc",
+      "camera_url": "rtsp://rtspstream:RO-swhjhNcD9piYELjn9U@zephyr.rtsp.stream/people",
+      "static_image_url": "https://static.vecteezy.com/system/resources/previews/028/766/354/non_2x/google-camera-lens-icon-symbol-free-png.png",
+      "note": "Nota Telecamera",
+      "reolink": false
+    }
+  },
+  {
+    "topic_name": "domo_camera",
+    "topic_uuid": "06f58d18-8b71-49da-98d2-c2b5d4692b2a",
+    "value": {
+      "id": 33,
+      "name": "Camera 1",
+      "area_name": "bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4",
+      "mac_address": "00:00:00:00:00:01",
+      "camera_url": "rtsp://rtspstream:RO-swhjhNcD9piYELjn9U@zephyr.rtsp.stream/pattern",
+      "static_image_url": "https://t3.ftcdn.net/jpg/05/90/06/30/360_F_590063012_lv9fNWar9QZOiZX8pxYl6eTDnljqxBAB.jpg",
+      "note": "",
+      "privacy": false,
+      "privacy_until": "14:10",
+      "reolink": false
+    }
+  },
+  {
+    "topic_name": "domo_camera",
+    "topic_uuid": "d6422b30-f800-4be1-8fd4-ccc36a7efcb8",
+    "value": {
+      "id": 51,
+      "name": "Camera Smartotum",
+      "camera_url": "rtsp://admin:hytmiv-tykqot-8bipCy@10.0.1.94/Preview_01_main",
+      "static_image_url": "https://static.vecteezy.com/system/resources/previews/028/766/354/non_2x/google-camera-lens-icon-symbol-free-png.png",
+      "area_name": "bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4",
+      "reolink": true,
+      "ip_address": "10.0.1.94",
+      "username": "admin",
+      "password": "hytmiv-tykqot-8bipCy",
+      "note": "",
+      "privacy": false,
+      "privacy_until": "14:05"
+    }
+  },
+  {
+    "topic_name": "domo_camera",
+    "topic_uuid": "e80c1431-53ac-42b1-bc0d-b6f3f8fd96e3",
+    "value": {
+      "id": 13,
+      "name": "Tapo",
+      "camera_url": "rtsp://tapoadmin:tapoadmi@10.0.1.186:554/stream1",
+      "static_image_url": "www.google.com",
+      "reolink": false,
+      "ip_address": "",
+      "username": "",
+      "password": "",
+      "area_name": "bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4",
+      "note": "",
+      "mac_address": "aa:bb:cc:00:01:11"
+    }
+  }
+]

@@ -8,10 +8,10 @@ import { QuestionnaireEditor } from "../../components/Questionnaire/Questionnair
 function Questionnaire() {
   const {
     loadingApps,
+    apps,
     setSelectedAppUUID,
     selectedAppUUID,
     selectedApp,
-    managedApps,
   } = useApp();
 
   const [statusOverrides, setStatusOverrides] = useState<
@@ -26,9 +26,9 @@ function Questionnaire() {
   useEffect(() => {
     if (loadingApps) return;
     if (!selectedAppUUID) return;
-    const isManaged = managedApps.some((app) => app.uuid === selectedAppUUID);
+    const isManaged = (apps ?? []).some((app) => app.uuid === selectedAppUUID);
     if (!isManaged) setSelectedAppUUID(undefined);
-  }, [loadingApps, managedApps, selectedAppUUID, setSelectedAppUUID]);
+  }, [loadingApps, apps, selectedAppUUID, setSelectedAppUUID]);
 
   return (
     <Container

@@ -6,12 +6,13 @@ enabling distributed policy enforcement across the smart home network.
 """
 
 import logging
-import json
 import base64
 import uuid
 from typing import Optional
 from datetime import datetime
 import requests
+from ..integrations.smartotum import SmartotumClient
+from ..integrations.smartotum.client import SmartotumRule
 
 
 class DHTService:
@@ -88,75 +89,38 @@ class DHTService:
 
 
     def publish_rule(self, topic_uuid: str, payload: dict, home_uuid: str, access_token: str) -> bool:
-        """Publish a rule to a specific DHT topic path.
-        
-        URL Format: {dht_endpoint}/topic_name/{rule_topic}/topic_uuid/{topic_uuid}
-        
-        Args:
-            topic_uuid: The UUID of the rule/topic
-            payload: The rule data
-            home_uuid: The UUID of the smart home, used to replace 'house_name' in the URL if present
-            access_token: The Smartotum access token for authentication
-        """
+        """Publish a rule through Smartotum client."""
         try:
-            headers = {"Content-Type": "application/json"}
-            if access_token:
-                headers["Authorization"] = f"Bearer {access_token}"
-            
-            base = self.dht_endpoint.replace("house_name", str(home_uuid))
-            
-            # Use configured rule topic
-            url = f"{base}topic_name/{self.rule_topic}/topic_uuid/{topic_uuid}"
-
-            self.logger.info(f"Publishing rule to DHT URL: {url}")
-            self.logger.debug(f"Payload: {payload}")
-
-            response = requests.post(
-                url, json=payload, headers=headers, timeout=10
+            client = SmartotumClient()
+            rule = SmartotumRule(
+                rule_uuid=str(topic_uuid),
+                rule_topic_name=self.rule_topic,
+                target_uuid=str(payload.get("target_uuid")),
+                target_topic_name=str(payload.get("target_topic")),
+                time_start=payload.get("time_start"),
+                time_end=payload.get("time_end"),
+                days=payload.get("days"),
+                expiration_date=payload.get("expiration_date"),
             )
-
-            if response.status_code in [200, 201]:
-                self.logger.info(f"Successfully published rule {topic_uuid} to DHT")
-                return True
-            else:
-                self.logger.error(
-                    f"Failed to publish rule {topic_uuid}: {response.status_code} {response.text}"
-                )
-                return False
+            client.post_rules(access_token, str(home_uuid), [rule])
+            self.logger.info(f"Successfully published rule {topic_uuid} through Smartotum client")
+            return True
         except Exception as e:
             self.logger.error(f"Error publishing rule to DHT: {e}")
             return False
+        
+        
 
     def delete_rule(self, rule_uuid: str, home_uuid: str, access_token: str) -> bool:
-        """Delete a rule from the DHT.
-        
-        Args:
-            rule_uuid: The UUID of the rule to delete
-            home_uuid: The UUID of the smart home
-            access_token: The Smartotum access token
-        """
+        """Delete a rule through Smartotum client."""
         try:
-            # Construct URL - assume standard topic structure as used in publish_rule
-            base = self.dht_endpoint.replace("house_name", str(home_uuid))
-            
-            # Use configured rule topic
-            url = f"{base}topic_name/{self.rule_topic}/topic_uuid/{rule_uuid}"
-            
-            headers = {}
-            if access_token:
-                headers["Authorization"] = f"Bearer {access_token}"
-            
-            self.logger.info(f"Deleting rule from DHT URL: {url}")
-            
-            response = requests.delete(url, headers=headers, timeout=10)
-            
-            if response.status_code in [200, 204]:
-                self.logger.info(f"Successfully deleted rule {rule_uuid} from DHT")
-                return True
+            client = SmartotumClient()
+            deleted = client.delete_rule(access_token, str(home_uuid), str(rule_uuid))
+            if deleted:
+                self.logger.info(f"Successfully deleted rule {rule_uuid} through Smartotum client")
             else:
-                self.logger.error(f"Failed to delete rule {rule_uuid}: {response.status_code} {response.text}")
-                return False
-                
+                self.logger.error(f"Failed to delete rule {rule_uuid} through Smartotum client")
+            return deleted
         except Exception as e:
             self.logger.error(f"Error deleting rule from DHT: {e}")
             return False

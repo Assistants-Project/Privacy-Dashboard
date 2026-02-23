@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useState, } from "r
 import { Role } from "../models/user";
 import { useAuth } from "./AuthContext";
 import { AppModel, CreateApplicationRequest, DocumentStatus } from "../models/app";
-import { fetchCatalogApplications, fetchInstalledApplications, claimApplicationAsDataController, assignDpoToApplication, updateCatalogApplications, createApplicationByDataController } from "../services/ApplicationService";
+import { fetchManagedApplications, fetchInstalledApplications, assignDpoToApplication, refreshInstalledApplications, createApplicationByDataController, addDataControllerManagerToApplication, removeDataControllerManagerFromApplication } from "../services/ApplicationService";
 import { useHome } from "./HomeContext";
 import { PrivacyNotice } from "../models/privacy_notice";
 import { handleFetchPrivacyNotice } from "../services/PrivacyNoticeService";
@@ -14,10 +14,9 @@ import { handleGetQuestionnaireByApplication } from "../services/QuestionnaireSe
 //Questo è il contesto delle app dove sono presenti tutte le informazioni utili usate da più parti dell'UI e i metodi di sync e loading delle informazioni dal database
 type AppsContextValue = {
 
-  apps: AppModel[] | undefined; //per data subject sono le installed apps, per data controller / dpo sono le catalog apps
+  apps: AppModel[] | undefined; //per data subject sono le installed apps, per data controller / dpo sono le managed apps
   selectedAppUUID: string | undefined; //è l'uuid dell'app selezionata dal sistema Catalog/InstalledApp/PIA/PN
   selectedApp: AppModel | undefined; //l'app selezionata corrente dal sistema Catalog/InstalledApp/PIA/PN
-  managedApps: AppModel[]; //sottoinsieme derivato da apps (per DS coincide con apps)
   loadingApps: boolean; //indica se è in corso un fetch delle apps dal backend
   errorApps: string | undefined; //indica se c'è stato un errore durante il fetch di qualcosa delle app dal backend
   updatingApps: boolean; //indica se è in corso un update delle apps nel backend (attraverso un refresh)
@@ -37,15 +36,22 @@ type AppsContextValue = {
 
 
   //da valutare se mettere in un hook separato, se lo faccio devo però esporre load apps
-  claimManagedApplication: (appUUID: string) => Promise<boolean | undefined>;
   assignDpoToManagedApplication: (
     appUUID: string,
-    dpoUUID: string,
+    dpoEmail: string,
+  ) => Promise<boolean | undefined>;
+  addManagerToManagedApplication: (
+    appUUID: string,
+    userEmail: string,
+  ) => Promise<boolean | undefined>;
+  removeManagerFromManagedApplication: (
+    appUUID: string,
+    userEmail: string,
   ) => Promise<boolean | undefined>;
   createManagedApplication: (payload: CreateApplicationRequest) => Promise<AppModel | undefined>;
   ///
 
-  //permette di forzare un aggiornamento del backend della parte apps
+  //permette di forzare un aggiornamento apps per Data Subject
   syncApps: () => Promise<void>;
   //permette di forzare un reload di apps del frontend con il backend
   reloadApps: () => Promise<void>;
@@ -110,26 +116,6 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     }
   }, [apps, selectedAppUUID]);
 
-  const managedApps = useMemo<AppModel[]>(() => {
-    if (!user) return [];
-    const list = apps ?? [];
-
-    if (user.role === Role.DataSubject) return list;
-
-    if (user.role === Role.DataController) {
-      return list.filter(
-        (app) =>
-          app.data_controllers?.some((dc) => dc.uuid === user.uuid) ?? false,
-      );
-    }
-
-    if (user.role === Role.DPO) {
-      return list.filter((app) => app.dpo?.uuid === user.uuid);
-    }
-
-    return [];
-  }, [apps, user?.role, user?.uuid]);
-
   const loadApps = useCallback(async () => {
 
     setLoadingApps(true);
@@ -145,7 +131,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
           res = await fetchInstalledApplications(current_home_uuid);
         }
       } else {
-        res = await fetchCatalogApplications();
+        res = await fetchManagedApplications();
       }
 
       if (!res) {
@@ -166,12 +152,13 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
 
   const syncApps = useCallback(async () => {
     if (!user) return;
+    if (user.role !== Role.DataSubject) return;
 
     setUpdatingApps(true);
     setErrorUpdatingApps(undefined);
 
     try {
-      await updateCatalogApplications();
+      await refreshInstalledApplications();
     } catch (err) {
       setErrorUpdatingApps(
         err instanceof Error ? err.message : "Errore inatteso",
@@ -186,7 +173,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
 
     //ritorna undefined se il data controller non la gestisce
     if (user.role !== Role.DataSubject) {
-      const isManaged = managedApps.some((app) => app.uuid === appUUID);
+      const isManaged = (apps ?? []).some((app) => app.uuid === appUUID);
       if (!isManaged) {
         return undefined;
       }
@@ -215,7 +202,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       return undefined //rimesso a undefined perchè non è stato caricato correttamente
     }
   },
-    [user, managedApps, PrivacyNoticeByAppUUID],
+    [apps, user, PrivacyNoticeByAppUUID],
   );
 
   const loadPIA = useCallback(async (appUUID: string, force: boolean): Promise<PIA | null | undefined> => {
@@ -223,7 +210,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
 
     //ritorna undefined se il data controller non la gestisce
     if (user.role !== Role.DataSubject) {
-      const isManaged = managedApps.some((app) => app.uuid === appUUID);
+      const isManaged = (apps ?? []).some((app) => app.uuid === appUUID);
       if (!isManaged) {
         return undefined;
       }
@@ -249,7 +236,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       return undefined //rimesso a undefined perchè non è stato caricato correttamente
     }
   },
-    [user, managedApps, PIAByAppUUID],
+    [apps, user, PIAByAppUUID],
   );
 
   const loadQuestionnaire = useCallback(async (appUUID: string, force: boolean): Promise<Questionnaire | null | undefined> => {
@@ -257,7 +244,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
 
     //ritorna undefined se il data controller non la gestisce
     if (user.role !== Role.DataSubject) {
-      const isManaged = managedApps.some((app) => app.uuid === appUUID);
+      const isManaged = (apps ?? []).some((app) => app.uuid === appUUID);
       if (!isManaged) {
         return undefined;
       }
@@ -293,14 +280,14 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       return undefined; //rimesso a undefined perchè non è stato caricato correttamente
     }
   },
-    [user, managedApps, QuestionnaireByAppUUID],
+    [apps, user, QuestionnaireByAppUUID],
   );
 
-  const claimManagedApplication = useCallback(async (appUUID: string): Promise<boolean | undefined> => {
+  const assignDpoToManagedApplication = useCallback(async (appUUID: string, dpoEmail: string): Promise<boolean | undefined> => {
     if (!user) return undefined;
     if (user.role !== Role.DataController) return undefined;
 
-    const done = await claimApplicationAsDataController(appUUID);
+    const done = await assignDpoToApplication(appUUID, dpoEmail);
     //non è una procedura che si fa sempre quindi per semplicità ricarichiamo tutte le apps
     await loadApps();
     return done;
@@ -308,14 +295,26 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     [loadApps, user?.uuid, user?.role],
   );
 
-  const assignDpoToManagedApplication = useCallback(async (appUUID: string, dpoUUID: string): Promise<boolean | undefined> => {
+  const addManagerToManagedApplication = useCallback(async (appUUID: string, userEmail: string): Promise<boolean | undefined> => {
     if (!user) return undefined;
     if (user.role !== Role.DataController) return undefined;
 
-    const done = await assignDpoToApplication(appUUID, dpoUUID);
+    const done = await addDataControllerManagerToApplication(appUUID, userEmail);
     //non è una procedura che si fa sempre quindi per semplicità ricarichiamo tutte le apps
     await loadApps();
     return done;
+  },
+    [loadApps, user?.uuid, user?.role],
+  );
+
+  const removeManagerFromManagedApplication = useCallback(async (appUUID: string, userEmail: string): Promise<boolean | undefined> => {
+    if (!user) return undefined;
+    if (user.role !== Role.DataController) return undefined;
+
+    await removeDataControllerManagerFromApplication(appUUID, userEmail);
+    //non è una procedura che si fa sempre quindi per semplicità ricarichiamo tutte le apps
+    await loadApps();
+    return true;
   },
     [loadApps, user?.uuid, user?.role],
   );
@@ -338,7 +337,6 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AppsContextValue>(
     () => ({
       apps,
-      managedApps,
       PrivacyNoticeByAppUUID,
       PIAByAppUUID,
       QuestionnaireByAppUUID,
@@ -349,8 +347,9 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       selectedAppUUID,
       selectedApp,
       syncApps,
-      claimManagedApplication,
       assignDpoToManagedApplication,
+      addManagerToManagedApplication,
+      removeManagerFromManagedApplication,
       createManagedApplication,
       loadPrivacyNotice,
       loadPIA,
@@ -360,7 +359,6 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     }),
     [
       apps,
-      managedApps,
       PrivacyNoticeByAppUUID,
       PIAByAppUUID,
       QuestionnaireByAppUUID,
@@ -371,8 +369,9 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       selectedAppUUID,
       selectedApp,
       syncApps,
-      claimManagedApplication,
       assignDpoToManagedApplication,
+      addManagerToManagedApplication,
+      removeManagerFromManagedApplication,
       createManagedApplication,
       loadPrivacyNotice,
       loadPIA,

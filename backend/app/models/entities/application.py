@@ -24,7 +24,8 @@ class Application(db.Model):
     Attributes:
         id: An auto-incremented integer identifier, used as the primary key.
         uuid: A unique randomly generated UUID that identifies the application.
-        name: A unique string that represents the name of the application.
+        name: A unique technical identifier for the application (e.g. com.source.app).
+        title: A display title for the application.
         description: An optional textual description of the application.
         evaluation: An Enum evaluation of the application that represents the
             level of compliancy to the GDPR regulations.
@@ -32,9 +33,12 @@ class Application(db.Model):
             if it was carried out, to be automatically generated.
         privacy_impact_assessment: A JSONB field that stores the privacy impact assessment
             of the application, if it was carried out, as a JSON object.
+        owner_user_id: Foreign key ID of the Data Controller owner of the application.
         privacy_notice_id: A foreign key ID of the privacy notice associated to the application, if any.
         privacy_notice: A privacy notice associated to the application, if any.
             Represents a many-to-one relationship with the `PrivacyNotice` class.
+        owner: Owner Data Controller of the application.
+            Represents a many-to-one relationship with the `User` class.
         answers: A list of `QuestionApplication` instances.
             Represents a one-to-many relationship with the `QuestionApplication` class.
         available_consents: A list of available consents for the application.
@@ -50,10 +54,14 @@ class Application(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
     name: Mapped[str] = mapped_column(unique=True)
+    title: Mapped[str]
     description = mapped_column(Text, nullable=True)
     evaluation = mapped_column(Enum(Evaluation, validate_strings=True), nullable=True)
     questionnaire_summary = mapped_column(Text, nullable=True)
     privacy_impact_assessment: Mapped[dict | None] = mapped_column(JSONB, default=None)
+    owner_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="NO ACTION"), nullable=True
+    )
     privacy_notice_id: Mapped[int | None] = mapped_column(
         ForeignKey("privacy_notices.id", ondelete="SET NULL"), default=None
     )
@@ -63,6 +71,10 @@ class Application(db.Model):
 
     privacy_notice: Mapped["PrivacyNotice | None"] = relationship(  # noqa: F821 # type: ignore
         back_populates="applications"
+    )
+    owner: Mapped["User | None"] = relationship(  # noqa: F821 # type: ignore
+        back_populates="owned_applications",
+        foreign_keys=[owner_user_id],
     )
     answers: Mapped[List["QuestionApplication"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="application", cascade="all, delete-orphan", passive_deletes=True
@@ -80,6 +92,6 @@ class Application(db.Model):
     )
 
     def __repr__(self) -> str:
-        return f"Application(id={self.id!r}, uuid={self.uuid!r}, name={self.name!r}, \
+        return f"Application(id={self.id!r}, uuid={self.uuid!r}, name={self.name!r}, title={self.title!r}, \
             description={self.description!r}, evaluation={self.evaluation!r}, \
             questionnaire_summary={self.questionnaire_summary!r})"

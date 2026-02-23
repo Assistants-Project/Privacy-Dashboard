@@ -1,9 +1,10 @@
+import secrets
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from typing import Any
 from uuid import UUID
 
-from flask import g, request
+from flask import current_app, g, request
 from flask_jwt_extended import (
     create_access_token,
     decode_token,
@@ -247,6 +248,31 @@ def unlogged_required():
                 _has_smartotum_session(token) or _has_internal_session(token)
             ):
                 raise WrongUserRoleException("User already logged in!")
+            return fn(*args, **kwargs)
+
+        return decorator
+
+    return wrapper
+
+
+def marketplace_ingest_required():
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            expected_token = current_app.config.get("MARKETPLACE_INGEST_TOKEN")
+            if not expected_token:
+                raise InvalidJWTException("Marketplace ingest token not configured")
+
+            authorization = request.headers.get("Authorization", "")
+            if not authorization.startswith("Bearer "):
+                raise MissingJWTException("Marketplace ingest token missing")
+
+            provided_token = authorization[len("Bearer ") :].strip()
+            if not provided_token or not secrets.compare_digest(
+                provided_token, expected_token
+            ):
+                raise InvalidJWTException("Marketplace ingest token is invalid")
+
             return fn(*args, **kwargs)
 
         return decorator

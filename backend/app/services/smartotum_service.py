@@ -221,27 +221,59 @@ class SmartotumService:
 
             systems_new = client.get_systems(access_token)
 
-            #for ever home owned by the user
+            def get_valid_data_controller(email: str, app_identifier: str) -> User:
+                data_controller = UserRepository.get_user_by_email(email)
+                if not data_controller:
+                    raise SmartotumSyncException(
+                        f"Data Controller with email {email} not found for application {app_identifier}."
+                    )
+                if data_controller.role != UserRole.DATA_CONTROLLER:
+                    raise SmartotumSyncException(
+                        f"User {email} is not a Data Controller for application {app_identifier}."
+                    )
+                return data_controller
+
+            # for every home owned by the user
             for system in systems_new:
 
                 # update installed applications for the home
-                smartotum_applications = client.get_home_applications(access_token, system.home_uuid)
+                smartotum_applications = client.get_home_applications(
+                    access_token, system.home_uuid
+                )
 
                 applications_payload: list[Application] = []
-                manager_emails_by_app_name: dict[str, list[str]] = {}
-                available_consents_by_app_name: dict[str, list[str]] = {}
+                data_controller_emails_by_app_id: dict[str, list[str]] = {}
+                available_consents_by_app_id: dict[str, list[str]] = {}
 
                 for smartotum_application in smartotum_applications:
-                    app_name = smartotum_application.name
-                    applications_payload.append(Application(name=app_name, description=smartotum_application.description))
-                    manager_emails_by_app_name[app_name] = smartotum_application.data_controllers_email or []
-                    available_consents_by_app_name[app_name] = smartotum_application.available_consents or []
+                    app_id = smartotum_application.id
+                    app_title = smartotum_application.name
+                    data_controller_emails = smartotum_application.data_controllers_email or []
+                    if len(data_controller_emails) == 0:
+                        raise SmartotumSyncException(
+                            f"Application {app_id} has no Data Controller owner."
+                        )
+                    owner_email = data_controller_emails[0]
+                    owner_data_controller = get_valid_data_controller(owner_email, app_id)
+                    applications_payload.append(
+                        Application(
+                            name=app_id,
+                            title=app_title,
+                            description=smartotum_application.description,
+                            owner_user_id=owner_data_controller.id,
+                        )
+                    )
+                    data_controller_emails_by_app_id[app_id] = (
+                        data_controller_emails
+                    )
+                    available_consents_by_app_id[app_id] = (
+                        smartotum_application.available_consents or []
+                    )
 
                 found_home = SmartHomeRepository.get_home_by_uuid(system.home_uuid)
 
                 if found_home is None:
-                    #what is better here? 
-                    #To continue or we make it fail?
+                    # If the home is not known locally we skip this system and continue with the others.
                     continue
 
                 ApplicationRepository.update_applications_for_home(
@@ -250,40 +282,51 @@ class SmartotumService:
                     applications=applications_payload,
                 )
 
-                #collega applicazione a DC
-                for app_name, data_controllers_email in manager_emails_by_app_name.items():
+                # link application to Data Controllers:
+                # first email is the owner, the next ones are delegates.
+                for app_id, data_controller_emails in data_controller_emails_by_app_id.items():
+                    application = ApplicationRepository.get_application_by_name(app_id)
+                    if not application:
+                        continue
 
-                    application = ApplicationRepository.get_application_by_name(app_name)
+                    if len(data_controller_emails) == 0:
+                        raise SmartotumSyncException(
+                            f"Application {app_id} has no Data Controller owner."
+                        )
+
+                    owner_email = data_controller_emails[0]
+                    owner_data_controller = get_valid_data_controller(owner_email, app_id)
+
+                    if application.owner_user_id is None:
+                        application.owner_user_id = owner_data_controller.id
+                    elif application.owner_user_id != owner_data_controller.id:
+                        raise SmartotumSyncException(
+                            f"Owner mismatch for application {app_id}: "
+                            f"current owner id={application.owner_user_id}, incoming owner={owner_email}."
+                        )
+
+                    ApplicationRepository.ensure_application_managed_by_user(
+                        owner_data_controller.id, application.id
+                    )
+
+                    for delegate_email in data_controller_emails[1:]:
+                        delegate_data_controller = get_valid_data_controller(
+                            delegate_email, app_id
+                        )
+                        ApplicationRepository.ensure_application_managed_by_user(
+                            delegate_data_controller.id, application.id
+                        )
+
+                # update available consents for application
+                for app_id, available_consents in available_consents_by_app_id.items():
+                    application = ApplicationRepository.get_application_by_name(app_id)
 
                     if not application:
                         continue
 
-                    for data_controller_email in data_controllers_email:
-
-                        data_controller = UserRepository.get_user_by_email(data_controller_email)
-
-                        #per il momento se il data controller non è stato trovato (non è ancora registrato sulla dashboard -> ritorniamo errore)
-                        #si potrebbe valutare se invece non far fallire il refresh
-                        if not data_controller:
-                            raise SmartotumSyncException(f"Data Controller with email {data_controller_email} not found for application {app_name}.")
-                        
-                        if data_controller.role != UserRole.DATA_CONTROLLER:
-                            raise SmartotumSyncException(f"User {data_controller_email} is not a Data Controller.")
-                        
-                    
-                        #collega DC a app
-                        ApplicationRepository.ensure_application_managed_by_user(data_controller.id, application.id)
-
-                #aggiorna available consent per Applicazione
-                for app_name, available_consents in available_consents_by_app_name.items():
-
-                    application = ApplicationRepository.get_application_by_name(app_name)
-
-                    if not application:
-                        continue
-                
-                    #collega consenso ad app
-                    AvailableConsentRepository.upsert_available_consents_for_application(application.id, available_consents)
+                    AvailableConsentRepository.upsert_available_consents_for_application(
+                        application.id, available_consents
+                    )
                 
             #committiamo una sola volta alla fine cosi se ci sono errori è facile fare il revert
             session.commit()

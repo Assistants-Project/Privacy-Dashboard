@@ -6,7 +6,7 @@ DOCKERHUB_TOKEN="${DOCKERHUB_TOKEN:?DOCKERHUB_TOKEN is required}"
 
 PROJECT_NAME="privacy-dashboard-demo"
 COMPOSE_FILE="docker/docker-compose-demo.yml"
-DEPLOY_ENV_FILE="/env/privacydashboard-demo.env"
+DEPLOY_ENV_FILE="${DEPLOY_ENV_FILE:-/env/privacydashboard-demo.env}"
 IMAGE_REPOSITORY="privacydashboard-demo"
 IMAGE_TAG="${CI_COMMIT_SHORT_SHA:-latest}"
 APP_IMAGE="${DOCKERHUB_USERNAME}/${IMAGE_REPOSITORY}:${IMAGE_TAG}"

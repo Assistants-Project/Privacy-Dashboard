@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "id": "fixissuesbpoyqq",
+      "parameters_revision": "93d5a3b6d433691dbb295a5a6b68874b4f7d567e3bca5a0e191ea5c62d7cd853",
+      "accepted_software_release_id": 367,
+      "software_release_channel_id": "production",
+      "maintenance_mode": true,
+      "created_by_user_id": "4216f0db-8388-4591-a78c-88a3bdf9bc30",
+      "name": "Fix Issues",
+      "address": "Indirizzo",
+      "zip_code": "28041",
+      "country": "IT",
+      "latitude": 45.7465589,
+      "longitude": 8.5556107,
+      "elevation": 0.0,
+      "unit_system": "metric",
+      "description": "Descrizione",
+      "currency": "USD",
+      "timezone": "Europe/Rome",
+      "language": "it"
+    }
+  ],
+  "offset": 0,
+  "limit": 100
+}

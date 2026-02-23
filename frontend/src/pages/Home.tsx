@@ -10,7 +10,8 @@ function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isDataSubject = user?.role === Role.DataSubject;
-  const { managedApps, setSelectedAppUUID } = useApp();
+  const { apps, setSelectedAppUUID } = useApp();
+  const managedApps = apps ?? [];
   const appsNeedingAttention = managedApps.filter((app) => app.pn_status === DocumentStatus.Missing || app.pia_status === DocumentStatus.Missing || !app.evaluation);
 
   return (
@@ -63,7 +64,7 @@ function Home() {
 	                      <Card.Body>
 	                        <Row className="align-items-start justify-content-between">
 	                          <Col>
-	                            <strong>{app.name}</strong>
+	                            <strong>{app.title}</strong>
 	                            {app.description ? <div className="text-muted">{app.description}</div> : <div className="text-muted">(no description)</div>}
 	                          </Col>
 	                          <Col xs="auto" className="d-flex flex-column align-items-end gap-1">

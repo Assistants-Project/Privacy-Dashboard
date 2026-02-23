@@ -63,11 +63,6 @@ class UserService:
         return [user for user in iterator if user.id != user_id]
 
     @staticmethod
-    def get_users_by_role(role: UserRole) -> List[User]:
-        iterator = UserRepository.get_users_by_role(role)
-        return list(iterator)
-
-    @staticmethod
     def get_contacts_by_user_id(user_id: int, role: UserRole) -> List[User]:
         """Returns the contacts of the given user. A contact, for
         a `DATA_CONTROLLER` or `DPO`, is any `User` of any role who has at least one managed or installed `Application`

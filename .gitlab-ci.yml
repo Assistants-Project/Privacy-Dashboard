@@ -1,15 +1,16 @@
 stages:
-  - build
+  - build_verify_publish
   - deploy
 
-create_image:
-  stage: build
+build_test_push_image:
+  stage: build_verify_publish
   tags:
     - deploy_demo
   before_script:
     - docker version
+    - docker compose version
   script:
-    - bash docker/scripts/create_image.sh
+    - bash docker/scripts/build_test_push_image.sh
   rules:
     - if: '$CI_COMMIT_BRANCH == "frontend"'
 
@@ -18,7 +19,7 @@ deploy_demo:
   tags:
     - deploy_demo
   needs:
-    - create_image
+    - build_test_push_image
   before_script:
     - docker version
     - docker compose version

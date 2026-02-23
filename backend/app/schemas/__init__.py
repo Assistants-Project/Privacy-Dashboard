@@ -1,6 +1,9 @@
 from .request.application_and_privacy_notice_uuid_req_schema import (
     ApplicationAndPrivacyNoticeUuidReqSchema,
 )
+from .request.application_and_user_email_req_schema import (
+    ApplicationAndUserEmailReqSchema,
+)
 from .request.application_and_user_uuid_req_schema import (
     ApplicationAndUserUuidReqSchema,
 )
@@ -9,6 +12,9 @@ from .request.application_uuid_req_schema import ApplicationUuidReqSchema
 from .request.auth_req_schema import AuthReqSchema
 from .request.available_consents_req_schema import AvailableConsentsReqSchema
 from .request.message_req_schema import MessageReqSchema
+from .request.marketplace_application_ingest_req_schema import (
+    MarketplaceApplicationIngestReqSchema,
+)
 from .request.privacy_impact_assessment_req_schema import PrivacyImpactAssessmentReqSchema
 from .request.privacy_notice_req_schema import PrivacyNoticeReqSchema
 from .request.questionnaire_req_schema import QuestionnaireReqSchema
@@ -27,9 +33,8 @@ from .request.user_and_smart_home_and_available_consent_uuid_req_schema import (
 from .request.user_role_req_schema import UserRoleReqSchema
 from .request.user_uuid_req_schema import UserUuidReqSchema
 from .response.application_res_schema import (
-    ApplicationCatalogItemResSchema,
-    ApplicationResSchema,
-    InstalledApplicationWithManagersResSchema,
+    InstalledApplicationResSchema,
+    ManagedApplicationResSchema,
 )
 from .response.available_consent_res_schema import (
     AvailableConsentGivenResSchema,
@@ -49,12 +54,14 @@ from .response.user_res_schema import UserResSchema
 
 __all__ = [
     "ApplicationAndPrivacyNoticeUuidReqSchema",
+    "ApplicationAndUserEmailReqSchema",
     "ApplicationAndUserUuidReqSchema",
     "ApplicationCreateReqSchema",
     "ApplicationUuidReqSchema",
     "AuthReqSchema",
     "AvailableConsentsReqSchema",
     "MessageReqSchema",
+    "MarketplaceApplicationIngestReqSchema",
     "PrivacyImpactAssessmentReqSchema",
     "PrivacyNoticeReqSchema",
     "QuestionnaireReqSchema",
@@ -68,7 +75,7 @@ __all__ = [
     "UserAndSmartHomeAndAvailableConsentUuidReqSchema",
     "UserRoleReqSchema",
     "UserUuidReqSchema",
-    "ApplicationResSchema",
+    "ManagedApplicationResSchema",
     "AvailableConsentGivenResSchema",
     "AvailableConsentResSchema",
     "DeviceResSchema",
@@ -83,6 +90,5 @@ __all__ = [
     "RoomResSchema",
     "UserMessageResSchema",
     "UserResSchema",
-    "ApplicationCatalogItemResSchema",
-    "InstalledApplicationWithManagersResSchema",
+    "InstalledApplicationResSchema",
 ]

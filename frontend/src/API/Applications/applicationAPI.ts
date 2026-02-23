@@ -33,20 +33,6 @@ async function getInstalledApplications(smartHomeUuid: string) {
 
 }
 
-async function getCatalogApplications() {
-  let response = await fetch(baseURL + `applications/catalog`, {
-    method: "GET",
-    credentials: "include",
-  });
-  if (response.ok) {
-    const applications = await response.json();
-    return applications;
-  }
-
-  throw await getApiError(response);
-
-}
-
 async function createApplication(name: string,description?: string,availableConsents?: string[]): Promise<unknown> {
   
   const payload: {
@@ -78,30 +64,13 @@ async function createApplication(name: string,description?: string,availableCons
   throw await getApiError(response);
 }
 
-async function claimManagedApplication(applicationUuid: string): Promise<boolean> {
+async function assignDpoToManagedApplication(applicationUuid: string, dpoEmail: string): Promise<boolean> {
   const response = await fetch(
-    baseURL + `applications/managed/${encodeURIComponent(applicationUuid)}`,
-    {
-      method: "POST",
-      credentials: "include",
-    },
-  );
-
-  if (response.status === 201) return true;
-  if (response.status === 204) return false;
-
-  throw await getApiError(response);
-}
-
-async function assignDpoToManagedApplication(applicationUuid: string, dpoUuid: string): Promise<boolean> {
-  const response = await fetch(baseURL + `applications/managed/${encodeURIComponent(applicationUuid)}/dpo`,
+    baseURL +
+      `applications/managed/${encodeURIComponent(applicationUuid)}/dpo/${encodeURIComponent(dpoEmail)}`,
     {
       method: "PUT",
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ dpo_uuid: dpoUuid }),
     },
   );
 
@@ -111,7 +80,40 @@ async function assignDpoToManagedApplication(applicationUuid: string, dpoUuid: s
   throw await getApiError(response);
 }
 
-async function UpdateApps() {
+async function addDataControllerManagerToManagedApplication(applicationUuid: string, userEmail: string): Promise<boolean> {
+  const response = await fetch(
+    baseURL +
+      `applications/managed/${encodeURIComponent(applicationUuid)}/managers/${encodeURIComponent(userEmail)}`,
+    {
+      method: "PUT",
+      credentials: "include",
+    },
+  );
+
+  if (response.status === 201) return true;
+  if (response.status === 204) return false;
+
+  throw await getApiError(response);
+}
+
+async function removeDataControllerManagerFromManagedApplication(applicationUuid: string, userEmail: string): Promise<void> {
+  const response = await fetch(
+    baseURL +
+      `applications/managed/${encodeURIComponent(applicationUuid)}/managers/${encodeURIComponent(userEmail)}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  if (response.status === 204) {
+    return;
+  }
+
+  throw await getApiError(response);
+}
+
+async function refreshApplications() {
   let response = await fetch(baseURL + "applications/refresh", { method: "POST", credentials: "include" });
   if (response.ok) {
     return true;
@@ -121,7 +123,7 @@ async function UpdateApps() {
 }
 
 async function getPiaTemplate() {
-  let response = await fetch(baseURL + "applications/pia-template", {
+  let response = await fetch(baseURL + "privacy-impact-assessments/template", {
     method: "GET",
     credentials: "include",
   });
@@ -140,7 +142,7 @@ async function getPiaTemplate() {
 
 async function getPiaByManagedApplicationUuid(applicationUuid: string) {
   let response = await fetch(
-    baseURL + "applications/managed-application/" + applicationUuid + "/pia",
+    baseURL + "privacy-impact-assessments/managed/" + applicationUuid,
     {
       method: "GET",
       credentials: "include",
@@ -157,12 +159,9 @@ async function getPiaByManagedApplicationUuid(applicationUuid: string) {
   }
 }
 
-async function submitPiaByManagedApplicationUuid(
-  applicationUuid: string,
-  content: any
-) {
+async function submitPiaByManagedApplicationUuid(applicationUuid: string, content: any) {
   let response = await fetch(
-    baseURL + "applications/managed-application/" + applicationUuid + "/pia",
+    baseURL + "privacy-impact-assessments/managed/" + applicationUuid,
     {
       method: "PUT",
       credentials: "include",
@@ -195,7 +194,7 @@ async function submitPiaByManagedApplicationUuid(
 
 async function removePiaByManagedApplicationUuid(applicationUuid: string) {
   let response = await fetch(
-    baseURL + "applications/managed-application/" + applicationUuid + "/pia",
+    baseURL + "privacy-impact-assessments/managed/" + applicationUuid,
     {
       method: "DELETE",
       credentials: "include",
@@ -213,9 +212,9 @@ export {
   submitPiaByManagedApplicationUuid,
   removePiaByManagedApplicationUuid,
   getInstalledApplications,
-  getCatalogApplications,
   createApplication,
-  claimManagedApplication,
   assignDpoToManagedApplication,
-  UpdateApps
+  addDataControllerManagerToManagedApplication,
+  removeDataControllerManagerFromManagedApplication,
+  refreshApplications,
 };

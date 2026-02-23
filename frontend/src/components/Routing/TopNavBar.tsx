@@ -52,8 +52,8 @@ export function TopNavBar() {
               <Nav.Link as={NavLink} to="/privacy-notice" eventKey="/privacy-notice" className="d-flex align-items-center">
                 Privacy Notice
               </Nav.Link>
-              <Nav.Link as={NavLink} to={isDataSubject ? "/installed-apps" : "/catalog"} eventKey={isDataSubject ? "/installed-apps" : "/catalog"} className="d-flex align-items-center">
-                {isDataSubject ? "Installed Apps" : "Apps Catalog"}
+              <Nav.Link as={NavLink} to="/installed-apps" eventKey="/installed-apps" className="d-flex align-items-center">
+                {isDataSubject ? "Installed Apps" : "Managed Apps"}
               </Nav.Link>
               {!isDataSubject && (
                 <Nav.Link as={NavLink} to="/privacy-impact-assessment" eventKey="/privacy-impact-assessment" className="d-flex align-items-center">
@@ -81,19 +81,19 @@ export function TopNavBar() {
 
             <Nav className="align-items-center gap-4">
 
-              <NavDropdown id="sync-dropdown" align="end"
-                title={
-                  <span
-                    className="d-inline-flex align-items-center gap-2 border rounded px-2 py-1"
-                    title={anySyncing ? "Sync in corso…" : "Sync completato"}
-                  >
-                    {isDataSubject ? <span>Smartotum Sync</span> : <span>Marketplace Sync</span>}
-                    {anySyncing ? syncingIcon : syncedIcon}
-                  </span>
-                }
-              >
-                <NavDropdown.Header>Sync Status</NavDropdown.Header>
-                {isDataSubject ?
+              {isDataSubject ? (
+                <NavDropdown id="sync-dropdown" align="end"
+                  title={
+                    <span
+                      className="d-inline-flex align-items-center gap-2 border rounded px-2 py-1"
+                      title={anySyncing ? "Sync in corso…" : "Sync completato"}
+                    >
+                      <span>Smartotum Sync</span>
+                      {anySyncing ? syncingIcon : syncedIcon}
+                    </span>
+                  }
+                >
+                  <NavDropdown.Header>Sync Status</NavDropdown.Header>
                   <NavDropdown.Item
                     disabled={updatingHomes}
                     className="d-flex align-items-center gap-2"
@@ -103,21 +103,17 @@ export function TopNavBar() {
                     <span>Homes</span>
                     <ArrowRepeat />
                   </NavDropdown.Item>
-                  :
-                  undefined
-
-                }
-
-                <NavDropdown.Item
-                  disabled={updatingApps}
-                  className="d-flex align-items-center gap-2"
-                  onClick={() => !updatingApps && syncApps()}
-                >
-                  {updatingApps ? syncingIcon : syncedIcon}
-                  <span>Apps</span>
-                  <ArrowRepeat />
-                </NavDropdown.Item>
-              </NavDropdown>
+                  <NavDropdown.Item
+                    disabled={updatingApps}
+                    className="d-flex align-items-center gap-2"
+                    onClick={() => !updatingApps && syncApps()}
+                  >
+                    {updatingApps ? syncingIcon : syncedIcon}
+                    <span>Apps</span>
+                    <ArrowRepeat />
+                  </NavDropdown.Item>
+                </NavDropdown>
+              ) : undefined}
 
 
               <Dropdown align="end" autoClose="outside">

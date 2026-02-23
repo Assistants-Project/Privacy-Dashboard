@@ -1,0 +1,80 @@
+[
+  {
+    "topic_name": "privacy_rule",
+    "topic_uuid": "9a424990-8485-4361-acb7-b7e92de63f9",
+    "value": {
+      "target_topic": "domo_camera",
+      "target_uuid": "d6422b30-f800-4be1-8fd4-ccc36a7efcb8",
+      "time_start": "10:00",
+      "time_end": "14:00",
+      "days": [
+        "Friday"
+      ],
+      "expiration_date": "2026/02/29"
+    }
+  },
+  {
+    "topic_name": "privacy_rule",
+    "topic_uuid": "9197b971-608b-4738-8c93-4c029503221b",
+    "value": {
+      "target_topic": "domo_light",
+      "target_uuid": "c6341481-353e-4b52-ba41-030343507c71",
+      "time_start": "09:00",
+      "time_end": "10:00",
+      "days": [
+        "Tuesday",
+        "Thursday",
+        "Friday"
+      ],
+      "expiration_date": "2026/02/13"
+    }
+  },
+  {
+    "topic_name": "privacy_rule",
+    "topic_uuid": "399fee67-0cb1-415d-93a5-075d8c429160",
+    "value": {
+      "target_topic": "domo_rgbw_light",
+      "target_uuid": "f4da10c5-b96c-4493-ac6d-88259caaf5ed",
+      "time_start": "",
+      "time_end": "",
+      "days": [],
+      "expiration_date": "2026/02/14"
+    }
+  },
+  {
+    "topic_name": "privacy_rule",
+    "topic_uuid": "f274f264-7635-4588-8441-c6f8076ad8e3",
+    "value": {
+      "target_topic": "domo_camera",
+      "target_uuid": "06f58d18-8b71-49da-98d2-c2b5d4692b2a",
+      "time_start": "",
+      "time_end": "",
+      "days": [],
+      "expiration_date": "2026/02/14"
+    }
+  },
+  {
+    "topic_name": "privacy_rule",
+    "topic_uuid": "ab7be826-e626-4d2c-8ef3-539a467ed7b4",
+    "value": {
+      "target_topic": "domo_rgbw_light",
+      "target_uuid": "f4da10c5-b96c-4493-ac6d-88259caaf5ed",
+      "time_start": "",
+      "time_end": "",
+      "days": [],
+      "expiration_date": "2026/02/19"
+    }
+  },
+  {
+    "topic_name": "privacy_rule",
+    "topic_uuid": "7edab538-2d19-403b-b6b1-cf1f066bcafb",
+    "value": {
+      "target_topic": "domo_light",
+      "target_uuid": "01f421c3-a037-4a9d-9058-43adb44ae3c4",
+      "time_start": "22:20",
+      "time_end": "23:21",
+      "days": [],
+      "expiration_date": "2026/02/21"
+    }
+  }
+]

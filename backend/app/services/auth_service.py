@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 
 from ..exceptions import WrongUserCredentialsException, UserAlreadyRegisteredException
@@ -52,6 +53,10 @@ class AuthService:
                 return AuthLoginResult(user=user,access_token=access_token)
 
         # if we are here the user is a Data Subject
+        if os.getenv("FLASK_ENV") == "testing":
+            access_token = create_access_token(identity=user.uuid, additional_claims={"role": user.role.value})
+            return AuthLoginResult(user=user, access_token=access_token)
+
         client = SmartotumClient()
         login_result: SmartotumLoginResult = client.login(email, password)
 
@@ -109,4 +114,8 @@ class AuthService:
     
     @staticmethod
     def delete_current_user(user: User):
+        # NOTE:
+        # `applications.owner_user_id` now has FK NO ACTION + NOT NULL.
+        # Before deleting a DATA_CONTROLLER, application ownership must be transferred.
+        # This flow will be implemented in a dedicated procedure.
         UserRepository.delete_user(user)

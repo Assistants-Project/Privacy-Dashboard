@@ -13,22 +13,23 @@ class ApplicationSchema(ma.SQLAlchemyAutoSchema):
         exclude = ("id", "privacy_impact_assessment")
 
 
-class ApplicationResSchema(ma.Schema):
-    application = ma.Nested(ApplicationSchema)
-    installed_at = ma.DateTime()
+DOC_STATUS_VALUES = ("AVAILABLE", "MISSING")
 
-DOC_STATUS_VALUES = ("AVAILABLE", "MISSING", "FORBIDDEN")
-
-class ApplicationWithManagersBaseResSchema(ma.Schema):
+class ManagedApplicationResSchema(ma.Schema):
     application = ma.Nested(ApplicationSchema, required=True)
+    owner = ma.Nested(UserResSchema, required=True, allow_none=False)
     data_controllers = ma.List(ma.Nested(UserResSchema), required=True)
     dpo = ma.Nested(UserResSchema, required=True, allow_none=True)
     pn_status = ma.String(required=True, validate=validate.OneOf(DOC_STATUS_VALUES))
     pia_status = ma.String(required=True, validate=validate.OneOf(DOC_STATUS_VALUES))
+    installed_at = ma.DateTime(required=False, allow_none=True)
 
 
-class ApplicationCatalogItemResSchema(ApplicationWithManagersBaseResSchema):
-    pass
-
-class InstalledApplicationWithManagersResSchema(ApplicationWithManagersBaseResSchema):
+class InstalledApplicationResSchema(ma.Schema):
+    application = ma.Nested(ApplicationSchema, required=True)
+    owner = ma.Nested(UserResSchema, required=True, allow_none=False)
+    data_controllers = ma.List(ma.Nested(UserResSchema), required=True)
+    dpo = ma.Nested(UserResSchema, required=True, allow_none=True)
+    pn_status = ma.String(required=True, validate=validate.OneOf(DOC_STATUS_VALUES))
+    pia_status = ma.String(required=True, validate=validate.OneOf(DOC_STATUS_VALUES))
     installed_at = ma.DateTime(required=True)

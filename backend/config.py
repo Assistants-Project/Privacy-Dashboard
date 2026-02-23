@@ -62,6 +62,8 @@ class BaseConfig:
     SMARTOTUM_APPLICATIONS_JSON = os.getenv("SMARTOTUM_APPLICATIONS_JSON", None)
     # If set, Marketplace applications are loaded from this local JSON file (mock) instead of calling a remote API.
     MARKETPLACE_APPLICATIONS_JSON = os.getenv("MARKETPLACE_APPLICATIONS_JSON", None)
+    # Token used by external marketplace to ingest applications through integration endpoint.
+    MARKETPLACE_INGEST_TOKEN = os.getenv("MARKETPLACE_INGEST_TOKEN", None)
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.getenv("DEV_DATABASE_URI")
@@ -73,12 +75,12 @@ class DemoConfig(BaseConfig):
     PRESERVE_CONTEXT_ON_EXCEPTION = False
 
 
-class ProductionConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URI")
+class TestingConfig(BaseConfig):
+    SQLALCHEMY_DATABASE_URI = os.getenv("DEV_DATABASE_URI")
 
 
 config_by_name = {
     "development": DevelopmentConfig,
     "demo": DemoConfig,
-    "production": ProductionConfig,
+    "testing": TestingConfig,
 }

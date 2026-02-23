@@ -33,8 +33,8 @@ class RequestRepository:
                     UserSmartHomeApplication.user_id == user_id,
                 )
             )
-            .join(User)
-            .join(Application)
+            .join(User, User.id == UserSmartHomeApplication.user_id)
+            .join(Application, Application.id == UserSmartHomeApplication.application_id)
             .order_by(Request.created_at.desc(), Request.id.desc())
         )
         return db.session.execute(statement)
@@ -47,7 +47,6 @@ class RequestRepository:
         subquery = (
             db.select(UserSmartHomeApplication.application_id)
             .where(UserSmartHomeApplication.user_id == current_user_id)
-            .subquery()
         )
         statement = (
             db.select(
@@ -61,8 +60,8 @@ class RequestRepository:
                     UserSmartHomeApplication.application_id.in_(subquery),
                 )
             )
-            .join(User)
-            .join(Application)
+            .join(User, User.id == UserSmartHomeApplication.user_id)
+            .join(Application, Application.id == UserSmartHomeApplication.application_id)
              #per ottenere le richieste in ordine dalla più recente alla meno recente per comodità del client
             .order_by(Request.created_at.desc(), Request.id.desc())
         )
@@ -77,7 +76,6 @@ class RequestRepository:
         subquery = (
             db.select(UserSmartHomeApplication.application_id)
             .where(UserSmartHomeApplication.user_id == current_user_id)
-            .subquery()
         )
         statement = db.select(Request).join(
             Request.user_smart_home_application_relation.and_(
@@ -106,8 +104,8 @@ class RequestRepository:
                     UserSmartHomeApplication.user_id == current_user_id,
                 )
             )
-            .join(User)
-            .join(Application)
+            .join(User, User.id == UserSmartHomeApplication.user_id)
+            .join(Application, Application.id == UserSmartHomeApplication.application_id)
             .order_by(Request.created_at.desc(), Request.id.desc())
         )
         if status:

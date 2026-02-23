@@ -43,7 +43,7 @@ function PrivacyDashboard() {
           <Route path="/privacy-notice" element={<PrivacyNotice />} />
 
           <Route path="/installed-apps" element={<Apps />} />
-          <Route path="/catalog" element={<Apps />} />
+          <Route path="/apps" element={<Navigate to="/installed-apps" replace />} />
 
           <Route
             path="/privacy-impact-assessment"

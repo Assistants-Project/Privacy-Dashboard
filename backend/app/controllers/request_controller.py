@@ -1,18 +1,7 @@
 from uuid import UUID
-
 from flask_smorest import Blueprint
-
 from ..models import Status
-from ..schemas import (
-    ApplicationAndUserUuidReqSchema,
-    RequestHandlingReqSchema,
-    RequestReqSchema,
-    RequestResSchema,
-    RequestSchema,
-    RequestStatusReqSchema,
-    RequestUuidReqSchema,
-    SmartHomeUuidReqSchema,
-)
+from ..schemas import (ApplicationAndUserUuidReqSchema,RequestHandlingReqSchema,RequestReqSchema,RequestResSchema,RequestSchema,RequestStatusReqSchema,RequestUuidReqSchema,SmartHomeUuidReqSchema)
 from ..services import RequestService
 from ..utils import dc_or_dpo_required, ds_required
 
@@ -26,14 +15,12 @@ request_bp = Blueprint(
 #permette ad un data controller o dpo di poter recuperare (listare) tutte le richieste per una singola applicazione
 #di un singolo utente
 #recupera tutte le richieste sia quelle PENDING che HANDLED
-#i parametri sono obbligatori
 @request_bp.route("/application/<application_uuid>/user/<user_uuid>", methods=["GET"])
 @request_bp.arguments(ApplicationAndUserUuidReqSchema, location="path", as_kwargs=True)
 @request_bp.response(200, RequestResSchema(many=True))
 @dc_or_dpo_required()
-def get_requests_by_managed_application_uuid_and_user_uuid(
-    application_uuid: UUID, user_uuid: UUID, current_user
-):
+def get_requests_by_managed_application_uuid_and_user_uuid(application_uuid: UUID, user_uuid: UUID, current_user):
+    
     return (
         RequestService.get_requests_by_dc_or_dpo_id_and_application_uuid_and_user_uuid(
             current_user.id, application_uuid, user_uuid
@@ -77,9 +64,7 @@ def submit_request(request, current_user):
 @request_bp.arguments(RequestHandlingReqSchema, location="json", as_kwargs=True)
 @request_bp.response(200, RequestSchema)
 @dc_or_dpo_required()
-def handle_request(
-    request_uuid: UUID, response: str | None, status: Status, current_user
-):
+def handle_request(request_uuid: UUID, status: Status, current_user, response: str | None = None):
     return RequestService.handle_request(
         current_user.id, request_uuid, response, status
     )

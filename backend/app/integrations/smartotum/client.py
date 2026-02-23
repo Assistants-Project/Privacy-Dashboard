@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from ...exceptions import (
@@ -41,6 +42,7 @@ class SmartotumHomeRoomResult:
 @dataclass
 class SmartotumApplicationResult:
     application_uuid: UUID
+    id: str
     name: str
     description: str | None = None
     data_controllers_email: list[str] | None = None
@@ -65,6 +67,7 @@ class SmartotumRule:
     expiration_date: str | None = None
 
 class SmartotumClient:
+    _testing_rules_state: Dict[str, List[Dict[str, Any]]] = {}
 
     #initialize env variables
     def __init__(self, session: Optional[requests.Session] = None, session_retry: Optional[requests.Session] = None) -> None:
@@ -76,6 +79,8 @@ class SmartotumClient:
         self._rule_topic = cfg["SMARTOTUM_RULE_TOPIC"]
         self._timeout = cfg.get("SMARTOTUM_TIMEOUT", 1)
         self._applications_file = cfg.get("SMARTOTUM_APPLICATIONS_JSON")
+        self._is_testing = os.getenv("FLASK_ENV") == "testing"
+        self._testing_data_root = Path(current_app.root_path).parent / "testing" / "data"
 
         self._session = session or requests.Session()
 
@@ -84,12 +89,12 @@ class SmartotumClient:
             self._session_retry = requests.Session()
 
             retry_strategy = Retry(
-            total=4,
-            status_forcelist=[429,500,502,503,504], 
-            read=3,
-            connect=3,
-            backoff_factor=0.5,
-            allowed_methods=frozenset({"GET", "POST"})
+                total=4,
+                status_forcelist=[429,500,502,503,504], 
+                read=3,
+                connect=3,
+                backoff_factor=0.5,
+                allowed_methods=frozenset({"GET", "POST"})
             )
         
             retry_adapter = HTTPAdapter(max_retries=retry_strategy)
@@ -134,6 +139,8 @@ class SmartotumClient:
         }
     
     def post_rules(self, access_token: str, system_uuid: str, rules: List[SmartotumRule]) -> List[SmartotumRule]:
+        if self._is_testing:
+            return self._post_rules_testing(system_uuid, rules)
 
         headers = {
             "Authorization": f"Bearer {access_token}",
@@ -174,17 +181,20 @@ class SmartotumClient:
 
         rules: List[SmartotumRule] = []
 
-        complete_url=self.smartotum_dht_api_url(f"/topic_name/{self._rule_topic}", system_uuid)
+        if self._is_testing:
+            rules_response: List[Dict[str, Any]] = self._get_testing_rules_state(system_uuid)
+        else:
+            complete_url=self.smartotum_dht_api_url(f"/topic_name/{self._rule_topic}", system_uuid)
 
-        try:
-            response = self._session_retry.get(
-                complete_url, headers=headers, timeout=self._timeout
-            )
-            response.raise_for_status()
-        except RequestException as exc:
-            raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
-            
-        rules_response: List[Dict[str,Any]] = response.json()
+            try:
+                response = self._session_retry.get(
+                    complete_url, headers=headers, timeout=self._timeout
+                )
+                response.raise_for_status()
+            except RequestException as exc:
+                raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+                
+            rules_response: List[Dict[str,Any]] = response.json()
 
         for rule_response in rules_response:
 
@@ -213,6 +223,26 @@ class SmartotumClient:
 
         return rules
 
+    def delete_rule(self, access_token: str, system_uuid: str, rule_uuid: str) -> bool:
+        if self._is_testing:
+            return self._delete_rule_testing(system_uuid, rule_uuid)
+
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+        complete_url = self.smartotum_dht_api_url(
+            f"/topic_name/{self._rule_topic}/topic_uuid/{rule_uuid}", system_uuid
+        )
+        try:
+            response = self._session.delete(
+                complete_url, headers=headers, timeout=self._timeout
+            )
+            response.raise_for_status()
+        except RequestException as exc:
+            raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+        return response.status_code in (200, 204)
+
     def get_home_devices(self, access_token: str, system_uuid: str) -> List[SmartotumDeviceResult]:
 
         headers = {
@@ -223,18 +253,20 @@ class SmartotumClient:
         devices: List[SmartotumDeviceResult] = []
 
         for topic_name in self._smartotum_device_topics:
+            if self._is_testing:
+                items = self._get_testing_topic_items(system_uuid, topic_name)
+            else:
+                complete_url=self.smartotum_dht_api_url(f"/topic_name/{topic_name}", system_uuid)
 
-            complete_url=self.smartotum_dht_api_url(f"/topic_name/{topic_name}", system_uuid)
-
-            try:
-                response = self._session_retry.get(
-                    complete_url, headers=headers, timeout=self._timeout
-                )
-                response.raise_for_status()
-            except RequestException as exc:
-                raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
-            
-            items: List[Dict[str,Any]] = response.json()
+                try:
+                    response = self._session_retry.get(
+                        complete_url, headers=headers, timeout=self._timeout
+                    )
+                    response.raise_for_status()
+                except RequestException as exc:
+                    raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+                
+                items: List[Dict[str,Any]] = response.json()
 
             for item in items:
                 value = item.get("value", {})
@@ -263,17 +295,20 @@ class SmartotumClient:
             "Accept": "application/json",
         }
 
-        complete_url=self.smartotum_dht_api_url(f"/topic_name/domo_room", system_uuid)
+        if self._is_testing:
+            items = self._get_testing_topic_items(system_uuid, "domo_room")
+        else:
+            complete_url=self.smartotum_dht_api_url(f"/topic_name/domo_room", system_uuid)
 
-        try:
-            response = self._session_retry.get(
-                complete_url, headers=headers, timeout=self._timeout
-            )
-            response.raise_for_status()
-        except RequestException as exc:
-            raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+            try:
+                response = self._session_retry.get(
+                    complete_url, headers=headers, timeout=self._timeout
+                )
+                response.raise_for_status()
+            except RequestException as exc:
+                raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
 
-        items: List[Dict[str, Any]] = response.json()
+            items: List[Dict[str, Any]] = response.json()
         rooms: List[SmartotumHomeRoomResult] = []
 
         for item in items:
@@ -315,6 +350,11 @@ class SmartotumClient:
             for i,item in enumerate(payload):
                 if not isinstance(item, dict):
                     raise ValueError(f"apps[{i}] must be an object")
+
+                application_id = item.get("id")
+                if not isinstance(application_id, str) or not application_id.strip():
+                    raise ValueError(f"apps[{i}].id is required and must not be empty")
+                normalized_application_id = application_id.strip()
 
                 name = item.get("name")
                 if not isinstance(name, str) or not name.strip():
@@ -363,6 +403,7 @@ class SmartotumClient:
                 applications.append(
                     SmartotumApplicationResult(
                         application_uuid = UUID(str(uuid.uuid4())),
+                        id=normalized_application_id,
                         name=normalized_name,
                         description=normalized_description,
                         data_controllers_email=list(dict.fromkeys(normalized_data_controllers_email)),
@@ -402,13 +443,17 @@ class SmartotumClient:
             name = value.get("name")
             if not isinstance(name, str) or not name.strip():
                 continue
-            #there is also a field called id in value, for using it an idea is to edit the application table to show for every home the applications for that home
-            #so the value.id can be unique in a home 
+            application_id = value.get("id")
+            if not isinstance(application_id, str) or not application_id.strip():
+                application_id = name.strip()
+            else:
+                application_id = application_id.strip()
             description = None
 
             applications.append(
                 SmartotumApplicationResult(
                     application_uuid=topic_uuid,
+                    id=application_id,
                     name=name.strip(),
                     description=description,
                     data_controllers_email=[],
@@ -421,6 +466,8 @@ class SmartotumClient:
     
 
     def login(self, email:str, password: str) -> SmartotumLoginResult:
+        if self._is_testing:
+            return self._get_testing_login_result(email)
 
         #payload to send to smartotum login system
         payload = {
@@ -477,20 +524,23 @@ class SmartotumClient:
             "Accept": "application/json",
         }
 
-        params = {
-            "offset": 0,
-            "limit": 100,
-        }
+        if self._is_testing:
+            payload = self._get_testing_systems_payload()
+        else:
+            params = {
+                "offset": 0,
+                "limit": 100,
+            }
 
-        try:
-            response = self._session_retry.get(
-                self.smartotum_api_url("service/systems"), headers=headers, params=params, timeout=self._timeout
-            )
-            response.raise_for_status()
-        except RequestException as exc:
-            raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
-        
-        payload = response.json()
+            try:
+                response = self._session_retry.get(
+                    self.smartotum_api_url("service/systems"), headers=headers, params=params, timeout=self._timeout
+                )
+                response.raise_for_status()
+            except RequestException as exc:
+                raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+            
+            payload = response.json()
         data = payload.get("data", [])
 
         homes: List[SmartotumSmartHomeResult] = []
@@ -514,3 +564,73 @@ class SmartotumClient:
             )
 
         return homes
+
+    def _post_rules_testing(self, system_uuid: str, rules: List[SmartotumRule]) -> List[SmartotumRule]:
+        created_rules: List[SmartotumRule] = []
+        rules_state = self._get_testing_rules_state(system_uuid)
+
+        for rule in rules:
+            payload = self._build_rule_payload(rule)
+            entry = {
+                "topic_name": self._rule_topic,
+                "topic_uuid": str(rule.rule_uuid),
+                "value": payload.get("value", {}),
+            }
+
+            updated = False
+            for i, item in enumerate(rules_state):
+                if item.get("topic_uuid") == str(rule.rule_uuid):
+                    rules_state[i] = entry
+                    updated = True
+                    break
+
+            if not updated:
+                rules_state.append(entry)
+
+            created_rules.append(rule)
+
+        return created_rules
+
+    def _get_testing_rules_state(self, system_uuid: str) -> List[Dict[str, Any]]:
+        system_uuid_str = str(system_uuid)
+        if system_uuid_str not in SmartotumClient._testing_rules_state:
+            rules_file = self._testing_data_root / "dht" / system_uuid_str / f"{self._rule_topic}.json"
+            SmartotumClient._testing_rules_state[system_uuid_str] = self._read_testing_list_file(rules_file)
+        return SmartotumClient._testing_rules_state[system_uuid_str]
+
+    def _delete_rule_testing(self, system_uuid: str, rule_uuid: str) -> bool:
+        system_uuid_str = str(system_uuid)
+        rules_state = self._get_testing_rules_state(system_uuid_str)
+        SmartotumClient._testing_rules_state[system_uuid_str] = [item for item in rules_state if item.get("topic_uuid") != str(rule_uuid)]
+        return True
+
+    def _get_testing_topic_items(self, system_uuid: str, topic_name: str) -> List[Dict[str, Any]]:
+        topic_file = self._testing_data_root / "dht" / str(system_uuid) / f"{topic_name}.json"
+        return self._read_testing_list_file(topic_file)
+
+    def _get_testing_login_result(self, email: str) -> SmartotumLoginResult:
+        return SmartotumLoginResult(
+            user={"email": email},
+            access_token="mock-smartotum-access-token",
+            refresh_token="mock-smartotum-refresh-token",
+            front_token="mock-front-token",
+        )
+
+    def _get_testing_systems_payload(self) -> Dict[str, Any]:
+        systems_file = self._testing_data_root / "systems.json"
+        if not systems_file.exists():
+            return {"data": [], "offset": 0, "limit": 100}
+        try:
+            payload = json.loads(systems_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return {"data": [], "offset": 0, "limit": 100}
+        return payload if isinstance(payload, dict) else {"data": [], "offset": 0, "limit": 100}
+
+    def _read_testing_list_file(self, path: Path) -> List[Dict[str, Any]]:
+        if not path.exists():
+            return []
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return []
+        return payload if isinstance(payload, list) else []

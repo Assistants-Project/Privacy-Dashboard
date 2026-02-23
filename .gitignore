@@ -1,4 +1,3 @@
-# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
 *$py.class
@@ -141,3 +140,4 @@ node_modules
 dist
 .vite
 .env
+backend/app/ontologies/homes/fixissuesbpoyqq.owl

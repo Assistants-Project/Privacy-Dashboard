@@ -1,0 +1,22 @@
+[
+  {
+    "topic_name": "domo_room",
+    "topic_uuid": "bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4",
+    "value": {
+      "name": "Laboratorio",
+      "category": "construction",
+      "order_id": 0,
+      "homeassistant_area_id": "stanza_1"
+    }
+  },
+  {
+    "topic_name": "domo_room",
+    "topic_uuid": "c810b04d-8bdb-42ed-8876-78fa6bd7205d",
+    "value": {
+      "name": "Soggiorno",
+      "category": "living",
+      "order_id": 1,
+      "homeassistant_area_id": "stanza_2"
+    }
+  }
+]

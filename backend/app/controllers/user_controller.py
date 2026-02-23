@@ -10,7 +10,7 @@ from ..schemas import (
     UserRoleReqSchema,
 )
 from ..services import UserService
-from ..utils import dc_or_dpo_required, dc_required, logged_in_required
+from ..utils import dc_or_dpo_required, logged_in_required
 
 user_bp = Blueprint(
     "Users API",
@@ -31,14 +31,6 @@ def get_users_by_managed_application_uuid_and_user_role(
     return UserService.get_users_by_dc_or_dpo_id_and_application_uuid_and_user_role(
         current_user.id, application_uuid, role
     )
-
-#Necessario al data controller per poter assegnare un DPO alla sua applicazione
-@user_bp.route("/dpos", methods=["GET"])
-@user_bp.response(200, UserResSchema(many=True))
-@dc_required()
-def get_data_protection_officers(current_user):
-    return UserService.get_users_by_role(UserRole.DATA_PROTECTION_OFFICER)
-
 
 @user_bp.route("/contacts", methods=["GET"])
 @user_bp.response(200, UserResSchema(many=True))

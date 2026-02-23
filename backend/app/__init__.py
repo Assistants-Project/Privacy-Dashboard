@@ -11,9 +11,11 @@ from .controllers import (
     auth_bp,
     available_consent_bp,
     homes_bp,
+    marketplace_bp,
     message_bp,
+    privacy_impact_assessment_bp,
     privacy_notice_bp,
-    question_bp,
+    questionnaire_bp,
     request_bp,
     sifis_bp,
     user_bp,
@@ -68,9 +70,11 @@ def create_app(env_name: Optional[str] = None) -> Flask:
         auth_bp,
         available_consent_bp,
         homes_bp,
+        marketplace_bp,
         message_bp,
+        privacy_impact_assessment_bp,
         privacy_notice_bp,
-        question_bp,
+        questionnaire_bp,
         request_bp,
         user_bp,
         sifis_bp,
@@ -95,8 +99,8 @@ def create_app(env_name: Optional[str] = None) -> Flask:
     app.after_request(refresh_expiring_jwts)
     app.register_error_handler(Exception, global_error_handler)
 
-    # Add dummy initial data in development and demo mode
-    if env_name in {"development", "demo"}:
+    # Add dummy initial data in development, demo and testing mode
+    if env_name in {"development", "demo", "testing"}:
         init_data(app)
 
     from .commands import generate_owls_command

@@ -62,6 +62,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('uuid', sa.Uuid(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
+    sa.Column('title', sa.String(), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('evaluation', sa.Enum('GREEN', 'ORANGE', 'RED', name='evaluation'), nullable=True),
     sa.Column('questionnaire_summary', sa.Text(), nullable=True),

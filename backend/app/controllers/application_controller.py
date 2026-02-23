@@ -1,22 +1,7 @@
-from flask import Response, request
 from flask_smorest import Blueprint
-
-from .. import initial_data
-from ..exceptions import MissingTemplateException
-from ..schemas import (
-    ApplicationCreateReqSchema,
-    ApplicationResSchema,
-    ApplicationUuidReqSchema,
-    SmartHomeUuidReqSchema,
-    ApplicationCatalogItemResSchema,
-    InstalledApplicationWithManagersResSchema,
-    PrivacyImpactAssessmentReqSchema,
-    PrivacyImpactAssessmentResSchema,
-    
-)
-from ..services import ApplicationService
-from ..utils import dc_or_dpo_required, dc_required, ds_required, logged_in_required
-from ..models import UserRole
+from ..schemas import ApplicationAndUserEmailReqSchema, ApplicationCreateReqSchema, ManagedApplicationResSchema, SmartHomeUuidReqSchema, InstalledApplicationResSchema
+from ..services import ApplicationService, SmartotumService
+from ..utils import dc_or_dpo_required, dc_required, ds_required
 
 application_bp = Blueprint(
     "Applications API",
@@ -25,115 +10,61 @@ application_bp = Blueprint(
     description="Endpoints for applications",
 )
 
-
-@application_bp.route("/managed", methods=["GET"])
-@application_bp.response(200, ApplicationResSchema(many=True))
-@dc_or_dpo_required()
-def get_managed_applications(current_user):
-    return ApplicationService.get_applications_by_dc_or_dpo_id(current_user.id)
-
-#find better name
-#for data controller to see all the apps
-@application_bp.route("/catalog", methods=["GET"])
-@application_bp.response(200, ApplicationCatalogItemResSchema(many=True))
-@dc_or_dpo_required()
-def get_available_applications(current_user):
-    return ApplicationService.get_available_applications_service(current_user)
-
-@application_bp.route("", methods=["POST"])
-@application_bp.arguments(ApplicationCreateReqSchema, location="json", as_kwargs=True)
-@application_bp.response(201, ApplicationCatalogItemResSchema)
-@dc_required()
-def create_application(
-    name: str,
-    current_user,
-    description: str | None = None,
-    available_consents: list[str] | None = None,
-):
-    created_application = ApplicationService.create_application_managed_by_data_controller(
-        current_user, name, description, available_consents
-    )
-    return created_application
-
-#serve per permettere ad un data controller di assegnarsi ad un app (visto che manca un marketplace che lo aggiunge)
-@application_bp.route("/managed/<application_uuid>", methods=["POST"])
-@application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
-@dc_required()
-def claim_managed_application(application_uuid, current_user):
-    created = ApplicationService.claim_application(current_user, application_uuid)
-    return "", 201 if created else 204
-
-#serve per permettere ad un data controller di assegnare un dpo a scelta ad un app se conosce il suo uuid
-@application_bp.route("/managed/<application_uuid>/dpo", methods=["PUT"])
-@application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
-@dc_required()
-def assign_dpo_to_application(application_uuid, current_user):
-    payload = request.get_json(silent=True) or {}
-    dpo_uuid = payload.get("dpo_uuid")
-    created = ApplicationService.assign_dpo_to_managed_application(
-        current_user, application_uuid, dpo_uuid
-    )
-    return "", 201 if created else 204
-
-@application_bp.route("/refresh", methods=["POST"])
-@application_bp.response(202, description="Refresh started")
-@logged_in_required()
-def refresh_apps(current_user):
-    ApplicationService.update_apps_database_from_all_sources(current_user)
-    if current_user.role == UserRole.DATA_SUBJECT:
-        return "Apps updated from Smartotum Installed App of " + current_user.email, 202
-    else:
-        return "Apps updated from Marketplace " + current_user.email, 202
-    
-
-
 @application_bp.route("/home/<smart_home_uuid>", methods=["GET"])
 @application_bp.arguments(SmartHomeUuidReqSchema, location="path", as_kwargs=True)
-@application_bp.response(200, InstalledApplicationWithManagersResSchema(many=True))
+@application_bp.response(200, InstalledApplicationResSchema(many=True))
 @ds_required()
 def get_installed_applications(smart_home_uuid: str, current_user):
     return ApplicationService.get_applications_by_ds_id_and_smart_home_uuid(
         current_user.id, smart_home_uuid
     )
 
+#Flusso creazione applicazione manualmente da parte di un Data Controller
+@application_bp.route("", methods=["POST"])
+@application_bp.arguments(ApplicationCreateReqSchema, location="json", as_kwargs=True)
+@application_bp.response(201, ManagedApplicationResSchema)
+@dc_required()
+def create_application(name: str,current_user,description: str | None = None,available_consents: list[str] | None = None):
+    created_application = ApplicationService.create_application_managed_by_data_controller(current_user, name, description, available_consents)
+    return created_application
 
-@application_bp.route("/pia-template", methods=["GET"])
+#Recupera app gestite da un data controller / dpo
+@application_bp.route("/managed", methods=["GET"])
+@application_bp.response(200, ManagedApplicationResSchema(many=True))
 @dc_or_dpo_required()
-def get_pia_template(current_user):
-    if initial_data.pia_template is None:
-        raise MissingTemplateException(
-            "Template of Privacy Impact Assessment not found!"
-        )
-    return Response(initial_data.pia_template, mimetype="application/json", status=200)
+def get_managed_applications(current_user):
+    return ApplicationService.get_applications_by_dc_or_dpo_id(current_user)
 
-
-@application_bp.route("/managed-application/<application_uuid>/pia", methods=["GET"])
-@application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
-@application_bp.response(200, PrivacyImpactAssessmentResSchema)
-@dc_or_dpo_required()
-def get_pia_by_managed_application_uuid(application_uuid: str, current_user):
-    pia_content = ApplicationService.get_pia_by_managed_application_uuid(
-        current_user.id, application_uuid
+#Flusso -> Data Controller assegna un app ad un DPO
+@application_bp.route("/managed/<application_uuid>/dpo/<user_email>", methods=["PUT"])
+@application_bp.arguments(ApplicationAndUserEmailReqSchema, location="path", as_kwargs=True)
+@dc_required()
+def assign_dpo_to_application(application_uuid, user_email, current_user):
+    created = ApplicationService.assign_dpo_to_managed_application(
+        current_user, application_uuid, user_email
     )
-    return {"application_uuid": application_uuid, "content": pia_content}
+    return "", 201 if created else 204
 
+#Flusso -> Data Controller Owner dell'app assegna un altro Data Controller come manager
+@application_bp.route("/managed/<application_uuid>/managers/<user_email>", methods=["PUT"])
+@application_bp.arguments(ApplicationAndUserEmailReqSchema, location="path", as_kwargs=True)
+@dc_required()
+def add_data_controller_manager_to_application(application_uuid, user_email, current_user):
+    created = ApplicationService.add_data_controller_manager_to_owned_application(current_user, application_uuid, user_email)
+    return "", 201 if created else 204
 
-@application_bp.route("/managed-application/<application_uuid>/pia", methods=["PUT"])
-@application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
-@application_bp.arguments(PrivacyImpactAssessmentReqSchema, location="json", as_kwargs=True)
-@dc_or_dpo_required()
-def submit_pia_by_managed_application_uuid(application_uuid: str, content: dict, current_user):
-    ApplicationService.submit_pia_by_managed_application_uuid(
-        current_user.id, application_uuid, content
-    )
+#Flusso -> Data Controller Owner rimiove un determinato Data Controller da manager
+@application_bp.route("/managed/<application_uuid>/managers/<user_email>", methods=["DELETE"])
+@application_bp.arguments(ApplicationAndUserEmailReqSchema, location="path", as_kwargs=True)
+@dc_required()
+def remove_data_controller_manager_from_application(application_uuid, user_email, current_user):
+    ApplicationService.remove_data_controller_manager_from_owned_application(current_user, application_uuid, user_email)
     return "", 204
 
-
-@application_bp.route("/managed-application/<application_uuid>/pia", methods=["DELETE"])
-@application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
-@dc_or_dpo_required()
-def remove_pia_by_managed_application_uuid(application_uuid: str, current_user):
-    ApplicationService.remove_pia_by_managed_application_uuid(
-        current_user.id, application_uuid
-    )
-    return "", 204
+#Flusso di refresh applicazioni da smartotum
+@application_bp.route("/refresh", methods=["POST"])
+@application_bp.response(202, description="Refresh started")
+@ds_required()
+def refresh_apps(current_user):
+    SmartotumService.update_installed_application_for_user(current_user)
+    return "Apps updated from Smartotum Installed App of " + current_user.email, 202

@@ -1,12 +1,4 @@
-import {
-  getManagedApplications,
-  getInstalledApplications,
-  getCatalogApplications,
-  createApplication,
-  claimManagedApplication,
-  assignDpoToManagedApplication,
-  UpdateApps
-} from "../API/Applications/applicationAPI";
+import { getManagedApplications, getInstalledApplications, createApplication, assignDpoToManagedApplication, addDataControllerManagerToManagedApplication, removeDataControllerManagerFromManagedApplication, refreshApplications } from "../API/Applications/applicationAPI";
 import { AppModel, CreateApplicationRequest, DocumentStatus } from "../models/app"
 import { Evaluation } from "../models/question";
 import { Role, User } from "../models/user";
@@ -23,12 +15,16 @@ import { Role, User } from "../models/user";
 //Mantenedno l'informazione parametro presente o no e valore interno null o no possiamo poi
 //ricostruire i vari casi di interesse, ad esempio firstname settato (presente come parametro) ma vuoto (quindi null)
 
-const fetchManagedApplications = async () => {
+const fetchManagedApplications = async (): Promise<AppModel[] | undefined> => {
     try {
-      const applications = await getManagedApplications();
-      return applications;
+      const applications = (await getManagedApplications()) as ApplicationDto[];
+      if (!Array.isArray(applications)) {
+        console.warn("Unexpected managed applications payload:", applications);
+        return undefined;
+      }
+      return applications.map(toAppModel);
     } catch (err) {
-      console.error("Error fetching managed applications:", err);
+      throw err;
     }
   };
 
@@ -44,16 +40,18 @@ type UserDto = {
 type InnerApplicationDto = {
   uuid: string; //uuid anche se in swagger è indicato come non obbligatorio in realtà lo è 
   name: string;
+  title?: string | null;
   description?: string | null;
   evaluation?: Evaluation | null;
   questionnaire_summary?: string | null;
 };
 
-type DocumentStatusDto = "AVAILABLE" | "MISSING" | "FORBIDDEN";
+type DocumentStatusDto = "AVAILABLE" | "MISSING";
 
 type ApplicationDto = {
   application: InnerApplicationDto;
-  installed_at?: string;  //può non essere presente se è un data controller a fare richiesta dell'app da catalogo
+  installed_at?: string;
+  owner: UserDto;
   data_controllers: UserDto[];
   dpo: UserDto | null;
   pn_status?: DocumentStatusDto; //di solito sempre presente
@@ -75,7 +73,7 @@ const normalizeOptionalEvaluation = (value: unknown): Evaluation | undefined =>
     : undefined;
 
 const normalizeOptionalDocumentStatus = (value: unknown): DocumentStatus | undefined =>
-  value === "AVAILABLE" || value === "MISSING" || value === "FORBIDDEN"
+  value === "AVAILABLE" || value === "MISSING"
     ? (value as DocumentStatus)
     : undefined;
 
@@ -91,20 +89,17 @@ const toUserModel = (dto: UserDto): User =>
   );
 
 //trasforma quello che riceve dal backend nel nostro AppModel
-//va bene sia per la chiamata a catalogo sia quella installed
 const toAppModel = (dto: ApplicationDto): AppModel => {
   const app = dto.application ?? {}; 
+  const owner = toUserModel(dto.owner);
+  const title = normalizeOptionalString(app.title) ?? app.name;
 
-  const model = new AppModel(app.uuid, app.name);
+  const model = new AppModel(app.uuid, app.name, title, owner);
   model.description = normalizeOptionalString(app.description);
   model.evaluation = normalizeOptionalEvaluation(app.evaluation);
   model.questionnaire_summary = normalizeOptionalString(app.questionnaire_summary);
   model.installed_at = normalizeOptionalString(dto.installed_at);
-  //manteniamo per il data controller array vuoto -> non ci sono
-  //undefined non ci è stato inviato un dato corretto
-  model.data_controllers = Array.isArray(dto.data_controllers)
-    ? (dto.data_controllers as UserDto[]).map(toUserModel)
-    : undefined;
+  model.data_controllers = dto.data_controllers.map(toUserModel);
 
   //type guard minima
   model.dpo = dto.dpo?.role === Role.DPO ? toUserModel(dto.dpo as UserDto) : undefined;
@@ -129,44 +124,34 @@ const toAppModel = (dto: ApplicationDto): AppModel => {
     }
   }
 
-  const fetchCatalogApplications = async (): Promise<AppModel[] | undefined> => {
-    try {
-      //cast semplice, permette di trattare il valore ritornato com un ApplicationDTO 
-      const applications = (await getCatalogApplications()) as ApplicationDto[];
-      //controlliamo che sia un array 
-      if (!Array.isArray(applications)) {
-        console.warn("Unexpected installed applications payload:", applications);
-        return undefined;
-      }
-      return applications.map(toAppModel);
-    } catch (err) {
-      throw err
-    }
-  }
-
-
-export const updateCatalogApplications = async (): Promise<boolean | undefined> => {
+export const refreshInstalledApplications = async (): Promise<boolean | undefined> => {
   try {
-    const response = (await UpdateApps()) as boolean;
+    const response = (await refreshApplications()) as boolean;
     return response;
   } catch (err) {
      throw err
   }
 };
 
-export const claimApplicationAsDataController = async (
-  applicationUuid: string,
-): Promise<boolean> => {
+export const assignDpoToApplication = async (applicationUuid: string,dpoEmail: string): Promise<boolean> => {
   try {
-    return await claimManagedApplication(applicationUuid);
+    return await assignDpoToManagedApplication(applicationUuid, dpoEmail);
   } catch (err) {
     throw err;
   }
 };
 
-export const assignDpoToApplication = async (applicationUuid: string,dpoUuid: string): Promise<boolean> => {
+export const addDataControllerManagerToApplication = async (applicationUuid: string, userEmail: string): Promise<boolean> => {
   try {
-    return await assignDpoToManagedApplication(applicationUuid, dpoUuid);
+    return await addDataControllerManagerToManagedApplication(applicationUuid, userEmail);
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const removeDataControllerManagerFromApplication = async (applicationUuid: string, userEmail: string): Promise<void> => {
+  try {
+    await removeDataControllerManagerFromManagedApplication(applicationUuid, userEmail);
   } catch (err) {
     throw err;
   }
@@ -189,5 +174,4 @@ export const createApplicationByDataController = async (payload: CreateApplicati
   }
 };
 
-
-export {fetchManagedApplications, fetchInstalledApplications, fetchCatalogApplications}
+export {fetchManagedApplications, fetchInstalledApplications}

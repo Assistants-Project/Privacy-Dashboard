@@ -15,7 +15,6 @@ import {
   fetchQuestionnaire,
   submitQuestionnaire,
 } from "../../services/QuestionnaireService";
-import { DocumentStatus } from "../../models/app";
 import { PdfDownloadButton } from "../PdfDownloadButton";
 
 type QuestionnaireEditorProps = {
@@ -47,8 +46,6 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
   const shownQuestionnaireSummary = questionnaire?.questionnaire_summary;
   const viewQuestions = questionnaire?.questions;
   const hasQuestionnaire = !!shownEvaluation;
-  const questionnaireForbidden =
-    selectedApp?.pia_status === DocumentStatus.Forbidden; // TODO check if it is correct that a questionnaire is forbidden when the PIA is forbidden, so that we don't need a separate status for it?
 
   const loadTemplateQuestions = useCallback(async () => {
     if (templateQuestions) {
@@ -136,10 +133,6 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
       alert("Please select an application.");
       return;
     }
-    if (questionnaireForbidden) {
-      alert("Questionnaire is not available for this application.");
-      return;
-    }
 
     setError(undefined);
     const submissionPayload = {
@@ -182,14 +175,7 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
 
   return (
     <>
-      {questionnaireForbidden ? (
-        <Card className="p-0">
-          <Card.Body className="text-muted">
-            You are not allowed to view or edit the questionnaire for this app.
-          </Card.Body>
-        </Card>
-      ) : (
-        <>
+      <>
           <Row className="align-items-center">
             <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
               <h5 className="d-inline-block mb-0 ms-1">
@@ -421,10 +407,9 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
                   </div>
                 </Card.Body>
               </Card>
-            )}
-          </Stack>
-        </>
-      )}
+              )}
+            </Stack>
+          </>
     </>
   );
 }

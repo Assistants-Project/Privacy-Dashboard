@@ -21,8 +21,18 @@ class ApplicationRepository:
         return db.session.scalar(statement)
 
     @staticmethod
-    def create_application(name: str, description: str | None) -> Application:
-        application = Application(name=name, description=description)
+    def create_application(
+        name: str,
+        description: str | None,
+        title: str,
+        owner_user_id: int | None = None,
+    ) -> Application:
+        application = Application(
+            name=name,
+            title=title,
+            description=description,
+            owner_user_id=owner_user_id,
+        )
         db.session.add(application)
         db.session.flush()
         return application
@@ -30,13 +40,42 @@ class ApplicationRepository:
     @staticmethod
     def get_applications_by_dc_or_dpo_id(
         user_id: int,
-    ) -> Iterator[Tuple[Application, datetime]]:
-        statement = db.select(Application, UserSmartHomeApplication.installed_at).join(
-            Application.installed_by_user_smart_home_combinations.and_(
-                UserSmartHomeApplication.user_id == user_id
+    ) -> List[Tuple[Application, datetime, User | None]]:
+        current_user_rel = aliased(UserSmartHomeApplication)
+        manager_rel = aliased(UserSmartHomeApplication)
+
+        statement = (
+            db.select(Application, current_user_rel.installed_at, User)
+            .join(
+                current_user_rel,
+                and_(
+                    current_user_rel.application_id == Application.id,
+                    current_user_rel.user_id == user_id,
+                    current_user_rel.smart_home_id.is_(None),
+                ),
+            )
+            .outerjoin(
+                manager_rel,
+                and_(
+                    manager_rel.application_id == Application.id,
+                    manager_rel.smart_home_id.is_(None),
+                ),
+            )
+            .outerjoin(
+                User,
+                and_(
+                    User.id == manager_rel.user_id,
+                    User.role.in_(
+                        [
+                            UserRole.DATA_CONTROLLER,
+                            UserRole.DATA_PROTECTION_OFFICER,
+                        ]
+                    ),
+                ),
             )
         )
-        return db.session.execute(statement)
+        rows = db.session.execute(statement).all()
+        return [(app, installed_at, user) for app, installed_at, user in rows]
 
     @staticmethod
     def get_application_by_user_id_and_application_uuid(
@@ -182,6 +221,8 @@ class ApplicationRepository:
                 present = application
                 existing_by_name[name] = present
             else:
+                if application.title is not None:
+                    present.title = application.title
                 if application.description is not None:
                     present.description = application.description
 
@@ -236,6 +277,21 @@ class ApplicationRepository:
         relation.application_id = application_id
         relation.installed_at = datetime.now()
         db.session.add(relation)
+        return True
+
+    @staticmethod
+    def remove_application_managed_by_user(user_id: int, application_id: int) -> bool:
+        statement = db.select(UserSmartHomeApplication).where(
+            UserSmartHomeApplication.user_id == user_id,
+            UserSmartHomeApplication.smart_home_id.is_(None),
+            UserSmartHomeApplication.application_id == application_id,
+        )
+        relations = list(db.session.scalars(statement).all())
+        if not relations:
+            return False
+
+        for relation in relations:
+            db.session.delete(relation)
         return True
 
     @staticmethod
@@ -302,6 +358,19 @@ class ApplicationRepository:
                 UserSmartHomeApplication.application_id == application_id,
                 UserSmartHomeApplication.smart_home_id.is_(None),
                 User.role == UserRole.DATA_PROTECTION_OFFICER,
+            )
+        )
+        return set(db.session.scalars(statement).all())
+
+    @staticmethod
+    def get_data_controller_user_ids_for_application(application_id: int) -> set[int]:
+        statement = (
+            db.select(UserSmartHomeApplication.user_id)
+            .join(User, User.id == UserSmartHomeApplication.user_id)
+            .where(
+                UserSmartHomeApplication.application_id == application_id,
+                UserSmartHomeApplication.smart_home_id.is_(None),
+                User.role == UserRole.DATA_CONTROLLER,
             )
         )
         return set(db.session.scalars(statement).all())
@@ -374,45 +443,7 @@ class ApplicationRepository:
                 db.session.flush()
                 continue
 
+            if application.title is not None:
+                present.title = application.title
             if application.description is not None:
                 present.description = application.description
-
-    @staticmethod
-    def submit_pia_for_application(application_id: int, pia_data: dict) -> None:
-        application = db.session.get(Application, application_id)
-        application.privacy_impact_assessment = pia_data
-        db.session.commit()
-
-    @staticmethod
-    def remove_pia_for_application(application_id: int) -> None:
-        application = db.session.get(Application, application_id)
-        application.privacy_impact_assessment = None
-        db.session.commit()
-
-    # retrieves for every application the applications details and assigned data controllers and dpo
-    @staticmethod
-    def get_available_application() -> List[Tuple[Application, User | None]]:
-
-        statement = (
-            db.select(Application, User)
-            .outerjoin(
-                UserSmartHomeApplication,
-                and_(
-                    UserSmartHomeApplication.application_id == Application.id,
-                    UserSmartHomeApplication.smart_home_id.is_(None),
-                ),
-            )
-            .outerjoin(
-                User,
-                and_(
-                    User.id == UserSmartHomeApplication.user_id,
-                    User.role.in_(
-                        [UserRole.DATA_CONTROLLER, UserRole.DATA_PROTECTION_OFFICER]
-                    ),
-                ),
-            )
-        )
-
-        rows = db.session.execute(statement).all()
-
-        return [(app, user) for app, user in rows]
