@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-COMPOSE_FILE="docker/docker-compose-demo.yml"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+COMPOSE_FILE="${PROJECT_ROOT}/docker/docker-compose-demo.yml"
 DEPLOY_ENV_FILE="${DEPLOY_ENV_FILE:-/env/privacydashboard-test.env}"
 export TEST_PROJECT_NAME="privacy-dashboard-demo-test"
 export APP_PORT="15050"
@@ -10,12 +12,18 @@ export MARKETPLACE_INGEST_TOKEN="BS4bieIhYQxIREcnBleLx/qqlBvSnPJ4"
 export COMPOSE_PROJECT_NAME="${TEST_PROJECT_NAME}"
 export FLASK_ENV="testing"
 COLLECTION_PATH="backend/testing/tests/Privacy-Dashboard-API.postman_collection_cleaned.json"
+COLLECTION_FILE="${PROJECT_ROOT}/${COLLECTION_PATH}"
 HEALTHCHECK_URL="http://app:5050/api/sifis/health"
 HEALTHCHECK_RETRIES="${HEALTHCHECK_RETRIES:-60}"
 HEALTHCHECK_INTERVAL_SECONDS="${HEALTHCHECK_INTERVAL_SECONDS:-3}"
 
 if [[ ! -f "${DEPLOY_ENV_FILE}" ]]; then
   echo "Deploy env file not found: ${DEPLOY_ENV_FILE}" >&2
+  exit 1
+fi
+
+if [[ ! -f "${COLLECTION_FILE}" ]]; then
+  echo "Postman collection not found: ${COLLECTION_FILE}" >&2
   exit 1
 fi
 
@@ -46,7 +54,7 @@ fi
 echo "Running Postman collection with Newman"
 docker run --rm \
   --network "${TEST_PROJECT_NAME}_default" \
-  -v "$(pwd):/etc/newman" \
+  -v "${PROJECT_ROOT}:/etc/newman" \
   postman/newman:alpine \
   run "/etc/newman/${COLLECTION_PATH}" \
   --env-var "baseURL=http://app:5050" \
