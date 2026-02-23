@@ -22,12 +22,12 @@ echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-s
 echo "Pulling image ${APP_IMAGE}"
 docker pull "${APP_IMAGE}"
 
-echo "Stopping previous stack ${PROJECT_NAME} (if present)"
+echo "Stopping previous stack ${PROJECT_NAME} and removing demo DB volume (if present)"
 APP_IMAGE="${APP_IMAGE}" docker compose \
   -f "${COMPOSE_FILE}" \
   --project-name "${PROJECT_NAME}" \
   --env-file "${DEPLOY_ENV_FILE}" \
-  down --remove-orphans || true
+  down --remove-orphans -v || true
 
 echo "Starting updated stack ${PROJECT_NAME}"
 APP_IMAGE="${APP_IMAGE}" docker compose \
