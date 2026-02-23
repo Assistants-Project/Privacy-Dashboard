@@ -52,12 +52,24 @@ if ! docker run --rm --network "${TEST_PROJECT_NAME}_default" curlimages/curl:8.
 fi
 
 echo "Running Postman collection with Newman"
-docker run --rm \
+NEWMAN_CONTAINER_ID="$(docker create \
   --network "${TEST_PROJECT_NAME}_default" \
-  -v "${PROJECT_ROOT}:/etc/newman" \
   postman/newman:alpine \
-  run "/etc/newman/${COLLECTION_PATH}" \
+  run /etc/newman/collection.json \
   --env-var "baseURL=http://app:5050" \
-  --env-var "marketplace_ingest_token=${MARKETPLACE_INGEST_TOKEN}"
+  --env-var "marketplace_ingest_token=${MARKETPLACE_INGEST_TOKEN}")"
+
+docker cp "${COLLECTION_FILE}" "${NEWMAN_CONTAINER_ID}:/etc/newman/collection.json"
+
+set +e
+docker start -a "${NEWMAN_CONTAINER_ID}"
+NEWMAN_EXIT_CODE=$?
+set -e
+
+docker rm -f "${NEWMAN_CONTAINER_ID}" >/dev/null 2>&1 || true
+
+if [[ "${NEWMAN_EXIT_CODE}" -ne 0 ]]; then
+  exit "${NEWMAN_EXIT_CODE}"
+fi
 
 echo "Image tests passed successfully."
