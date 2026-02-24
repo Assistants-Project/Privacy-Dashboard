@@ -50,7 +50,7 @@ export function AppsOverviewPanel() {
   }, [appsNeedingAttention, currentPage]);
 
   return (
-    <div className="h-100 d-flex flex-column">
+    <div className="h-100 d-flex flex-column mb-3">
       <Row className="pt-2 mb-2">
         <Col className="d-flex align-items-baseline gap-2">
           <h2 className="mb-0">{isDataSubject ? "Pending Right Requests" : "Apps Overview"}</h2>
@@ -71,14 +71,14 @@ export function AppsOverviewPanel() {
       ) : undefined}
 
       {appsNeedingAttention.length === 0 ? (
-        <Row className="flex-grow-1">
+        <Row>
           <Col>
-            <div className="text-muted">No Apps Needs Attention</div>
+            <div className="text-muted mt-3">No Apps Needs Attention</div>
           </Col>
         </Row>
       ) : (
         <>
-          <div className="flex-grow-1" style={{ minHeight: 0 }}>
+          <div className="flex-grow-1 mt-2" style={{ minHeight: 0 }}>
             <Row xs={1} md={2} className="g-3">
               {pagedAppsNeedingAttention.map((app) => {
                 const pendingRequestsCount = app.pending_right_requests_count ?? 0;

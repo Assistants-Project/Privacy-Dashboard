@@ -7,7 +7,7 @@ import { DocumentStatus } from "../../models/app";
 import { Evaluation } from "../../models/question";
 import { SubmitRightRequestModal } from "../Rights/RightRequestSubmitForm";
 import { AppAssignmentPanel } from "./AppAssignmentPanel";
-import { AppConsentsPanel } from "./AppConsentsPanel";
+import { AppConsentsPanel } from "../Consents/AppConsentsPanel";
 
 export function AppDetailsPanel() {
   const { isDataSubject } = useAuth();

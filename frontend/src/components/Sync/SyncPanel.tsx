@@ -22,8 +22,10 @@ export function SyncPanel() {
     if (handledLoginEventIdRef.current === loginEventId) return;
 
     handledLoginEventIdRef.current = loginEventId;
-    void syncHomes();
-    void syncApps();
+    void (async () => {
+      await syncHomes();
+      await syncApps();
+    })();
   }, [loading, user?.uuid, user?.role, loginEventId, syncHomes, syncApps]);
 
   if (!isDataSubject) return null;

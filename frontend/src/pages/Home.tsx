@@ -1,11 +1,30 @@
+import { useMemo } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { useAuth } from "../contexts/AuthContext";
+import { useApp } from "../contexts/AppsContext";
 import { HomeSelector } from "../components/Home/HomeSelector";
 import { AppsOverviewPanel } from "../components/Home/AppsOverviewPanel";
+import { DocumentStatus } from "../models/app";
 
 function Home() {
   const { user, isDataSubject } = useAuth();
+  const { apps } = useApp();
   const sectionStyle = { backgroundColor: "#f8f9fa" };
+  const allApps = apps ?? [];
+
+  const hasAppsNeedingAttention = useMemo(() => {
+    if (isDataSubject) {
+      return allApps.some((app) => (app.pending_right_requests_count ?? 0) > 0);
+    }
+
+    return allApps.some(
+      (app) =>
+        app.pn_status === DocumentStatus.Missing ||
+        app.pia_status === DocumentStatus.Missing ||
+        !app.evaluation ||
+        (app.pending_right_requests_count ?? 0) > 0,
+    );
+  }, [allApps, isDataSubject]);
 
   return (
     <Container className="py-1 h-100 d-flex flex-column" style={{ minHeight: 0 }}>
@@ -26,11 +45,11 @@ function Home() {
           </Col>
         </Row>
       ) : undefined}
-      <Row className="flex-grow-1" style={{ minHeight: 0 }}>
-        <Col className="d-flex flex-column" style={{ minHeight: 0 }}>
+      <Row className={hasAppsNeedingAttention ? "flex-grow-1" : undefined} style={hasAppsNeedingAttention ? { minHeight: 0 } : undefined}>
+        <Col className={hasAppsNeedingAttention ? "d-flex flex-column" : undefined} style={hasAppsNeedingAttention ? { minHeight: 0 } : undefined}>
           <Container
             fluid
-            className={`border rounded-3 p-3 d-flex h-100 flex-column`}
+            className={`border rounded-3 p-3 d-flex flex-column ${hasAppsNeedingAttention ? "h-100" : ""}`}
             style={sectionStyle}
           >
             <AppsOverviewPanel />
