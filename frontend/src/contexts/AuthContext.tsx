@@ -1,13 +1,16 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { User, Role } from "../models/user";
 import authentication from "../API/User/authenticationAPI";
-import { fetchHomes } from "../services/HomesService"
-import { HomeModel } from "../models/home";
 
 //tutti i parametri del contesto che possono essere comodi e usati in tanti componenti diversi
 type AuthContextValue = {
   user: User | undefined;
   loading: boolean;
+  loginEventId: number;
+  isDataSubject: boolean;
+  isDataController: boolean;
+  isDpo: boolean;
+  isManagerRole: boolean;
   login: (username: string, password: string) => Promise<void>;
   register: (
     email: string,
@@ -17,7 +20,7 @@ type AuthContextValue = {
     role: Role,
   ) => Promise<void>;
   logout: () => Promise<void>;
-  delete_user: () => Promise<void>;
+  deleteUser: () => Promise<void>;
 };
 
 const AuthContext = React.createContext<AuthContextValue | undefined>(undefined);
@@ -26,6 +29,7 @@ const AuthContext = React.createContext<AuthContextValue | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const [user, setUser] = useState<User | undefined>(undefined);
+  const [loginEventId, setLoginEventId] = useState(0);
 
   const [loading, setLoading] = useState(true);
 
@@ -49,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, [user?.uuid]);
 
-  const delete_user = async() => {
+  const deleteUser = async() => {
     await authentication.delete_current();
     setUser(undefined)
   } 
@@ -57,9 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const u = await authentication.login(email, password);
-    //prendo le case solo se utente è data subject
-    //const homes = u.role === Role.DataSubject ? await fetchHomes() : undefined;
     setUser(new User(u.uuid,u.email, u.firstname, u.lastname, u.role));
+    //id incrementato solo durante login esplicito, non durante checkAuth su reload
+    setLoginEventId((prev) => prev + 1);
   };
 
 
@@ -93,10 +97,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const isDataSubject = user?.role === Role.DataSubject;
+  const isDataController = user?.role === Role.DataController;
+  const isDpo = user?.role === Role.DPO;
+  const isManagerRole = isDataController || isDpo;
+
   //per ottimizzare il caricamento riguardare meglio
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, login, logout, register, delete_user }),
-    [user, loading],
+    () => ({ user, loading, loginEventId, isDataSubject, isDataController, isDpo, isManagerRole, login, logout, register, deleteUser }),
+    [user, loading, loginEventId, isDataSubject, isDataController, isDpo, isManagerRole],
   );
 
   return <AuthContext.Provider value={ value }>{children}</AuthContext.Provider>;

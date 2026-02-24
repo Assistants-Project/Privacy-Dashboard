@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID, uuid4
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...extensions import db
@@ -25,6 +25,13 @@ class AvailableConsent(db.Model):
     """
 
     __tablename__ = "available_consents"
+    __table_args__ = (
+        UniqueConstraint(
+            "application_id",
+            "content",
+            name="uq_available_consents_application_id_content",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)

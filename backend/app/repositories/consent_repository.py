@@ -1,14 +1,13 @@
 from datetime import datetime
-from typing import Iterator, Tuple
 from uuid import UUID
 
-from sqlalchemy import Row
+from sqlalchemy import Row, and_
 
 from ..extensions import db
-from ..models import Application, AvailableConsent, UserSmartHomeAvailableConsent
+from ..models import AvailableConsent, UserSmartHomeAvailableConsent
 
 
-class AvailableConsentRepository:
+class ConsentRepository:
     #si occupa di aggiungere consensi mancanti, se un consenso è già presente non fa nulla
     #utilizzata sia nel contesto di sync smartotum sia nel caso di creazione di una nuova app
     #non cancella i consensi non più presenti -> bisogna decidere come gestire la cancellazione -> avere is active = false sarebbe la soluzione migliore
@@ -36,6 +35,31 @@ class AvailableConsentRepository:
         return db.session.execute(statement).first()
 
     @staticmethod
+    def create_available_consent(application_id: int, content: str) -> AvailableConsent:
+        available_consent = AvailableConsent(content=content, application_id=application_id)
+        db.session.add(available_consent)
+        db.session.flush()
+        return available_consent
+
+    @staticmethod
+    def get_available_consent_by_application_id_and_uuid(application_id: int, consent_uuid: UUID) -> AvailableConsent | None:
+        statement = db.select(AvailableConsent).where(
+            AvailableConsent.application_id == application_id,
+            AvailableConsent.uuid == consent_uuid,
+        )
+        return db.session.scalar(statement)
+
+    @staticmethod
+    def delete_available_consent_by_application_id_and_uuid(application_id: int, consent_uuid: UUID) -> bool:
+        available_consent = ConsentRepository.get_available_consent_by_application_id_and_uuid(
+            application_id, consent_uuid
+        )
+        if not available_consent:
+            return False
+        db.session.delete(available_consent)
+        return True
+
+    @staticmethod
     def get_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_available_consent_id(
         user_id: int, smart_home_id: int, available_consent_id: int
     ) -> UserSmartHomeAvailableConsent | None:
@@ -60,73 +84,25 @@ class AvailableConsentRepository:
         return db.session.execute(statement).first()
 
     @staticmethod
-    def get_available_consents_by_ds_id_and_smart_home_id(
-        current_user_id: int, smart_home_id: int
-    ) -> Iterator[Tuple[AvailableConsent, UUID, datetime]]:
-        statement = (
-            db.select(
-                AvailableConsent,
-                Application.uuid,
-                UserSmartHomeAvailableConsent.given_at,
-            )
-            .join(
-                AvailableConsent.given_by_user_smart_home_combinations.and_(
-                    UserSmartHomeAvailableConsent.smart_home_id == smart_home_id,
-                    UserSmartHomeAvailableConsent.user_id == current_user_id,
-                )
-            )
-            .join(Application)
-        )
-        return db.session.execute(statement)
-
-    @staticmethod
-    def create_user_smart_home_available_consent(
-        user_id: int,
-        smart_home_id: int,
-        available_consent_id: int,
-    ) -> UserSmartHomeAvailableConsent:
-        given_consent = UserSmartHomeAvailableConsent(
-            user_id=user_id,
-            smart_home_id=smart_home_id,
-            available_consent_id=available_consent_id,
-            given_at=datetime.now(),
-        )
-        db.session.add(given_consent)
-        db.session.commit()
-        db.session.refresh(given_consent)
-        return given_consent
-
-    @staticmethod
-    def delete_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_available_consent_id(
-        user_id: int, smart_home_id: int, available_consent_id: int
-    ) -> None:
-        statement = db.delete(UserSmartHomeAvailableConsent).where(
-            UserSmartHomeAvailableConsent.user_id == user_id,
-            UserSmartHomeAvailableConsent.smart_home_id == smart_home_id,
-            UserSmartHomeAvailableConsent.available_consent_id == available_consent_id,
-        )
-        db.session.execute(statement)
-        db.session.commit()
-        return
-
-    @staticmethod
-    def delete_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_application_id(
+    def get_available_consents_with_given_state_by_ds_id_and_smart_home_id_and_application_id(
         user_id: int, smart_home_id: int, application_id: int
-    ) -> None:
-        subquery = (
-            db.select(AvailableConsent.id)
+    ) -> list[tuple[AvailableConsent, datetime | None]]:
+        statement = (
+            db.select(AvailableConsent, UserSmartHomeAvailableConsent.given_at)
+            .outerjoin(
+                UserSmartHomeAvailableConsent,
+                and_(
+                    UserSmartHomeAvailableConsent.available_consent_id == AvailableConsent.id,
+                    UserSmartHomeAvailableConsent.user_id == user_id,
+                    UserSmartHomeAvailableConsent.smart_home_id == smart_home_id,
+                ),
+            )
             .where(AvailableConsent.application_id == application_id)
-            .subquery()
+            .order_by(AvailableConsent.id.asc())
         )
-        statement = db.delete(UserSmartHomeAvailableConsent).where(
-            UserSmartHomeAvailableConsent.user_id == user_id,
-            UserSmartHomeAvailableConsent.smart_home_id == smart_home_id,
-            UserSmartHomeAvailableConsent.available_consent_id.in_(subquery),
-        )
-        db.session.execute(statement)
-        db.session.commit()
-        return
-    
+        rows = db.session.execute(statement).all()
+        return [(available_consent, given_at) for available_consent, given_at in rows]
+
     #no commit at the end so the update_database_smartotum can do it at the end if the process is succefull
     @staticmethod
     def delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id(
@@ -138,6 +114,25 @@ class AvailableConsentRepository:
         )
         db.session.execute(statement)
         return
+
+    @staticmethod
+    def ensure_user_smart_home_available_consent(
+        user_id: int, smart_home_id: int, available_consent_id: int
+    ) -> bool:
+        existing_relation = ConsentRepository.get_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_available_consent_id(
+            user_id, smart_home_id, available_consent_id
+        )
+        if existing_relation:
+            return False
+
+        given_consent = UserSmartHomeAvailableConsent(
+            user_id=user_id,
+            smart_home_id=smart_home_id,
+            available_consent_id=available_consent_id,
+            given_at=datetime.now(),
+        )
+        db.session.add(given_consent)
+        return True
     #revoca specifici consensi da una casa di un utente per una specifica app -> id del consenso è già legato ad 
     #un consenso specifico per una determinata app
     @staticmethod

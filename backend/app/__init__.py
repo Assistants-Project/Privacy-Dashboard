@@ -9,7 +9,7 @@ from flask_cors import CORS
 from .controllers import (
     application_bp,
     auth_bp,
-    available_consent_bp,
+    consent_bp,
     homes_bp,
     marketplace_bp,
     message_bp,
@@ -68,7 +68,7 @@ def create_app(env_name: Optional[str] = None) -> Flask:
     for blueprint in [
         application_bp,
         auth_bp,
-        available_consent_bp,
+        consent_bp,
         homes_bp,
         marketplace_bp,
         message_bp,

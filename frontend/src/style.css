@@ -116,9 +116,10 @@ html,
 }
 
 .navbar {
-  height: 55px;
+  height: 50px;
   background-color: white;
 }
+
 .nav-link {
   transition: none;
 }

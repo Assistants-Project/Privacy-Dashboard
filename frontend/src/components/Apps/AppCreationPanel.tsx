@@ -89,7 +89,7 @@ function AppCreationPanel({ show, onHide }: AppCreationPanelProps) {
       });
       onHide();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Errore inatteso");
+      setError(err instanceof Error ? err.message : "Unexpected Error");
     } finally {
       setCreating(false);
     }

@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from ..exceptions import MissingJWTException, SmartotumSyncException
 from ..integrations.smartotum import SmartotumClient
 from ..repositories.application_repository import ApplicationRepository
-from ..repositories.available_consent_repository import AvailableConsentRepository
+from ..repositories.consent_repository import ConsentRepository
 from ..repositories.room_repository import RoomRepository
 from ..repositories.smart_home_repository import SmartHomeRepository
 from ..models import Application
@@ -160,7 +160,7 @@ class SmartotumService:
                         smart_home_id=home.id,
                         applications=[],
                     )
-                    AvailableConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id(
+                    ConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id(
                         user_id=user.id,
                         smart_home_id=home.id,
                     )
@@ -324,7 +324,7 @@ class SmartotumService:
                     if not application:
                         continue
 
-                    AvailableConsentRepository.upsert_available_consents_for_application(
+                    ConsentRepository.upsert_available_consents_for_application(
                         application.id, available_consents
                     )
                 

@@ -1,8 +1,13 @@
 import baseURL from "../baseUrl";
 import { getApiError } from "../apiError";
 
-async function getManagedApplications() {
-  let response = await fetch(baseURL + "applications/managed", {
+async function getManagedApplications(applicationUuid?: string) {
+  const queryParams = new URLSearchParams();
+  if (applicationUuid) {
+    queryParams.set("application_uuid", applicationUuid);
+  }
+  const query = queryParams.toString();
+  let response = await fetch(baseURL + `applications/managed${query ? `?${query}` : ""}`, {
     method: "GET",
     credentials: "include",
   });
@@ -19,8 +24,14 @@ async function getManagedApplications() {
   }
 }
 
-async function getInstalledApplications(smartHomeUuid: string) {
-  let response = await fetch(baseURL + `applications/home/${encodeURIComponent(smartHomeUuid)}`, {
+async function getInstalledApplications(smartHomeUuid: string, applicationUuid?: string) {
+  const queryParams = new URLSearchParams();
+  if (applicationUuid) {
+    queryParams.set("application_uuid", applicationUuid);
+  }
+  const query = queryParams.toString();
+
+  let response = await fetch(baseURL + `applications/home/${encodeURIComponent(smartHomeUuid)}${query ? `?${query}` : ""}`, {
     method: "GET",
     credentials: "include",
   });
@@ -74,8 +85,24 @@ async function assignDpoToManagedApplication(applicationUuid: string, dpoEmail: 
     },
   );
 
-  if (response.status === 201) return true;
+  if (response.status === 201 || response.status === 200) return true;
   if (response.status === 204) return false;
+
+  throw await getApiError(response);
+}
+
+async function removeDpoFromManagedApplication(applicationUuid: string): Promise<void> {
+  const response = await fetch(
+    baseURL + `applications/managed/${encodeURIComponent(applicationUuid)}/dpo`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  if (response.status === 204) {
+    return;
+  }
 
   throw await getApiError(response);
 }
@@ -214,6 +241,7 @@ export {
   getInstalledApplications,
   createApplication,
   assignDpoToManagedApplication,
+  removeDpoFromManagedApplication,
   addDataControllerManagerToManagedApplication,
   removeDataControllerManagerFromManagedApplication,
   refreshApplications,

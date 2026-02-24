@@ -112,10 +112,7 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
     draftRef.current = merged;
   };
 
-  const title =
-    selectedApp?.name && selectedApp.name.trim() !== ""
-      ? selectedApp.name
-      : "Nome non impostato";
+  const title = selectedApp?.name ?? "";
 
   return (
     <>

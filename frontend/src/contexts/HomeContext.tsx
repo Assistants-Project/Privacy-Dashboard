@@ -43,8 +43,6 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
 
         if (loading) return;
 
-        if (updatingHomes) return;
-
         if (user?.role != Role.DataSubject) {
             setCurrent_home_uuid(undefined);
             setHomes(undefined);
@@ -76,7 +74,7 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
             }
            
         } catch (err) {
-            setErrorHomes(err instanceof Error ? err.message : "Errore inatteso")
+            setErrorHomes(err instanceof Error ? err.message : "Unexpected Error")
         } finally {
             setLoadingHomes(false);
         }
@@ -90,12 +88,11 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
         try {
             await updateHomesService();
         } catch (err) {
-            setErrorUpdatingHomes(err instanceof Error ? err.message : "Errore inatteso")
+            setErrorUpdatingHomes(err instanceof Error ? err.message : "Unexpected Error")
         } finally {
             setUpdatingHomes(false);
         }
     }, []);
-
 
     //per ottimizzare il caricamento riguardare meglio
     const value = useMemo<HomeContextValue>(

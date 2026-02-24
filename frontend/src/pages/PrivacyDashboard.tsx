@@ -9,14 +9,12 @@ import { RequireAuth } from "../components/Routing/RequireAuth";
 import { Apps } from "./Apps/Apps";
 import { Messages } from "./Messages/Messages";
 import { ManageRights } from "./RightsRequest/ManageRights";
-import { Role } from "../models/user";
 import { Home } from "./Home";
 import { PrivacyNotice } from "./PrivacyNotice/PrivacyNotice";
 import { PrivacyImpactAssessment } from "./PIA/PrivacyImpactAssessment";
 
 function PrivacyDashboard() {
-  const auth = useAuth();
-  const isDataSubject = auth.user?.role === Role.DataSubject;
+  const { isDataSubject } = useAuth();
 
   return (
     <Container

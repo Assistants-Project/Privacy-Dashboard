@@ -3,7 +3,7 @@ import baseURL from "../baseUrl";
 
 async function getAvailableConsentsByApplicationUuid(applicationUuid: string) {
   const response = await fetch(
-    baseURL + `available-consents/application/${encodeURIComponent(applicationUuid)}`,
+    baseURL + `consents/application/${encodeURIComponent(applicationUuid)}`,
     {
       method: "GET",
       credentials: "include",
@@ -15,9 +15,9 @@ async function getAvailableConsentsByApplicationUuid(applicationUuid: string) {
   throw await getApiError(response);
 }
 
-async function getGivenConsentsBySmartHomeUuid(smartHomeUuid: string) {
+async function getConsentsStateBySmartHomeAndApplicationUuid(smartHomeUuid: string, applicationUuid: string) {
   const response = await fetch(
-    baseURL + `available-consents/home/${encodeURIComponent(smartHomeUuid)}`,
+    baseURL + `consents/home/${encodeURIComponent(smartHomeUuid)}/application/${encodeURIComponent(applicationUuid)}`,
     {
       method: "GET",
       credentials: "include",
@@ -29,14 +29,15 @@ async function getGivenConsentsBySmartHomeUuid(smartHomeUuid: string) {
   throw await getApiError(response);
 }
 
-async function giveConsentsInSmartHomeByUuid(
+async function setGivenConsentsBySmartHomeAndApplicationUuid(
   smartHomeUuid: string,
+  applicationUuid: string,
   selectedConsents: string[],
 ) {
   const response = await fetch(
-    baseURL + `available-consents/home/${encodeURIComponent(smartHomeUuid)}`,
+    baseURL + `consents/home/${encodeURIComponent(smartHomeUuid)}/application/${encodeURIComponent(applicationUuid)}`,
     {
-      method: "POST",
+      method: "PUT",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -50,8 +51,42 @@ async function giveConsentsInSmartHomeByUuid(
   throw await getApiError(response);
 }
 
+async function addAvailableConsentToManagedApplicationByUuid(applicationUuid: string, content: string) {
+  const response = await fetch(
+    baseURL + `consents/application/${encodeURIComponent(applicationUuid)}`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content }),
+    },
+  );
+  if (response.status === 201 || response.ok) {
+    return await response.json();
+  }
+  throw await getApiError(response);
+}
+
+async function removeAvailableConsentFromManagedApplicationByUuid(applicationUuid: string, availableConsentUuid: string) {
+  const response = await fetch(
+    baseURL + `consents/application/${encodeURIComponent(applicationUuid)}/${encodeURIComponent(availableConsentUuid)}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+  if (response.status === 204 || response.ok) {
+    return;
+  }
+  throw await getApiError(response);
+}
+
 export {
   getAvailableConsentsByApplicationUuid,
-  getGivenConsentsBySmartHomeUuid,
-  giveConsentsInSmartHomeByUuid,
+  getConsentsStateBySmartHomeAndApplicationUuid,
+  setGivenConsentsBySmartHomeAndApplicationUuid,
+  addAvailableConsentToManagedApplicationByUuid,
+  removeAvailableConsentFromManagedApplicationByUuid,
 };

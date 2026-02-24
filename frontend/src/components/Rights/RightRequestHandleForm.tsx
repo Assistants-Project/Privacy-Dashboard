@@ -37,7 +37,7 @@ function RightRequestHandleForm({ request, onSaved }: RightRequestHandleFormProp
       );
       await onSaved();
     } catch (err) {
-      setErrorHandling(err instanceof Error ? err.message : "Errore inatteso");
+      setErrorHandling(err instanceof Error ? err.message : "Unexpected Error");
     } finally {
       setHandling(false);
     }

@@ -59,7 +59,7 @@ function useRightsRequests(statusFilter: RequestStatus | undefined): UseRightsRe
 
     } catch (err) {
 
-      setErrorRequests(err instanceof Error ? err.message : "Errore inatteso");
+      setErrorRequests(err instanceof Error ? err.message : "Unexpected Error");
       setRequests(undefined);
 
     } finally {

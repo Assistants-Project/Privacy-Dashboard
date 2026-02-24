@@ -68,7 +68,7 @@ function AppsList(props: AppsListProps) {
 
                 const selected = app.uuid === selectedAppUUID;
 
-                const title = app.title && app.title.trim() !== "" ? app.title : app.name;
+                const title = app.title;
                 const description = app.description;
                 const warning = props.getDocumentStatus && props.getDocumentStatus(app) === DocumentStatus.Missing;
                 const voteRaw = props.getVote ? props.getVote(app) : undefined;

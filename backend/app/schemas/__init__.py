@@ -1,6 +1,9 @@
 from .request.application_and_privacy_notice_uuid_req_schema import (
     ApplicationAndPrivacyNoticeUuidReqSchema,
 )
+from .request.application_and_available_consent_uuid_req_schema import (
+    ApplicationAndAvailableConsentUuidReqSchema,
+)
 from .request.application_and_user_email_req_schema import (
     ApplicationAndUserEmailReqSchema,
 )
@@ -9,7 +12,9 @@ from .request.application_and_user_uuid_req_schema import (
 )
 from .request.application_create_req_schema import ApplicationCreateReqSchema
 from .request.application_uuid_req_schema import ApplicationUuidReqSchema
+from .request.optional_application_uuid_req_schema import OptionalApplicationUuidReqSchema
 from .request.auth_req_schema import AuthReqSchema
+from .request.available_consent_content_req_schema import AvailableConsentContentReqSchema
 from .request.available_consents_req_schema import AvailableConsentsReqSchema
 from .request.message_req_schema import MessageReqSchema
 from .request.marketplace_application_ingest_req_schema import (
@@ -24,11 +29,8 @@ from .request.request_req_schema import RequestReqSchema
 from .request.request_status_req_schema import RequestStatusReqSchema
 from .request.request_uuid_req_schema import RequestUuidReqSchema
 from .request.smart_home_uuid_req_schema import SmartHomeUuidReqSchema
-from .request.user_and_smart_home_and_application_uuid_req_schema import (
-    UserAndSmartHomeAndApplicationUuidReqSchema,
-)
-from .request.user_and_smart_home_and_available_consent_uuid_req_schema import (
-    UserAndSmartHomeAndAvailableConsentUuidReqSchema,
+from .request.smart_home_and_application_uuid_req_schema import (
+    SmartHomeAndApplicationUuidReqSchema,
 )
 from .request.user_role_req_schema import UserRoleReqSchema
 from .request.user_uuid_req_schema import UserUuidReqSchema
@@ -37,7 +39,7 @@ from .response.application_res_schema import (
     ManagedApplicationResSchema,
 )
 from .response.available_consent_res_schema import (
-    AvailableConsentGivenResSchema,
+    ConsentStateResSchema,
     AvailableConsentResSchema,
 )
 from .response.device_res_schema import DeviceResSchema
@@ -54,11 +56,14 @@ from .response.user_res_schema import UserResSchema
 
 __all__ = [
     "ApplicationAndPrivacyNoticeUuidReqSchema",
+    "ApplicationAndAvailableConsentUuidReqSchema",
     "ApplicationAndUserEmailReqSchema",
     "ApplicationAndUserUuidReqSchema",
     "ApplicationCreateReqSchema",
     "ApplicationUuidReqSchema",
+    "OptionalApplicationUuidReqSchema",
     "AuthReqSchema",
+    "AvailableConsentContentReqSchema",
     "AvailableConsentsReqSchema",
     "MessageReqSchema",
     "MarketplaceApplicationIngestReqSchema",
@@ -71,12 +76,11 @@ __all__ = [
     "RequestStatusReqSchema",
     "RequestUuidReqSchema",
     "SmartHomeUuidReqSchema",
-    "UserAndSmartHomeAndApplicationUuidReqSchema",
-    "UserAndSmartHomeAndAvailableConsentUuidReqSchema",
+    "SmartHomeAndApplicationUuidReqSchema",
     "UserRoleReqSchema",
     "UserUuidReqSchema",
+    "ConsentStateResSchema",
     "ManagedApplicationResSchema",
-    "AvailableConsentGivenResSchema",
     "AvailableConsentResSchema",
     "DeviceResSchema",
     "HomeResSchema",

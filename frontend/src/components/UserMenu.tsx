@@ -5,7 +5,7 @@ import { Role, User } from "../models/user";
 import { useHome } from "../contexts/HomeContext";
 
 export function UserMenu() {
-    const { user, logout, delete_user } = useAuth();
+    const { user, logout, deleteUser } = useAuth();
     const { current_home_uuid } = useHome();
 
 
@@ -49,7 +49,7 @@ export function UserMenu() {
                         </Button>
                         </Col>
                         <Col xs="auto">
-                        <Button variant="danger" onClick={delete_user}>
+                        <Button variant="danger" onClick={deleteUser}>
                             DELETE USER
                         </Button>
                         </Col>

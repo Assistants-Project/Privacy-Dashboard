@@ -1,0 +1,265 @@
+from datetime import datetime
+from typing import List, TypedDict
+from uuid import UUID
+from sqlalchemy.exc import IntegrityError
+from ..extensions import db
+from ..exceptions import (
+    ApplicationNotFoundException,
+    AvailableConsentApplicationMismatchException,
+    AvailableConsentEmptyListException,
+    AvailableConsentNotFoundException,
+    AvailableConsentWrongListException,
+    SmartHomeNotFoundException,
+)
+from ..models import AvailableConsent
+from ..repositories import (
+    ApplicationRepository,
+    ConsentRepository,
+    SmartHomeRepository,
+)
+
+
+class ConsentStateDict(TypedDict):
+    uuid: UUID
+    content: str
+    given: bool
+    given_at: datetime | None
+
+
+class ConsentService:
+    @staticmethod
+    def add_available_consent_to_managed_application(
+        current_user_id: int, application_uuid: UUID, content: str
+    ) -> AvailableConsent:
+        """Creates a new available consent for a managed application.
+
+        Args:
+            current_user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who is creating the consent.
+            application_uuid: The `UUID` of the managed application where the consent is added.
+            content: The textual content of the consent to add.
+
+        Returns:
+            The created `AvailableConsent` instance.
+
+        Raises:
+            `ApplicationNotFoundException`: If the application with the given `UUID` is not found among managed applications.
+            `AvailableConsentWrongListException`: If the content is blank or already exists for the application.
+        """
+        application = ApplicationRepository.get_application_by_user_id_and_application_uuid(
+            current_user_id, application_uuid
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among your managed applications!"
+            )
+
+        normalized_content = content.strip()
+        if not normalized_content:
+            raise AvailableConsentWrongListException("Consent content cannot be blank!")
+        try:
+            available_consent = ConsentRepository.create_available_consent(
+                application.id, normalized_content
+            )
+            db.session.commit()
+            return available_consent
+        except IntegrityError:
+            db.session.rollback()
+            raise AvailableConsentWrongListException(
+                "Consent already exists for this application!"
+            )
+
+    @staticmethod
+    def remove_available_consent_from_managed_application(
+        current_user_id: int, application_uuid: UUID, available_consent_uuid: UUID
+    ) -> None:
+        """Deletes an available consent from a managed application.
+
+        Args:
+            current_user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who is deleting the consent.
+            application_uuid: The `UUID` of the managed application where the consent is removed.
+            available_consent_uuid: The `UUID` of the available consent to delete.
+
+        Returns:
+            `None`.
+
+        Raises:
+            `ApplicationNotFoundException`: If the application with the given `UUID` is not found among managed applications.
+            `AvailableConsentNotFoundException`: If the available consent with the given `UUID` is not found for the application.
+        """
+        application = ApplicationRepository.get_application_by_user_id_and_application_uuid(
+            current_user_id, application_uuid
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among your managed applications!"
+            )
+
+        deleted = (
+            ConsentRepository.delete_available_consent_by_application_id_and_uuid(
+                application.id, available_consent_uuid
+            )
+        )
+        if not deleted:
+            raise AvailableConsentNotFoundException(
+                f"Available Consent with uuid {available_consent_uuid} not found for application {application_uuid}!"
+            )
+        db.session.commit()
+        return
+
+    @staticmethod
+    def get_available_consents_by_application_uuid(
+        current_user_id: int, application_uuid: UUID
+    ) -> List[AvailableConsent]:
+        """Returns all available consents for a visible application.
+
+        Args:
+            current_user_id: The ID of the logged user requesting the list.
+            application_uuid: The `UUID` of the application whose available consents are requested.
+
+        Returns:
+            A list of `AvailableConsent` instances, or an empty list if none are configured.
+
+        Raises:
+            `ApplicationNotFoundException`: If the application with the given `UUID` is not visible to the current user.
+        """
+        application = ApplicationRepository.get_application_by_user_id_and_application_uuid(
+            current_user_id, application_uuid
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among your applications!"
+            )
+        return application.available_consents
+
+    
+    @staticmethod
+    def get_consents_state_by_ds_id_and_smart_home_uuid_and_application_uuid(
+        current_user_id: int, smart_home_uuid: str, application_uuid: UUID
+    ) -> List[ConsentStateDict]:
+        """Returns available consents for an app with their given/not-given state in a smart home.
+
+        Args:
+            current_user_id: The ID of the user with role `DATA_SUBJECT` who is fetching consent state.
+            smart_home_uuid: The `UUID` of the smart home where consent state is evaluated.
+            application_uuid: The `UUID` of the installed application in that smart home.
+
+        Returns:
+            A list of dictionaries containing consent `uuid`, `content`, `given` and `given_at`.
+
+        Raises:
+            `SmartHomeNotFoundException`: If the smart home with the given `UUID` is not found among owned homes.
+            `ApplicationNotFoundException`: If the application with the given `UUID` is not installed in the smart home.
+        """
+        smart_home_id, application_id = (
+            ConsentService._get_installed_application_ids_for_ds_in_home(
+                current_user_id, smart_home_uuid, application_uuid
+            )
+        )
+        iterator = ConsentRepository.get_available_consents_with_given_state_by_ds_id_and_smart_home_id_and_application_id(
+            current_user_id, smart_home_id, application_id
+        )
+        return [
+            {
+                "uuid": available_consent.uuid,
+                "content": available_consent.content,
+                "given": given_at is not None,
+                "given_at": given_at,
+            }
+            for available_consent, given_at in iterator
+        ]
+
+    @staticmethod
+    def set_given_consents_by_ds_id_and_smart_home_uuid_and_application_uuid(
+        current_user_id: int,
+        smart_home_uuid: str,
+        application_uuid: UUID,
+        selected_consents_uuids: List[UUID],
+    ) -> None:
+        """Marks selected consents as given for a DS in a specific smart home and application.
+
+        Args:
+            current_user_id: The ID of the user with role `DATA_SUBJECT` who is giving consents.
+            smart_home_uuid: The `UUID` of the smart home where consents are given.
+            application_uuid: The `UUID` of the installed application for the selected consents.
+            selected_consents_uuids: The list of consent `UUID`s to set as given.
+
+        Returns:
+            `None`.
+
+        Raises:
+            `AvailableConsentEmptyListException`: If no consents are selected.
+            `AvailableConsentWrongListException`: If duplicate consent UUIDs are selected.
+            `SmartHomeNotFoundException`: If the smart home with the given `UUID` is not found among owned homes.
+            `ApplicationNotFoundException`: If the application with the given `UUID` is not installed in the smart home.
+            `AvailableConsentNotFoundException`: If a selected consent does not exist.
+            `AvailableConsentApplicationMismatchException`: If selected consents do not belong to the requested application.
+        """
+        if not selected_consents_uuids:
+            raise AvailableConsentEmptyListException("No consents selected!")
+        if len(selected_consents_uuids) != len(set(selected_consents_uuids)):
+            raise AvailableConsentWrongListException("Duplicate consents selected!")
+
+        smart_home_id, application_id = (
+            ConsentService._get_installed_application_ids_for_ds_in_home(
+                current_user_id, smart_home_uuid, application_uuid
+            )
+        )
+
+        available_consents_ids: list[int] = []
+        for consent_uuid in selected_consents_uuids:
+            available_consent = ConsentRepository.get_available_consent_by_uuid(
+                consent_uuid
+            )
+            if not available_consent:
+                raise AvailableConsentNotFoundException(
+                    f"Available Consent with uuid {consent_uuid} not found!"
+                )
+            if available_consent.application_id != application_id:
+                raise AvailableConsentApplicationMismatchException(
+                    "Selected consents do not all belong to the requested application!"
+                )
+            available_consents_ids.append(available_consent.id)
+
+        for available_consent_id in available_consents_ids:
+            ConsentRepository.ensure_user_smart_home_available_consent(
+                current_user_id, smart_home_id, available_consent_id
+            )
+        db.session.commit()
+        return
+
+
+    @staticmethod
+    def _get_installed_application_ids_for_ds_in_home(
+        current_user_id: int, smart_home_uuid: str, application_uuid: UUID
+    ) -> tuple[int, int]:
+        """Resolves internal smart home and application IDs for a DS-scoped installed app.
+
+        Args:
+            current_user_id: The ID of the user with role `DATA_SUBJECT`.
+            smart_home_uuid: The `UUID` of the smart home owned by the user.
+            application_uuid: The `UUID` of the application installed in that smart home.
+
+        Returns:
+            A tuple `(smart_home_id, application_id)` with internal DB IDs.
+
+        Raises:
+            `SmartHomeNotFoundException`: If the smart home with the given `UUID` is not found among owned homes.
+            `ApplicationNotFoundException`: If the application with the given `UUID` is not installed in the specified smart home.
+        """
+        smart_home = SmartHomeRepository.get_home_by_ds_id_and_home_uuid(
+            current_user_id, smart_home_uuid
+        )
+        if not smart_home:
+            raise SmartHomeNotFoundException(
+                f"Smart Home with uuid {smart_home_uuid} not found among the owned smart homes!"
+            )
+
+        user_smart_home_application = ApplicationRepository.get_user_smart_home_application_by_ds_id_and_smart_home_id_and_application_uuid(
+            current_user_id, smart_home.id, application_uuid
+        )
+        if not user_smart_home_application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among the installed applications of smart home with uuid {smart_home_uuid}!"
+            )
+
+        return smart_home.id, user_smart_home_application.application_id

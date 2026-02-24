@@ -11,7 +11,8 @@ class AvailableConsentResSchema(ma.SQLAlchemyAutoSchema):
         exclude = ("id",)
 
 
-class AvailableConsentGivenResSchema(ma.Schema):
-    available_consent = ma.Nested(AvailableConsentResSchema)
-    application_uuid = ma.UUID()
-    given_at = ma.DateTime()
+class ConsentStateResSchema(ma.Schema):
+    uuid = ma.UUID()
+    content = ma.String()
+    given = ma.Boolean()
+    given_at = ma.DateTime(allow_none=True)

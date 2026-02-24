@@ -40,6 +40,56 @@
           ]
         },
         {
+          "name": "Unauthorized List Managed Applications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 401\", function () { pm.expect(pm.response.code).to.eql(401); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Unauthorized payload is returned\", function () {",
+                  "  pm.expect(body).to.have.property('code', 401);",
+                  "  pm.expect(body).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unauthorized Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/auth/logout"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 401\", function () { pm.expect(pm.response.code).to.eql(401); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Unauthorized payload is returned\", function () {",
+                  "  pm.expect(body).to.have.property('code', 401);",
+                  "  pm.expect(body).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Unprocessable Login - Empty Email",
           "request": {
             "method": "POST",
@@ -53,6 +103,47 @@
             "body": {
               "mode": "raw",
               "raw": "{\"email\": \"\", \"password\": \"x\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 422\", function () { pm.expect(pm.response.code).to.eql(422); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Response has validation errors on email\", function () {",
+                  "  pm.expect(body).to.have.property('code', 422);",
+                  "  pm.expect(body).to.have.property('errors');",
+                  "  pm.expect(body.errors).to.have.property('json');",
+                  "  pm.expect(body.errors.json).to.have.property('email');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unprocessable Login - Wrong Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"invalid-email\", \"password\": \"x\"}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -118,7 +209,12 @@
               }
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "name": "Data Subject - Smartotum Setup",
+      "item": [
         {
           "name": "Successful Login - Data Subject (Setup)",
           "request": {
@@ -159,6 +255,31 @@
           ]
         },
         {
+          "name": "Forbidden List Managed Applications - Data Subject",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 403\", function () { pm.expect(pm.response.code).to.eql(403); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Forbidden payload is returned\", function () {",
+                  "  pm.expect(body).to.have.property(\"code\", 403);",
+                  "  pm.expect(body).to.have.property(\"status\", \"Forbidden\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Refresh Homes - Data Subject (Setup)",
           "request": {
             "method": "POST",
@@ -173,6 +294,194 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Response status code is 202\", function () { pm.expect(pm.response.code).to.eql(202); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Applications - Data Subject (Setup)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/refresh"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 202\", function () { pm.expect(pm.response.code).to.eql(202); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Homes - Data Subject (Setup)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/homes"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var homes = pm.response.json();",
+                  "pm.test(\"Homes list is an array\", function () {",
+                  "  pm.expect(homes).to.be.an(\"array\");",
+                  "});",
+                  "if (homes.length > 0) { pm.collectionVariables.set(\"ds_home_uuid\", homes[0].uuid); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Home Rooms - Data Subject (Setup)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/homes/{{ds_home_uuid}}/rooms"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var rooms = pm.response.json();",
+                  "pm.test(\"Rooms list is an array\", function () {",
+                  "  pm.expect(rooms).to.be.an(\"array\");",
+                  "});",
+                  "if (rooms.length > 0) { pm.collectionVariables.set(\"ds_room_uuid\", rooms[0].room_uuid); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Home Devices - Data Subject (Setup)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/homes/{{ds_home_uuid}}/devices"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var devices = pm.response.json();",
+                  "pm.test(\"Devices list is an array\", function () {",
+                  "  pm.expect(devices).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Room Devices - Data Subject (Setup)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/homes/{{ds_home_uuid}}/rooms/{{ds_room_uuid}}/devices"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var devices = pm.response.json();",
+                  "pm.test(\"Room devices is an array\", function () {",
+                  "  pm.expect(devices).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Installed Applications - Data Subject (Setup)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/home/{{ds_home_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var apps = pm.response.json();",
+                  "pm.test(\"Installed applications is an array\", function () {",
+                  "  pm.expect(apps).to.be.an(\"array\");",
+                  "});",
+                  "if (apps.length > 0) { pm.collectionVariables.set(\"ds_installed_application_uuid\", apps[0].application.uuid); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Requests API",
+      "item": [
+        {
+          "name": "Submit Request - Data Subject (Setup)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/requests/submit",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"right_type\":\"ASK_INFORMATION\",\"additional_information\":\"Postman automated test request\",\"smart_home_uuid\":\"{{ds_home_uuid}}\",\"application_uuid\":\"{{ds_installed_application_uuid}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 201\", function () { pm.expect(pm.response.code).to.eql(201); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Created request has uuid\", function () {",
+                  "  pm.expect(body).to.have.property(\"uuid\");",
+                  "  pm.expect(body).to.have.property(\"right_type\", \"ASK_INFORMATION\");",
+                  "});",
+                  "pm.collectionVariables.set(\"ds_request_uuid\", body.uuid);"
                 ]
               }
             }
@@ -258,6 +567,223 @@
                   "pm.test(\"Current user matches login\", function () {",
                   "  pm.expect(body).to.have.property('uuid', pm.collectionVariables.get('dc_uuid'));",
                   "  pm.expect(body).to.have.property('role', 'DATA_CONTROLLER');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Forbidden List Homes - Data Controller",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/homes"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 403\", function () { pm.expect(pm.response.code).to.eql(403); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Forbidden payload is returned\", function () {",
+                  "  pm.expect(body).to.have.property(\"code\", 403);",
+                  "  pm.expect(body).to.have.property(\"status\", \"Forbidden\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Requests Inbox",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/requests/"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"Requests inbox is an array\", function () { pm.expect(data).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Pending Requests Inbox",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/requests/?status=PENDING"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"Pending requests response is an array\", function () { pm.expect(data).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Handle Request - Missing Response Field Regression",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/requests/handle/{{missing_request_uuid}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"HANDLED\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var uuidv4 = function () {",
+                  "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {",
+                  "    var r = Math.random() * 16 | 0;",
+                  "    var v = c === 'x' ? r : (r & 0x3 | 0x8);",
+                  "    return v.toString(16);",
+                  "  });",
+                  "};",
+                  "pm.collectionVariables.set('missing_request_uuid', uuidv4());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 404 (no TypeError 500)\", function () { pm.expect(pm.response.code).to.eql(404); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Error payload is returned\", function () {",
+                  "  pm.expect(body).to.have.property('code', 404);",
+                  "  pm.expect(body).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify DS Request In Pending Inbox",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/requests/?status=PENDING"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var items = pm.response.json();",
+                  "pm.test(\"Pending inbox contains DS request\", function () {",
+                  "  pm.expect(items).to.be.an(\"array\");",
+                  "  var target = pm.collectionVariables.get(\"ds_request_uuid\");",
+                  "  var uuids = items.map(function(x){ return x.request && x.request.uuid; });",
+                  "  pm.expect(uuids).to.include(target);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Handle DS Request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/requests/handle/{{ds_request_uuid}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"HANDLED\", \"response\": \"Handled by Postman tests\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Request is handled\", function () {",
+                  "  pm.expect(body).to.have.property(\"uuid\", pm.collectionVariables.get(\"ds_request_uuid\"));",
+                  "  pm.expect(body).to.have.property(\"status\", \"HANDLED\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify DS Request In Handled Inbox",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/requests/?status=HANDLED"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var items = pm.response.json();",
+                  "pm.test(\"Handled inbox contains DS request\", function () {",
+                  "  pm.expect(items).to.be.an(\"array\");",
+                  "  var target = pm.collectionVariables.get(\"ds_request_uuid\");",
+                  "  var uuids = items.map(function(x){ return x.request && x.request.uuid; });",
+                  "  pm.expect(uuids).to.include(target);",
                   "});"
                 ]
               }
@@ -351,9 +877,72 @@
                   "});",
                   "pm.collectionVariables.set('created_application_uuid', body.application.uuid);",
                   "pm.collectionVariables.set('created_application_id', body.application.name);",
-                  "pm.collectionVariables.set('created_application_title', body.application.title);",
-                  "pm.collectionVariables.set('managed_application_uuid', body.application.uuid);",
-                  "pm.collectionVariables.set('managed_application_name', body.application.name);"
+                  "pm.collectionVariables.set('created_application_title', body.application.title);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bad Request Create Application - Invalid Name (Spaces)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/applications",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"bad name\",\"description\":\"should fail\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 400\", function () { pm.expect(pm.response.code).to.eql(400); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Bad request payload is returned\", function () {",
+                  "  pm.expect(body).to.have.property(\"code\", 400);",
+                  "  pm.expect(body).to.have.property(\"status\", \"Bad Request\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Single Managed Application By UUID (Query)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed?application_uuid={{created_application_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"Response is a single-item array\", function () {",
+                  "  pm.expect(data).to.be.an(\"array\");",
+                  "  pm.expect(data.length).to.eql(1);",
+                  "  pm.expect(data[0]).to.have.nested.property(\"application.uuid\", pm.collectionVariables.get(\"created_application_uuid\"));",
+                  "});"
                 ]
               }
             }
@@ -380,6 +969,26 @@
           ]
         },
         {
+          "name": "Assign Delegate Data Controller (Idempotent)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed/{{created_application_uuid}}/managers/{{delegate_email}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Assign DPO",
           "request": {
             "method": "PUT",
@@ -400,11 +1009,31 @@
           ]
         },
         {
+          "name": "Assign DPO (Idempotent)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed/{{created_application_uuid}}/dpo/{{dpo_email}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Get Available Consents By Created Application",
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{baseURL}}/api/available-consents/application/{{created_application_uuid}}"
+            "url": "{{baseURL}}/api/consents/application/{{created_application_uuid}}"
           },
           "response": [],
           "event": [
@@ -478,6 +1107,58 @@
                   "var data = pm.response.json();",
                   "pm.test(\"Response is an array\", function () { pm.expect(data).to.be.an('array'); });",
                   "if (data.length > 0) { pm.collectionVariables.set('managed_data_subject_uuid', data[0].uuid); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Data Controllers By Created Application",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/users/managed-application/{{created_application_uuid}}?role=DATA_CONTROLLER"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var users = pm.response.json();",
+                  "pm.test(\"Data controllers list contains owner and delegate\", function () {",
+                  "  pm.expect(users).to.be.an(\"array\");",
+                  "  var emails = users.map(function(u){ return u.email; });",
+                  "  pm.expect(emails).to.include(pm.collectionVariables.get(\"delegate_email\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get DPO By Created Application",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/users/managed-application/{{created_application_uuid}}?role=DATA_PROTECTION_OFFICER"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var users = pm.response.json();",
+                  "pm.test(\"DPO list contains assigned DPO\", function () {",
+                  "  pm.expect(users).to.be.an(\"array\");",
+                  "  var emails = users.map(function(u){ return u.email; });",
+                  "  pm.expect(emails).to.include(pm.collectionVariables.get(\"dpo_email\"));",
+                  "});"
                 ]
               }
             }
@@ -558,6 +1239,97 @@
                   "var expected = pm.collectionVariables.get('sent_message_content');",
                   "var found = data.some(function (entry) { return entry.message && entry.message.content === expected; });",
                   "pm.test(\"History contains the sent message\", function () { pm.expect(found).to.eql(true); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cannot Send Message To Yourself",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/messages/send",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"receiver_uuid\": \"{{dc_uuid}}\", \"content\": \"self message should fail\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 400\", function () { pm.expect(pm.response.code).to.eql(400); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Bad request payload is returned\", function () {",
+                  "  pm.expect(body).to.have.property(\"code\", 400);",
+                  "  pm.expect(body).to.have.property(\"status\", \"Bad Request\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cannot Get Message History With Yourself",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/messages/history/{{dc_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 400\", function () { pm.expect(pm.response.code).to.eql(400); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Bad request payload is returned\", function () {",
+                  "  pm.expect(body).to.have.property(\"code\", 400);",
+                  "  pm.expect(body).to.have.property(\"status\", \"Bad Request\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Messaged Contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/users/contacts/messaged"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var items = pm.response.json();",
+                  "pm.test(\"Messaged contacts includes the contacted user\", function () {",
+                  "  pm.expect(items).to.be.an(\"array\");",
+                  "  var contactUuid = pm.collectionVariables.get(\"contact_uuid\");",
+                  "  var uuids = items.map(function(x){ return x.user && x.user.uuid; });",
+                  "  pm.expect(uuids).to.include(contactUuid);",
+                  "});"
                 ]
               }
             }
@@ -690,6 +1462,183 @@
               }
             }
           ]
+        },
+        {
+          "name": "Unprocessable Get Privacy Notice - Wrong UUID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/privacy-notices/managed-application/not-a-uuid"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 422\", function () { pm.expect(pm.response.code).to.eql(422); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Validation errors payload is returned\", function () {",
+                  "  pm.expect(body).to.have.property(\"code\", 422);",
+                  "  pm.expect(body).to.have.property(\"status\", \"Unprocessable Entity\");",
+                  "  pm.expect(body).to.have.property(\"errors\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Privacy Impact Assessments API",
+      "item": [
+        {
+          "name": "Get PIA Template",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/privacy-impact-assessments/template"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Template contains template_id\", function () {",
+                  "  pm.expect(body).to.have.property(\"template_id\");",
+                  "});",
+                  "pm.collectionVariables.set(\"pia_template_id\", body.template_id);",
+                  "pm.collectionVariables.set(\"pia_template_json\", JSON.stringify(body));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PIA Not Found Before Submit",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/privacy-impact-assessments/managed/{{created_application_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 404\", function () { pm.expect(pm.response.code).to.eql(404); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Submit PIA By Managed Application",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/privacy-impact-assessments/managed/{{created_application_uuid}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": {{pia_template_json}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get PIA By Managed Application",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/privacy-impact-assessments/managed/{{created_application_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"PIA content is returned\", function () {",
+                  "  pm.expect(body).to.have.property(\"application_uuid\");",
+                  "  pm.expect(body).to.have.property(\"content\");",
+                  "  pm.expect(body.content).to.have.property(\"template_id\", pm.collectionVariables.get(\"pia_template_id\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete PIA By Managed Application",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseURL}}/api/privacy-impact-assessments/managed/{{created_application_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PIA Not Found After Delete",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/privacy-impact-assessments/managed/{{created_application_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 404\", function () { pm.expect(pm.response.code).to.eql(404); });"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -723,6 +1672,26 @@
                   "pm.expect(first.choices).to.be.an('array').and.to.have.length.greaterThan(0);",
                   "pm.collectionVariables.set('question_uuid', first.question.uuid);",
                   "pm.collectionVariables.set('question_first_choice', first.choices[0]);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Questionnaire Not Found Before Submit",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/questionnaires/managed-application/{{created_application_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 404\", function () { pm.expect(pm.response.code).to.eql(404); });"
                 ]
               }
             }
@@ -787,110 +1756,6 @@
                   "pm.test(\"Questionnaire exists after submission\", function () {",
                   "  pm.expect(body).to.have.property('given_answers');",
                   "  pm.expect(body.given_answers).to.be.an('array').and.to.have.length.greaterThan(0);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Requests API",
-      "item": [
-        {
-          "name": "List Requests Inbox",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseURL}}/api/requests/"
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
-                  "var data = pm.response.json();",
-                  "pm.test(\"Requests inbox is an array\", function () { pm.expect(data).to.be.an('array'); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "List Pending Requests Inbox",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseURL}}/api/requests/?status=PENDING"
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
-                  "var data = pm.response.json();",
-                  "pm.test(\"Pending requests response is an array\", function () { pm.expect(data).to.be.an('array'); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Handle Request - Missing Response Field Regression",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": "{{baseURL}}/api/requests/handle/{{missing_request_uuid}}",
-            "body": {
-              "mode": "raw",
-              "raw": "{\"status\": \"HANDLED\"}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "var uuidv4 = function () {",
-                  "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {",
-                  "    var r = Math.random() * 16 | 0;",
-                  "    var v = c === 'x' ? r : (r & 0x3 | 0x8);",
-                  "    return v.toString(16);",
-                  "  });",
-                  "};",
-                  "pm.collectionVariables.set('missing_request_uuid', uuidv4());"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Response status code is 404 (no TypeError 500)\", function () { pm.expect(pm.response.code).to.eql(404); });",
-                  "var body = pm.response.json();",
-                  "pm.test(\"Error payload is returned\", function () {",
-                  "  pm.expect(body).to.have.property('code', 404);",
-                  "  pm.expect(body).to.have.property('message');",
                   "});"
                 ]
               }
@@ -993,6 +1858,46 @@
           "response": []
         },
         {
+          "name": "Successful Marketplace Ingest - Idempotent Re-Ingest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_ingest_token}}"
+              }
+            ],
+            "url": "{{baseURL}}/api/integrations/marketplace/apps",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id\": \"{{marketplace_app_id}}\", \"name\": \"{{marketplace_app_title}}\", \"description\": \"Marketplace ingestion test app\", \"owner_email\": \"{{dc_email}}\", \"delegates_email\": [\"{{delegate_email}}\"], \"available_consents\": [\"processing of personal information to provide the service\", \"sharing data with analytics service\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Verify Marketplace Ingested App In Managed List",
           "request": {
             "method": "GET",
@@ -1024,6 +1929,491 @@
             }
           ],
           "response": []
+        },
+        {
+          "name": "Unauthorized Marketplace Ingest - Wrong Bearer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer wrong-token"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/integrations/marketplace/apps",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id\": \"com.marketplace.invalid-token-test\", \"name\": \"Invalid Token Test App\", \"owner_email\": \"{{dc_email}}\", \"delegates_email\": [], \"available_consents\": []}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 401\", function () { pm.expect(pm.response.code).to.eql(401); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Applications Assignment Cleanup",
+      "item": [
+        {
+          "name": "Remove Delegate Data Controller",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed/{{created_application_uuid}}/managers/{{delegate_email}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Delegate Removed From Managers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/users/managed-application/{{created_application_uuid}}?role=DATA_CONTROLLER"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var users = pm.response.json();",
+                  "pm.test(\"Managers list is empty (current user excluded)\", function () {",
+                  "  pm.expect(users).to.be.an(\"array\");",
+                  "  pm.expect(users.length).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove DPO",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed/{{created_application_uuid}}/dpo"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify DPO Removed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/users/managed-application/{{created_application_uuid}}?role=DATA_PROTECTION_OFFICER"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var users = pm.response.json();",
+                  "pm.test(\"DPO list is empty\", function () {",
+                  "  pm.expect(users).to.be.an(\"array\");",
+                  "  pm.expect(users.length).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Consents API",
+      "item": [
+        {
+          "name": "Add Available Consent To Created Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/consents/application/{{created_application_uuid}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"retention of logs for security\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 201\", function () { pm.expect(pm.response.code).to.eql(201); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Created consent structure is valid\", function () {",
+                  "  pm.expect(body).to.have.property('uuid');",
+                  "  pm.expect(body).to.have.property('content', 'retention of logs for security');",
+                  "});",
+                  "pm.collectionVariables.set('created_consent_uuid', body.uuid);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Available Consent Duplicate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/consents/application/{{created_application_uuid}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"retention of logs for security\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 422\", function () { pm.expect(pm.response.code).to.eql(422); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Unprocessable payload is returned\", function () {",
+                  "  pm.expect(body).to.have.property(\"code\", 422);",
+                  "  pm.expect(body).to.have.property(\"status\", \"Unprocessable Entity\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Available Consent - Blank Content",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/consents/application/{{created_application_uuid}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"   \"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 422\", function () { pm.expect(pm.response.code).to.eql(422); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Available Consent From Created Application",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseURL}}/api/consents/application/{{created_application_uuid}}/{{created_consent_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Removed Consent Not Present",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/consents/application/{{created_application_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"Consent list is an array\", function () { pm.expect(data).to.be.an('array'); });",
+                  "var removedUuid = pm.collectionVariables.get('created_consent_uuid');",
+                  "var stillPresent = data.some(function (item) { return item.uuid === removedUuid; });",
+                  "pm.test(\"Removed consent is no longer present\", function () { pm.expect(stillPresent).to.eql(false); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Successful Login - Data Subject (Consents)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{ds_email}}\", \"password\": \"{{ds_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Logged user is Data Subject\", function () {",
+                  "  pm.expect(body).to.have.property('role', 'DATA_SUBJECT');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Consent State By Home And Application",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_installed_application_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"Consent state list is not empty\", function () {",
+                  "  pm.expect(data).to.be.an('array');",
+                  "  pm.expect(data.length).to.be.greaterThan(0);",
+                  "});",
+                  "pm.collectionVariables.set('ds_consent_uuid', data[0].uuid);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Set Given Consent - Empty List",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_installed_application_uuid}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"selected_consents\": []}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 422\", function () { pm.expect(pm.response.code).to.eql(422); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Set Given Consent By Home And Application",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_installed_application_uuid}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"selected_consents\": [\"{{ds_consent_uuid}}\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Consent Given After Update",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_installed_application_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var data = pm.response.json();",
+                  "var targetUuid = pm.collectionVariables.get('ds_consent_uuid');",
+                  "var matched = data.find(function (item) { return item.uuid === targetUuid; });",
+                  "pm.test(\"Updated consent is present\", function () { pm.expect(matched).to.not.eql(undefined); });",
+                  "pm.test(\"Updated consent is marked as given\", function () { pm.expect(matched.given).to.eql(true); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Requests API (Data Subject)",
+      "item": [
+        {
+          "name": "List Handled Requests - Data Subject",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/requests/home/{{ds_home_uuid}}?status=HANDLED"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var items = pm.response.json();",
+                  "pm.test(\"Handled requests contains the handled DS request\", function () {",
+                  "  pm.expect(items).to.be.an(\"array\");",
+                  "  var target = pm.collectionVariables.get(\"ds_request_uuid\");",
+                  "  var uuids = items.map(function(x){ return x.request && x.request.uuid; });",
+                  "  pm.expect(uuids).to.include(target);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -1211,6 +2601,38 @@
     },
     {
       "key": "marketplace_app_title",
+      "value": ""
+    },
+    {
+      "key": "created_consent_uuid",
+      "value": ""
+    },
+    {
+      "key": "ds_home_uuid",
+      "value": ""
+    },
+    {
+      "key": "ds_installed_application_uuid",
+      "value": ""
+    },
+    {
+      "key": "ds_consent_uuid",
+      "value": ""
+    },
+    {
+      "key": "ds_room_uuid",
+      "value": ""
+    },
+    {
+      "key": "ds_request_uuid",
+      "value": ""
+    },
+    {
+      "key": "pia_template_json",
+      "value": ""
+    },
+    {
+      "key": "pia_template_id",
       "value": ""
     }
   ]

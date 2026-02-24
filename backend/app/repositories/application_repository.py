@@ -2,11 +2,11 @@ from datetime import datetime
 from typing import Iterator, List, Tuple
 from uuid import UUID
 
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
 
 from ..extensions import db
-from ..models import Application, Evaluation, User, UserRole, UserSmartHomeApplication
+from ..models import Application, Evaluation, Request, Status, User, UserRole, UserSmartHomeApplication
 
 
 class ApplicationRepository:
@@ -40,6 +40,7 @@ class ApplicationRepository:
     @staticmethod
     def get_applications_by_dc_or_dpo_id(
         user_id: int,
+        application_uuid: UUID | None = None,
     ) -> List[Tuple[Application, datetime, User | None]]:
         current_user_rel = aliased(UserSmartHomeApplication)
         manager_rel = aliased(UserSmartHomeApplication)
@@ -74,6 +75,8 @@ class ApplicationRepository:
                 ),
             )
         )
+        if application_uuid is not None:
+            statement = statement.where(Application.uuid == application_uuid)
         rows = db.session.execute(statement).all()
         return [(app, installed_at, user) for app, installed_at, user in rows]
 
@@ -116,7 +119,7 @@ class ApplicationRepository:
 
     @staticmethod
     def get_installed_applications_with_managers_by_ds_id_and_smart_home_id(
-        user_id: int, smart_home_id: int
+        user_id: int, smart_home_id: int, application_uuid: UUID | None = None
     ) -> List[Tuple[Application, datetime, User | None]]:
         ds_rel = aliased(UserSmartHomeApplication)
         mgr_rel = aliased(UserSmartHomeApplication)
@@ -151,6 +154,8 @@ class ApplicationRepository:
                 ),
             )
         )
+        if application_uuid is not None:
+            statement = statement.where(Application.uuid == application_uuid)
 
         rows = db.session.execute(statement).all()
         return [(app, installed_at, user) for app, installed_at, user in rows]
@@ -178,6 +183,68 @@ class ApplicationRepository:
             UserSmartHomeApplication.application_id == application_id,
         )
         return db.session.scalar(statement)
+
+    @staticmethod
+    def get_pending_request_counts_for_managed_applications(
+        application_ids: list[int],
+    ) -> dict[int, int]:
+        if not application_ids:
+            return {}
+
+        statement = (
+            db.select(
+                UserSmartHomeApplication.application_id,
+                func.count(Request.id),
+            )
+            .join(
+                Request,
+                Request.user_smart_home_application_relation_id
+                == UserSmartHomeApplication.id,
+            )
+            .where(
+                UserSmartHomeApplication.application_id.in_(application_ids),
+                Request.status == Status.PENDING,
+            )
+            .group_by(UserSmartHomeApplication.application_id)
+        )
+        rows = db.session.execute(statement).all()
+        return {
+            application_id: int(pending_count)
+            for application_id, pending_count in rows
+        }
+
+    @staticmethod
+    def get_pending_request_counts_for_installed_applications(
+        user_id: int,
+        smart_home_id: int,
+        application_ids: list[int],
+    ) -> dict[int, int]:
+        if not application_ids:
+            return {}
+
+        statement = (
+            db.select(
+                UserSmartHomeApplication.application_id,
+                func.count(Request.id),
+            )
+            .join(
+                Request,
+                Request.user_smart_home_application_relation_id
+                == UserSmartHomeApplication.id,
+            )
+            .where(
+                UserSmartHomeApplication.user_id == user_id,
+                UserSmartHomeApplication.smart_home_id == smart_home_id,
+                UserSmartHomeApplication.application_id.in_(application_ids),
+                Request.status == Status.PENDING,
+            )
+            .group_by(UserSmartHomeApplication.application_id)
+        )
+        rows = db.session.execute(statement).all()
+        return {
+            application_id: int(pending_count)
+            for application_id, pending_count in rows
+        }
 
     @staticmethod
     def update_application_evaluation(
@@ -413,6 +480,25 @@ class ApplicationRepository:
         relation.application_id = application_id
         relation.installed_at = datetime.now()
         db.session.add(relation)
+
+    @staticmethod
+    def remove_dpo_for_application(application_id: int) -> bool:
+        statement = (
+            db.select(UserSmartHomeApplication)
+            .join(User, User.id == UserSmartHomeApplication.user_id)
+            .where(
+                UserSmartHomeApplication.application_id == application_id,
+                UserSmartHomeApplication.smart_home_id.is_(None),
+                User.role == UserRole.DATA_PROTECTION_OFFICER,
+            )
+        )
+        relations = list(db.session.scalars(statement).all())
+        if not relations:
+            return False
+
+        for relation in relations:
+            db.session.delete(relation)
+        return True
 
     @staticmethod
     def upsert_applications(applications: List[Application]) -> None:

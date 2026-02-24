@@ -1,26 +1,18 @@
 import { useAuth } from "../../contexts/AuthContext";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { Role } from "../../models/user";
-import {Container,Dropdown,Nav,Navbar,NavDropdown,Spinner} from "react-bootstrap";
+import {Container,Dropdown,Nav,Navbar} from "react-bootstrap";
 import { UserMenu } from "../UserMenu";
 import { useHome } from "../../contexts/HomeContext";
-import { useApp } from "../../contexts/AppsContext";
-import { ArrowRepeat } from "react-bootstrap-icons";
-import { CheckCircle } from "react-bootstrap-icons";
+import { SyncPanel } from "../Sync/SyncPanel";
 
 export function TopNavBar() {
   const { user } = useAuth();
   const location = useLocation();
-  const { current_home_uuid, updatingHomes, syncHomes } = useHome();
-  const { updatingApps, syncApps } = useApp();
+  const { current_home_uuid } = useHome();
 
   const isDataSubject = user?.role === Role.DataSubject;
   const showQuestionnaire = !isDataSubject;
-
-  const anySyncing = updatingHomes || updatingApps;
-
-  const syncedIcon = (<CheckCircle className="text-success" style={{ width: 18, height: 18 }} />);
-  const syncingIcon = <Spinner animation="border" size="sm" />;
 
   const initials = [user?.firstname?.trim()?.[0], user?.lastname?.trim()?.[0]].filter(Boolean).join("").toUpperCase();
 
@@ -49,11 +41,11 @@ export function TopNavBar() {
               <Nav.Link as={NavLink} to="/" end eventKey="/" className="d-flex align-items-center">
                 Home
               </Nav.Link>
+               <Nav.Link as={NavLink} to="/installed-apps" eventKey="/installed-apps" className="d-flex align-items-center">
+                {isDataSubject ? "Installed Apps" : "Managed Apps"}
+              </Nav.Link>
               <Nav.Link as={NavLink} to="/privacy-notice" eventKey="/privacy-notice" className="d-flex align-items-center">
                 Privacy Notice
-              </Nav.Link>
-              <Nav.Link as={NavLink} to="/installed-apps" eventKey="/installed-apps" className="d-flex align-items-center">
-                {isDataSubject ? "Installed Apps" : "Managed Apps"}
               </Nav.Link>
               {!isDataSubject && (
                 <Nav.Link as={NavLink} to="/privacy-impact-assessment" eventKey="/privacy-impact-assessment" className="d-flex align-items-center">
@@ -81,45 +73,14 @@ export function TopNavBar() {
 
             <Nav className="align-items-center gap-4">
 
-              {isDataSubject ? (
-                <NavDropdown id="sync-dropdown" align="end"
-                  title={
-                    <span
-                      className="d-inline-flex align-items-center gap-2 border rounded px-2 py-1"
-                      title={anySyncing ? "Sync in corso…" : "Sync completato"}
-                    >
-                      <span>Smartotum Sync</span>
-                      {anySyncing ? syncingIcon : syncedIcon}
-                    </span>
-                  }
-                >
-                  <NavDropdown.Header>Sync Status</NavDropdown.Header>
-                  <NavDropdown.Item
-                    disabled={updatingHomes}
-                    className="d-flex align-items-center gap-2"
-                    onClick={() => !updatingHomes && syncHomes()}
-                  >
-                    {updatingHomes ? syncingIcon : syncedIcon}
-                    <span>Homes</span>
-                    <ArrowRepeat />
-                  </NavDropdown.Item>
-                  <NavDropdown.Item
-                    disabled={updatingApps}
-                    className="d-flex align-items-center gap-2"
-                    onClick={() => !updatingApps && syncApps()}
-                  >
-                    {updatingApps ? syncingIcon : syncedIcon}
-                    <span>Apps</span>
-                    <ArrowRepeat />
-                  </NavDropdown.Item>
-                </NavDropdown>
-              ) : undefined}
+              <SyncPanel />
 
 
               <Dropdown align="end" autoClose="outside">
                 <Dropdown.Toggle
-                  variant="outline-primary"
-                  className="rounded-circle px-2 py-2 d-flex align-items-center justify-content-center"
+                  variant="light"
+                  className="rounded-circle d-inline-flex align-items-center justify-content-center p-0 border border-dark-subtle text-dark bg-body-tertiary shadow-sm fw-semibold"
+                  style={{ width: 39, height: 38, lineHeight: 1, fontSize: "0.90rem" }}
                 >
                   {initials || "U"}
                 </Dropdown.Toggle>

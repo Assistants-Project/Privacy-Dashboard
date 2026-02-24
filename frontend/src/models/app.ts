@@ -31,6 +31,7 @@ export class AppModel {
     dpo: User | undefined //solo 1 dpo per applicazione 
     pn_status: DocumentStatus | undefined //può essere undefined in caso di managed
     pia_status: DocumentStatus | undefined  //può essere undefined in caso di managed
+    pending_right_requests_count: number //numero di right requests ancora pending per quella app
 
     //constructor minimo
     constructor(uuid: string, name: string, title: string, owner: User) {
@@ -46,5 +47,6 @@ export class AppModel {
         this.dpo = undefined
         this.pn_status = undefined
         this.pia_status = undefined
+        this.pending_right_requests_count = 0
     }
 }

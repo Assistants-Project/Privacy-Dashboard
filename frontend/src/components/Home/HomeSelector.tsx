@@ -1,11 +1,7 @@
-import { Button, Card, Col, Container, Row } from "react-bootstrap";
-import { useAuth } from "../contexts/AuthContext";
-import { HomeModel } from "../models/home";
-import { Role, User } from "../models/user";
-import { useHome } from "../contexts/HomeContext";
+import { Card, Col, Row } from "react-bootstrap";
+import { useHome } from "../../contexts/HomeContext";
 
 function HomeSelector() {
-    const auth = useAuth();
     const {current_home_uuid,homes,updateCurrentHomeUUID} = useHome();
 
     const renderOptional = (value: string | undefined) =>
@@ -13,16 +9,15 @@ function HomeSelector() {
 
     return (
         <>
-        <Container className="mt-3">
-            <Row>
-                <Col>
-                    <h2>Home selection</h2>
-                    <p className="muted">Click on a home to select as a current home</p>
+            <Row className="mb-3">
+                <Col className="d-flex align-items-baseline gap-2">
+                    <h2 className="mb-0">Home selection</h2>
+                    <span className="text-muted">| Click on a home to select as a current home</span>
                 </Col>
             </Row>
             <Row>
                 {homes?.length ? (
-                    <Col className="d-flex flex-nowrap gap-3 overflow-auto pb-2">
+                    <Col className="d-flex flex-nowrap gap-3 overflow-auto">
                         {homes.map((home, idx) => {
                             const isSelected = current_home_uuid === home.uuid 
                             return (
@@ -38,7 +33,7 @@ function HomeSelector() {
                                         : "Nome non impostato"}
                                     </Card.Title>
 
-                                    <Card.Subtitle className="text-center mb-3 text-muted">
+                                    <Card.Subtitle className="text-center mb-2 text-muted">
                                         UUID:{" "}
                                         {home.uuid?.trim() ? home.uuid : "Non impostato"}
                                     </Card.Subtitle>
@@ -75,7 +70,6 @@ function HomeSelector() {
                     </Col>
                 )}
             </Row>
-            </Container>
         </>
     );
 }

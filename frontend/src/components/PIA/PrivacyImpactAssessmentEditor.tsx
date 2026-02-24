@@ -200,10 +200,7 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
     }
   };
 
-  const title =
-    selectedApp?.name && selectedApp.name.trim() !== ""
-      ? selectedApp.name
-      : "Nome non impostato";
+  const title = selectedApp?.name ?? "";
 
   return (
     <>

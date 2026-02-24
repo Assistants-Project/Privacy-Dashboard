@@ -14,7 +14,7 @@ from ..exceptions import (
 from ..models import Request, RightType, Status
 from ..repositories import (
     ApplicationRepository,
-    AvailableConsentRepository,
+    ConsentRepository,
     RequestRepository,
     SmartHomeRepository,
     UserRepository,
@@ -220,7 +220,7 @@ class RequestService:
 
         for consent_uuid in selected_consents_uuids:
 
-            available_consent = AvailableConsentRepository.get_available_consent_by_uuid(consent_uuid)
+            available_consent = ConsentRepository.get_available_consent_by_uuid(consent_uuid)
 
             if not available_consent:
                 raise AvailableConsentNotFoundException(
@@ -233,7 +233,7 @@ class RequestService:
                 raise AvailableConsentApplicationMismatchException(
                     "Selected consents do not all belong to the requested application!"
                 )
-            given_consent = AvailableConsentRepository.get_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_available_consent_id(
+            given_consent = ConsentRepository.get_user_smart_home_available_consent_by_ds_id_and_smart_home_id_and_available_consent_id(
                 current_user_id, smart_home_id, available_consent.id
             )
             if not given_consent:
@@ -290,7 +290,7 @@ class RequestService:
         available_consent_ids: list[int] = []
         for consent_uuid in request.selected_consents:
 
-            available_consent = AvailableConsentRepository.get_available_consent_by_uuid(consent_uuid)
+            available_consent = ConsentRepository.get_available_consent_by_uuid(consent_uuid)
             
             if not available_consent:
                 continue
@@ -302,7 +302,7 @@ class RequestService:
 
         unique_available_consent_ids = list(set(available_consent_ids))
 
-        AvailableConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id_and_available_consent_ids(
+        ConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id_and_available_consent_ids(
             relation.user_id, relation.smart_home_id, unique_available_consent_ids
         )
         return

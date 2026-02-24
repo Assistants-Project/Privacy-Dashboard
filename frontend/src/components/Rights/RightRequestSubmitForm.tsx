@@ -7,81 +7,40 @@ import { submitRightRequest } from "../../services/RightsService";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppsContext";
 import { useHome } from "../../contexts/HomeContext";
-import { fetchGivenConsentsBySmartHome } from "../../services/AvailableConsentService";
-import { GivenConsentInHomeModel } from "../../models/available_consent";
 
-type SubmitRightRequestModalProps = {
-  show: boolean;
-  onHide: () => void;
-};
+type SubmitRightRequestModalProps = {show: boolean, onHide: () => void};
 
 function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
 
   const navigate = useNavigate();
   
   const { user } = useAuth();
-  const { selectedApp } = useApp();
+  const { selectedApp, ConsentStatesByAppUUID, loadApps } = useApp();
   const { current_home_uuid } = useHome();
 
   const [rightType, setRightType] = useState<RightType>(RightType.ACCESS_DATA);
   const [message, setMessage] = useState<string>("");
-  const [givenConsents, setGivenConsents] = useState<GivenConsentInHomeModel[] | undefined>(undefined);
   const [selectedConsents, setSelectedConsents] = useState<string[]>([]);
-  const [loadingConsents, setLoadingConsents] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>(undefined);
+
+  const consentStatesForSelectedApp = selectedApp?.uuid ? ConsentStatesByAppUUID[selectedApp.uuid] : undefined;
+
+  const givenConsents = (consentStatesForSelectedApp ?? []).filter((consentState) => consentState.given === true);
 
   useEffect(() => {
     if (!show) return;
     setRightType(RightType.ACCESS_DATA);
     setMessage(buildPredefinedRightMessage(RightType.ACCESS_DATA, selectedApp?.name));
-    setGivenConsents(undefined);
     setSelectedConsents([]);
-    setLoadingConsents(false);
     setSubmitting(false);
     setError(undefined);
   }, [show, selectedApp?.name]);
 
   useEffect(() => {
     if (!show) return;
-    if (rightType !== RightType.WITHDRAW_CONSENT) {
-      setGivenConsents(undefined);
-      setSelectedConsents([]);
-      setLoadingConsents(false);
-      return;
-    }
-    if (!user || user.role !== Role.DataSubject) return;
-    if (!current_home_uuid || !selectedApp?.uuid) return;
-
-    let cancelled = false;
-    setLoadingConsents(true);
-    setError(undefined);
-
-    const loadGivenConsents = async () => {
-      try {
-        const allGivenConsents = await fetchGivenConsentsBySmartHome(current_home_uuid);
-        if (cancelled) return;
-
-        const filteredBySelectedApp = (allGivenConsents ?? []).filter(
-          (givenConsent) => givenConsent.application_uuid === selectedApp.uuid,
-        );
-        setGivenConsents(filteredBySelectedApp);
-        setSelectedConsents([]);
-      } catch (err) {
-        if (cancelled) return;
-        setGivenConsents([]);
-        setError(err instanceof Error ? err.message : "Errore inatteso");
-      } finally {
-        if (!cancelled) setLoadingConsents(false);
-      }
-    };
-
-    void loadGivenConsents();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [show, rightType, selectedApp?.uuid, current_home_uuid, user?.uuid, user?.role]);
+    if (rightType !== RightType.WITHDRAW_CONSENT) setSelectedConsents([]);
+  }, [show, rightType]);
 
   const toggleSelectedConsent = (consentUuid: string) => {
     setSelectedConsents((prev) =>
@@ -92,7 +51,7 @@ function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
   };
 
   const selectAllConsents = () => {
-    setSelectedConsents((givenConsents ?? []).map((givenConsent) => givenConsent.available_consent.uuid));
+    setSelectedConsents(givenConsents.map((givenConsent) => givenConsent.uuid));
   };
 
   const clearSelectedConsents = () => {
@@ -109,7 +68,7 @@ function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
       setError("No application selected.");
       return;
     }
-
+    
     if (rightType === RightType.WITHDRAW_CONSENT && selectedConsents.length === 0) {
       setError("Please select at least one consent to withdraw.");
       return;
@@ -135,10 +94,11 @@ function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
           : {}),
       });
 
+      await loadApps(selectedApp.uuid, true);
       onHide();
       navigate("/rights");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Errore inatteso");
+      setError(err instanceof Error ? err.message : "Unexpected Error");
     } finally {
       setSubmitting(false);
     }
@@ -185,7 +145,7 @@ function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
                     size="sm"
                     variant="outline-secondary"
                     onClick={selectAllConsents}
-                    disabled={loadingConsents || !givenConsents?.length}
+                    disabled={givenConsents.length === 0}
                   >
                     Select all
                   </Button>
@@ -193,28 +153,23 @@ function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
                     size="sm"
                     variant="outline-secondary"
                     onClick={clearSelectedConsents}
-                    disabled={loadingConsents || selectedConsents.length === 0}
+                    disabled={selectedConsents.length === 0}
                   >
                     Clear
                   </Button>
                 </div>
               </div>
 
-              {loadingConsents ? (
-                <div className="d-inline-flex align-items-center gap-2 text-muted">
-                  <Spinner animation="border" size="sm" />
-                  Loading given consents…
-                </div>
-              ) : givenConsents && givenConsents.length > 0 ? (
+              {givenConsents.length > 0 ? (
                 <div className="d-flex flex-column gap-2">
                   {givenConsents.map((givenConsent) => (
                     <Form.Check
-                      key={givenConsent.available_consent.uuid}
+                      key={givenConsent.uuid}
                       type="checkbox"
-                      id={`selected-consent-${givenConsent.available_consent.uuid}`}
-                      checked={selectedConsents.includes(givenConsent.available_consent.uuid)}
-                      onChange={() => toggleSelectedConsent(givenConsent.available_consent.uuid)}
-                      label={givenConsent.available_consent.content}
+                      id={`selected-consent-${givenConsent.uuid}`}
+                      checked={selectedConsents.includes(givenConsent.uuid)}
+                      onChange={() => toggleSelectedConsent(givenConsent.uuid)}
+                      label={givenConsent.content}
                     />
                   ))}
                 </div>
@@ -248,7 +203,7 @@ function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
           disabled={
             submitting ||
             (rightType === RightType.WITHDRAW_CONSENT &&
-              (loadingConsents || selectedConsents.length === 0))
+              selectedConsents.length === 0)
           }
         >
           {submitting ? (

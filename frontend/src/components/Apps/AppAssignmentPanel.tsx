@@ -1,192 +1,363 @@
 import { useState } from "react";
-import { Button, Card, Col, Form, Row } from "react-bootstrap";
+import { Button, Card, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
+import { XCircle } from "react-bootstrap-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppsContext";
+import { Role, User } from "../../models/user";
+import { addDataControllerManagerToApplication, assignDpoToApplication, removeDataControllerManagerFromApplication, removeDpoFromApplication } from "../../services/ApplicationService";
 
 function AppAssignmentPanel() {
+  const { user } = useAuth();
+  const { selectedApp, selectedAppUUID, loadApps } = useApp();
 
-    const { user } = useAuth();
-    const {
-        selectedApp,
-        assignDpoToManagedApplication,
-        addManagerToManagedApplication,
-        removeManagerFromManagedApplication,
-        selectedAppUUID,
-    } = useApp();
+  const [showAddManagerModal, setShowAddManagerModal] = useState(false);
+  const [showAssignDpoModal, setShowAssignDpoModal] = useState(false);
 
+  const [managerEmail, setManagerEmail] = useState("");
+  const [dpoEmail, setDpoEmail] = useState("");
 
-    const isOwner = !!selectedApp && !!user && selectedApp.owner.uuid === user.uuid;
-    const managers = selectedApp
-        ? selectedApp.data_controllers.filter((dc) => dc.uuid !== selectedApp.owner.uuid)
-        : [];
+  const [addingManager, setAddingManager] = useState(false);
+  const [assigningDpo, setAssigningDpo] = useState(false);
+  const [removingManagerEmail, setRemovingManagerEmail] = useState("");
 
-    const [dpoEmail, setDpoEmail] = useState<string>("");
-    const [managerEmail, setManagerEmail] = useState<string>("");
+  const [controllersError, setControllersError] = useState<string | undefined>(undefined);
+  const [dpoError, setDpoError] = useState<string | undefined>(undefined);
 
-    //per disabilitare tasto dpo per evitare doppio click 
-    const [assigningDpo, setAssigningDpo] = useState(false);
-    const [addingManager, setAddingManager] = useState(false);
-    const [removingManagerEmail, setRemovingManagerEmail] = useState<string>("");
+  if (!selectedApp) return null;
 
-    //per tutti gli errori di gestione Data controller / DPO
-    const [managementError, setManagementError] = useState<string | undefined>(undefined);
+  const isDataController = user?.role === Role.DataController;
+  const canManageAssignments = isDataController && !!user && selectedApp.owner.uuid === user.uuid;
+  const managers = selectedApp.data_controllers.filter((user) => user.uuid !== selectedApp.owner.uuid);
 
+  const userLabel = (user: User): string => `${user.firstname} ${user.lastname}`.trim() || user.email;
 
+  const onAddManager = async () => {
+    if (!selectedAppUUID) return;
 
-    const onAssignDpo = async () => {
-        if (!selectedAppUUID) return;
-        const normalizedDpoEmail = dpoEmail.trim();
-        if (!normalizedDpoEmail) {
-            setManagementError("Insert a DPO email.");
-            return;
-        }
-        setManagementError(undefined);
-        setAssigningDpo(true);
-        try {
-            await assignDpoToManagedApplication(selectedAppUUID, normalizedDpoEmail);
-            setDpoEmail("");
-        } catch (err) {
-            setManagementError(err instanceof Error ? err.message : "Errore inatteso");
-        } finally {
-            setAssigningDpo(false);
-        }
-    };
+    const normalizedEmail = managerEmail.trim();
+    if (!normalizedEmail) {
+      setControllersError("Insert a Data Controller email");
+      return;
+    }
+    if (normalizedEmail === selectedApp.owner.email) {
+      setControllersError("Owner is already part of controllers");
+      return;
+    }
 
-    const onAddManager = async () => {
-        if (!selectedAppUUID) return;
-        const normalizedEmail = managerEmail.trim();
-        if (!normalizedEmail) {
-            setManagementError("Insert a Data Controller email.");
-            return;
-        }
-        setManagementError(undefined);
-        setAddingManager(true);
-        try {
-            await addManagerToManagedApplication(selectedAppUUID, normalizedEmail);
-            setManagerEmail("");
-        } catch (err) {
-            setManagementError(err instanceof Error ? err.message : "Errore inatteso");
-        } finally {
-            setAddingManager(false);
-        }
-    };
+    setControllersError(undefined);
+    setAddingManager(true);
 
-    const onRemoveManager = async (userEmail: string) => {
-        if (!selectedAppUUID) return;
-        setManagementError(undefined);
-        setRemovingManagerEmail(userEmail);
-        try {
-            await removeManagerFromManagedApplication(selectedAppUUID, userEmail);
-        } catch (err) {
-            setManagementError(err instanceof Error ? err.message : "Errore inatteso");
-        } finally {
-            setRemovingManagerEmail("");
-        }
-    };
+    try {
+      await addDataControllerManagerToApplication(selectedAppUUID, normalizedEmail);
+      await loadApps(selectedAppUUID, true);
+      setManagerEmail("");
+    } catch (err) {
+      setControllersError(err instanceof Error ? err.message : "Unexpected Error");
+    } finally {
+      setAddingManager(false);
+    }
+  };
 
+  const onRemoveManager = async (email: string) => {
+    if (!selectedAppUUID) return;
 
+    setControllersError(undefined);
+    setRemovingManagerEmail(email);
 
-    return (
-        <>
-        <Card className="p-0">
+    try {
+      await removeDataControllerManagerFromApplication(selectedAppUUID, email);
+      await loadApps(selectedAppUUID, true);
+    } catch (err) {
+      setControllersError(err instanceof Error ? err.message : "Unexpected Error");
+    } finally {
+      setRemovingManagerEmail("");
+    }
+  };
+
+  const onAssignDpo = async () => {
+    if (!selectedAppUUID) return;
+
+    const normalizedEmail = dpoEmail.trim();
+    if (!normalizedEmail) {
+      setDpoError("Insert a DPO email");
+      return;
+    }
+
+    setDpoError(undefined);
+    setAssigningDpo(true);
+
+    try {
+      await assignDpoToApplication(selectedAppUUID, normalizedEmail);
+      await loadApps(selectedAppUUID, true);
+      setDpoEmail("");
+      setShowAssignDpoModal(false);
+    } catch (err) {
+      setDpoError(err instanceof Error ? err.message : "Unexpected Error");
+    } finally {
+      setAssigningDpo(false);
+    }
+  };
+
+  const onRemoveDpo = async () => {
+    if (!selectedAppUUID || !selectedApp.dpo) return;
+
+    setDpoError(undefined);
+    setAssigningDpo(true);
+
+    try {
+      await removeDpoFromApplication(selectedAppUUID);
+      await loadApps(selectedAppUUID, true);
+      setDpoEmail("");
+      setShowAssignDpoModal(false);
+    } catch (err) {
+      setDpoError(err instanceof Error ? err.message : "Unexpected Error");
+    } finally {
+      setAssigningDpo(false);
+    }
+  };
+
+  return (
+    <>
+      <Row xs={1} md={2} className="g-3">
+        <Col>
+          <Card className="h-100 p-0">
             <Card.Body>
-                <strong>Management</strong>
-                <div className="mt-2" />
-                {managementError ? (
-                    <div className="text-danger small">
-                        {managementError}
-                    </div>
+              <Row className="g-2">
+                <Col>
+                  <h5>Data Controllers</h5>
+                </Col>
+                {canManageAssignments ? (
+                  <Col xs="auto" className="pe-0 mt-0">
+                    <Button
+                      className="circular-button me-0"
+                      style={{ color: "#181d1f" }}
+                      disabled={addingManager || !!removingManagerEmail}
+                      onClick={() => {
+                        setControllersError(undefined);
+                        setManagerEmail("");
+                        setShowAddManagerModal(true);
+                      }}
+                      title="Manage managers"
+                      aria-label="Manage managers"
+                    >
+                      <i className="fa-solid fa-pencil" style={{ fontSize: "0.90rem" }}></i>
+                    </Button>
+                  </Col>
                 ) : undefined}
 
-                {!isOwner ? (
-                    <div className="text-muted small">
-                        Only the owner can manage managers and DPO assignment.
-                    </div>
-                ) : (
-                    <>
-                    <div className="small fw-semibold mb-2">Managers</div>
-                    <Row className="mb-2">
-                        <Col>
-                            <Form.Control
-                                size="sm"
-                                placeholder="Data Controller email"
-                                value={managerEmail}
-                                onChange={(e) => setManagerEmail(e.target.value)}
-                                disabled={addingManager || assigningDpo}
-                            />
-                        </Col>
-                        <Col className="ps-0">
-                            <Button
-                                size="sm"
-                                variant="outline-primary"
-                                disabled={addingManager || assigningDpo || managerEmail.trim() === ""}
-                                onClick={onAddManager}
-                            >
-                                {addingManager ? "Adding…" : "Add"}
-                            </Button>
-                        </Col>
-                    </Row>
-
-                    {managers.length === 0 ? (
-                        <div className="text-muted small mb-3">No managers assigned.</div>
-                    ) : (
-                        <div className="d-flex flex-column gap-2 mb-3">
-                            {managers.map((manager) => (
-                                <div key={manager.uuid} className="d-flex align-items-center justify-content-between border rounded p-2">
-                                    <div className="small">
-                                        {`${manager.firstname} ${manager.lastname}`.trim() || manager.email}
-                                    </div>
-                                    <Button
-                                        size="sm"
-                                        variant="outline-danger"
-                                        disabled={!!removingManagerEmail}
-                                        onClick={() => onRemoveManager(manager.email)}
-                                    >
-                                        {removingManagerEmail === manager.email ? "Removing…" : "Remove"}
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    <div className="small fw-semibold mb-2">DPO</div>
-                    {selectedApp?.dpo ? (
-                        <div className="text-muted small mb-2">
-                            Assigned DPO:{" "}
-                            {`${selectedApp.dpo.firstname} ${selectedApp.dpo.lastname}`.trim() ||
-                                selectedApp.dpo.email}
-                        </div>
-                    ) : undefined}
-
+                {selectedApp.data_controllers.length ? (
+                  <Col xs={12}>
                     <Row>
-                        <Col>
-                            <Form.Control
-                                size="sm"
-                                placeholder="DPO email"
-                                value={dpoEmail}
-                                onChange={(e) => setDpoEmail(e.target.value)}
-                                disabled={assigningDpo || addingManager}
-                            />
-                        
-                        </Col>
-                        <Col className="ps-0"> 
-                        <Button
-                            size="sm"
-                            variant="outline-primary"
-                            disabled={assigningDpo || addingManager || dpoEmail.trim() === ""}
-                            onClick={onAssignDpo}
-                        >
-                            {assigningDpo ? "Assigning…" : "Assign DPO"}
-                        </Button>
-                        
-                        </Col>
+                      {selectedApp.data_controllers.map((contact) => {
+                        const isMine = contact.uuid === user?.uuid;
+                        const isOwnerContact = contact.uuid === selectedApp.owner.uuid;
+                        return (
+                          <Col xs="auto" className="my-1" key={contact.email}>
+                            <div className="d-inline-flex align-items-center border rounded-pill px-3 py-2">
+                              {isMine ? (
+                                <span className="fs-6 text-primary fw-semibold">Me</span>
+                              ) : (
+                                <span className="fs-6 text-nowrap">{userLabel(contact)}</span>
+                              )}
+                              {isOwnerContact ? (
+                                <span className="small text-muted ms-1">- Owner</span>
+                              ) : undefined}
+                            </div>
+                          </Col>
+                        );
+                      })}
                     </Row>
-                    </>
+                  </Col>
+                ) : (
+                  <Col xs={12}>
+                    <div className="text-muted mt-4">Not Assigned</div>
+                  </Col>
                 )}
+
+              </Row>
             </Card.Body>
-        </Card>
-        </>
-    );
+          </Card>
+        </Col>
+
+        <Col>
+          <Card className="h-100 p-0">
+            <Card.Body>
+              <Row className="g-2">
+                <Col>
+                  <h5>Data Protection Officer</h5>
+                </Col>
+                {canManageAssignments ? (
+                  <Col xs="auto" className="pe-0 mt-0">
+                    <Button
+                      className="circular-button me-0"
+                      style={{ color: "#181d1f" }}
+                      disabled={assigningDpo}
+                      onClick={() => {
+                        setDpoError(undefined);
+                        setDpoEmail(selectedApp.dpo?.email ?? "");
+                        setShowAssignDpoModal(true);
+                      }}
+                      title="Manage DPO"
+                      aria-label="Manage DPO"
+                    >
+                      <i className="fa-solid fa-pencil" style={{ fontSize: "0.90rem" }}></i>
+                    </Button>
+                  </Col>
+                ) : undefined}
+
+                {selectedApp.dpo ? (
+                  <Col xs={12}>
+                    <Row>
+                      <Col xs="auto">
+                        <div className="d-inline-flex align-items-center gap-2 border rounded-pill px-3 py-2">
+                          {selectedApp.dpo.uuid === user?.uuid ? (
+                            <span className="fs-6 text-primary fw-semibold">Me</span>
+                          ) : (
+                            <span className="fs-6 text-nowrap">{userLabel(selectedApp.dpo)}</span>
+                          )}
+                        </div>
+                      </Col>
+                    </Row>
+                  </Col>
+                ) : (
+                  <Col xs={12}>
+                    <div className="text-muted mt-1">Not Assigned</div>
+                  </Col>
+                )}
+
+              </Row>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      <Modal show={showAddManagerModal} onHide={() => setShowAddManagerModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Manage Managers</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Row className="g-3">
+            <Col xs={12}>
+              <div className="small fw-semibold">Current managers</div>
+            </Col>
+            {managers.length === 0 ? (
+              <Col xs={12}>
+                <div className="text-muted small">No managers assigned.</div>
+              </Col>
+            ) : (
+              <Col xs={12}>
+                <Row className="g-2">
+                  {managers.map((manager) => (
+                    <Col xs="auto" key={manager.email}>
+                      <div className="d-inline-flex align-items-center gap-2 border py-2 px-3 rounded-pill px-2 py-1">
+                        <span className="text-nowrap">{userLabel(manager)}</span>
+                        <Button
+                          size="sm"
+                          variant="link"
+                          className="text-danger p-0 d-inline-flex align-items-center"
+                          style={{ lineHeight: 1 }}
+                          disabled={!!removingManagerEmail || addingManager}
+                          onClick={() => onRemoveManager(manager.email)}
+                          aria-label={`Remove ${userLabel(manager)}`}
+                        >
+                          {removingManagerEmail === manager.email ? (
+                            <span className="d-inline-flex align-items-center gap-1">
+                              <Spinner animation="border" size="sm" />
+                              Removing
+                            </span>
+                          ) : (
+                            <XCircle size={18} />
+                          )}
+                        </Button>
+                      </div>
+                    </Col>
+                  ))}
+                </Row>
+              </Col>
+            )}
+
+            <Col xs={12}>
+              <Row className="g-2 align-items-start">
+                <Col xs={12} md>
+                  <Form.Group className="mb-0">
+                    <Form.Control
+                      type="email"
+                      value={managerEmail}
+                      onChange={(e) => setManagerEmail(e.target.value)}
+                      placeholder="name@example.com"
+                      disabled={addingManager}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col xs="auto">
+                  <Button variant="primary" onClick={onAddManager} disabled={addingManager || managerEmail.trim() === ""}>
+                    {addingManager ? (
+                      <span className="d-inline-flex align-items-center gap-2">
+                        <Spinner animation="border" size="sm" />
+                        Adding…
+                      </span>
+                    ) : "Add"}
+                  </Button>
+                </Col>
+              </Row>
+            </Col>
+            {controllersError ? (
+              <Col xs={12}>
+                <div className="text-danger small">{controllersError}</div>
+              </Col>
+            ) : undefined}
+          </Row>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary" onClick={() => setShowAddManagerModal(false)} disabled={addingManager}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showAssignDpoModal} onHide={() => setShowAssignDpoModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Assign DPO</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group className="mb-0">
+            <Form.Label className="small text-muted">DPO email</Form.Label>
+            <Form.Control
+              type="email"
+              value={dpoEmail}
+              onChange={(e) => setDpoEmail(e.target.value)}
+              placeholder="name@example.com"
+              disabled={assigningDpo}
+            />
+          </Form.Group>
+          {dpoError ? <div className="text-danger small mt-2">{dpoError}</div> : undefined}
+        </Modal.Body>
+        <Modal.Footer>
+          {selectedApp.dpo ? (
+            <Button variant="outline-danger" onClick={onRemoveDpo} disabled={assigningDpo}>
+              {assigningDpo ? (
+                <span className="d-inline-flex align-items-center gap-2">
+                  <Spinner animation="border" size="sm" />
+                  Removing…
+                </span>
+              ) : "Remove DPO"}
+            </Button>
+          ) : undefined}
+          <Button variant="outline-secondary" onClick={() => setShowAssignDpoModal(false)} disabled={assigningDpo}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={onAssignDpo} disabled={assigningDpo || dpoEmail.trim() === ""}>
+            {assigningDpo ? (
+              <span className="d-inline-flex align-items-center gap-2">
+                <Spinner animation="border" size="sm" />
+                Assigning…
+              </span>
+            ) : "Assign"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
 }
 
 export { AppAssignmentPanel };

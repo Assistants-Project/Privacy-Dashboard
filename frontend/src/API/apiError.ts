@@ -1,3 +1,16 @@
+function collectValidationMessages(value: unknown): string[] {
+  if (typeof value === "string") {
+    return [value];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap(collectValidationMessages);
+  }
+  if (value && typeof value === "object") {
+    return Object.values(value as Record<string, unknown>).flatMap(collectValidationMessages);
+  }
+  return [];
+}
+
 export async function getApiError(
   response: Response,
   fallbackMessage = "Something went wrong",
@@ -7,13 +20,12 @@ export async function getApiError(
 
     // Flask-smorest validation error
     if (errDetail?.errors) {
-      const jsonErrors = errDetail.errors.json;
-      if (jsonErrors && typeof jsonErrors === "object") {
-        const msgs = Object.values(jsonErrors).flat().join("\n");
-        return new Error(msgs || "Validation error");
-      }
       if (typeof errDetail.errors === "string") {
         return new Error(errDetail.errors);
+      }
+      const messages = collectValidationMessages(errDetail.errors);
+      if (messages.length > 0) {
+        return new Error(messages.join("\n"));
       }
     }
 
@@ -25,4 +37,3 @@ export async function getApiError(
 
   return new Error(fallbackMessage);
 }
-

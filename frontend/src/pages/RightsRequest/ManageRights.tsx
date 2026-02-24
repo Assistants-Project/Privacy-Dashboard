@@ -1,18 +1,26 @@
-import {Badge,Card,CloseButton,Col,Container,Form,Row,Spinner} from "react-bootstrap";
+import {Badge,Card,CloseButton,Col,Container,Row,Spinner} from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext";
-import { Role } from "../../models/user";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { RequestStatus, RIGHT_TYPE_LABELS, RightType } from "../../models/request";
 import { RightRequestHandleForm } from "../../components/Rights/RightRequestHandleForm";
+import { RightsRequestsListPanel } from "../../components/Rights/RightsRequestsListPanel";
+import { useApp } from "../../contexts/AppsContext";
 import { useRightsRequests } from "../../hooks/useRightsRequests";
 import { formatIsoDateOrTime } from "../../services/MessageService";
-import { fetchAvailableConsentsByApplication } from "../../services/AvailableConsentService";
 
 export function ManageRights() {
 
-  const { user, loading } = useAuth();
-  const [statusFilter, setStatusFilter] = useState<RequestStatus | undefined>(undefined);
+  const { loading, isManagerRole } = useAuth();
+  const [searchParams] = useSearchParams();
+  const statusFromURL = (searchParams.get("status") ?? "").trim().toUpperCase();
+  const statusFilterFromURL: RequestStatus | undefined =
+    statusFromURL === RequestStatus.PENDING || statusFromURL === RequestStatus.HANDLED
+      ? (statusFromURL as RequestStatus)
+      : undefined;
+  const [statusFilter, setStatusFilter] = useState<RequestStatus | undefined>(statusFilterFromURL);
   const {requests,loadingRequests,errorRequests,loadRequests} = useRightsRequests(statusFilter); //carica l'hook
+  const { loadConsentsByApplication } = useApp();
 
   const [selectedRequestUuid, setSelectedRequestUuid] = useState<string | undefined>(undefined);
   const selectedItem = selectedRequestUuid? requests?.find((r) => r.request.uuid === selectedRequestUuid): undefined;
@@ -20,14 +28,8 @@ export function ManageRights() {
   const [consentContentByUuid, setConsentContentByUuid] = useState<Record<string, string>>({});
   const [loadingRequestedConsents, setLoadingRequestedConsents] = useState<boolean>(false);
   const [errorRequestedConsents, setErrorRequestedConsents] = useState<string | undefined>(undefined);
-  
-  const [query, setQuery] = useState<string>("");
-  //filtro semplice: cerchiamo solo per nome applicazione
-  const visibleRequests = requests?.filter((item) => item.application_name?.toLowerCase().includes(query));
 
   const closePanel = () => setSelectedRequestUuid(undefined);
-  const isDataSubject = user?.role === Role.DataSubject;
-  const isManager = user?.role === Role.DataController || user?.role === Role.DPO;
 
   const statusBadge = (status: RequestStatus) => {
     if (status === RequestStatus.HANDLED) return "success";
@@ -56,9 +58,7 @@ export function ManageRights() {
 
     const loadConsentContents = async () => {
       try {
-        const availableConsents = await fetchAvailableConsentsByApplication(
-          selectedRequest.application_uuid,
-        );
+        const availableConsents = await loadConsentsByApplication(selectedRequest.application_uuid, false);
         if (cancelled) return;
 
         const contentByUuid: Record<string, string> = {};
@@ -69,7 +69,7 @@ export function ManageRights() {
       } catch (err) {
         if (cancelled) return;
         setConsentContentByUuid({});
-        setErrorRequestedConsents(err instanceof Error ? err.message : "Errore inatteso");
+        setErrorRequestedConsents(err instanceof Error ? err.message : "Unexpected Error");
       } finally {
         if (!cancelled) setLoadingRequestedConsents(false);
       }
@@ -84,7 +84,12 @@ export function ManageRights() {
     selectedRequest?.uuid,
     selectedRequest?.application_uuid,
     selectedRequest?.right_type,
+    loadConsentsByApplication,
   ]);
+
+  useEffect(() => {
+    setStatusFilter(statusFilterFromURL);
+  }, [statusFilterFromURL]);
 
 
   return (
@@ -106,97 +111,13 @@ export function ManageRights() {
 
       {!loading && !loadingRequests && !errorRequests ? (
         <Row className="g-3 align-items-start">
-          <Col xs={12} lg={5}>
-            <Container fluid className="d-flex flex-column gap-3">
-              <Card className="p-0">
-                <Card.Body className="d-flex flex-column gap-3">
-                  <Form.Group controlId="requests-search">
-                    <Form.Label className="mb-1">Search</Form.Label>
-                    <Form.Control
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      placeholder="App name…"
-                    />
-                  </Form.Group>
-
-                  <Form.Group controlId="requests-status">
-                    <Form.Label className="mb-1">Status</Form.Label>
-                    <Form.Select
-                      value={statusFilter ?? ""}
-                      onChange={(e) =>
-                        setStatusFilter(
-                          e.target.value
-                            ? (e.target.value as RequestStatus)
-                            : undefined,
-                        )
-                      }
-                    >
-                      <option value="">All</option>
-                      <option value={RequestStatus.PENDING}>Pending</option>
-                      <option value={RequestStatus.HANDLED}>Handled</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Card.Body>
-              </Card>
-
-              {visibleRequests?.length === 0 ? (
-                <Card className="p-0">
-                  <Card.Body className="text-muted">
-                    No requests.
-                  </Card.Body>
-                </Card>
-              ) : (
-                <Container fluid className="d-flex flex-column gap-2 p-0">
-                  {visibleRequests?.map((item) => {
-                    const selected = item.request.uuid === selectedRequestUuid;
-                    const rightLabel = RIGHT_TYPE_LABELS[item.request.right_type] ?? item.request.right_type;
-                    return (
-                      <Card
-                        key={item.request.uuid}
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => {
-                          if (selected) {
-                            closePanel();
-                            return;
-                          }
-                          setSelectedRequestUuid(item.request.uuid);
-                        }}
-                        className={[
-                          "p-0 apps_card_hover",
-                          selected ? "border-3 apps_card_selected" : "",
-                        ].join(" ")}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Card.Body className="d-flex flex-column gap-1">
-                          <div className="d-flex justify-content-between gap-3">
-                            <div className="flex-grow-1">
-                              <strong>{item.application_name}</strong>
-                              <div className="text-muted">{rightLabel}</div>
-                            </div>
-                            <div className="text-end">
-                              <Badge bg={statusBadge(item.request.status)}>
-                                {item.request.status}
-                              </Badge>
-                              <div className="text-muted small">
-                                {formatIsoDateOrTime(item.request.created_at, true)}
-                              </div>
-                            </div>
-                          </div>
-
-                          {isManager ? (
-                            <div className="text-muted small">
-                              {item.user_email}
-                            </div>
-                          ) : undefined}
-                        </Card.Body>
-                      </Card>
-                    );
-                  })}
-                </Container>
-              )}
-            </Container>
-          </Col>
+          <RightsRequestsListPanel
+            requests={requests}
+            selectedRequestUuid={selectedRequestUuid}
+            onSelectRequest={setSelectedRequestUuid}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+          />
 
           <Col xs={12} lg={7}>
             <Card className="sticky-top z-1 p-0" style={{ top: "1rem" }}>
@@ -225,7 +146,7 @@ export function ManageRights() {
                       <CloseButton onClick={closePanel} />
                     </Container>
 
-                    {isManager ? (
+                    {isManagerRole ? (
                       <div className="text-muted">
                         Requester: <strong>{selectedItem.user_email}</strong>
                       </div>
@@ -264,7 +185,7 @@ export function ManageRights() {
                         <Card.Body>
                           <strong>Selected consents to withdraw</strong>
                           {loadingRequestedConsents ? (
-                            <div className="mt-2 d-inline-flex align-items-center gap-2 text-muted">
+                            <div className="mt-2 d-flex align-items-center gap-2 text-muted">
                               <Spinner animation="border" size="sm" />
                               Loading consent details…
                             </div>
@@ -307,7 +228,7 @@ export function ManageRights() {
                       </Card>
                     )}
 
-                    {isManager ? (
+                    {isManagerRole ? (
                       selectedRequest ? (
                         <RightRequestHandleForm request={selectedRequest} onSaved={loadRequests} />
                       ) : undefined

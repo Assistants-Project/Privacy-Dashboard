@@ -1,46 +1,21 @@
 import {
-  Badge, Button, Card, CloseButton, Col, Container, Form, Row,
+  Button, Card, Col, Container, Row,
 } from "react-bootstrap";
-import { PlusCircle } from "react-bootstrap-icons";
 import { useAuth } from "../../contexts/AuthContext";
-import { Role, User } from "../../models/user";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "../../contexts/AppsContext";
 
-import { AppAssignmentPanel } from "../../components/Apps/AppAssignmentPanel";
 import { AppCreationPanel } from "../../components/Apps/AppCreationPanel";
-import { AppConsentsPanel } from "../../components/Apps/AppConsentsPanel";
-import { DocumentStatus } from "../../models/app"
-import { SubmitRightRequestModal } from "../../components/Rights/RightRequestSubmitForm";
 import { AppsList } from "../../components/Apps/AppsList";
-import { Evaluation } from "../../models/question";
+import { AppDetailsPanel } from "../../components/Apps/AppDetailsPanel";
 
 export function Apps() {
 
-  const navigate = useNavigate();
-  const { user, loading } = useAuth();
-  const { loadingApps, selectedApp, setSelectedAppUUID, selectedAppUUID, errorApps, apps } = useApp();
-
-  const [showSubmitRightModal, setShowSubmitRightModal] = useState(false);
+  const { loading, isDataController } = useAuth();
+  const { loadingApps, setSelectedAppUUID, errorApps, apps } = useApp();
   const [showCreateAppModal, setShowCreateAppModal] = useState(false);
 
-  const isDataSubject = user?.role === Role.DataSubject;
-  const isDataController = user?.role === Role.DataController;
-  const showQuestionnaire = !isDataSubject;
-
   const closePanel = () => setSelectedAppUUID(undefined);
-
-  //direttamente dal flag pn_status possiamo decidere se disponibile, mancante o non di nostra competenza
-  const PNavailable = selectedApp?.pn_status === DocumentStatus.Available;
-  const PNmissing = selectedApp?.pn_status === DocumentStatus.Missing;
-
-  //stessa cosa per vedere lo stato del PIA
-  const PIAavailable = selectedApp?.pia_status === DocumentStatus.Available;
-  const PIAmissing = selectedApp?.pia_status === DocumentStatus.Missing;
-
-  const questionnaireForbidden = !showQuestionnaire || !selectedApp;
-  const questionnaireMissing = !selectedApp?.evaluation;
 
   return (
     <Container fluid className="py-2 apps-page" style={{ minHeight: 0 }}>
@@ -69,220 +44,20 @@ export function Apps() {
             {isDataController ? (
               <div className="d-flex justify-content-end mb-2">
                 <Button
-                  variant="link"
-                  className="d-inline-flex align-items-center justify-content-center p-0 border-0 bg-transparent text-primary"
-                  style={{ width: "34px", height: "34px" }}
+                  className="circular-button me-0"
+                  style={{ color: "#181d1f" }}
                   onClick={() => setShowCreateAppModal(true)}
                   aria-label="Create application"
                   title="Create application"
                 >
-                  <PlusCircle size={28} />
+                  <i className="fa-solid fa-plus"></i>
                 </Button>
               </div>
             ) : undefined}
 
-            <Card className="p-0 sticky-top z-1" style={{ top: "1rem" }} >
-              <Card.Body className="d-flex flex-column gap-3">
-                {!selectedApp ? (
-                  <div className="text-muted">
-                    Select an app to see details.
-                  </div>
-                ) : (
-                  <>
-                    <Container
-                      fluid
-                      className="d-flex px-0 justify-content-between align-items-start"
-                    >
-                      <Container fluid className="ps-0">
-                        <h2 className="h4">
-                          {selectedApp.title && selectedApp.title.trim() !== ""
-                            ? selectedApp.title
-                            : selectedApp.name && selectedApp.name.trim() !== ""
-                            ? selectedApp.name
-                            : "Nome non impostato"}
-                        </h2>
-                        <div className="text-muted">
-                          <span>Vote:&nbsp;</span>
-                          {selectedApp.evaluation
-                            ? <Badge bg={evaluationBadge(selectedApp.evaluation)}>
-                                {selectedApp.evaluation}
-                              </Badge>
-                            : "—"}
-                        </div>
-                      </Container>
-                      <CloseButton onClick={closePanel} />
-                    </Container>
-
-                    {selectedApp.description ? (
-                      <div className="text-muted">
-                        {selectedApp.description}
-                      </div>
-                    ) : undefined}
-
-                    <Container fluid className="d-flex flex-wrap gap-2 ps-0">
-                      <Link
-                        className={[
-                          "btn btn-sm border-2",
-                          PNmissing ? "btn-outline-danger" //se pn undefined significa che non è mai stato scaricato o tentativo di fetch è fallito
-                              : "btn-outline-success"
-                        ].join(" ")}
-                        to="/privacy-notice"
-                      >
-                        Privacy Notice
-                      </Link>
-                      {!isDataSubject && (
-                        <Link
-                          className={[
-                            "btn btn-sm border-2",
-                            questionnaireForbidden
-                              ? "btn-outline-secondary disabled"
-                              : questionnaireMissing
-                                ? "btn-outline-danger"
-                                : "btn-outline-success",
-                          ].join(" ")}
-                          to="/questionnaire"
-                          aria-disabled={questionnaireForbidden}
-                          onClick={(e) => {
-                            if (questionnaireForbidden) {
-                              e.preventDefault();
-                            }
-                          }}
-                        >
-                          Questionnaire
-                        </Link>
-                      )}
-                      {!isDataSubject && (
-                        <Link
-                          className={[
-                            "btn btn-sm border-2",
-                            PIAmissing
-                                ? "btn-outline-danger"
-                                : "btn-outline-success",
-                          ].join(" ")}
-                          to="/privacy-impact-assessment"
-                        >
-                          Privacy Impact Assessment
-                        </Link>
-                      )}
-                    </Container>
-
-                    <Row xs={1} md={2} className="g-3">
-                      <Col>
-                        <Card className="h-100 p-0">
-                          <Card.Body>
-                            <strong>Controllers</strong>
-                            <div className="mt-2" />
-                            {selectedApp.data_controllers?.length ? (
-                              <div className="d-flex flex-wrap gap-2">
-                                {selectedApp.data_controllers
-                                  //gestire caso utente loggato manager dell'App
-                                  // .filter((u) => u.email !== user?.email)
-                                  .map((contact) => (
-                                    <Badge
-                                      key={contact.email}
-                                      bg="light"
-                                      text="dark"
-                                      className="border rounded-pill"
-                                    >
-                                      {`${contact.firstname} ${contact.lastname}`.trim() ||
-                                        contact.email}
-                                    </Badge>
-                                  ))}
-                              </div>
-                            ) : (
-                              <div className="text-muted">Not Assigned</div>
-                            )}
-                          </Card.Body>
-                        </Card>
-                      </Col>
-
-                      <Col>
-                        <Card className="h-100 p-0">
-                          <Card.Body>
-                            <strong>DPO</strong>
-                            <div className="mt-2" />
-                            {selectedApp.dpo ? (
-                              <div className="d-flex flex-wrap gap-2">
-                                <Badge
-                                  bg="light"
-                                  text="dark"
-                                  className="border rounded-pill"
-                                >
-                                  {`${selectedApp.dpo.firstname} ${selectedApp.dpo.lastname}`.trim() ||
-                                    selectedApp.dpo.email}
-                                </Badge>
-                              </div>
-                            ) : (
-                              <div className="text-muted">Not Assigned</div>
-                            )}
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col>
-                        <Card className="h-100 p-0">
-                          <Card.Body>
-                            <strong>Actions</strong>
-                            <div className="mt-2" />
-                            {isDataSubject ? (
-                              <Button variant="outline-primary" size="sm" onClick={() => setShowSubmitRightModal(true)}>
-                                Exercise Rights / Withdraw Consent
-                              </Button>
-                            ) : (
-                              <Button variant="outline-primary" size="sm" onClick={() => navigate("/rights")}>
-                                Manage Rights
-                              </Button>
-                            )}
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    </Row>
-                    {isDataController && selectedApp ? (
-                      <Row>
-                        <Col>
-                          <AppAssignmentPanel />
-
-                        </Col>
-                      </Row>
-                    ) : undefined}
-                    <Row>
-                      <Col>
-                        {isDataSubject && selectedApp ? (
-                          <AppConsentsPanel />
-                        ) : undefined}
-                      </Col>
-                    </Row>
-
-                    {selectedApp.questionnaire_summary ? (
-                      <Card className="p-0">
-                        <Card.Body>
-                          <strong>Questionnaire summary</strong>
-                          <div className="mt-2 text-muted">
-                            {selectedApp.questionnaire_summary}
-                          </div>
-                        </Card.Body>
-                      </Card>
-                    ) : undefined}
-
-                    {isDataSubject && selectedApp.installed_at ? (
-                      <div className="text-muted">
-                        Installed at: {selectedApp.installed_at}
-                      </div>
-                    ) : undefined}
-                  </>
-                )}
-              </Card.Body>
-            </Card>
+            <AppDetailsPanel />
           </Col>
         </Row>
-      ) : undefined}
-
-      {isDataSubject && selectedApp ? (
-        <SubmitRightRequestModal
-          show={showSubmitRightModal}
-          onHide={() => setShowSubmitRightModal(false)}
-        />
       ) : undefined}
 
       {isDataController ? (
@@ -293,17 +68,4 @@ export function Apps() {
       ) : undefined}
     </Container>
   );
-}
-
-function evaluationBadge(evaluation: Evaluation) {
-  switch (evaluation) {
-    case Evaluation.GREEN:
-      return "success";
-    case Evaluation.ORANGE:
-      return "warning";
-    case Evaluation.RED:
-      return "danger";
-    default:
-      return "secondary";
-  }
 }

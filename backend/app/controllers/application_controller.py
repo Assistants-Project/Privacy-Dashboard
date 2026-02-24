@@ -1,5 +1,6 @@
+from uuid import UUID
 from flask_smorest import Blueprint
-from ..schemas import ApplicationAndUserEmailReqSchema, ApplicationCreateReqSchema, ManagedApplicationResSchema, SmartHomeUuidReqSchema, InstalledApplicationResSchema
+from ..schemas import ApplicationAndUserEmailReqSchema, ApplicationCreateReqSchema, ApplicationUuidReqSchema, InstalledApplicationResSchema, ManagedApplicationResSchema, OptionalApplicationUuidReqSchema, SmartHomeUuidReqSchema
 from ..services import ApplicationService, SmartotumService
 from ..utils import dc_or_dpo_required, dc_required, ds_required
 
@@ -12,11 +13,12 @@ application_bp = Blueprint(
 
 @application_bp.route("/home/<smart_home_uuid>", methods=["GET"])
 @application_bp.arguments(SmartHomeUuidReqSchema, location="path", as_kwargs=True)
+@application_bp.arguments(OptionalApplicationUuidReqSchema, location="query", as_kwargs=True)
 @application_bp.response(200, InstalledApplicationResSchema(many=True))
 @ds_required()
-def get_installed_applications(smart_home_uuid: str, current_user):
+def get_installed_applications(smart_home_uuid: str, current_user, application_uuid: UUID | None = None):
     return ApplicationService.get_applications_by_ds_id_and_smart_home_uuid(
-        current_user.id, smart_home_uuid
+        current_user.id, smart_home_uuid, application_uuid
     )
 
 #Flusso creazione applicazione manualmente da parte di un Data Controller
@@ -30,20 +32,32 @@ def create_application(name: str,current_user,description: str | None = None,ava
 
 #Recupera app gestite da un data controller / dpo
 @application_bp.route("/managed", methods=["GET"])
+@application_bp.arguments(OptionalApplicationUuidReqSchema, location="query", as_kwargs=True)
 @application_bp.response(200, ManagedApplicationResSchema(many=True))
 @dc_or_dpo_required()
-def get_managed_applications(current_user):
-    return ApplicationService.get_applications_by_dc_or_dpo_id(current_user)
+def get_managed_applications(current_user, application_uuid: UUID | None = None):
+    return ApplicationService.get_applications_by_dc_or_dpo_id(current_user, application_uuid)
 
 #Flusso -> Data Controller assegna un app ad un DPO
 @application_bp.route("/managed/<application_uuid>/dpo/<user_email>", methods=["PUT"])
 @application_bp.arguments(ApplicationAndUserEmailReqSchema, location="path", as_kwargs=True)
 @dc_required()
 def assign_dpo_to_application(application_uuid, user_email, current_user):
-    created = ApplicationService.assign_dpo_to_managed_application(
+    result = ApplicationService.assign_dpo_to_managed_application(
         current_user, application_uuid, user_email
     )
-    return "", 201 if created else 204
+    if result == "created":
+        return "", 201
+    if result == "replaced":
+        return "", 200
+    return "", 204
+
+@application_bp.route("/managed/<application_uuid>/dpo", methods=["DELETE"])
+@application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
+@dc_required()
+def remove_dpo_from_application(application_uuid, current_user):
+    ApplicationService.remove_dpo_from_managed_application(current_user, application_uuid)
+    return "", 204
 
 #Flusso -> Data Controller Owner dell'app assegna un altro Data Controller come manager
 @application_bp.route("/managed/<application_uuid>/managers/<user_email>", methods=["PUT"])

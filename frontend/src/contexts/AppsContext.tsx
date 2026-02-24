@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useState, } from "r
 import { Role } from "../models/user";
 import { useAuth } from "./AuthContext";
 import { AppModel, CreateApplicationRequest, DocumentStatus } from "../models/app";
-import { fetchManagedApplications, fetchInstalledApplications, assignDpoToApplication, refreshInstalledApplications, createApplicationByDataController, addDataControllerManagerToApplication, removeDataControllerManagerFromApplication } from "../services/ApplicationService";
+import { fetchApplications, refreshInstalledApplications, createApplicationByDataController } from "../services/ApplicationService";
 import { useHome } from "./HomeContext";
 import { PrivacyNotice } from "../models/privacy_notice";
 import { handleFetchPrivacyNotice } from "../services/PrivacyNoticeService";
@@ -10,6 +10,8 @@ import { handleGetPrivacyImpactAssessment } from "../services/PrivacyImpactAsses
 import { PIA } from "../models/PIA";
 import { Questionnaire } from "../models/question";
 import { handleGetQuestionnaireByApplication } from "../services/QuestionnaireService";
+import { ConsentModel } from "../models/available_consent";
+import { fetchAvailableConsentsByApplication, fetchConsentsStateBySmartHomeAndApplication } from "../services/AvailableConsentService";
 //tutti i parametri del contesto che possono essere comodi e usati in tanti componenti diversi
 //Questo è il contesto delle app dove sono presenti tutte le informazioni utili usate da più parti dell'UI e i metodi di sync e loading delle informazioni dal database
 type AppsContextValue = {
@@ -24,6 +26,7 @@ type AppsContextValue = {
   PrivacyNoticeByAppUUID: Record<string, PrivacyNotice | null | undefined> //record cache dei PN
   PIAByAppUUID: Record<string, PIA | null | undefined> //record cache dei PIA
   QuestionnaireByAppUUID: Record<string, Questionnaire | null | undefined>; //
+  ConsentStatesByAppUUID: Record<string, ConsentModel[] | undefined>; //record cache consensi per app (DS e DC/DPO)
 
   //espone modo per cambiare app selezionata
   setSelectedAppUUID: (uuid: string | undefined) => void
@@ -33,28 +36,14 @@ type AppsContextValue = {
   loadPrivacyNotice: (appUUID: string, force: boolean) => Promise<PrivacyNotice | null | undefined>
   loadPIA: (appUUID: string, force: boolean) => Promise<PIA | null | undefined>
   loadQuestionnaire: (appUUID: string, force: boolean) => Promise<Questionnaire | null | undefined>;
+  loadApps: (applicationUUID?: string, force?: boolean) => Promise<AppModel[] | undefined>;
+  loadConsentsByApplication: (appUUID: string, force: boolean) => Promise<ConsentModel[] | undefined>;
 
 
-  //da valutare se mettere in un hook separato, se lo faccio devo però esporre load apps
-  assignDpoToManagedApplication: (
-    appUUID: string,
-    dpoEmail: string,
-  ) => Promise<boolean | undefined>;
-  addManagerToManagedApplication: (
-    appUUID: string,
-    userEmail: string,
-  ) => Promise<boolean | undefined>;
-  removeManagerFromManagedApplication: (
-    appUUID: string,
-    userEmail: string,
-  ) => Promise<boolean | undefined>;
   createManagedApplication: (payload: CreateApplicationRequest) => Promise<AppModel | undefined>;
-  ///
 
   //permette di forzare un aggiornamento apps per Data Subject
   syncApps: () => Promise<void>;
-  //permette di forzare un reload di apps del frontend con il backend
-  reloadApps: () => Promise<void>;
 };
 
 const AppsContext = React.createContext<AppsContextValue | undefined>(undefined);
@@ -68,6 +57,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
   const [PrivacyNoticeByAppUUID, setPrivacyNoticeByAppUUID] = useState<Record<string, PrivacyNotice | null | undefined>>({});
   const [PIAByAppUUID, setPIAByAppUUID] = useState<Record<string, PIA | null | undefined>>({});
   const [QuestionnaireByAppUUID, setQuestionnaireByAppUUID] = useState<Record<string, Questionnaire | null | undefined>>({});
+  const [ConsentStatesByAppUUID, setConsentStatesByAppUUID] = useState<Record<string, ConsentModel[] | undefined>>({});
   const [selectedAppUUID, setInnerSelectedAppUUID] = useState<string | undefined>(undefined);
 
   const [loadingApps, setLoadingApps] = useState(true);
@@ -94,14 +84,19 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       setPrivacyNoticeByAppUUID({});
       setPIAByAppUUID({});
       setQuestionnaireByAppUUID({});
+      setConsentStatesByAppUUID({});
       return;
     }
 
-    if (updatingApps) return;
     if (user.role === Role.DataSubject && loadingHomes) return;
 
     loadApps();
   }, [loading, updatingApps, user?.uuid, user?.role, current_home_uuid, loadingHomes]);
+
+  //invalidiamo la cache consensi quando cambia casa corrente (stato given dipende dalla home)
+  useEffect(() => {
+    setConsentStatesByAppUUID({});
+  }, [current_home_uuid, user?.uuid]);
 
 
   const selectedApp = useMemo<AppModel | undefined>(() => {
@@ -116,39 +111,72 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     }
   }, [apps, selectedAppUUID]);
 
-  const loadApps = useCallback(async () => {
+  const loadApps = useCallback(async (applicationUUID?: string, force?: boolean): Promise<AppModel[] | undefined> => {
+    
+    const loadingAllApps = !applicationUUID;
 
-    setLoadingApps(true);
+    if (loadingAllApps) {
+      setLoadingApps(true);
+    }
     setErrorApps(undefined);
 
     try {
-      let res: AppModel[] | undefined = [];
 
-      if (user?.role === Role.DataSubject) {
-        if (!current_home_uuid) {
-          res = [];
-        } else {
-          res = await fetchInstalledApplications(current_home_uuid);
+      if (applicationUUID && force === false) {
+        const cached = (apps ?? []).find((app) => app.uuid === applicationUUID);
+        if (cached !== undefined) {
+          return [cached];
         }
-      } else {
-        res = await fetchManagedApplications();
       }
+
+      const res = await fetchApplications(
+        user?.role === Role.DataSubject ? (current_home_uuid ?? null) : undefined,
+        applicationUUID,
+      );
 
       if (!res) {
-        setApps([]);
-        setErrorApps("Impossibile caricare le applicazioni.");
-        return;
+        if (loadingAllApps) {
+          setApps([]);
+          setErrorApps("Impossibile caricare le applicazioni.");
+        }
+        return undefined;
       }
 
-      setApps(res);
+      if (loadingAllApps) {
+        setApps(res);
+        return res;
+      }
+
+      const loadedApplication = res[0];
+      if (!loadedApplication) return res;
+
+      setApps((prev) => {
+
+        //caso non c'è nessun elemento -> 1 sola app
+        if (!prev) return [loadedApplication];
+
+        //vediamo se esisteva
+        const exists = prev.some((app) => app.uuid === loadedApplication.uuid);
+
+        //caso prima non esiste, la aggiungiamo all'inizio
+        if (!exists) return [loadedApplication, ...prev];
+
+        //caso prima esisteva, la aggiorniamo
+        return prev.map((app) => (app.uuid === loadedApplication.uuid ? loadedApplication : app));
+      });
+      
+      return res;
     }
     catch (err) {
-      setErrorApps(err instanceof Error ? err.message : "Errore inatteso")
+      setErrorApps(err instanceof Error ? err.message : "Unexpected Error");
+      return undefined;
     }
     finally {
-      setLoadingApps(false);
+      if (loadingAllApps) {
+        setLoadingApps(false);
+      }
     }
-  }, [current_home_uuid, user?.uuid, user?.role]);
+  }, [apps, current_home_uuid, user?.uuid, user?.role]);
 
   const syncApps = useCallback(async () => {
     if (!user) return;
@@ -161,7 +189,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       await refreshInstalledApplications();
     } catch (err) {
       setErrorUpdatingApps(
-        err instanceof Error ? err.message : "Errore inatteso",
+        err instanceof Error ? err.message : "Unexpected Error",
       );
     } finally {
       setUpdatingApps(false);
@@ -170,14 +198,6 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
 
   const loadPrivacyNotice = useCallback(async (appUUID: string, force: boolean,): Promise<PrivacyNotice | null | undefined> => {
     if (!user) return undefined;
-
-    //ritorna undefined se il data controller non la gestisce
-    if (user.role !== Role.DataSubject) {
-      const isManaged = (apps ?? []).some((app) => app.uuid === appUUID);
-      if (!isManaged) {
-        return undefined;
-      }
-    }
 
     if (force == false) {
       const cached = PrivacyNoticeByAppUUID[appUUID];
@@ -198,23 +218,15 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       return res;
     }
     catch (err) {
-      setErrorApps(err instanceof Error ? err.message : "Errore inatteso")
+      setErrorApps(err instanceof Error ? err.message : "Unexpected Error")
       return undefined //rimesso a undefined perchè non è stato caricato correttamente
     }
   },
-    [apps, user, PrivacyNoticeByAppUUID],
+    [user, PrivacyNoticeByAppUUID],
   );
 
   const loadPIA = useCallback(async (appUUID: string, force: boolean): Promise<PIA | null | undefined> => {
     if (!user) return undefined;
-
-    //ritorna undefined se il data controller non la gestisce
-    if (user.role !== Role.DataSubject) {
-      const isManaged = (apps ?? []).some((app) => app.uuid === appUUID);
-      if (!isManaged) {
-        return undefined;
-      }
-    }
 
     if (force == false) {
       const cached = PIAByAppUUID[appUUID];
@@ -232,23 +244,15 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       return res;
     }
     catch (err) {
-      setErrorApps(err instanceof Error ? err.message : "Errore inatteso")
+      setErrorApps(err instanceof Error ? err.message : "Unexpected Error")
       return undefined //rimesso a undefined perchè non è stato caricato correttamente
     }
   },
-    [apps, user, PIAByAppUUID],
+    [user, PIAByAppUUID],
   );
 
   const loadQuestionnaire = useCallback(async (appUUID: string, force: boolean): Promise<Questionnaire | null | undefined> => {
     if (!user) return undefined;
-
-    //ritorna undefined se il data controller non la gestisce
-    if (user.role !== Role.DataSubject) {
-      const isManaged = (apps ?? []).some((app) => app.uuid === appUUID);
-      if (!isManaged) {
-        return undefined;
-      }
-    }
 
     if (force == false) {
       const cached = QuestionnaireByAppUUID[appUUID];
@@ -276,47 +280,43 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       return res;
     } catch (err) {
       //vedere cosa fare dell'errore
-      setErrorApps(err instanceof Error ? err.message : "Errore inatteso")
+      setErrorApps(err instanceof Error ? err.message : "Unexpected Error")
       return undefined; //rimesso a undefined perchè non è stato caricato correttamente
     }
   },
-    [apps, user, QuestionnaireByAppUUID],
+    [user, QuestionnaireByAppUUID],
   );
 
-  const assignDpoToManagedApplication = useCallback(async (appUUID: string, dpoEmail: string): Promise<boolean | undefined> => {
+  const loadConsentsByApplication = useCallback(async (appUUID: string, force: boolean): Promise<ConsentModel[] | undefined> => {
     if (!user) return undefined;
-    if (user.role !== Role.DataController) return undefined;
 
-    const done = await assignDpoToApplication(appUUID, dpoEmail);
-    //non è una procedura che si fa sempre quindi per semplicità ricarichiamo tutte le apps
-    await loadApps();
-    return done;
+    if (force == false) {
+      const cached = ConsentStatesByAppUUID[appUUID];
+      if (cached !== undefined) {
+        return cached;
+      }
+      //se era undefined proviamo di nuovo a caricarlo
+    }
+
+    try {
+
+      if (user.role === Role.DataSubject) {
+        if (!current_home_uuid) return undefined;
+        const consentStates = await fetchConsentsStateBySmartHomeAndApplication(current_home_uuid, appUUID);
+        setConsentStatesByAppUUID((prev) => ({ ...prev, [appUUID]: consentStates }));
+        return consentStates;
+      }
+
+      const availableConsents = await fetchAvailableConsentsByApplication(appUUID);
+      setConsentStatesByAppUUID((prev) => ({ ...prev, [appUUID]: availableConsents }));
+      return availableConsents;
+
+    } catch (err) {
+      setErrorApps(err instanceof Error ? err.message : "Unexpected Error")
+      return undefined;
+    }
   },
-    [loadApps, user?.uuid, user?.role],
-  );
-
-  const addManagerToManagedApplication = useCallback(async (appUUID: string, userEmail: string): Promise<boolean | undefined> => {
-    if (!user) return undefined;
-    if (user.role !== Role.DataController) return undefined;
-
-    const done = await addDataControllerManagerToApplication(appUUID, userEmail);
-    //non è una procedura che si fa sempre quindi per semplicità ricarichiamo tutte le apps
-    await loadApps();
-    return done;
-  },
-    [loadApps, user?.uuid, user?.role],
-  );
-
-  const removeManagerFromManagedApplication = useCallback(async (appUUID: string, userEmail: string): Promise<boolean | undefined> => {
-    if (!user) return undefined;
-    if (user.role !== Role.DataController) return undefined;
-
-    await removeDataControllerManagerFromApplication(appUUID, userEmail);
-    //non è una procedura che si fa sempre quindi per semplicità ricarichiamo tutte le apps
-    await loadApps();
-    return true;
-  },
-    [loadApps, user?.uuid, user?.role],
+    [user, current_home_uuid, ConsentStatesByAppUUID],
   );
 
   const createManagedApplication = useCallback(async (payload: CreateApplicationRequest): Promise<AppModel | undefined> => {
@@ -340,6 +340,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       PrivacyNoticeByAppUUID,
       PIAByAppUUID,
       QuestionnaireByAppUUID,
+      ConsentStatesByAppUUID,
       loadingApps,
       updatingApps,
       errorApps,
@@ -347,21 +348,20 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       selectedAppUUID,
       selectedApp,
       syncApps,
-      assignDpoToManagedApplication,
-      addManagerToManagedApplication,
-      removeManagerFromManagedApplication,
       createManagedApplication,
       loadPrivacyNotice,
       loadPIA,
       loadQuestionnaire,
+      loadApps,
+      loadConsentsByApplication,
       setSelectedAppUUID,
-      reloadApps: loadApps,
     }),
     [
       apps,
       PrivacyNoticeByAppUUID,
       PIAByAppUUID,
       QuestionnaireByAppUUID,
+      ConsentStatesByAppUUID,
       loadingApps,
       updatingApps,
       errorApps,
@@ -369,13 +369,12 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       selectedAppUUID,
       selectedApp,
       syncApps,
-      assignDpoToManagedApplication,
-      addManagerToManagedApplication,
-      removeManagerFromManagedApplication,
       createManagedApplication,
       loadPrivacyNotice,
       loadPIA,
       loadQuestionnaire,
+      loadApps,
+      loadConsentsByApplication,
       setSelectedAppUUID,
     ],
   );

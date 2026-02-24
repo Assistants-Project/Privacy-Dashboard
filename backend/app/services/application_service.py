@@ -1,10 +1,11 @@
 import re
 from datetime import datetime
 from typing import List, TypedDict
+from uuid import UUID
 from sqlalchemy.exc import IntegrityError
-from ..exceptions import ApplicationAlreadyExistsException, ApplicationNotManagedException, AvailableConsentWrongListException, DpoAlreadyAssignedException, InvalidApplicationNameException, MissingDpoUuidException, SmartHomeNotFoundException, UserNotFoundException, WrongUserRoleException
+from ..exceptions import ApplicationAlreadyExistsException, ApplicationNotManagedException, AvailableConsentWrongListException, InvalidApplicationNameException, MissingDpoUuidException, SmartHomeNotFoundException, UserNotFoundException, WrongUserRoleException
 from ..models import Application
-from ..repositories import ApplicationRepository, AvailableConsentRepository, SmartHomeRepository, UserRepository
+from ..repositories import ApplicationRepository, ConsentRepository, SmartHomeRepository, UserRepository
 from ..models import UserRole
 from ..models import User
 from ..extensions import db
@@ -17,6 +18,7 @@ class ApplicationItem(TypedDict):
     dpo: User | None
     pn_status: str
     pia_status: str
+    pending_right_requests_count: int
 
 
 class ManagedApplicationItem(ApplicationItem):
@@ -51,19 +53,18 @@ class ApplicationService:
         return managed_application
 
     @staticmethod
-    def get_applications_by_dc_or_dpo_id(
-        current_user: User,
-    ) -> List[ManagedApplicationItem]:
+    def get_applications_by_dc_or_dpo_id(current_user: User, application_uuid: UUID | None = None) -> List[ManagedApplicationItem]:
         """Returns a list of applications fetched by a `DATA_CONTROLLER` or `DPO`'s id from the database,
         along with the date and time they were installed.
 
         Args:
             current_user: The user with role `DATA_CONTROLLER` or `DPO` who manages the applications.
+            application_uuid: Optional UUID of a specific managed application to retrieve.
 
         Returns:
             A list of managed applications with owner, managers and documents status.
         """
-        res = ApplicationRepository.get_applications_by_dc_or_dpo_id(current_user.id)
+        res = ApplicationRepository.get_applications_by_dc_or_dpo_id(current_user.id, application_uuid)
         managed_applications: dict[int, ManagedApplicationItem] = {}
 
         for app, _installed_at, manager in res:
@@ -84,6 +85,7 @@ class ApplicationService:
                         if app.privacy_impact_assessment is not None
                         else ApplicationService.DOC_STATUS_MISSING
                     ),
+                    "pending_right_requests_count": 0,
                 },
             )
             if manager is None:
@@ -94,11 +96,21 @@ class ApplicationService:
             elif manager.role == UserRole.DATA_PROTECTION_OFFICER and item["dpo"] is None:
                 item["dpo"] = manager
 
+        pending_request_counts = (
+            ApplicationRepository.get_pending_request_counts_for_managed_applications(
+                list(managed_applications.keys())
+            )
+        )
+        for application_id, item in managed_applications.items():
+            item["pending_right_requests_count"] = pending_request_counts.get(
+                application_id, 0
+            )
+
         return list(managed_applications.values())
 
     @staticmethod
     def get_applications_by_ds_id_and_smart_home_uuid(
-        user_id: int, smart_home_uuid: str
+        user_id: int, smart_home_uuid: str, application_uuid: UUID | None = None
     ) -> List[InstalledApplicationItem]:
         """Returns a list of applications installed on a smart home identified by its UUID,
         along with the date and time they were installed and the assigned managers.
@@ -106,6 +118,7 @@ class ApplicationService:
         Args:
             smart_home_uuid: The UUID of the smart home.
             user_id: The ID of the data subject requesting the information.
+            application_uuid: Optional UUID of a specific installed application to retrieve.
 
         Returns:
             A list of dictionaries each containing the application instance, the date and time it was installed
@@ -123,7 +136,7 @@ class ApplicationService:
                 f"Smart Home with uuid {smart_home_uuid} not found among the owned smart homes!"
             )
         iterator = ApplicationRepository.get_installed_applications_with_managers_by_ds_id_and_smart_home_id(
-            user_id, smart_home.id
+            user_id, smart_home.id, application_uuid
         )
         installed: dict[int, InstalledApplicationItem] = {}
 
@@ -146,6 +159,7 @@ class ApplicationService:
                         if app.privacy_impact_assessment is not None
                         else ApplicationService.DOC_STATUS_MISSING
                     ),
+                    "pending_right_requests_count": 0,
                 },
             )
             if manager is None:
@@ -156,6 +170,16 @@ class ApplicationService:
             elif manager.role == UserRole.DATA_PROTECTION_OFFICER:
                 if item["dpo"] is None:
                     item["dpo"] = manager
+
+        pending_request_counts = (
+            ApplicationRepository.get_pending_request_counts_for_installed_applications(
+                user_id, smart_home.id, list(installed.keys())
+            )
+        )
+        for application_id, item in installed.items():
+            item["pending_right_requests_count"] = pending_request_counts.get(
+                application_id, 0
+            )
 
         return list(installed.values())
 
@@ -213,7 +237,7 @@ class ApplicationService:
             ApplicationRepository.ensure_application_managed_by_user(
                 current_user.id, application.id
             )
-            AvailableConsentRepository.upsert_available_consents_for_application(application.id, normalized_available_consents)
+            ConsentRepository.upsert_available_consents_for_application(application.id, normalized_available_consents)
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
@@ -230,6 +254,7 @@ class ApplicationService:
             "dpo": None,
             "pn_status": ApplicationService.DOC_STATUS_MISSING,
             "pia_status": ApplicationService.DOC_STATUS_MISSING,
+            "pending_right_requests_count": 0,
         }
 
     @staticmethod
@@ -237,14 +262,14 @@ class ApplicationService:
         current_user: User,
         application_uuid,
         dpo_email: str | None = None,
-    ) -> bool:
-        # Assegna un DPO ad una app gestita da questo Data Controller.
+    ) -> str:
+        # Assegna o sostituisce il DPO di una app gestita da questo Data Controller.
         # Regole:
         # - il Data Controller deve già gestire l'app (altrimenti 403)
         # - dpo_email è obbligatorio (400)
-        # - se l'app ha già un DPO diverso assegnato - 409
-        # - se l'app ha già lo stesso DPO assegnato - ritorna False (204)
-        # - se non c'è ancora un DPO assegnato - assegna e ritorna True (201)
+        # - se l'app ha già lo stesso DPO assegnato - ritorna "unchanged" (204)
+        # - se non c'è ancora un DPO assegnato - ritorna "created" (201)
+        # - se esiste un DPO diverso - ritorna "replaced" (200)
         if current_user.role != UserRole.DATA_CONTROLLER:
             raise WrongUserRoleException("User is not a Data Controller!")
 
@@ -268,22 +293,32 @@ class ApplicationService:
         if dpo_user.role != UserRole.DATA_PROTECTION_OFFICER:
             raise WrongUserRoleException("User is not a Data Protection Officer!")
 
-        # Se c'è già un DPO assegnato:
-        # - se è lo stesso: no content (204)
-        # - se è diverso: conflict (409)
         assigned_dpo_user_ids = ApplicationRepository.get_dpo_user_ids_for_application(
             managed_application.id
         )
-        if assigned_dpo_user_ids and assigned_dpo_user_ids != {dpo_user.id}:
-            raise DpoAlreadyAssignedException(
-                "A different Data Protection Officer has already been assigned to this application!"
-            )
-        created = assigned_dpo_user_ids != {dpo_user.id}
+        had_dpo = bool(assigned_dpo_user_ids)
+        changed = assigned_dpo_user_ids != {dpo_user.id}
         ApplicationRepository.assign_dpo_for_application(
             managed_application.id, dpo_user.id
         )
         db.session.commit()
-        return created
+        if not changed:
+            return "unchanged"
+        if had_dpo:
+            return "replaced"
+        return "created"
+
+    @staticmethod
+    def remove_dpo_from_managed_application(current_user: User, application_uuid) -> bool:
+        if current_user.role != UserRole.DATA_CONTROLLER:
+            raise WrongUserRoleException("User is not a Data Controller!")
+
+        managed_application = ApplicationService._get_owned_managed_application(
+            current_user, application_uuid
+        )
+        removed = ApplicationRepository.remove_dpo_for_application(managed_application.id)
+        db.session.commit()
+        return removed
 
     @staticmethod
     def add_data_controller_manager_to_owned_application(current_user: User, application_uuid, user_email: str) -> bool:

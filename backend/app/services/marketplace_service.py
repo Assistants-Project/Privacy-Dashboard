@@ -13,7 +13,7 @@ from ..extensions import db
 from ..models import User, UserRole
 from ..repositories import (
     ApplicationRepository,
-    AvailableConsentRepository,
+    ConsentRepository,
     UserRepository,
 )
 
@@ -160,7 +160,7 @@ class MarketplaceService:
                 ApplicationRepository.ensure_application_managed_by_user(
                     delegate_data_controller.id, application.id
                 )
-            AvailableConsentRepository.upsert_available_consents_for_application(
+            ConsentRepository.upsert_available_consents_for_application(
                 application.id, normalized_available_consents
             )
             db.session.commit()

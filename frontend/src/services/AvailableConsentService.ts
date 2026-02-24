@@ -1,71 +1,72 @@
-import {giveConsentsInSmartHomeByUuid,getAvailableConsentsByApplicationUuid,getGivenConsentsBySmartHomeUuid,} from "../API/GDPR/availableConsentAPI";
-import {AvailableConsentModel,GivenConsentInHomeModel,} from "../models/available_consent";
+import {addAvailableConsentToManagedApplicationByUuid,getAvailableConsentsByApplicationUuid,getConsentsStateBySmartHomeAndApplicationUuid,removeAvailableConsentFromManagedApplicationByUuid,setGivenConsentsBySmartHomeAndApplicationUuid,} from "../API/GDPR/availableConsentAPI";
+import {ConsentModel,} from "../models/available_consent";
 
 type AvailableConsentDto = {
   uuid: string;
   content: string;
 };
 
-type GivenConsentInHomeDto = {
-  available_consent: AvailableConsentDto;
-  application_uuid: string;
-  given_at: string;
+type ConsentStateDto = {
+  uuid: string;
+  content: string;
+  given?: boolean;
+  given_at?: string | null;
 };
 
 const normalizeString = (value: unknown): string =>
   typeof value === "string" ? value : "";
 
-const toAvailableConsentModel = (dto: AvailableConsentDto,): AvailableConsentModel => {
-  return new AvailableConsentModel(
+const normalizeOptionalString = (value: unknown): string | undefined =>
+  typeof value === "string" ? value : undefined;
+
+const normalizeBoolean = (value: unknown): boolean | undefined => {
+  if (value === true) return true;
+  if (value === false) return false;
+  return undefined;
+};
+
+const toConsentModel = (dto: ConsentStateDto,): ConsentModel => {
+  const normalizedGivenAt = dto.given_at === null ? undefined : normalizeOptionalString(dto.given_at);
+  return new ConsentModel(
     normalizeString(dto.uuid),
     normalizeString(dto.content),
+    normalizeBoolean(dto.given),
+    normalizedGivenAt,
   );
 };
 
-const toGivenConsentInHomeModel = (dto: GivenConsentInHomeDto,): GivenConsentInHomeModel => {
-  return new GivenConsentInHomeModel(
-    toAvailableConsentModel(dto.available_consent),
-    normalizeString(dto.application_uuid),
-    normalizeString(dto.given_at),
-  );
-};
-
-export const fetchAvailableConsentsByApplication = async (applicationUuid: string): Promise<AvailableConsentModel[] | undefined> => {
-  
+export const fetchAvailableConsentsByApplication = async (applicationUuid: string): Promise<ConsentModel[]> => {
   try {
     const payload = (await getAvailableConsentsByApplicationUuid(applicationUuid,)) as unknown;
 
     if (!Array.isArray(payload)) {
-      console.warn("Unexpected available consents payload:", payload);
-      return undefined;
+      throw new Error("Unexpected available consents payload");
     }
 
-    return (payload as AvailableConsentDto[]).map(toAvailableConsentModel);
+    return (payload as AvailableConsentDto[]).map(toConsentModel);
   } catch (err) {
     throw err;
   }
 };
 
-export const fetchGivenConsentsBySmartHome = async (smartHomeUuid: string,): Promise<GivenConsentInHomeModel[] | undefined> => {
-  
+export const fetchConsentsStateBySmartHomeAndApplication = async (smartHomeUuid: string,applicationUuid: string,): Promise<ConsentModel[]> => {
   try {
-    const payload = (await getGivenConsentsBySmartHomeUuid(
+    const payload = (await getConsentsStateBySmartHomeAndApplicationUuid(
       smartHomeUuid,
+      applicationUuid,
     )) as unknown;
 
     if (!Array.isArray(payload)) {
-      console.warn("Unexpected given consents payload:", payload);
-      return undefined;
+      throw new Error("Unexpected consent state payload");
     }
 
-    return (payload as GivenConsentInHomeDto[]).map(toGivenConsentInHomeModel);
+    return (payload as ConsentStateDto[]).map(toConsentModel);
   } catch (err) {
     throw err;
   }
 };
 
-export const giveConsentsInSmartHome = async (smartHomeUuid: string,selectedConsents: string[],): Promise<void> => {
-  
+export const giveConsentsInSmartHome = async (smartHomeUuid: string,applicationUuid: string,selectedConsents: string[],): Promise<void> => {
   const normalizedSelectedConsents = Array.from(
     new Set(
       selectedConsents
@@ -76,6 +77,19 @@ export const giveConsentsInSmartHome = async (smartHomeUuid: string,selectedCons
   );
 
   if (normalizedSelectedConsents.length === 0) return;
-  await giveConsentsInSmartHomeByUuid(smartHomeUuid, normalizedSelectedConsents);
+  await setGivenConsentsBySmartHomeAndApplicationUuid(
+    smartHomeUuid,
+    applicationUuid,
+    normalizedSelectedConsents,
+  );
+};
 
+export const addAvailableConsentToManagedApplication = async (applicationUuid: string, content: string): Promise<ConsentModel> => {
+  const normalizedContent = content.trim();
+  const payload = await addAvailableConsentToManagedApplicationByUuid(applicationUuid, normalizedContent) as AvailableConsentDto;
+  return toConsentModel(payload);
+};
+
+export const removeAvailableConsentFromManagedApplication = async (applicationUuid: string, availableConsentUuid: string): Promise<void> => {
+  await removeAvailableConsentFromManagedApplicationByUuid(applicationUuid, availableConsentUuid);
 };

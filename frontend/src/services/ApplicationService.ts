@@ -1,4 +1,4 @@
-import { getManagedApplications, getInstalledApplications, createApplication, assignDpoToManagedApplication, addDataControllerManagerToManagedApplication, removeDataControllerManagerFromManagedApplication, refreshApplications } from "../API/Applications/applicationAPI";
+import { getManagedApplications, getInstalledApplications, createApplication, assignDpoToManagedApplication, removeDpoFromManagedApplication, addDataControllerManagerToManagedApplication, removeDataControllerManagerFromManagedApplication, refreshApplications } from "../API/Applications/applicationAPI";
 import { AppModel, CreateApplicationRequest, DocumentStatus } from "../models/app"
 import { Evaluation } from "../models/question";
 import { Role, User } from "../models/user";
@@ -15,19 +15,6 @@ import { Role, User } from "../models/user";
 //Mantenedno l'informazione parametro presente o no e valore interno null o no possiamo poi
 //ricostruire i vari casi di interesse, ad esempio firstname settato (presente come parametro) ma vuoto (quindi null)
 
-const fetchManagedApplications = async (): Promise<AppModel[] | undefined> => {
-    try {
-      const applications = (await getManagedApplications()) as ApplicationDto[];
-      if (!Array.isArray(applications)) {
-        console.warn("Unexpected managed applications payload:", applications);
-        return undefined;
-      }
-      return applications.map(toAppModel);
-    } catch (err) {
-      throw err;
-    }
-  };
-
 type UserDto = {
   uuid: string,
   email: string; 
@@ -40,7 +27,7 @@ type UserDto = {
 type InnerApplicationDto = {
   uuid: string; //uuid anche se in swagger è indicato come non obbligatorio in realtà lo è 
   name: string;
-  title?: string | null;
+  title: string;
   description?: string | null;
   evaluation?: Evaluation | null;
   questionnaire_summary?: string | null;
@@ -56,6 +43,7 @@ type ApplicationDto = {
   dpo: UserDto | null;
   pn_status?: DocumentStatusDto; //di solito sempre presente
   pia_status?: DocumentStatusDto;
+  pending_right_requests_count?: number;
 };
 
 //serve per nornalizzare un parametro che nel caso sia un oggetto null venga tradotta in undefined, mentre
@@ -77,6 +65,11 @@ const normalizeOptionalDocumentStatus = (value: unknown): DocumentStatus | undef
     ? (value as DocumentStatus)
     : undefined;
 
+const normalizeOptionalNonNegativeInteger = (value: unknown): number | undefined =>
+  typeof value === "number" && Number.isInteger(value) && value >= 0
+    ? value
+    : undefined;
+
 
 const toUserModel = (dto: UserDto): User =>
   //sono tutte stringhe o parametri required che nel caso siano vuoti non ci importa
@@ -90,9 +83,9 @@ const toUserModel = (dto: UserDto): User =>
 
 //trasforma quello che riceve dal backend nel nostro AppModel
 const toAppModel = (dto: ApplicationDto): AppModel => {
-  const app = dto.application ?? {}; 
+  const app = dto.application;
   const owner = toUserModel(dto.owner);
-  const title = normalizeOptionalString(app.title) ?? app.name;
+  const title = app.title;
 
   const model = new AppModel(app.uuid, app.name, title, owner);
   model.description = normalizeOptionalString(app.description);
@@ -105,24 +98,34 @@ const toAppModel = (dto: ApplicationDto): AppModel => {
   model.dpo = dto.dpo?.role === Role.DPO ? toUserModel(dto.dpo as UserDto) : undefined;
   model.pn_status = normalizeOptionalDocumentStatus(dto.pn_status);
   model.pia_status = normalizeOptionalDocumentStatus(dto.pia_status);
+  model.pending_right_requests_count = normalizeOptionalNonNegativeInteger(dto.pending_right_requests_count) ?? 0;
 
   return model;
 };
 
-  const fetchInstalledApplications = async (smartHomeUuid: string): Promise<AppModel[] | undefined> => {
-    try {
-      //cast semplice, permette di trattare il valore ritornato com un ApplicationDTO 
-      const applications = (await getInstalledApplications(smartHomeUuid)) as ApplicationDto[];
-      //controlliamo che sia un array 
-      if (!Array.isArray(applications)) {
-        console.warn("Unexpected installed applications payload:", applications);
-        return undefined;
-      }
-      return applications.map(toAppModel);
-    } catch (err) {
-      throw err
+const fetchApplications = async (smartHomeUuid?: string | null, applicationUuid?: string): Promise<AppModel[] | undefined> => {
+  
+  try {
+
+    if (smartHomeUuid === null) {
+      return [];
     }
+
+    const applications = (
+      smartHomeUuid !== undefined
+        ? await getInstalledApplications(smartHomeUuid, applicationUuid)
+        : await getManagedApplications(applicationUuid)
+    ) as ApplicationDto[];
+
+    if (!Array.isArray(applications)) {
+      console.warn("Unexpected applications payload:", applications);
+      return undefined;
+    }
+    return applications.map(toAppModel);
+  } catch (err) {
+    throw err;
   }
+};
 
 export const refreshInstalledApplications = async (): Promise<boolean | undefined> => {
   try {
@@ -136,6 +139,14 @@ export const refreshInstalledApplications = async (): Promise<boolean | undefine
 export const assignDpoToApplication = async (applicationUuid: string,dpoEmail: string): Promise<boolean> => {
   try {
     return await assignDpoToManagedApplication(applicationUuid, dpoEmail);
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const removeDpoFromApplication = async (applicationUuid: string): Promise<void> => {
+  try {
+    await removeDpoFromManagedApplication(applicationUuid);
   } catch (err) {
     throw err;
   }
@@ -174,4 +185,4 @@ export const createApplicationByDataController = async (payload: CreateApplicati
   }
 };
 
-export {fetchManagedApplications, fetchInstalledApplications}
+export { fetchApplications }

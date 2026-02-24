@@ -1,6 +1,6 @@
 from .application_service import ApplicationService
 from .auth_service import AuthService
-from .available_consent_service import AvailableConsentService
+from .consent_service import ConsentService
 from .dht_service import DHTService
 from .message_service import MessageResDict, MessageService
 from .marketplace_service import MarketplaceService
@@ -19,7 +19,7 @@ __all__ = [
     "QuestionAnsweredDict",
     "ApplicationService",
     "AuthService",
-    "AvailableConsentService",
+    "ConsentService",
     "MessageService",
     "MessageResDict",
     "MarketplaceService",

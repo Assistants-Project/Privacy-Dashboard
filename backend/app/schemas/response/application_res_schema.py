@@ -22,6 +22,7 @@ class ManagedApplicationResSchema(ma.Schema):
     dpo = ma.Nested(UserResSchema, required=True, allow_none=True)
     pn_status = ma.String(required=True, validate=validate.OneOf(DOC_STATUS_VALUES))
     pia_status = ma.String(required=True, validate=validate.OneOf(DOC_STATUS_VALUES))
+    pending_right_requests_count = ma.Integer(required=True, validate=validate.Range(min=0))
     installed_at = ma.DateTime(required=False, allow_none=True)
 
 
@@ -32,4 +33,5 @@ class InstalledApplicationResSchema(ma.Schema):
     dpo = ma.Nested(UserResSchema, required=True, allow_none=True)
     pn_status = ma.String(required=True, validate=validate.OneOf(DOC_STATUS_VALUES))
     pia_status = ma.String(required=True, validate=validate.OneOf(DOC_STATUS_VALUES))
+    pending_right_requests_count = ma.Integer(required=True, validate=validate.Range(min=0))
     installed_at = ma.DateTime(required=True)
