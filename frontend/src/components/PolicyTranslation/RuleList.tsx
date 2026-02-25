@@ -82,7 +82,7 @@ const RuleList: React.FC<RuleListProps> = ({
 
   return (
     <>
-      <div className="mt-4 d-flex flex-column gap-3">
+      <div className="d-flex flex-column gap-3">
         {rules.map((rule) => (
           <Card key={rule.db_id} className="shadow-sm">
             <Card.Header className="bg-white py-2">

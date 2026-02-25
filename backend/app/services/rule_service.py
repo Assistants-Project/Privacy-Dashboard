@@ -503,6 +503,15 @@ class RuleService:
         # 1. Get all local rules for this home
         local_db_rules = self.rule_repo.get_rules_by_home_and_type(home, "sifis")
         local_rules_map = {r.rule_uuid: r for r in local_db_rules if r.rule_uuid}
+
+        # Fan-out base rules (e.g. "Entire Home"): stored as one DbRule locally, but published as
+        # many DHT entries with UUID5(base_uuid, device_uuid). Sync must not delete the base rule
+        # and must not recreate one local rule per derived DHT entry.
+        local_fanout_base_uuids = [
+            str(r.rule_uuid)
+            for r in local_db_rules
+            if r.rule_uuid and all(a.device_id is None for a in (r.actions or []))
+        ]
         
         # 2. Index Smartotum rules
         smartotum_rules_map = {str(r.rule_uuid): r for r in smartotum_rules}
@@ -510,7 +519,7 @@ class RuleService:
         # 3. Identify Deletions (Local but not in Smartotum)
 
         for rule_uuid, db_rule in local_rules_map.items():
-            if rule_uuid not in smartotum_rules_map:
+            if rule_uuid not in smartotum_rules_map and not self._smartotum_has_any_derived_rule(str(rule_uuid), smartotum_rules):
                 if db_rule.effect == 'deny':
                     self.logger.info(f"Sync: Deleting local deny rule {rule_uuid} (not in DHT)")
                     
@@ -536,6 +545,9 @@ class RuleService:
                 except Exception as e:
                     self.logger.error(f"Sync: Failed to update rule {rule_uuid}: {e}")
             else:
+                # Skip derived rules that belong to an existing local fan-out base rule.
+                if self._is_smartotum_rule_derived_from_any_local_base(s_rule, local_fanout_base_uuids):
+                    continue
                 try:
                      self.logger.info(f"Sync: Creating new rule {rule_uuid} from DHT")
                      self.create_rule_from_smartotum(home, s_rule)
@@ -761,10 +773,11 @@ class RuleService:
         for rule in smart_home.rules:
             is_orphaned = False
             
-            # Check all actions - if any action has no device, rule is orphaned
+            # Check all actions - orphaned means device_id points to something that no longer exists.
+            # Note: device_id can be NULL for fan-out rules (e.g., "Entire Home"), that is NOT orphaned.
             for action in rule.actions:
-                if action.device is None:
-                    self.logger.info(f"Cleanup: Rule {rule.id} has action without device (action url: {action.url})")
+                if action.device_id is not None and action.device is None:
+                    self.logger.info(f"Cleanup: Rule {rule.id} has action with missing device (action url: {action.url})")
                     is_orphaned = True
                     break
             
@@ -926,6 +939,59 @@ class RuleService:
         except Exception:
             pass
         return None, None
+
+    def _smartotum_has_any_derived_rule(self, base_rule_uuid: str, smartotum_rules: List["SmartotumRule"]) -> bool:
+        """Return True if DHT contains at least one derived UUID5 child for this base rule UUID.
+
+        Fan-out publish uses uuid5(base_uuid, device_uuid) as the DHT topic_uuid. On sync we use
+        this to avoid deleting the local base rule and avoid recreating one DB rule per device.
+        """
+        try:
+            base_uuid = UUID(str(base_rule_uuid))
+        except Exception:
+            return False
+
+        for r in smartotum_rules or []:
+            target_uuid = getattr(r, "target_uuid", None)
+            rule_uuid = str(getattr(r, "rule_uuid", "") or "")
+            if not target_uuid or not rule_uuid:
+                continue
+            try:
+                child_uuid = str(uuid.uuid5(base_uuid, str(target_uuid)))
+            except Exception:
+                continue
+            if child_uuid == rule_uuid:
+                return True
+
+        return False
+
+    def _is_smartotum_rule_derived_from_any_local_base(self, s_rule: "SmartotumRule", local_base_uuids: List[str]) -> bool:
+        """Return True if this DHT rule UUID matches uuid5(base_uuid, target_uuid) for any local base."""
+        if not s_rule:
+            return False
+        target_uuid = getattr(s_rule, "target_uuid", None)
+        rule_uuid = str(getattr(s_rule, "rule_uuid", "") or "")
+        if not target_uuid or not rule_uuid:
+            return False
+
+        for base in local_base_uuids or []:
+            try:
+                base_uuid = UUID(str(base))
+            except Exception:
+                continue
+            try:
+                child_uuid = str(uuid.uuid5(base_uuid, str(target_uuid)))
+            except Exception:
+                continue
+            if child_uuid == rule_uuid:
+                self.logger.info(
+                    "Sync: Skipping derived DHT rule %s (belongs to local base %s)",
+                    rule_uuid,
+                    str(base),
+                )
+                return True
+
+        return False
 
     def _targets_from_ontology(self, rule_data: Dict[str, Any], smart_home: SmartHome, rule_uuid: str, location_url: Optional[str], location_name: Optional[str]) -> List[Tuple[str, str]]:
         # For "Unassigned devices" we require a concrete device selection.

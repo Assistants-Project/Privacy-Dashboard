@@ -9,6 +9,7 @@ import {
   Modal,
   Col,
   Row,
+  Spinner,
 } from "react-bootstrap";
 
 import { useHome } from "../../contexts/HomeContext";
@@ -27,6 +28,7 @@ function PolicyTranslation() {
   const { current_home_uuid } = useHome();
 
   const [rules, setRules] = useState<any[]>([]);
+  const [rulesLoading, setRulesLoading] = useState(false);
   const [view, setView] = useState<"list" | "create">("list");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -43,14 +45,17 @@ function PolicyTranslation() {
       loadRules();
     } else {
       setRules([]);
+      setRulesLoading(false);
     }
   }, [current_home_uuid]);
 
   const loadRules = () => {
     if (!current_home_uuid) return;
+    setRulesLoading(true);
     getRules(current_home_uuid)
       .then(setRules)
-      .catch((err) => console.error("Failed to load rules", err));
+      .catch((err) => console.error("Failed to load rules", err))
+      .finally(() => setRulesLoading(false));
   };
 
   const handleCreateRule = async (rule: any) => {
@@ -119,62 +124,91 @@ function PolicyTranslation() {
   };
 
   return (
-    <div className="d-flex flex-column" style={{ minHeight: "100vh" }}>
-      <Container className="flex-grow-1 py-4">
-        {error && (
-          <Alert variant="danger" onClose={() => setError(null)} dismissible>
-            {error}
-          </Alert>
-        )}
-        {success && (
-          <Alert variant="success" onClose={() => setSuccess(null)} dismissible>
-            {success}
-          </Alert>
-        )}
-        <Row className="mb-3 flex-shrink-0 align-items-center">
-          <Col>
-            <h1 className="mb-0">Policy Translation</h1>
-          </Col>
-          <Col xs="auto">
-            {current_home_uuid && view === "list" && (
-              <Button variant="primary" onClick={() => setView("create")}>
-                <i className="fa fa-plus me-2"></i>Create New Policy
-              </Button>
-            )}
-          </Col>
-        </Row>
-        {current_home_uuid ? (
-          <>
-            {view === "list" ? (
-              <>
-                <RuleList
-                  rules={rules}
-                  onDelete={requestDeleteRule}
-                  onDownload={handleDownloadRule}
-                  onCheck={handleCheckRule}
-                />
-              </>
-            ) : (
-              <RuleEditor
-                homeUuid={current_home_uuid}
-                onSave={handleCreateRule}
-                onCancel={() => setView("list")}
-              />
-            )}
+    <div className="d-flex flex-column h-100" style={{ overflow: "hidden" }}>
+      <Container
+        className="d-flex flex-column flex-grow-1 py-4"
+        style={{ overflow: "hidden", minHeight: 0 }}
+      >
+        <div className="flex-shrink-0">
+          {error && (
+            <Alert variant="danger" onClose={() => setError(null)} dismissible>
+              {error}
+            </Alert>
+          )}
+          {success && (
+            <Alert
+              variant="success"
+              onClose={() => setSuccess(null)}
+              dismissible
+            >
+              {success}
+            </Alert>
+          )}
+        </div>
 
-            <VerificationReport
-              show={showReport}
-              onHide={() => setShowReport(false)}
-              report={verificationReport}
-              onDeleteRule={requestDeleteRule}
-            />
-          </>
-        ) : (
-          <Alert variant="info">
-            Please select a Smart Home from the Dashboard Home Page to manage
-            policies.
-          </Alert>
-        )}
+        <div className="flex-grow-1" style={{ minHeight: 0, overflow: "hidden" }}>
+          {current_home_uuid ? (
+            <>
+              {view === "list" ? (
+                <>
+                  <Card className="h-100 p-0">
+                    <Card.Header className="bg-white d-flex align-items-center">
+                      <div className="fw-semibold">Policy Translation</div>
+                      <div className="ms-auto">
+                      <Button
+                        className="circular-button me-0"
+                        style={{ color: "#181d1f" }}
+                        onClick={() => setView("create")}
+                        aria-label="Create policy"
+                        title="Create policy"
+                      >
+                        <i className="fa-solid fa-plus"></i>
+                      </Button>
+                      </div>
+                    </Card.Header>
+                    <Card.Body style={{ minHeight: 0, overflow: "auto" }}>
+                      {rulesLoading ? (
+                        <div className="text-center text-muted mt-5">
+                          <Spinner
+                            animation="border"
+                            size="sm"
+                            className="me-2"
+                          />
+                          Loading rules...
+                        </div>
+                      ) : (
+                        <RuleList
+                          rules={rules}
+                          onDelete={requestDeleteRule}
+                          onDownload={handleDownloadRule}
+                          onCheck={handleCheckRule}
+                        />
+                      )}
+                    </Card.Body>
+                  </Card>
+                </>
+              ) : (
+                <RuleEditor
+                  homeUuid={current_home_uuid}
+                  onSave={handleCreateRule}
+                  onCancel={() => setView("list")}
+                />
+              )}
+
+              <VerificationReport
+                show={showReport}
+                onHide={() => setShowReport(false)}
+                report={verificationReport}
+                onDeleteRule={requestDeleteRule}
+              />
+            </>
+          ) : (
+            <Alert variant="info">
+              Please select a Smart Home from the Dashboard Home Page to manage
+              policies.
+            </Alert>
+          )}
+        </div>
 
         {/* Delete Confirmation Modal */}
         <Modal show={showDeleteModal} onHide={cancelDelete} centered>

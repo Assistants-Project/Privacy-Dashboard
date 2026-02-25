@@ -19,6 +19,7 @@ export function TopNavBar() {
   const isDataSubject = user?.role === Role.DataSubject;
   const showQuestionnaire = !isDataSubject;
   const anySyncing = isDataSubject && (updatingHomes || updatingApps);
+  const lockShellScroll = location.pathname.startsWith("/policy-translation");
 
   const initials = [user?.firstname?.trim()?.[0], user?.lastname?.trim()?.[0]].filter(Boolean).join("").toUpperCase();
 
@@ -119,7 +120,11 @@ export function TopNavBar() {
         </Container>
       </Navbar>
 
-      <Container fluid className="mx-auto app-shell-content py-2" style={{maxWidth: 1800}}>
+      <Container
+        fluid
+        className="mx-auto app-shell-content py-2"
+        style={{ maxWidth: 1800, overflow: lockShellScroll ? "hidden" : undefined }}
+      >
         <Outlet />
       </Container>
     </div>

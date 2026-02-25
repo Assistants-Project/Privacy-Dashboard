@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button, Row, Col, Card } from "react-bootstrap";
+import { Form, Button, Row, Col, Card, Spinner } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   getTriggerServices,
@@ -12,7 +12,7 @@ import {
 
 interface RuleEditorProps {
   homeUuid: string;
-  onSave: (rule: any) => void;
+  onSave: (rule: any) => Promise<void> | void;
   onCancel: () => void;
 }
 
@@ -49,6 +49,10 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
     Record<string, any>
   >({});
 
+  const [actionsLoading, setActionsLoading] = useState(false);
+  const [actionDetailsLoading, setActionDetailsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   const [effect, setEffect] = useState("permit");
   const [expirationDate, setExpirationDate] = useState("");
 
@@ -83,6 +87,7 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
   // Load actions when service changes
   useEffect(() => {
     if (selectedActionService) {
+      setActionsLoading(true);
       getActions(homeUuid, selectedActionService)
         .then((res) => {
           setActions(res);
@@ -90,7 +95,8 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
             setSelectedAction(res[0].url);
           }
         })
-        .catch(console.error);
+        .catch(console.error)
+        .finally(() => setActionsLoading(false));
       setSelectedAction("");
       setActionDetails([]);
     } else {
@@ -126,6 +132,7 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
   // Load action details when action changes
   useEffect(() => {
     if (selectedAction && selectedActionService) {
+      setActionDetailsLoading(true);
       const actionObj = actions.find((a) => a.url === selectedAction);
       let actionId = selectedAction;
       if (actionObj && actionObj.url) {
@@ -144,7 +151,8 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
         .catch((err) => {
           console.error("Failed action details", err);
           setActionDetails([]);
-        });
+        })
+        .finally(() => setActionDetailsLoading(false));
     }
   }, [selectedAction, selectedActionService, homeUuid, actions]);
 
@@ -210,77 +218,83 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
     e.preventDefault();
     if (!isFormValid() || !user) return;
 
+    setIsSaving(true);
+
     // Find if there is an entity detail in the action
     const entityDetail = actionDetails.find((d) => d.type === "entity");
     let entitiesToProcess: Array<string | null> = [null];
 
-    if (entityDetail) {
-      const actionLocationKey = Object.keys(actionDetailsValues).find((k) =>
-        k.toLowerCase().includes("location"),
-      );
-      const actionLocationUrl = actionLocationKey
-        ? actionDetailsValues[actionLocationKey]?.url
-        : undefined;
-      const actionIsUnassigned = isUnassignedLocationUrl(actionLocationUrl);
+    try {
+      if (entityDetail) {
+        const actionLocationKey = Object.keys(actionDetailsValues).find((k) =>
+          k.toLowerCase().includes("location"),
+        );
+        const actionLocationUrl = actionLocationKey
+          ? actionDetailsValues[actionLocationKey]?.url
+          : undefined;
+        const actionIsUnassigned = isUnassignedLocationUrl(actionLocationUrl);
 
-      const selectedEntities = actionDetailsValues[entityDetail.url];
-      if (Array.isArray(selectedEntities) && selectedEntities.length > 0) {
-        entitiesToProcess = selectedEntities;
-      } else if (actionIsUnassigned) {
-        alert("Please select a device for Unassigned devices.");
-        return;
+        const selectedEntities = actionDetailsValues[entityDetail.url];
+        if (Array.isArray(selectedEntities) && selectedEntities.length > 0) {
+          entitiesToProcess = selectedEntities;
+        } else if (actionIsUnassigned) {
+          alert("Please select a device for Unassigned devices.");
+          return;
+        }
       }
-    }
 
-    // Loop through entities and save a rule for each
-    for (const entityUrl of entitiesToProcess) {
-      const finalTriggerDetails = triggerDetails.map((d: any) => ({
-        url: d.url,
-        name: d.name,
-        type: d.type,
-        value: triggerDetailsValues[d.url] || d.value,
-      }));
+      // Loop through entities and save a rule for each
+      for (const entityUrl of entitiesToProcess) {
+        const finalTriggerDetails = triggerDetails.map((d: any) => ({
+          url: d.url,
+          name: d.name,
+          type: d.type,
+          value: triggerDetailsValues[d.url] || d.value,
+        }));
 
-      const finalActionDetails = actionDetails
-        .map((d: any) => {
-          // If no device is selected, omit the entity detail entirely.
-          // Backend interprets this as "apply to all compatible devices" for the chosen location.
-          if (d.type === "entity" && !entityUrl) return null;
+        const finalActionDetails = actionDetails
+          .map((d: any) => {
+            // If no device is selected, omit the entity detail entirely.
+            // Backend interprets this as "apply to all compatible devices" for the chosen location.
+            if (d.type === "entity" && !entityUrl) return null;
 
-          let value = actionDetailsValues[d.url] || d.value;
+            let value = actionDetailsValues[d.url] || d.value;
 
-          if (d.type === "entity" && entityUrl) {
-            const alt = d.alternatives?.find((a: any) => a.url === entityUrl);
-            value = {
-              url: entityUrl,
-              name: alt ? alt.name : "Unknown Device",
+            if (d.type === "entity" && entityUrl) {
+              const alt = d.alternatives?.find((a: any) => a.url === entityUrl);
+              value = {
+                url: entityUrl,
+                name: alt ? alt.name : "Unknown Device",
+              };
+            }
+
+            return {
+              url: d.url,
+              name: d.name,
+              type: d.type,
+              value: value,
             };
-          }
+          })
+          .filter(Boolean);
 
-          return {
-            url: d.url,
-            name: d.name,
-            type: d.type,
-            value: value,
-          };
-        })
-        .filter(Boolean);
+        const rule = {
+          effect: effect,
+          subject: user.email,
+          expirationDate: expirationDate,
+          trigger: {
+            url: selectedTrigger,
+            details: finalTriggerDetails,
+          },
+          action: {
+            url: selectedAction,
+            details: finalActionDetails,
+          },
+        };
 
-      const rule = {
-        effect: effect,
-        subject: user.email,
-        expirationDate: expirationDate,
-        trigger: {
-          url: selectedTrigger,
-          details: finalTriggerDetails,
-        },
-        action: {
-          url: selectedAction,
-          details: finalActionDetails,
-        },
-      };
-
-      await onSave(rule);
+        await onSave(rule);
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -514,11 +528,20 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
 
             {/* ACTION COLUMN */}
             <Col md={6}>
-              <Card className="h-100">
+                <Card className="h-100">
                 <Card.Header>Then (Action)</Card.Header>
                 <Card.Body>
                   <Form.Group className="mb-3">
-                    <Form.Label>Service</Form.Label>
+                    <Form.Label>
+                      Service{" "}
+                      {actionsLoading && (
+                        <Spinner
+                          animation="border"
+                          size="sm"
+                          className="ms-2"
+                        />
+                      )}
+                    </Form.Label>
                     <Form.Select
                       value={selectedActionService}
                       onChange={(e) => {
@@ -536,7 +559,13 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
                   </Form.Group>
 
                   {/* Action Details */}
-                  {actionDetails.length > 0 && (
+                  {actionDetailsLoading && (
+                    <div className="text-muted">
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Loading action details...
+                    </div>
+                  )}
+                  {actionDetails.length > 0 && !actionDetailsLoading && (
                     <Card className="mb-3 bg-light">
                       <Card.Body>
                         <h6>Action Details</h6>
@@ -603,8 +632,19 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
             <Button variant="secondary" onClick={onCancel}>
               Cancel
             </Button>
-            <Button variant="primary" type="submit" disabled={!isFormValid()}>
-              Save Policy
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={!isFormValid() || isSaving}
+            >
+              {isSaving ? (
+                <>
+                  <Spinner animation="border" size="sm" className="me-2" />
+                  Saving...
+                </>
+              ) : (
+                "Save Policy"
+              )}
             </Button>
           </div>
         </Form>
