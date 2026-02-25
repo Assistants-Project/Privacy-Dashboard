@@ -7,7 +7,11 @@ import { useApp } from "../../contexts/AppsContext";
 import { addAvailableConsentToManagedApplication, giveConsentsInSmartHome, removeAvailableConsentFromManagedApplication } from "../../services/AvailableConsentService";
 import { Role } from "../../models/user";
 
-function AppConsentsPanel() {
+type AppConsentsPanelProps = {
+  onWithdrawConsents?: (consentUuids: string[]) => void;
+};
+
+function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
   const { current_home_uuid } = useHome();
   const { user } = useAuth();
   const { selectedAppUUID, ConsentStatesByAppUUID, loadConsentsByApplication } = useApp();
@@ -33,6 +37,11 @@ function AppConsentsPanel() {
 
   const consentsToGive = useMemo(
     () => consentStates.filter((consentState) => consentState.given !== true),
+    [consentStates],
+  );
+
+  const givenConsents = useMemo(
+    () => consentStates.filter((consentState) => consentState.given === true),
     [consentStates],
   );
 
@@ -130,6 +139,39 @@ function AppConsentsPanel() {
     }
   };
 
+  const onWithdrawSingleConsent = (consentUuid: string) => {
+    if (!onWithdrawConsents) return;
+    if (!current_home_uuid) {
+      setError("No home selected.");
+      return;
+    }
+    if (!selectedAppUUID) {
+      setError("No application selected.");
+      return;
+    }
+
+    setError(undefined);
+    onWithdrawConsents([consentUuid]);
+  };
+
+  const onWithdrawAllConsents = () => {
+    if (!onWithdrawConsents) return;
+    if (!current_home_uuid) {
+      setError("No home selected.");
+      return;
+    }
+    if (!selectedAppUUID) {
+      setError("No application selected.");
+      return;
+    }
+
+    const consentUUIDsToWithdraw = givenConsents.map((consentState) => consentState.uuid);
+    if (consentUUIDsToWithdraw.length === 0) return;
+
+    setError(undefined);
+    onWithdrawConsents(consentUUIDsToWithdraw);
+  };
+
   const onAddConsent = async () => {
     if (!selectedAppUUID) return;
 
@@ -179,7 +221,7 @@ function AppConsentsPanel() {
             </Col>
 
             {isDataSubject ? (
-              <Col xs="auto">
+              <Col xs="auto" className="d-inline-flex gap-2">
                 <Button
                   variant="outline-primary"
                   size="sm"
@@ -194,6 +236,14 @@ function AppConsentsPanel() {
                   ) : (
                     "Accept all"
                   )}
+                </Button>
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={onWithdrawAllConsents}
+                  disabled={loadingConsents || acceptingAllConsents || !!givingConsentUuid || givenConsents.length === 0 || !current_home_uuid || !onWithdrawConsents}
+                >
+                  Revoke all
                 </Button>
               </Col>
             ) : undefined}
@@ -244,15 +294,21 @@ function AppConsentsPanel() {
                         <Button
                           variant="link"
                           className="p-0 d-inline-flex align-items-center"
-                          onClick={() => void onGiveSingleConsent(consent.uuid)}
-                          disabled={loadingConsents || acceptingAllConsents || !!givingConsentUuid || !current_home_uuid || isGiven}
+                          onClick={() => {
+                            if (isGiven) {
+                              onWithdrawSingleConsent(consent.uuid);
+                            } else {
+                              void onGiveSingleConsent(consent.uuid);
+                            }
+                          }}
+                          disabled={loadingConsents || acceptingAllConsents || !!givingConsentUuid || !current_home_uuid || (isGiven && !onWithdrawConsents)}
                         >
                           {givingConsentUuid === consent.uuid ? (
                             <Spinner animation="border" size="sm" />
                           ) : isGiven ? (
-                            <CheckCircleFill className="text-success" aria-label="consent given" title="Given" />
+                            <CheckCircleFill className="text-success" aria-label="revoke consent" title="Revoke" />
                           ) : (
-                            <Circle className="text-muted" aria-label="consent not given" title="Not given" />
+                            <Circle className="text-muted" aria-label="give consent" title="Give" />
                           )}
                         </Button>
                       </div>

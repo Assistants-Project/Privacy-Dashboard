@@ -21,6 +21,10 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
   onSave,
   onCancel,
 }) => {
+  const UNASSIGNED_ROOM_UUID = "00000000-0000-0000-0000-000000000000";
+  const isUnassignedLocationUrl = (url?: string) =>
+    !!url && url.includes(`location-${UNASSIGNED_ROOM_UUID}`);
+
   const { user } = useAuth();
   const [triggerServices, setTriggerServices] = useState<any[]>([]);
   const [actionServices, setActionServices] = useState<any[]>([]);
@@ -173,12 +177,24 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
 
     // Action details validation
     if (actionDetails.length > 0) {
+      const actionLocationKey = Object.keys(actionDetailsValues).find((k) =>
+        k.toLowerCase().includes("location"),
+      );
+      const actionLocationUrl = actionLocationKey
+        ? actionDetailsValues[actionLocationKey]?.url
+        : undefined;
+      const actionIsUnassigned = isUnassignedLocationUrl(actionLocationUrl);
+
       for (const d of actionDetails) {
         const val = actionDetailsValues[d.url];
 
         if (d.type === "entity") {
-          // Must select at least one entity (device)
-          if (!Array.isArray(val) || val.length === 0) return false;
+          // Optional: leaving it empty means "all compatible devices" for the selected location.
+          // Exception: for "Unassigned devices" we force selecting a concrete device.
+          if (actionIsUnassigned) {
+            if (!Array.isArray(val) || val.length === 0) return false;
+          }
+          continue;
         } else if (d.type === "location") {
           if (!val || !val.url) return false;
         } else {
@@ -196,18 +212,23 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
 
     // Find if there is an entity detail in the action
     const entityDetail = actionDetails.find((d) => d.type === "entity");
-    let entitiesToProcess = [null];
+    let entitiesToProcess: Array<string | null> = [null];
 
     if (entityDetail) {
+      const actionLocationKey = Object.keys(actionDetailsValues).find((k) =>
+        k.toLowerCase().includes("location"),
+      );
+      const actionLocationUrl = actionLocationKey
+        ? actionDetailsValues[actionLocationKey]?.url
+        : undefined;
+      const actionIsUnassigned = isUnassignedLocationUrl(actionLocationUrl);
+
       const selectedEntities = actionDetailsValues[entityDetail.url];
       if (Array.isArray(selectedEntities) && selectedEntities.length > 0) {
         entitiesToProcess = selectedEntities;
-      } else {
-        if (!selectedEntities) {
-          alert("Please select at least one device.");
-          return;
-        }
-        entitiesToProcess = [];
+      } else if (actionIsUnassigned) {
+        alert("Please select a device for Unassigned devices.");
+        return;
       }
     }
 
@@ -220,24 +241,30 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
         value: triggerDetailsValues[d.url] || d.value,
       }));
 
-      const finalActionDetails = actionDetails.map((d: any) => {
-        let value = actionDetailsValues[d.url] || d.value;
+      const finalActionDetails = actionDetails
+        .map((d: any) => {
+          // If no device is selected, omit the entity detail entirely.
+          // Backend interprets this as "apply to all compatible devices" for the chosen location.
+          if (d.type === "entity" && !entityUrl) return null;
 
-        if (d.type === "entity" && entityUrl) {
-          const alt = d.alternatives?.find((a: any) => a.url === entityUrl);
-          value = {
-            url: entityUrl,
-            name: alt ? alt.name : "Unknown Device",
+          let value = actionDetailsValues[d.url] || d.value;
+
+          if (d.type === "entity" && entityUrl) {
+            const alt = d.alternatives?.find((a: any) => a.url === entityUrl);
+            value = {
+              url: entityUrl,
+              name: alt ? alt.name : "Unknown Device",
+            };
+          }
+
+          return {
+            url: d.url,
+            name: d.name,
+            type: d.type,
+            value: value,
           };
-        }
-
-        return {
-          url: d.url,
-          name: d.name,
-          type: d.type,
-          value: value,
-        };
-      });
+        })
+        .filter(Boolean);
 
       const rule = {
         effect: effect,
@@ -321,7 +348,13 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
         const selectedLocUrl = selectedLoc.url;
         locationSelected = true;
 
-        if (selectedLocUrl) {
+        // "Entire Home" is represented by the ontology location `location-home`.
+        // In that case we don't filter devices by room location.
+        const isEntireHome =
+          typeof selectedLocUrl === "string" &&
+          selectedLocUrl.split("#").pop() === "location-home";
+
+        if (selectedLocUrl && !isEntireHome) {
           alternatives = alternatives.filter(
             (a: any) => a.location_url === selectedLocUrl,
           );

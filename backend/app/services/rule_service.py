@@ -5,6 +5,7 @@ import json
 from typing import List, Set, Dict, Any, Optional, Tuple
 from pathlib import Path
 from datetime import datetime
+from uuid import UUID
 
 from ..models.entities.sifis.db import DbRule, DbTrigger, DbAction, DbDetail
 from ..models.entities.user import User
@@ -18,6 +19,12 @@ from ..services.owl_service import OWLService
 from ..services.xacml_service import XACMLService
 from ..services.dht_service import DHTService
 from ..integrations.smartotum.client import SmartotumRule
+from ..extensions import db
+from ..exceptions import (
+    WrongUserCredentialsException,
+    SmartotumServiceUnavailableException,
+    SmartotumTimeoutException,
+)
 
 from config import BaseConfig
 
@@ -37,7 +44,11 @@ class RuleService:
         self, rule_data: Dict[str, Any], rule_type: str, smart_home: SmartHome
     ) -> int:
         """
-        Save a rule to the database and post to DHT
+        Save a rule to the database and post to DHT.
+
+        For deny rules, this is treated as an all-or-nothing operation: if target resolution
+        or DHT publish fails, we rollback the DB transaction and raise an exception so the
+        caller returns an error to the client.
         """
         # Create DbRule with Unix timestamp in milliseconds
         timestamp = rule_data.get("timestamp")
@@ -103,22 +114,16 @@ class RuleService:
         # Link trigger to rule
         db_rule.triggers.append(db_trigger)
         # Actions are already appended in the loop
+        return self._save_rule_with_optional_dht_publish(
+            db_rule=db_rule,
+            rule_data=rule_data,
+            db_trigger=db_trigger,
+            first_db_action=first_db_action,
+            rule_uuid=rule_uuid,
+            smart_home=smart_home,
+        )
 
-        # Save to database
-        saved_rule = self.rule_repo.save_rule(db_rule)
-
-        # Post to DHT 
-        if rule_data.get("effect") == "deny":
-            try:
-                # We pass first_db_action to satisfy signature, though method relies on rule_data
-                self._post_rule_to_dht(rule_data, db_trigger, first_db_action, rule_uuid, smart_home)
-            except Exception as e:
-                self.logger.error(f"Failed to post rule to DHT: {e}")
-
-        return saved_rule.id
-
-    def _post_rule_to_dht(self, rule_data: Dict, db_trigger: DbTrigger, db_action: DbAction, rule_uuid: str, smart_home: SmartHome):
-        
+    def _post_rule_to_dht(self, rule_data: Dict, db_trigger: DbTrigger, db_action: DbAction, rule_uuid: str, smart_home: SmartHome) -> Tuple[List[str], str]:
         time_start = ""
         time_end = ""
         days = []
@@ -140,60 +145,77 @@ class RuleService:
                     except:
                         days = [val]
 
+
         # Derive Target Topic and UUID from Action Details
-        target_topic = "domo_light" 
-        target_uuid = "57ae2fc9-5bf4-47a4-937c-78532b7670a4"
+        target_topic = None
+        target_uuid = None
         
         # Prefer using linked device if available
         if db_action and db_action.device:
             target_uuid = str(db_action.device.device_uuid)
             if db_action.device.topic_name:
                 target_topic = db_action.device.topic_name
+            else:
+                raise Exception(f"Linked device has no topic_name for rule {rule_uuid}")
         else:
             action_details = rule_data.get("action", {}).get("details", [])
             for detail in action_details:
-                 if detail.get("type") == "entity":
-                     entity_url = detail.get("value", {}).get("url", "")
-                     if entity_url:
-                         # Extract UUID from URL fragment
-                         target_uuid = entity_url.split("#")[-1]
-                         
-                         try:
-                             device = DeviceRepository.get_device_by_uuid(target_uuid)
-                             if device and device.topic_name:
-                                 target_topic = device.topic_name
-                         except Exception as e:
-                             self.logger.warning(f"Failed to lookup device for topic: {e}")
-                         break
+                if detail.get("type") == "entity":
+                    value = detail.get("value") or {}
+                    entity_url = value.get("url", "") if isinstance(value, dict) else ""
+                    if entity_url:
+                        # Extract UUID from URL fragment (handles "#d-<uuid>" as well)
+                        entity_id = entity_url.split("#")[-1].removeprefix("d-")
+                        try:
+                            device = DeviceRepository.get_device_by_uuid(entity_id)
+                        except Exception as e:
+                            raise Exception(f"Failed to lookup selected device {entity_id}: {e}") from e
 
-        # Format Expiration Date to YYYY/MM/DD
-        expiration_date = rule_data.get("expirationDate", "")
+                        if device and device.topic_name:
+                            target_uuid = str(device.device_uuid)
+                            target_topic = device.topic_name
+                        else:
+                            raise Exception(f"Selected device {entity_id} not found locally or missing topic_name")
+                        break
+
+        # Format Expiration Date to YYYY/MM/DD (Smartotum format)
+        expiration_date = rule_data.get("expirationDate", "") or ""
         if expiration_date:
             try:
-                expiration_date = expiration_date.replace("-", "/")
+                expiration_date = str(expiration_date).replace("-", "/")
             except:
-                pass
-
-        payload = {
-            "target_topic": target_topic,
-            "target_uuid": target_uuid,
-            "time_start": time_start,
-            "time_end": time_end,
-            "days": days,
-            "expiration_date": expiration_date
-        }
+                expiration_date = str(expiration_date)
         
+        # If no explicit device is present, fan-out via ontology (location-scoped)
+        if target_topic and target_uuid:
+            targets = [(str(target_topic), str(target_uuid))]
+        else:
+            location_url, location_name = self._extract_action_location(rule_data)
+            targets = self._targets_from_ontology(rule_data, smart_home, rule_uuid, location_url, location_name)
 
-        home_uuid = str(smart_home.uuid) if smart_home else None
-        
+        if not smart_home or not smart_home.uuid:
+            raise Exception("Missing smart_home uuid for DHT publish")
+        home_uuid = str(smart_home.uuid)
         access_token = None
         try:
             from flask import request
             access_token = request.cookies.get("st_access_token")
-        except:
-            self.logger.warning("Could not retrieve access token from request context for DHT publish")
-            
-        self.dht_service.publish_rule(rule_uuid, payload, home_uuid, access_token)
+        except Exception as e:
+            raise Exception("Could not retrieve access token from request context for DHT publish") from e
+        if not access_token:
+            raise Exception("Access token not found in request cookies for DHT publish")
+        
+        published_uuids = self._publish_dht_rules_for_targets(
+            base_rule_uuid=rule_uuid,
+            targets=targets,
+            home_uuid=home_uuid,
+            access_token=access_token,
+            time_start=time_start,
+            time_end=time_end,
+            days=days,
+            expiration_date=expiration_date,
+        )
+        return published_uuids, access_token
 
     def _process_trigger_data(self, trigger_data: Dict[str, Any], smart_home: SmartHome) -> DbTrigger:
         """Process trigger data and create DbTrigger entity"""
@@ -335,11 +357,7 @@ class RuleService:
                         access_token = auth_header.split(' ')[1]
 
                 if access_token:
-                    self.dht_service.delete_rule(
-                        rule_uuid=str(rule.rule_uuid),
-                        home_uuid=str(smart_home.uuid),
-                        access_token=access_token
-                    )
+                    self._delete_dht_rule_with_fanout_support(rule, smart_home, access_token)
                 else:
                     self.logger.warning(f"Skipping DHT deletion for rule {rule.rule_uuid}: Access token not found")
             except Exception as e:
@@ -846,3 +864,257 @@ class RuleService:
             db.session.commit()
         
         return updated_count
+
+    # =========================
+    # Internal Helper Functions
+    # =========================
+
+    def _save_rule_with_optional_dht_publish(self, *, db_rule: DbRule, rule_data: Dict[str, Any], db_trigger: DbTrigger, first_db_action: Optional[DbAction], rule_uuid: str, smart_home: SmartHome) -> int:
+        """Persist rule and (for deny) publish to DHT atomically.
+
+        DB is committed only if DHT publishing succeeds; otherwise we rollback and raise.
+        """
+        session = db.session
+        published_rule_uuids: List[str] = []
+        access_token: Optional[str] = None
+
+        try:
+            # Save to DB but do not commit yet.
+            self.rule_repo.save_rule(db_rule, commit=False)
+
+            if rule_data.get("effect") == "deny":
+                if not first_db_action:
+                    raise Exception("Missing action for deny rule DHT publish")
+                published_rule_uuids, access_token = self._post_rule_to_dht(
+                    rule_data, db_trigger, first_db_action, rule_uuid, smart_home
+                )
+
+            session.commit()
+            return db_rule.id
+        except Exception as e:
+            session.rollback()
+
+            # Best-effort cleanup: if we already pushed something to DHT, try to delete it.
+            try:
+                if published_rule_uuids and access_token:
+                    for dht_uuid in published_rule_uuids:
+                        self.dht_service.delete_rule(
+                            rule_uuid=str(dht_uuid),
+                            home_uuid=str(smart_home.uuid),
+                            access_token=access_token,
+                        )
+            except Exception as cleanup_exc:
+                self.logger.warning(f"Failed DHT cleanup after rollback: {cleanup_exc}")
+
+            # Preserve auth errors so the controller can return 401 (instead of turning it into a 500).
+            if isinstance(e, WrongUserCredentialsException):
+                raise
+            # Preserve Smartotum availability errors so the controller can return 503/504.
+            if isinstance(e, (SmartotumServiceUnavailableException, SmartotumTimeoutException)):
+                raise
+            raise Exception(f"Failed to save rule: {e}") from e
+
+    def _extract_action_location(self, rule_data: Dict[str, Any]) -> Tuple[Optional[str], Optional[str]]:
+        """Extract selected location (url, name) from action details, if present."""
+        try:
+            for d in (rule_data.get("action") or {}).get("details", []) or []:
+                if d.get("type") != "location":
+                    continue
+                v = d.get("value") or {}
+                if isinstance(v, dict):
+                    return v.get("url"), v.get("name")
+        except Exception:
+            pass
+        return None, None
+
+    def _targets_from_ontology(self, rule_data: Dict[str, Any], smart_home: SmartHome, rule_uuid: str, location_url: Optional[str], location_name: Optional[str]) -> List[Tuple[str, str]]:
+        # For "Unassigned devices" we require a concrete device selection.
+        if location_url:
+            frag = str(location_url).split("#")[-1]
+            if frag == "location-00000000-0000-0000-0000-000000000000":
+                raise Exception("Location is Unassigned devices but no device/entity was selected")
+
+        if not self.owl_service:
+            raise Exception("OWL service is not available for target resolution")
+
+        action_url = (rule_data.get("action") or {}).get("url")
+        if not action_url:
+            raise Exception("Missing action.url for target resolution")
+
+        home_uuid_str = str(smart_home.uuid)
+        action_obj = Action()
+        action_obj.url = str(action_url)
+        loc = {"name": location_name or "Entire Home", "url": location_url or ""}
+
+        commands = self.owl_service.get_commands(action_obj, loc, home_uuid_str)
+        if not commands:
+            raise Exception("No compatible commands/devices found for this action/location")
+
+        targets: List[Tuple[str, str]] = []
+        seen: Set[str] = set()
+        for cmd in commands:
+            ent_url = (cmd.entity or {}).get("url") if hasattr(cmd, "entity") else None
+            if not ent_url:
+                continue
+            ent_id = str(ent_url).split("#")[-1].removeprefix("d-")
+            if not ent_id or ent_id in seen:
+                continue
+            seen.add(ent_id)
+
+            device = DeviceRepository.get_device_by_uuid(ent_id)
+            if not device or not device.topic_name:
+                raise Exception(f"Device {ent_id} not found locally or missing topic_name")
+            targets.append((str(device.topic_name), str(device.device_uuid)))
+
+        if not targets:
+            raise Exception("Could not determine any target device(s) for DHT publish")
+        return targets
+
+    def _publish_dht_rules_for_targets(self, *, base_rule_uuid: str, targets: List[Tuple[str, str]], home_uuid: str, access_token: str, time_start: str, time_end: str, days: List[Any], expiration_date: str) -> List[str]:
+        """Publish one or multiple DHT rules and return the list of rule UUIDs published."""
+        if not targets:
+            raise Exception("Could not determine any target device(s) for DHT publish")
+
+        published: List[str] = []
+        base_uuid = UUID(str(base_rule_uuid))
+
+        def payload_for(topic: str, dev_uuid: str) -> Dict[str, Any]:
+            return {
+                "target_topic": topic,
+                "target_uuid": dev_uuid,
+                "time_start": time_start,
+                "time_end": time_end,
+                "days": days,
+                "expiration_date": expiration_date,
+            }
+
+        if len(targets) == 1:
+            target_topic, target_uuid = targets[0]
+            ok = self.dht_service.publish_rule(
+                base_rule_uuid,
+                payload_for(target_topic, target_uuid),
+                home_uuid,
+                access_token,
+            )
+            if not ok:
+                raise Exception("Failed to publish rule to DHT")
+            return [str(base_rule_uuid)]
+
+        for target_topic, target_uuid in targets:
+            child_uuid = str(uuid.uuid5(base_uuid, str(target_uuid)))
+            ok = self.dht_service.publish_rule(
+                child_uuid,
+                payload_for(target_topic, target_uuid),
+                home_uuid,
+                access_token,
+            )
+            if not ok:
+                # Best-effort rollback of previously published derived rules
+                for prev_uuid in published:
+                    try:
+                        self.dht_service.delete_rule(
+                            rule_uuid=str(prev_uuid),
+                            home_uuid=str(home_uuid),
+                            access_token=access_token,
+                        )
+                    except Exception as del_exc:
+                        self.logger.warning(
+                            f"Failed to delete DHT rule {prev_uuid} after publish failure: {del_exc}"
+                        )
+                raise Exception("Failed to publish derived rule to DHT")
+            published.append(child_uuid)
+
+        return published
+
+    def _delete_dht_rule_with_fanout_support(self, rule: DbRule, smart_home: SmartHome, access_token: str) -> None:
+        # If the rule doesn't have a concrete device target (typical for "Entire Home"),
+        # we may have published one DHT rule per device (uuid5 fan-out). In that case,
+        # delete all derived rules as well.
+        has_device_target = any(a.device is not None for a in (rule.actions or []))
+        if has_device_target:
+            self.dht_service.delete_rule(
+                rule_uuid=str(rule.rule_uuid),
+                home_uuid=str(smart_home.uuid),
+                access_token=access_token
+            )
+        else:
+            try:
+                base_uuid = UUID(str(rule.rule_uuid))
+            except Exception:
+                base_uuid = None
+
+            # Optional location scoping (room-level fan-out)
+            location_url: Optional[str] = None
+            location_name: Optional[str] = None
+            try:
+                for act in (rule.actions or []):
+                    for det in (act.details or []):
+                        if det.type == "location" and det.value_url:
+                            location_url = det.value_url
+                            location_name = det.value
+                            break
+                    if location_url:
+                        break
+            except Exception:
+                location_url = None
+                location_name = None
+
+            devices: List[Any] = []
+
+            # Prefer OWL-based resolution if available (matches what we do in publish).
+            if self.owl_service and (rule.actions or []) and str(smart_home.uuid):
+                try:
+                    action_obj = Action()
+                    action_obj.url = str(rule.actions[0].url)
+                    loc = {
+                        "name": location_name or "Entire Home",
+                        "url": location_url or "",
+                    }
+                    commands = self.owl_service.get_commands(action_obj, loc, str(smart_home.uuid))
+                    uuids: Set[str] = set()
+                    for cmd in commands:
+                        ent_url = (cmd.entity or {}).get("url") if hasattr(cmd, "entity") else None
+                        if not ent_url:
+                            continue
+                        ent_id = str(ent_url).split("#")[-1].removeprefix("d-")
+                        if not ent_id:
+                            continue
+                        uuids.add(ent_id)
+
+                    # We don't need topics here; derived UUIDs are based on the device UUID.
+                    if uuids:
+                        devices = [{"device_uuid": u} for u in uuids]
+                except Exception as e:
+                    self.logger.warning(f"OWL-based target resolution failed for DHT delete: {e}")
+
+            if not devices:
+                self.logger.warning(
+                    f"Skipping derived DHT deletions for rule {rule.rule_uuid}: unable to resolve targets via OWL"
+                )
+                devices = []
+
+            if base_uuid:
+                for d in devices:
+                    # d can be a dict (OWL path) or a Device (older path); keep both safe.
+                    du = d.get("device_uuid") if isinstance(d, dict) else getattr(d, "device_uuid", None)
+                    if not du:
+                        continue
+                    child_uuid = str(uuid.uuid5(base_uuid, str(du)))
+                    try:
+                        self.dht_service.delete_rule(
+                            rule_uuid=child_uuid,
+                            home_uuid=str(smart_home.uuid),
+                            access_token=access_token
+                        )
+                    except Exception as e:
+                        self.logger.warning(f"Failed to delete derived DHT rule {child_uuid}: {e}")
+
+            # Also try deleting the base UUID (no-op if it was never published)
+            try:
+                self.dht_service.delete_rule(
+                    rule_uuid=str(rule.rule_uuid),
+                    home_uuid=str(smart_home.uuid),
+                    access_token=access_token
+                )
+            except Exception as e:
+                self.logger.warning(f"Failed to delete base DHT rule {rule.rule_uuid}: {e}")

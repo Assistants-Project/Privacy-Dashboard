@@ -5,16 +5,29 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppsContext";
 import { DocumentStatus } from "../../models/app";
 import { Evaluation } from "../../models/question";
-import { SubmitRightRequestModal } from "../Rights/RightRequestSubmitForm";
+import { RightType } from "../../models/request";
+import { SubmitRightRequestModal } from "../Rights/SubmitRightRequestModal";
 import { AppAssignmentPanel } from "./AppAssignmentPanel";
 import { AppConsentsPanel } from "../Consents/AppConsentsPanel";
+
+type SubmitRightModalPreset = {
+  initialRightType?: RightType;
+  initialSelectedConsents?: string[];
+  lockRightType?: boolean;
+  redirectToRightsOnSubmit?: boolean;
+};
 
 export function AppDetailsPanel() {
   const { isDataSubject } = useAuth();
   const { selectedApp, setSelectedAppUUID, ConsentStatesByAppUUID } = useApp();
   const [showSubmitRightModal, setShowSubmitRightModal] = useState(false);
+  const [submitRightModalPreset, setSubmitRightModalPreset] = useState<SubmitRightModalPreset>({});
 
   const closePanel = () => setSelectedAppUUID(undefined);
+  const openSubmitRightModal = (preset: SubmitRightModalPreset = {}) => {
+    setSubmitRightModalPreset(preset);
+    setShowSubmitRightModal(true);
+  };
 
   const PNmissing = selectedApp?.pn_status === DocumentStatus.Missing;
   const PIAmissing = selectedApp?.pia_status === DocumentStatus.Missing;
@@ -100,10 +113,10 @@ export function AppDetailsPanel() {
                             <Button
                               variant="outline-primary"
                               size="sm"
-                              onClick={() => setShowSubmitRightModal(true)}
+                              onClick={() => openSubmitRightModal()}
                               disabled={!consentsLoadedForSelectedApp}
                             >
-                              Exercise Rights / Withdraw Consent
+                              Exercise Rights
                             </Button>
                           </Col>
                         </Row>
@@ -115,7 +128,16 @@ export function AppDetailsPanel() {
 
               <Row>
                 <Col>
-                  <AppConsentsPanel />
+                  <AppConsentsPanel
+                    onWithdrawConsents={(consentUuids) => {
+                      openSubmitRightModal({
+                        initialRightType: RightType.WITHDRAW_CONSENT,
+                        initialSelectedConsents: consentUuids,
+                        lockRightType: true,
+                        redirectToRightsOnSubmit: false,
+                      });
+                    }}
+                  />
                 </Col>
               </Row>
 
@@ -141,7 +163,11 @@ export function AppDetailsPanel() {
       </Card>
 
       {isDataSubject && selectedApp ? (
-        <SubmitRightRequestModal show={showSubmitRightModal} onHide={() => setShowSubmitRightModal(false)} />
+        <SubmitRightRequestModal
+          show={showSubmitRightModal}
+          onHide={() => setShowSubmitRightModal(false)}
+          {...submitRightModalPreset}
+        />
       ) : undefined}
     </>
   );

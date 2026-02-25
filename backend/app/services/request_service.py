@@ -184,13 +184,17 @@ class RequestService:
 
         selected_consents = None
         if request["right_type"] == RightType.WITHDRAW_CONSENT:
-            selected_consents = (
+            selected_consents, available_consent_ids = (
                 RequestService._validate_selected_consents_for_withdraw_request(
                     current_user_id,
                     smart_home.id,
                     user_smart_home_application.application_id,
                     request.get("selected_consents"),
                 )
+            )
+            unique_available_consent_ids = list(set(available_consent_ids))
+            ConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id_and_available_consent_ids(
+                current_user_id, smart_home.id, unique_available_consent_ids
             )
 
         return RequestRepository.create_request(
@@ -206,7 +210,7 @@ class RequestService:
     #controlla che il consenso sia stato dato
     # se tutto ok lo ritorna a submit_request che lo considera validato
     @staticmethod
-    def _validate_selected_consents_for_withdraw_request(current_user_id: int,smart_home_id: int,application_id: int,selected_consents_uuids: list[UUID] | None,) -> list[UUID]:
+    def _validate_selected_consents_for_withdraw_request(current_user_id: int,smart_home_id: int,application_id: int,selected_consents_uuids: list[UUID] | None,) -> tuple[list[UUID], list[int]]:
         
         #nessun consenso
         if not selected_consents_uuids:
@@ -217,6 +221,7 @@ class RequestService:
             raise AvailableConsentWrongListException("Duplicate consents selected!")
 
         selected_consents: list[UUID] = []
+        available_consent_ids: list[int] = []
 
         for consent_uuid in selected_consents_uuids:
 
@@ -241,8 +246,9 @@ class RequestService:
                     f"Available Consent with uuid {consent_uuid} is not currently given in this smart home!"
                 )
             selected_consents.append(consent_uuid)
+            available_consent_ids.append(available_consent.id)
 
-        return selected_consents
+        return selected_consents, available_consent_ids
 
     @staticmethod
     def handle_request(
@@ -269,40 +275,5 @@ class RequestService:
             raise RequestNotFoundException(
                 f"Request with uuid {request_uuid} not found among the requests of the managed applications!"
             )
-        
-        #se la richiesta è di tipo Withdraw_Consent e il data controller la mette come gestita
-        if (status == Status.HANDLED and request.right_type == RightType.WITHDRAW_CONSENT):
-
-            #chiama il metodo che si occupa di fare withdraw della richiesta
-            RequestService._withdraw_selected_consents_for_request(request)
-
         #aggiorna la richiesta e ritorna quella aggiornata
         return RequestRepository.update_request_status_and_response(request.id, response, status)
-
-    #permette di revocare i consensi nella richiesta
-    @staticmethod
-    def _withdraw_selected_consents_for_request(request: Request) -> None:
-
-        relation = request.user_smart_home_application_relation
-        if relation.smart_home_id is None or not request.selected_consents:
-            return
-
-        available_consent_ids: list[int] = []
-        for consent_uuid in request.selected_consents:
-
-            available_consent = ConsentRepository.get_available_consent_by_uuid(consent_uuid)
-            
-            if not available_consent:
-                continue
-            
-            if available_consent.application_id != relation.application_id:
-                continue
-            
-            available_consent_ids.append(available_consent.id)
-
-        unique_available_consent_ids = list(set(available_consent_ids))
-
-        ConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id_and_available_consent_ids(
-            relation.user_id, relation.smart_home_id, unique_available_consent_ids
-        )
-        return

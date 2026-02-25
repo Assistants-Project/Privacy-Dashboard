@@ -55,7 +55,7 @@ export function AppsOverviewPanel() {
         <Col className="d-flex align-items-baseline gap-2">
           <h2 className="mb-0">{isDataSubject ? "Pending Right Requests" : "Apps Overview"}</h2>
           {isDataSubject ? (
-            <span className="text-muted">| Your installed apps with pending right requests.</span>
+            <span className="text-muted">| Your installed apps with pending right requests</span>
           ) : undefined}
         </Col>
       </Row>

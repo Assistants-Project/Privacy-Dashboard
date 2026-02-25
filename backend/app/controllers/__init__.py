@@ -1,6 +1,7 @@
 from .application_controller import application_bp
 from .auth_controller import auth_bp
 from .consent_controller import consent_bp
+from .dht_controller import dht_bp
 from .home_controller import homes_bp
 from .marketplace_controller import marketplace_bp
 from .message_controller import message_bp
@@ -15,6 +16,7 @@ __all__ = [
     "application_bp",
     "auth_bp",
     "consent_bp",
+    "dht_bp",
     "homes_bp",
     "marketplace_bp",
     "message_bp",

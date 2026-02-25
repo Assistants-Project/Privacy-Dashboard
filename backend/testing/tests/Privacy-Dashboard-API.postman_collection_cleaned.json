@@ -2448,6 +2448,223 @@
       ]
     },
     {
+      "name": "SIFIS Rules - Entire Home DHT Fan-out",
+      "item": [
+        {
+          "name": "SIFIS Get Triggers - sifis_time",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/trigger-services/sifis_time/triggers"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var triggers = pm.response.json();",
+                  "pm.test(\"Triggers list is an array\", function () { pm.expect(triggers).to.be.an('array'); });",
+                  "var always = triggers.find(function(t){ return t && t.id === 'sifis_always_trigger'; }) || triggers[0];",
+                  "pm.test(\"Always trigger found\", function () { pm.expect(always).to.be.an('object'); pm.expect(always).to.have.property('url'); });",
+                  "pm.collectionVariables.set('sifis_always_trigger_url', always.url);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SIFIS Get Actions - sifis_video",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/action-services/sifis_video/actions"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var actions = pm.response.json();",
+                  "pm.test(\"Actions list is an array\", function () { pm.expect(actions).to.be.an('array'); });",
+                  "var video = actions.find(function(a){ return a && a.id === 'sifis_all_video_actions'; }) || actions[0];",
+                  "pm.test(\"Video action found\", function () { pm.expect(video).to.be.an('object'); pm.expect(video).to.have.property('id'); pm.expect(video).to.have.property('url'); });",
+                  "pm.collectionVariables.set('sifis_video_action_id', video.id);",
+                  "pm.collectionVariables.set('sifis_video_action_url', video.url);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SIFIS Get Video Action Details (location url)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/action-services/sifis_video/actions/{{sifis_video_action_id}}/details"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var details = pm.response.json();",
+                  "pm.test(\"Details list is an array\", function () { pm.expect(details).to.be.an('array'); });",
+                  "var loc = details.find(function(d){ return d && d.type === 'location'; });",
+                  "pm.test(\"Location detail found\", function () { pm.expect(loc).to.be.an('object'); pm.expect(loc).to.have.property('url'); });",
+                  "pm.collectionVariables.set('sifis_location_detail_url', loc.url);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Rule - Video Deny Entire Home",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"trigger\":{\"url\":\"{{sifis_always_trigger_url}}\",\"details\":[]},\"action\":{\"url\":\"{{sifis_video_action_url}}\",\"details\":[{\"url\":\"{{sifis_location_detail_url}}\",\"type\":\"location\",\"value\":{\"name\":\"Entire Home\",\"url\":\"http://elite.polito.it/ontologies/sifis-home.owl/{{ds_home_uuid}}#location-home\"}}]},\"effect\":\"deny\",\"subject\":\"{{ds_email}}\",\"expirationDate\":\"2099-12-31\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Rule id returned\", function () { pm.expect(body).to.have.property('id'); });",
+                  "pm.collectionVariables.set('entire_home_rule_id', body.id);",
+                  "pm.collectionVariables.set('dht_test_expiration_date', '2099/12/31');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DHT - List Camera Devices (count)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/domo_camera"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var devices = pm.response.json();",
+                  "pm.test(\"Devices list is an array\", function () { pm.expect(devices).to.be.an('array'); });",
+                  "pm.collectionVariables.set('camera_devices_count', String(devices.length));",
+                  "pm.test(\"At least one camera exists\", function () { pm.expect(devices.length).to.be.above(0); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DHT - List Rules After Create (match expiration)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var rules = pm.response.json();",
+                  "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
+                  "var exp = pm.collectionVariables.get('dht_test_expiration_date');",
+                  "var matches = rules.filter(function(r){ return r && r.value && r.value.expiration_date === exp && r.value.target_topic === 'domo_camera'; });",
+                  "var expectedCount = parseInt(pm.collectionVariables.get('camera_devices_count') || '0', 10);",
+                  "pm.test(\"DHT rules were created for all cameras\", function () { pm.expect(matches.length).to.eql(expectedCount); });",
+                  "pm.collectionVariables.set('dht_created_rule_uuids', JSON.stringify(matches.map(function(r){ return r.topic_uuid; })));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Rule - Entire Home",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules/{{entire_home_rule_id}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Deleted rule id returned\", function () { pm.expect(body).to.have.property('id'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DHT - List Rules After Delete (should be gone)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var rules = pm.response.json();",
+                  "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
+                  "var exp = pm.collectionVariables.get('dht_test_expiration_date');",
+                  "var matches = rules.filter(function(r){ return r && r.value && r.value.expiration_date === exp && r.value.target_topic === 'domo_camera'; });",
+                  "pm.test(\"DHT rules are deleted\", function () { pm.expect(matches.length).to.eql(0); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Cleanup",
       "item": [
         {
@@ -2633,6 +2850,38 @@
     },
     {
       "key": "pia_template_id",
+      "value": ""
+    },
+    {
+      "key": "sifis_always_trigger_url",
+      "value": ""
+    },
+    {
+      "key": "sifis_video_action_id",
+      "value": ""
+    },
+    {
+      "key": "sifis_video_action_url",
+      "value": ""
+    },
+    {
+      "key": "sifis_location_detail_url",
+      "value": ""
+    },
+    {
+      "key": "entire_home_rule_id",
+      "value": ""
+    },
+    {
+      "key": "camera_devices_count",
+      "value": ""
+    },
+    {
+      "key": "dht_test_expiration_date",
+      "value": ""
+    },
+    {
+      "key": "dht_created_rule_uuids",
       "value": ""
     }
   ]

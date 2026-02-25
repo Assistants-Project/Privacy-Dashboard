@@ -12,10 +12,18 @@ class RuleRepository:
     """Repository for rule database operations"""
 
     @staticmethod
-    def save_rule(rule: DbRule) -> DbRule:
-        """Save a rule to the database"""
+    def save_rule(rule: DbRule, *, commit: bool = True) -> DbRule:
+        """Save a rule to the database.
+
+        commit=True keeps backwards-compatible behavior (commit immediately).
+        commit=False only flushes (so ids are assigned) and leaves transaction control
+        to the caller (service layer).
+        """
         db.session.add(rule)
-        db.session.commit()
+        if commit:
+            db.session.commit()
+        else:
+            db.session.flush()
         db.session.refresh(rule)
         return rule
 
@@ -73,4 +81,3 @@ class RuleRepository:
         """Get a rule by its UUID"""
         stmt = select(DbRule).where(DbRule.rule_uuid == rule_uuid)
         return db.session.execute(stmt).scalars().first()
-

@@ -76,7 +76,7 @@ function RightRequestHandleForm({ request, onSaved }: RightRequestHandleFormProp
           </Form.Select>
           {request.right_type === RightType.WITHDRAW_CONSENT ? (
             <Form.Text className="text-muted">
-              Setting status to Handled will revoke the selected consents automatically.
+              Consents are revoked on submission. Setting status to Handled is only for tracking/accounting.
             </Form.Text>
           ) : undefined}
         </Form.Group>

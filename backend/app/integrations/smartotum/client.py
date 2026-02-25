@@ -9,7 +9,7 @@ from ...exceptions import (
     SmartotumTimeoutException,
 )
 from requests import RequestException
-from requests.exceptions import Timeout
+from requests.exceptions import HTTPError, Timeout
 from uuid import UUID
 import requests
 from flask import current_app
@@ -113,8 +113,20 @@ class SmartotumClient:
         return f"{self._base_url}/{path.lstrip('/')}"
     
     def smartotum_dht_api_url(self, path: str, home_uuid: str) -> str:
-        base = self._base_dht_url.replace("house_name", home_uuid)
+        base = self._base_dht_url.replace("house_name", home_uuid).rstrip("/")
         return f"{base}/{path.lstrip('/')}"
+
+    def _handle_http_error(self, exc: HTTPError) -> None:
+        resp = getattr(exc, "response", None)
+        status = getattr(resp, "status_code", None)
+        url = getattr(resp, "url", None)
+        if status in (401, 403):
+            raise WrongUserCredentialsException("Smartotum access token invalid or expired") from exc
+        if status is not None:
+            raise SmartotumServiceUnavailableException(
+                f"Smartotum request failed with HTTP {status}" + (f" ({url})" if url else "")
+            ) from exc
+        raise SmartotumServiceUnavailableException("Smartotum request failed") from exc
     
     def _build_rule_payload(self, rule: SmartotumRule) -> Dict[str, Any]:
 
@@ -148,8 +160,6 @@ class SmartotumClient:
             "Content-Type": "application/json",
         }
 
-        complete_url = self.smartotum_dht_api_url(f"/topic_name/{self._rule_topic}", system_uuid)
-
         if not rules:
             return []
 
@@ -157,15 +167,42 @@ class SmartotumClient:
 
         for rule in rules:
 
-            payload = self._build_rule_payload(rule)
+            # Smartotum DHT write API (per prof):
+            # POST /.dht/topic_name/<topic>/topic_uuid/<uuid> with BODY = JSON stored in the "value" field.
+            wrapper_payload = self._build_rule_payload(rule)
+            value_payload = wrapper_payload.get("value", {}) or {}
+            complete_url = self.smartotum_dht_api_url(
+                f"/topic_name/{self._rule_topic}/topic_uuid/{rule.rule_uuid}",
+                system_uuid,
+            )
 
             try:
+                current_app.logger.info(
+                    "Smartotum post_rules: home_uuid=%s topic=%s topic_uuid=%s url=%s value=%s",
+                    str(system_uuid),
+                    str(self._rule_topic),
+                    str(rule.rule_uuid),
+                    str(complete_url),
+                    value_payload,
+                )
                 response = self._session.post(
-                    complete_url, headers=headers, json=payload, timeout=self._timeout
+                    complete_url, headers=headers, json=value_payload, timeout=self._timeout
                 )
                 response.raise_for_status()
+            except Timeout as exc:
+                raise SmartotumTimeoutException("Smartotum request timed out") from exc
+            except HTTPError as exc:
+                resp = getattr(exc, "response", None)
+                current_app.logger.error(
+                    "Smartotum post_rules failed: status=%s url=%s payload=%s response=%s",
+                    getattr(resp, "status_code", None),
+                    getattr(resp, "url", complete_url),
+                    value_payload,
+                    (getattr(resp, "text", "") or "")[:500],
+                )
+                self._handle_http_error(exc)
             except RequestException as exc:
-                raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+                raise SmartotumServiceUnavailableException("Smartotum request failed") from exc
             
             created_rules.append(rule)
 
@@ -191,8 +228,12 @@ class SmartotumClient:
                     complete_url, headers=headers, timeout=self._timeout
                 )
                 response.raise_for_status()
+            except Timeout as exc:
+                raise SmartotumTimeoutException("Smartotum request timed out") from exc
+            except HTTPError as exc:
+                self._handle_http_error(exc)
             except RequestException as exc:
-                raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+                raise SmartotumServiceUnavailableException("Smartotum request failed") from exc
                 
             rules_response: List[Dict[str,Any]] = response.json()
 
@@ -223,6 +264,60 @@ class SmartotumClient:
 
         return rules
 
+#return a topic directly from the dht
+#in testing reads from backend/testing/data/dht/<home_uuid>
+#in dev or demo talks to the official smartotum dht
+    def get_dht_topic_items(self, access_token: str, system_uuid: str, topic_name: str) -> List[Dict[str, Any]]:
+        if self._is_testing:
+            if topic_name == self._rule_topic:
+                return self._get_testing_rules_state(system_uuid)
+            return self._get_testing_topic_items(system_uuid, topic_name)
+
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+        complete_url = self.smartotum_dht_api_url(f"/topic_name/{topic_name}", system_uuid)
+        try:
+            response = self._session_retry.get(
+                complete_url, headers=headers, timeout=self._timeout
+            )
+            response.raise_for_status()
+        except Timeout as exc:
+            raise SmartotumTimeoutException("Smartotum request timed out") from exc
+        except HTTPError as exc:
+            self._handle_http_error(exc)
+        except RequestException as exc:
+            raise SmartotumServiceUnavailableException("Smartotum request failed") from exc
+
+        items = response.json()
+        return items if isinstance(items, list) else []
+
+#return all the dht of a given home from smartotum or from file if in testing mode
+    def get_dht_all_items(self, access_token: str, system_uuid: str) -> List[Dict[str, Any]]:
+        if self._is_testing:
+            return self._get_testing_all_items(system_uuid)
+
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+        complete_url = self.smartotum_dht_api_url("/get_all", system_uuid)
+        try:
+            response = self._session_retry.get(
+                complete_url, headers=headers, timeout=self._timeout
+            )
+            response.raise_for_status()
+        except Timeout as exc:
+            raise SmartotumTimeoutException("Smartotum request timed out") from exc
+        except HTTPError as exc:
+            self._handle_http_error(exc)
+        except RequestException as exc:
+            raise SmartotumServiceUnavailableException("Smartotum request failed") from exc
+
+        items = response.json()
+        return items if isinstance(items, list) else []
+
     def delete_rule(self, access_token: str, system_uuid: str, rule_uuid: str) -> bool:
         if self._is_testing:
             return self._delete_rule_testing(system_uuid, rule_uuid)
@@ -239,8 +334,12 @@ class SmartotumClient:
                 complete_url, headers=headers, timeout=self._timeout
             )
             response.raise_for_status()
+        except Timeout as exc:
+            raise SmartotumTimeoutException("Smartotum request timed out") from exc
+        except HTTPError as exc:
+            self._handle_http_error(exc)
         except RequestException as exc:
-            raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+            raise SmartotumServiceUnavailableException("Smartotum request failed") from exc
         return response.status_code in (200, 204)
 
     def get_home_devices(self, access_token: str, system_uuid: str) -> List[SmartotumDeviceResult]:
@@ -263,8 +362,12 @@ class SmartotumClient:
                         complete_url, headers=headers, timeout=self._timeout
                     )
                     response.raise_for_status()
+                except Timeout as exc:
+                    raise SmartotumTimeoutException("Smartotum request timed out") from exc
+                except HTTPError as exc:
+                    self._handle_http_error(exc)
                 except RequestException as exc:
-                    raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+                    raise SmartotumServiceUnavailableException("Smartotum request failed") from exc
                 
                 items: List[Dict[str,Any]] = response.json()
 
@@ -305,8 +408,12 @@ class SmartotumClient:
                     complete_url, headers=headers, timeout=self._timeout
                 )
                 response.raise_for_status()
+            except Timeout as exc:
+                raise SmartotumTimeoutException("Smartotum request timed out") from exc
+            except HTTPError as exc:
+                self._handle_http_error(exc)
             except RequestException as exc:
-                raise WrongUserCredentialsException("Error occurred during Smartotum request") from exc
+                raise SmartotumServiceUnavailableException("Smartotum request failed") from exc
 
             items: List[Dict[str, Any]] = response.json()
         rooms: List[SmartotumHomeRoomResult] = []
@@ -607,6 +714,28 @@ class SmartotumClient:
     def _get_testing_topic_items(self, system_uuid: str, topic_name: str) -> List[Dict[str, Any]]:
         topic_file = self._testing_data_root / "dht" / str(system_uuid) / f"{topic_name}.json"
         return self._read_testing_list_file(topic_file)
+
+    def _get_testing_all_items(self, system_uuid: str) -> List[Dict[str, Any]]:
+        home_dir = self._testing_data_root / "dht" / str(system_uuid)
+        items: List[Dict[str, Any]] = []
+        included_rules = False
+
+        if home_dir.exists() and home_dir.is_dir():
+            for p in sorted(home_dir.glob("*.json")):
+                topic_name = p.stem
+                if topic_name == self._rule_topic:
+                    items.extend(self._get_testing_rules_state(system_uuid))
+                    included_rules = True
+                else:
+                    items.extend(self._read_testing_list_file(p))
+
+        # In case a test bootstraps rules state without a fixture file.
+        if not included_rules:
+            rules = self._get_testing_rules_state(system_uuid)
+            if rules:
+                items.extend(rules)
+
+        return items
 
     def _get_testing_login_result(self, email: str) -> SmartotumLoginResult:
         return SmartotumLoginResult(

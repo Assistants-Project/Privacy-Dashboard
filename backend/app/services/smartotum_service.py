@@ -57,10 +57,11 @@ class SmartotumService:
                 rooms_payload.append(
                     Room(
                         room_uuid=special_room_uuid,
-                        #special room with the same name as the house
-                        name=system.name,
+                        # Room used for devices that Smartotum does not assign to any room.
+                        # Keep name stable and different from the home name to avoid UI duplicates.
+                        name="Unassigned devices",
                         home_id=home.id,
-                        category="House"
+                        category="Unassigned"
                     )
                 )
 

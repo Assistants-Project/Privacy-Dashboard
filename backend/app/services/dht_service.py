@@ -13,6 +13,11 @@ from datetime import datetime
 import requests
 from ..integrations.smartotum import SmartotumClient
 from ..integrations.smartotum.client import SmartotumRule
+from ..exceptions import (
+    WrongUserCredentialsException,
+    SmartotumServiceUnavailableException,
+    SmartotumTimeoutException,
+)
 
 
 class DHTService:
@@ -105,6 +110,12 @@ class DHTService:
             client.post_rules(access_token, str(home_uuid), [rule])
             self.logger.info(f"Successfully published rule {topic_uuid} through Smartotum client")
             return True
+        except WrongUserCredentialsException:
+            # Bubble up so callers can map to 401.
+            raise
+        except (SmartotumServiceUnavailableException, SmartotumTimeoutException):
+            # Bubble up so callers can map to 503/504.
+            raise
         except Exception as e:
             self.logger.error(f"Error publishing rule to DHT: {e}")
             return False

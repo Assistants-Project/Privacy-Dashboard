@@ -8,14 +8,28 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppsContext";
 import { useHome } from "../../contexts/HomeContext";
 
-type SubmitRightRequestModalProps = {show: boolean, onHide: () => void};
+type SubmitRightRequestModalProps = {
+  show: boolean;
+  onHide: () => void;
+  initialRightType?: RightType;
+  initialSelectedConsents?: string[];
+  lockRightType?: boolean;
+  redirectToRightsOnSubmit?: boolean;
+};
 
-function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
+function SubmitRightRequestModal({
+  show,
+  onHide,
+  initialRightType,
+  initialSelectedConsents,
+  lockRightType = false,
+  redirectToRightsOnSubmit = true,
+}: SubmitRightRequestModalProps) {
 
   const navigate = useNavigate();
   
   const { user } = useAuth();
-  const { selectedApp, ConsentStatesByAppUUID, loadApps } = useApp();
+  const { selectedApp, ConsentStatesByAppUUID, loadApps, loadConsentsByApplication } = useApp();
   const { current_home_uuid } = useHome();
 
   const [rightType, setRightType] = useState<RightType>(RightType.ACCESS_DATA);
@@ -30,17 +44,15 @@ function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
 
   useEffect(() => {
     if (!show) return;
-    setRightType(RightType.ACCESS_DATA);
-    setMessage(buildPredefinedRightMessage(RightType.ACCESS_DATA, selectedApp?.name));
-    setSelectedConsents([]);
+    const nextRightType = initialRightType ?? RightType.ACCESS_DATA;
+    setRightType(nextRightType);
+    setMessage(buildPredefinedRightMessage(nextRightType, selectedApp?.name));
+    setSelectedConsents(
+      nextRightType === RightType.WITHDRAW_CONSENT ? (initialSelectedConsents ?? []) : [],
+    );
     setSubmitting(false);
     setError(undefined);
-  }, [show, selectedApp?.name]);
-
-  useEffect(() => {
-    if (!show) return;
-    if (rightType !== RightType.WITHDRAW_CONSENT) setSelectedConsents([]);
-  }, [show, rightType]);
+  }, [show, selectedApp?.name, initialRightType, initialSelectedConsents]);
 
   const toggleSelectedConsent = (consentUuid: string) => {
     setSelectedConsents((prev) =>
@@ -95,8 +107,9 @@ function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
       });
 
       await loadApps(selectedApp.uuid, true);
+      await loadConsentsByApplication(selectedApp.uuid, true);
       onHide();
-      navigate("/rights");
+      if (redirectToRightsOnSubmit) navigate("/rights");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected Error");
     } finally {
@@ -121,10 +134,12 @@ function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
           <Form.Label className="mb-1">Right type</Form.Label>
           <Form.Select
             value={rightType}
+            disabled={lockRightType}
             onChange={(e) => {
               const next = e.target.value as RightType;
               setRightType(next);
               setMessage(buildPredefinedRightMessage(next, selectedApp?.name));
+              if (next !== RightType.WITHDRAW_CONSENT) setSelectedConsents([]);
             }}
           >
             {Object.values(RightType).map((rt) => (
@@ -138,6 +153,9 @@ function SubmitRightRequestModal({show,onHide}: SubmitRightRequestModalProps) {
         {rightType === RightType.WITHDRAW_CONSENT ? (
           <Card className="p-0">
             <Card.Body className="d-flex flex-column gap-2">
+              <div className="small text-muted">
+                By sending the request, the selected consent(s) will be automatically revoked.
+              </div>
               <div className="d-flex justify-content-between align-items-center">
                 <strong>Select consent(s) to withdraw</strong>
                 <div className="d-inline-flex gap-2">

@@ -276,9 +276,9 @@ class OWLService:
                         service_id, home_uuid=home_uuid
                     )
                 elif detail_type == "location":
-                    # Filter locations only for Actions
-                    action_filter = instance.name if is_action else None
-                    detail.alternatives = self._get_locations(home_uuid=home_uuid, action_id=action_filter)
+                    # Do not filter locations by action capability.
+                    # We allow selecting any room (or Entire Home) and decide applicability later.
+                    detail.alternatives = self._get_locations(home_uuid=home_uuid, action_id=None)
                 else:
                     detail.alternatives = []
 
@@ -580,16 +580,20 @@ class OWLService:
             locations = []
             for loc_instance in Location.instances(home_world):
                 loc_iri = str(loc_instance.iri)
+                frag = loc_iri.split("#")[-1]
                 
                 # Apply Filter
                 if should_filter and loc_iri not in valid_location_iris:
                     continue
 
+                display_name = self._safe_get_property(loc_instance, "name") or loc_instance.name
+                if frag == "location-home":
+                    display_name = "Entire Home"
+
                 locations.append(
                     {
                         "url": loc_iri,
-                        "name": self._safe_get_property(loc_instance, "name")
-                        or loc_instance.name,
+                        "name": display_name,
                     }
                 )
 

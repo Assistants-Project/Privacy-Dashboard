@@ -5,6 +5,7 @@ from ..utils import ds_required
 from io import BytesIO
 import zipfile
 from pathlib import Path
+import os
 
 from ..services import OWLService, XACMLService
 from ..services.rule_service import RuleService
@@ -12,6 +13,11 @@ from ..services.petrinet_service import PetriNetService
 from ..repositories.user_repository import UserRepository
 from ..services.home_service import SmartHomeService
 from ..exceptions.entities.home_exception import SmartHomeNotFoundException, SmartHomeForbiddenException
+from ..exceptions import (
+    WrongUserCredentialsException,
+    SmartotumServiceUnavailableException,
+    SmartotumTimeoutException,
+)
 from ..schemas.request.rule_req_schema import RuleRequestSchema
 from config import BaseConfig
 
@@ -164,6 +170,8 @@ def health_check():
         {
             "status": "healthy",
             "owl_service": "available" if owl_service else "unavailable",
+            "flask_env": os.getenv("FLASK_ENV"),
+            "smartotum_mock": os.getenv("FLASK_ENV") == "testing",
         }
     )
 
@@ -228,6 +236,10 @@ def save_rule(current_user, home_uuid, **rule_data):
 
         return jsonify({"id": rule_id}), 200
     except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
+    except WrongUserCredentialsException as e:
+        return jsonify({"error": str(e)}), e.code
+    except (SmartotumServiceUnavailableException, SmartotumTimeoutException) as e:
         return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error saving rule: {e}")
