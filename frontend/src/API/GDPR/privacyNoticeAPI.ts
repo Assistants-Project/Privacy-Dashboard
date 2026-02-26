@@ -99,10 +99,27 @@ async function removePrivacyNoticeByManagedApplicationUuid(
   }
 }
 
+async function associatePrivacyNoticeByManagedApplicationUuid(applicationUuid: string, privacyNoticeUuid: string) {
+  let response = await fetch(
+    baseURL + "privacy-notices/managed-application/" + applicationUuid + "/privacy-notice/" + privacyNoticeUuid,
+    {
+      method: "PUT",
+      credentials: "include",
+    }
+  );
+  if (response.ok) {
+    const result = await response.json();
+    return result;
+  } else {
+    throw await getApiError(response);
+  }
+}
+
 export {
   getPrivacyNoticeTemplate,
   getPrivacyNoticeByManagedApplicationUuid,
   removePrivacyNoticeByManagedApplicationUuid,
   getPrivacyNoticeByInstalledApplicationUuid,
-  submitPrivacyNoticeByManagedApplicationUuid
+  submitPrivacyNoticeByManagedApplicationUuid,
+  associatePrivacyNoticeByManagedApplicationUuid,
 };

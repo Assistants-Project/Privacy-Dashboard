@@ -6,6 +6,8 @@ import "react-quill/dist/quill.snow.css";
 import { useApp } from "../../contexts/AppsContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { PdfDownloadButton } from "../Utilities/PdfDownloadButton";
+import { ApplyExistingPrivacyNoticeModal } from "./ApplyExistingPrivacyNoticeModal";
+import { PrivacyNoticeHtmlPreview } from "./PrivacyNoticeHtmlPreview";
 
 type Props = { closePanel: () => void; setPanelExpanded?: (expanded: boolean) => void };
 
@@ -13,6 +15,7 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
   const [value, setValue,] = useState("");
   const { loadPrivacyNotice, PrivacyNoticeByAppUUID, selectedAppUUID, selectedApp} = useApp();
   const { user, isDataSubject } = useAuth();
+  const [showApplyExistingModal, setShowApplyExistingModal] = useState(false);
 
   const draftRef = useRef<string>("");
   const templateHtmlRef = useRef<string>("");
@@ -138,6 +141,15 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
                 ></i>
               </Button>
               <Button
+                className="circular-button me-2"
+                style={{ color: "#181d1f" }}
+                disabled={!selectedAppUUID}
+                onClick={() => setShowApplyExistingModal(true)}
+                title="Apply existing Privacy Notice"
+              >
+                <i className="fa-solid fa-right-left"></i>
+              </Button>
+              <Button
                 className="circular-button"
                 disabled
                 style={{
@@ -223,11 +235,7 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
                     </Col>
                   </Row>
                   <hr className="my-3" />
-                  <div className="overflow-auto" style={{ maxHeight: "60vh" }}>
-                    <div
-                      dangerouslySetInnerHTML={{ __html: pn?.content ?? "" }}
-                    />
-                  </div>
+                  <PrivacyNoticeHtmlPreview content={pn?.content} maxHeight="60vh" />
                 </Card.Body>
               </Card>
             )
@@ -240,19 +248,17 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
                   </Col>
                 </Row>
                 <hr className="my-3" />
-                <div className="overflow-auto" style={{ maxHeight: "70vh" }}>
-                  {pn?.content ? (
-                    <div dangerouslySetInnerHTML={{ __html: pn.content }} />
-                  ) : (
-                    <div className="text-muted">
-                      No Privacy Notice available.
-                    </div>
-                  )}
-                </div>
+                <PrivacyNoticeHtmlPreview content={pn?.content} maxHeight="70vh" />
               </Card.Body>
             </Card>
           )}
         </Stack>
+      )}
+      {!isDataSubject && (
+        <ApplyExistingPrivacyNoticeModal
+          show={showApplyExistingModal}
+          onHide={() => setShowApplyExistingModal(false)}
+        />
       )}
     </>
   );

@@ -4,6 +4,7 @@ import {
   removePrivacyNoticeByManagedApplicationUuid,
   getPrivacyNoticeByInstalledApplicationUuid,
   submitPrivacyNoticeByManagedApplicationUuid,
+  associatePrivacyNoticeByManagedApplicationUuid,
 } from "../API/GDPR/privacyNoticeAPI";
 
 import { PrivacyNotice } from "../models/privacy_notice";
@@ -107,4 +108,16 @@ export const handleRemovePrivacyNotice = async (applicationUuid: string) => {
   } catch (err) {
     console.error("Error deleting privacy notice:", err);
   }
+};
+
+export const handleReplacePrivacyNoticeWithExisting = async (
+  targetApplicationUuid: string,
+  privacyNoticeUuid: string,
+): Promise<PrivacyNotice> => {
+  await removePrivacyNoticeByManagedApplicationUuid(targetApplicationUuid);
+  const result = await associatePrivacyNoticeByManagedApplicationUuid(
+    targetApplicationUuid,
+    privacyNoticeUuid,
+  );
+  return toPrivacyNoticeModel(result as PrivacyNoticeDto);
 };
