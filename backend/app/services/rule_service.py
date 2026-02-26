@@ -32,6 +32,11 @@ from config import BaseConfig
 class RuleService:
     """Service for handling rule business logic"""
 
+    # Centralized SIFIS ontology IRIs used across services (rules + consent-driven rules).
+    SIFIS_BASE_IRI = "http://elite.polito.it/ontologies/sifis-home.owl#"
+    SIFIS_ALWAYS_TRIGGER_URL = f"{SIFIS_BASE_IRI}sifis_always_trigger"
+    SIFIS_LOCATION_DETAIL_URL = f"{SIFIS_BASE_IRI}sifis_location_detail"
+
     def __init__(self, owl_service: Optional[OWLService] = None):
         self.owl_service = owl_service
         self.rule_repo = RuleRepository()
@@ -40,9 +45,7 @@ class RuleService:
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
 
-    def save_rule(
-        self, rule_data: Dict[str, Any], rule_type: str, smart_home: SmartHome
-    ) -> int:
+    def save_rule(self, rule_data: Dict[str, Any], rule_type: str, smart_home: SmartHome, commit: bool = True, rule_uuid_override: Optional[str] = None, consent_uuid: Optional[UUID] = None, expand_actions: bool = True) -> int:
         """
         Save a rule to the database and post to DHT.
 
@@ -57,7 +60,7 @@ class RuleService:
         self.logger.info(f"Saving rule with timestamp: {timestamp}")
         
         # Generate UUID for the rule
-        rule_uuid = str(uuid.uuid4())
+        rule_uuid = str(rule_uuid_override) if rule_uuid_override else str(uuid.uuid4())
         
         # Format Expiration Date to YYYY-MM-DD
         expiration_date = rule_data.get("expirationDate", "")
@@ -74,7 +77,8 @@ class RuleService:
             subject=rule_data.get("subject"),
             timestamp=timestamp,
             rule_uuid=rule_uuid,
-            expiration_date=expiration_date
+            expiration_date=expiration_date,
+            consent_uuid=consent_uuid,
         )
 
         # Process trigger
@@ -88,7 +92,7 @@ class RuleService:
         actions_to_create = [original_url]
         
         # If OWL Service is available, find all sibling actions for the same service
-        if self.owl_service:
+        if expand_actions and self.owl_service:
             try:
                 owl_action = self.owl_service.get_action_by_url(original_url, str(smart_home.uuid))
                 if owl_action and owl_action.service:
@@ -121,6 +125,7 @@ class RuleService:
             first_db_action=first_db_action,
             rule_uuid=rule_uuid,
             smart_home=smart_home,
+            commit=commit,
         )
 
     def _post_rule_to_dht(self, rule_data: Dict, db_trigger: DbTrigger, db_action: DbAction, rule_uuid: str, smart_home: SmartHome) -> Tuple[List[str], str]:
@@ -344,26 +349,26 @@ class RuleService:
         rule = self.rule_repo.get_rule_by_id_and_home(rule_id, smart_home.id)
         if not rule:
             return False
-        
-        # Delete from DHT first
-        if rule.rule_uuid:
-            try:
-                from flask import request
-                access_token = request.cookies.get('st_access_token')
-                
-                if not access_token and request.headers.get('Authorization'):
-                    auth_header = request.headers.get('Authorization')
-                    if auth_header.startswith('Bearer '):
-                        access_token = auth_header.split(' ')[1]
 
-                if access_token:
-                    self._delete_dht_rule_with_fanout_support(rule, smart_home, access_token)
-                else:
-                    self.logger.warning(f"Skipping DHT deletion for rule {rule.rule_uuid}: Access token not found")
-            except Exception as e:
-                self.logger.warning(f"Failed to delete rule {rule.rule_uuid} from DHT: {e}")
-        
-        # Delete from DB
+        # Strict delete: if DHT deletion fails, do not delete from DB.
+        if rule.effect == "deny":
+            if not rule.rule_uuid:
+                raise Exception(f"Missing rule_uuid for deny rule {rule_id} DHT delete")
+
+            from flask import request
+            from ..exceptions import MissingJWTException
+
+            access_token = request.cookies.get("st_access_token")
+            if not access_token and request.headers.get("Authorization"):
+                auth_header = request.headers.get("Authorization") or ""
+                if auth_header.startswith("Bearer "):
+                    access_token = auth_header.split(" ")[1]
+            if not access_token:
+                raise MissingJWTException("Smartotum access token missing")
+
+            self._delete_dht_rule_with_fanout_support(rule, smart_home, access_token)
+
+        # Delete from DB (only after DHT deletion is confirmed, or if rule is not deny).
         return self.rule_repo.delete_rule_by_id_and_home(rule_id, smart_home.id)
 
     def verify_rule_ownership(self, rule_id: int, smart_home: SmartHome) -> bool:
@@ -438,6 +443,8 @@ class RuleService:
 
             return Rule(
                 db_id=db_rule.id,
+                rule_uuid=db_rule.rule_uuid,
+                consent_uuid=str(db_rule.consent_uuid) if getattr(db_rule, "consent_uuid", None) else None,
                 type=db_rule.type,
                 effect=db_rule.effect,
                 subject=db_rule.subject,
@@ -523,16 +530,24 @@ class RuleService:
                 if db_rule.effect == 'deny':
                     self.logger.info(f"Sync: Deleting local deny rule {rule_uuid} (not in DHT)")
                     
+                    # Strict behavior: we need a token to confirm DHT deletion.
+                    if not access_token:
+                        self.logger.warning(
+                            f"Sync: Skipping local deny rule {rule_uuid} DB deletion: access token missing"
+                        )
+                        continue
+
                     # Delete from DHT first
-                    if access_token:
-                        try:
-                            self.dht_service.delete_rule(
-                                rule_uuid=rule_uuid,
-                                home_uuid=str(home.uuid),
-                                access_token=access_token
-                            )
-                        except Exception as e:
-                            self.logger.warning(f"DHT deletion failed for {rule_uuid}: {e}")
+                    try:
+                        self.dht_service.delete_rule_strict(
+                            rule_uuid=rule_uuid,
+                            home_uuid=str(home.uuid),
+                            access_token=access_token,
+                        )
+                    except Exception as e:
+                        self.logger.warning(f"DHT deletion failed for {rule_uuid}: {e}")
+                        # Strict behavior: do not delete from DB if we cannot confirm DHT deletion.
+                        continue
                     
                     # Delete from DB
                     self.rule_repo.delete_rule_by_id_and_home(db_rule.id, home.id)
@@ -800,13 +815,20 @@ class RuleService:
                 # Delete from DHT first
                 if rule_uuid and access_token:
                     try:
-                        self.dht_service.delete_rule(
+                        self.dht_service.delete_rule_strict(
                             rule_uuid=str(rule_uuid),
                             home_uuid=str(smart_home.uuid),
-                            access_token=access_token
+                            access_token=access_token,
                         )
                     except Exception as e:
+                        # Strict behavior: do not delete from DB if we cannot confirm DHT deletion.
                         self.logger.warning(f"DHT deletion failed for {rule_uuid}: {e}")
+                        continue
+                elif rule_uuid and not access_token:
+                    self.logger.warning(
+                        f"Cleanup: Skipping DB deletion for rule {rule_id} (rule_uuid: {rule_uuid}): access token missing"
+                    )
+                    continue
                 
                 # Delete from DB
                 self.rule_repo.delete_rule_by_id_and_home(rule_id, smart_home.id)
@@ -882,7 +904,7 @@ class RuleService:
     # Internal Helper Functions
     # =========================
 
-    def _save_rule_with_optional_dht_publish(self, *, db_rule: DbRule, rule_data: Dict[str, Any], db_trigger: DbTrigger, first_db_action: Optional[DbAction], rule_uuid: str, smart_home: SmartHome) -> int:
+    def _save_rule_with_optional_dht_publish(self, *, db_rule: DbRule, rule_data: Dict[str, Any], db_trigger: DbTrigger, first_db_action: Optional[DbAction], rule_uuid: str, smart_home: SmartHome, commit: bool = True) -> int:
         """Persist rule and (for deny) publish to DHT atomically.
 
         DB is committed only if DHT publishing succeeds; otherwise we rollback and raise.
@@ -891,7 +913,8 @@ class RuleService:
         published_rule_uuids: List[str] = []
         access_token: Optional[str] = None
 
-        try:
+        def do_work() -> None:
+            nonlocal published_rule_uuids, access_token
             # Save to DB but do not commit yet.
             self.rule_repo.save_rule(db_rule, commit=False)
 
@@ -902,16 +925,24 @@ class RuleService:
                     rule_data, db_trigger, first_db_action, rule_uuid, smart_home
                 )
 
-            session.commit()
+        try:
+            if commit:
+                do_work()
+                session.commit()
+            else:
+                # Use a SAVEPOINT so a failure here doesn't rollback unrelated work in the outer transaction.
+                with session.begin_nested():
+                    do_work()
+                session.flush()
             return db_rule.id
         except Exception as e:
-            session.rollback()
-
+            if commit:
+                session.rollback()
             # Best-effort cleanup: if we already pushed something to DHT, try to delete it.
             try:
                 if published_rule_uuids and access_token:
                     for dht_uuid in published_rule_uuids:
-                        self.dht_service.delete_rule(
+                        self.dht_service.delete_rule_strict(
                             rule_uuid=str(dht_uuid),
                             home_uuid=str(smart_home.uuid),
                             access_token=access_token,
@@ -1078,7 +1109,7 @@ class RuleService:
                 # Best-effort rollback of previously published derived rules
                 for prev_uuid in published:
                     try:
-                        self.dht_service.delete_rule(
+                        self.dht_service.delete_rule_strict(
                             rule_uuid=str(prev_uuid),
                             home_uuid=str(home_uuid),
                             access_token=access_token,
@@ -1096,18 +1127,20 @@ class RuleService:
         # If the rule doesn't have a concrete device target (typical for "Entire Home"),
         # we may have published one DHT rule per device (uuid5 fan-out). In that case,
         # delete all derived rules as well.
+        delete_fn = self.dht_service.delete_rule_strict
         has_device_target = any(a.device is not None for a in (rule.actions or []))
         if has_device_target:
-            self.dht_service.delete_rule(
+            delete_fn(
                 rule_uuid=str(rule.rule_uuid),
                 home_uuid=str(smart_home.uuid),
-                access_token=access_token
+                access_token=access_token,
             )
         else:
             try:
                 base_uuid = UUID(str(rule.rule_uuid))
             except Exception:
                 base_uuid = None
+                raise Exception(f"Invalid rule_uuid for fan-out delete: {rule.rule_uuid}")
 
             # Optional location scoping (room-level fan-out)
             location_url: Optional[str] = None
@@ -1151,13 +1184,11 @@ class RuleService:
                     if uuids:
                         devices = [{"device_uuid": u} for u in uuids]
                 except Exception as e:
-                    self.logger.warning(f"OWL-based target resolution failed for DHT delete: {e}")
+                    raise Exception(f"OWL-based target resolution failed for DHT delete: {e}") from e
 
             if not devices:
-                self.logger.warning(
-                    f"Skipping derived DHT deletions for rule {rule.rule_uuid}: unable to resolve targets via OWL"
-                )
-                devices = []
+                msg = f"Unable to resolve targets via OWL for DHT delete of rule {rule.rule_uuid}"
+                raise Exception(msg)
 
             if base_uuid:
                 for d in devices:
@@ -1167,20 +1198,20 @@ class RuleService:
                         continue
                     child_uuid = str(uuid.uuid5(base_uuid, str(du)))
                     try:
-                        self.dht_service.delete_rule(
+                        delete_fn(
                             rule_uuid=child_uuid,
                             home_uuid=str(smart_home.uuid),
-                            access_token=access_token
+                            access_token=access_token,
                         )
                     except Exception as e:
-                        self.logger.warning(f"Failed to delete derived DHT rule {child_uuid}: {e}")
+                        raise
 
             # Also try deleting the base UUID (no-op if it was never published)
             try:
-                self.dht_service.delete_rule(
+                delete_fn(
                     rule_uuid=str(rule.rule_uuid),
                     home_uuid=str(smart_home.uuid),
-                    access_token=access_token
+                    access_token=access_token,
                 )
             except Exception as e:
-                self.logger.warning(f"Failed to delete base DHT rule {rule.rule_uuid}: {e}")
+                raise

@@ -46,8 +46,18 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
       return (
           <div className="w-100">
               <div className="d-flex align-items-center">
-                  <span className="text-muted small fw-bold me-2">#{rule.db_id}</span>
+                  <span className="text-muted small fw-bold me-2">#{rIdx + 1}</span>
+                  <span className="text-muted small me-2">ID {rule.db_id}</span>
                   <Badge bg={badgeClass} className="me-2" style={{minWidth: '60px'}}>{effect}</Badge>
+                  {!!rule.consent_uuid && (
+                    <Badge
+                      bg="secondary"
+                      className="me-2"
+                      title={`Consent rule (managed automatically)\nConsent UUID: ${rule.consent_uuid}`}
+                    >
+                      CONSENT RULE
+                    </Badge>
+                  )}
                   <span>
                       If <strong>{triggerName}</strong> then <strong>{actionName}</strong> 
                   </span>
@@ -114,7 +124,16 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
                                 variant="danger" 
                                 size="sm" 
                                 className="ms-3 text-nowrap"
-                                onClick={() => onDeleteRule(rule.db_id)}
+                                disabled={!!rule.consent_uuid}
+                                title={
+                                  rule.consent_uuid
+                                    ? "This rule is linked to a consent and cannot be deleted"
+                                    : "Delete"
+                                }
+                                onClick={() => {
+                                  if (rule.consent_uuid) return;
+                                  onDeleteRule(rule.db_id);
+                                }}
                              >
                                 <i className="fa fa-trash me-1"></i> Delete
                              </Button>
@@ -142,7 +161,16 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
                                 variant="danger" 
                                 size="sm" 
                                 className="ms-3 text-nowrap"
-                                onClick={() => onDeleteRule(rule.db_id)}
+                                disabled={!!rule.consent_uuid}
+                                title={
+                                  rule.consent_uuid
+                                    ? "This rule is linked to a consent and cannot be deleted"
+                                    : "Delete"
+                                }
+                                onClick={() => {
+                                  if (rule.consent_uuid) return;
+                                  onDeleteRule(rule.db_id);
+                                }}
                              >
                                 <i className="fa fa-trash me-1"></i> Delete
                              </Button>

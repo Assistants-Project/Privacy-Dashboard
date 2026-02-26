@@ -12,27 +12,36 @@ class ConsentRepository:
     #utilizzata sia nel contesto di sync smartotum sia nel caso di creazione di una nuova app
     #non cancella i consensi non più presenti -> bisogna decidere come gestire la cancellazione -> avere is active = false sarebbe la soluzione migliore
     @staticmethod
-    def upsert_available_consents_for_application(application_id: int, available_consent_contents: list[str]) -> None:
+    def upsert_available_consents_for_application(application_id: int, available_consent_contents: list[str], sifis_action_id_by_content: dict[str, str] | None = None) -> None:
 
         if not available_consent_contents:
             return
 
-        statement = db.select(AvailableConsent.content).where(AvailableConsent.application_id == application_id)
-        existing_contents = set(db.session.scalars(statement).all())
+        statement = db.select(AvailableConsent).where(AvailableConsent.application_id == application_id)
+        existing = {c.content: c for c in db.session.scalars(statement).all()}
 
         for content in available_consent_contents:
-            if content in existing_contents:
+            existing_row = existing.get(content)
+            if existing_row is not None:
+                # Smartotum is source of truth: when mapping is provided (possibly empty),
+                # overwrite/clear the action id.
+                if sifis_action_id_by_content is not None:
+                    existing_row.sifis_action_id = sifis_action_id_by_content.get(content)
                 continue
-            db.session.add(AvailableConsent(content=content, application_id=application_id))
-            existing_contents.add(content)
+
+            new_consent = AvailableConsent(
+                content=content,
+                application_id=application_id,
+                sifis_action_id=sifis_action_id_by_content.get(content) if sifis_action_id_by_content is not None else None,
+            )
+            db.session.add(new_consent)
+            existing[content] = new_consent
         return
 
     @staticmethod
-    def get_available_consent_by_uuid(consent_uuid: UUID) -> Row | None:
-        statement = db.select(
-            AvailableConsent.id, AvailableConsent.application_id
-        ).where(AvailableConsent.uuid == consent_uuid)
-        return db.session.execute(statement).first()
+    def get_available_consent_by_uuid(consent_uuid: UUID) -> AvailableConsent | None:
+        statement = db.select(AvailableConsent).where(AvailableConsent.uuid == consent_uuid)
+        return db.session.scalar(statement)
 
     @staticmethod
     def create_available_consent(application_id: int, content: str) -> AvailableConsent:

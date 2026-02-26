@@ -245,6 +245,7 @@ class SmartotumService:
                 applications_payload: list[Application] = []
                 data_controller_emails_by_app_id: dict[str, list[str]] = {}
                 available_consents_by_app_id: dict[str, list[str]] = {}
+                available_consents_action_ids_by_app_id: dict[str, dict[str, str]] = {}
 
                 for smartotum_application in smartotum_applications:
                     app_id = smartotum_application.id
@@ -269,6 +270,9 @@ class SmartotumService:
                     )
                     available_consents_by_app_id[app_id] = (
                         smartotum_application.available_consents or []
+                    )
+                    available_consents_action_ids_by_app_id[app_id] = (
+                        smartotum_application.available_consents_action_ids or {}
                     )
 
                 found_home = SmartHomeRepository.get_home_by_uuid(system.home_uuid)
@@ -326,7 +330,9 @@ class SmartotumService:
                         continue
 
                     ConsentRepository.upsert_available_consents_for_application(
-                        application.id, available_consents
+                        application.id,
+                        available_consents,
+                        available_consents_action_ids_by_app_id.get(app_id, {}),
                     )
                 
             #committiamo una sola volta alla fine cosi se ci sono errori è facile fare il revert

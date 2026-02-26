@@ -2539,7 +2539,7 @@
             "url": "{{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules",
             "body": {
               "mode": "raw",
-              "raw": "{\"trigger\":{\"url\":\"{{sifis_always_trigger_url}}\",\"details\":[]},\"action\":{\"url\":\"{{sifis_video_action_url}}\",\"details\":[{\"url\":\"{{sifis_location_detail_url}}\",\"type\":\"location\",\"value\":{\"name\":\"Entire Home\",\"url\":\"http://elite.polito.it/ontologies/sifis-home.owl/{{ds_home_uuid}}#location-home\"}}]},\"effect\":\"deny\",\"subject\":\"{{ds_email}}\",\"expirationDate\":\"2099-12-31\"}",
+              "raw": "{\"trigger\":{\"url\":\"{{sifis_always_trigger_url}}\",\"details\":[]},\"action\":{\"url\":\"{{sifis_video_action_url}}\",\"details\":[{\"url\":\"{{sifis_location_detail_url}}\",\"type\":\"location\",\"value\":{\"name\":\"Entire Home\",\"url\":\"http://elite.polito.it/ontologies/sifis-home.owl/{{ds_home_uuid}}#location-home\"}}]},\"effect\":\"deny\",\"subject\":\"{{ds_email}}\",\"expirationDate\":\"2099-12-30\"}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2558,7 +2558,7 @@
                   "var body = pm.response.json();",
                   "pm.test(\"Rule id returned\", function () { pm.expect(body).to.have.property('id'); });",
                   "pm.collectionVariables.set('entire_home_rule_id', body.id);",
-                  "pm.collectionVariables.set('dht_test_expiration_date', '2099/12/31');"
+                  "pm.collectionVariables.set('dht_test_expiration_date', '2099/12/30');"
                 ]
               }
             }
@@ -2657,6 +2657,338 @@
                   "var exp = pm.collectionVariables.get('dht_test_expiration_date');",
                   "var matches = rules.filter(function(r){ return r && r.value && r.value.expiration_date === exp && r.value.target_topic === 'domo_camera'; });",
                   "pm.test(\"DHT rules are deleted\", function () { pm.expect(matches.length).to.eql(0); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Consent Auto Rules (Withdraw/Accept)",
+      "item": [
+        {
+          "name": "Find Camera Manager App (has mapping)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/home/{{ds_home_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var apps = pm.response.json();",
+                  "pm.test(\"Installed applications is an array\", function () { pm.expect(apps).to.be.an('array'); });",
+                  "var cameraApp = apps.find(function(a){ return a && a.application && a.application.name === 'com.smartotum.smartotum-camera-manager'; });",
+                  "pm.test(\"Camera manager app is installed\", function () { pm.expect(cameraApp).to.not.eql(undefined); });",
+                  "pm.collectionVariables.set('ds_camera_app_uuid', cameraApp.application.uuid);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Find Consent UUID For Camera Manager",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_camera_app_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"Consent list is an array\", function () { pm.expect(data).to.be.an('array'); });",
+                  "var target = data.find(function(c){ return c && c.content === 'processing of personal information to provide the service'; });",
+                  "pm.test(\"Target consent found\", function () { pm.expect(target).to.not.eql(undefined); });",
+                  "pm.collectionVariables.set('ds_camera_consent_uuid', target.uuid);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Give Consent (Camera Manager)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_camera_app_uuid}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"selected_consents\": [\"{{ds_camera_consent_uuid}}\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Withdraw Consent Request (creates deny rules automatically)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/requests/submit",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"right_type\":\"WITHDRAW_CONSENT\",\"additional_information\":\"Postman automated test withdraw consent\",\"smart_home_uuid\":\"{{ds_home_uuid}}\",\"application_uuid\":\"{{ds_camera_app_uuid}}\",\"selected_consents\":[\"{{ds_camera_consent_uuid}}\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 201\", function () { pm.expect(pm.response.code).to.eql(201); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Withdraw request uuid returned\", function () { pm.expect(body).to.have.property('uuid'); });",
+                  "pm.collectionVariables.set('ds_withdraw_request_uuid', body.uuid);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Consent Revoked After Withdraw",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_camera_app_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var data = pm.response.json();",
+                  "var targetUuid = pm.collectionVariables.get('ds_camera_consent_uuid');",
+                  "var matched = data.find(function (item) { return item.uuid === targetUuid; });",
+                  "pm.test(\"Consent is present\", function () { pm.expect(matched).to.not.eql(undefined); });",
+                  "pm.test(\"Consent is revoked\", function () { pm.expect(matched.given).to.eql(false); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Consent Rule Created In SIFIS Rules List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var rules = pm.response.json();",
+                  "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
+                  "var consentUuid = pm.collectionVariables.get('ds_camera_consent_uuid');",
+                  "var r = rules.find(function(x){ return x && x.consent_uuid === consentUuid; });",
+                  "pm.test(\"Consent rule exists\", function () { pm.expect(r).to.not.eql(undefined); });",
+                  "pm.collectionVariables.set('ds_consent_rule_base_uuid', r.rule_uuid);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DHT - List Camera Devices (for derived UUIDs)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/domo_camera"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var devices = pm.response.json();",
+                  "pm.test(\"Devices list is an array\", function () { pm.expect(devices).to.be.an('array'); });",
+                  "pm.test(\"At least one camera exists\", function () { pm.expect(devices.length).to.be.above(0); });",
+                  "pm.collectionVariables.set('ds_camera_device_uuids', JSON.stringify(devices.map(function(d){ return d.topic_uuid; })));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DHT - Verify Consent Rule Entries Exist (uuid5 fan-out)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function hexToBytes(hex){ var out=[]; for (var i=0;i<hex.length;i+=2){ out.push(parseInt(hex.substr(i,2),16)); } return out; }",
+                  "function bytesToUuid(b){ var hex=b.map(function(x){ return ('0'+x.toString(16)).slice(-2); }).join(''); return [hex.substr(0,8),hex.substr(8,4),hex.substr(12,4),hex.substr(16,4),hex.substr(20,12)].join('-'); }",
+                  "function uuidV5(name, namespaceUuid){ var nsHex = (namespaceUuid||'').replace(/-/g,''); var nameHex = CryptoJS.enc.Utf8.parse(String(name)).toString(CryptoJS.enc.Hex); var toHashHex = nsHex + nameHex; var hashHex = CryptoJS.SHA1(CryptoJS.enc.Hex.parse(toHashHex)).toString(); var bytes = hexToBytes(hashHex).slice(0,16); bytes[6] = (bytes[6] & 0x0f) | 0x50; bytes[8] = (bytes[8] & 0x3f) | 0x80; return bytesToUuid(bytes); }",
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var rules = pm.response.json();",
+                  "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
+                  "var byUuid = {}; rules.forEach(function(r){ if (r && r.topic_uuid) byUuid[String(r.topic_uuid)] = r; });",
+                  "var homeUuid = pm.collectionVariables.get('ds_home_uuid');",
+                  "var consentUuid = pm.collectionVariables.get('ds_camera_consent_uuid');",
+                  "var baseFromApi = pm.collectionVariables.get('ds_consent_rule_base_uuid');",
+                  "var consentNamespace = '7a6b7c3c-9d61-4b8e-9a1f-2fd51f2a4e6c';",
+                  "var computedBase = uuidV5('consent:' + homeUuid + ':' + consentUuid, consentNamespace);",
+                  "pm.test(\"Base rule UUID is deterministic\", function(){ pm.expect(String(baseFromApi)).to.eql(String(computedBase)); });",
+                  "var devices = JSON.parse(pm.collectionVariables.get('ds_camera_device_uuids') || '[]');",
+                  "pm.test(\"At least one camera exists\", function(){ pm.expect(devices.length).to.be.above(0); });",
+                  "var expectedUuids = (devices.length === 1) ? [computedBase] : devices.map(function(devUuid){ return uuidV5(String(devUuid), computedBase); });",
+                  "pm.collectionVariables.set('ds_consent_rule_dht_uuids', JSON.stringify(expectedUuids));",
+                  "expectedUuids.forEach(function(u, i){",
+                  "  pm.test('Consent DHT rule exists: ' + u, function(){ pm.expect(byUuid[u]).to.not.eql(undefined); });",
+                  "  var item = byUuid[u];",
+                  "  var expectedTarget = (devices.length === 1) ? devices[0] : devices[i];",
+                  "  pm.test('Consent DHT rule targets correct device: ' + u, function(){",
+                  "    pm.expect(item.value).to.have.property('target_topic', 'domo_camera');",
+                  "    pm.expect(String(item.value.target_uuid)).to.eql(String(expectedTarget));",
+                  "    pm.expect(item.value).to.have.property('expiration_date', '2099/12/31');",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Accept Consent Again (should delete consent rule)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_camera_app_uuid}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"selected_consents\": [\"{{ds_camera_consent_uuid}}\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Consent Rule Removed From SIFIS Rules List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var rules = pm.response.json();",
+                  "var consentUuid = pm.collectionVariables.get('ds_camera_consent_uuid');",
+                  "var r = rules.find(function(x){ return x && x.consent_uuid === consentUuid; });",
+                  "pm.test(\"Consent rule is removed\", function () { pm.expect(r).to.eql(undefined); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DHT - Verify Consent Rule Entries Gone",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var rules = pm.response.json();",
+                  "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
+                  "var byUuid = {}; rules.forEach(function(r){ if (r && r.topic_uuid) byUuid[String(r.topic_uuid)] = r; });",
+                  "var derived = JSON.parse(pm.collectionVariables.get('ds_consent_rule_dht_uuids') || '[]');",
+                  "derived.forEach(function(u){",
+                  "  pm.test('Derived DHT rule is deleted: ' + u, function(){ pm.expect(byUuid[u]).to.eql(undefined); });",
+                  "});"
                 ]
               }
             }
@@ -2842,6 +3174,30 @@
     },
     {
       "key": "ds_request_uuid",
+      "value": ""
+    },
+    {
+      "key": "ds_withdraw_request_uuid",
+      "value": ""
+    },
+    {
+      "key": "ds_camera_app_uuid",
+      "value": ""
+    },
+    {
+      "key": "ds_camera_consent_uuid",
+      "value": ""
+    },
+    {
+      "key": "ds_consent_rule_base_uuid",
+      "value": ""
+    },
+    {
+      "key": "ds_camera_device_uuids",
+      "value": ""
+    },
+    {
+      "key": "ds_consent_rule_dht_uuids",
       "value": ""
     },
     {

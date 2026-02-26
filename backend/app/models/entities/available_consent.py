@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...extensions import db
@@ -36,6 +36,8 @@ class AvailableConsent(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
     content: Mapped[str]
+    # Optional mapping from this consent to a SIFIS action (stored as action id, e.g. sifis_all_video_actions).
+    sifis_action_id: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     application_id: Mapped[int] = mapped_column(
         ForeignKey("applications.id", ondelete="CASCADE")
     )

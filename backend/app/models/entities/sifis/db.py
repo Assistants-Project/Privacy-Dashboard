@@ -1,5 +1,8 @@
 from typing import List, TYPE_CHECKING, Optional
+from uuid import UUID
+
 from sqlalchemy import ForeignKey, String, BigInteger, Text
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ....extensions import db
@@ -27,6 +30,8 @@ class DbRule(db.Model):
     )  # Unix timestamp in milliseconds
     rule_uuid: Mapped[str] = mapped_column(String(36), unique=True, nullable=True)
     expiration_date: Mapped[str] = mapped_column(String(20), nullable=True)
+    # If set, this rule is managed automatically as a consequence of a consent.
+    consent_uuid: Mapped[Optional[UUID]] = mapped_column(PG_UUID(as_uuid=True), nullable=True)
 
     smart_home: Mapped["SmartHome"] = relationship("SmartHome", back_populates="rules")
     triggers: Mapped[List["DbTrigger"]] = relationship(

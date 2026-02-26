@@ -9,6 +9,7 @@ from ..exceptions import (
     AvailableConsentEmptyListException,
     AvailableConsentNotFoundException,
     AvailableConsentWrongListException,
+    MissingJWTException,
     SmartHomeNotFoundException,
 )
 from ..models import AvailableConsent
@@ -17,6 +18,7 @@ from ..repositories import (
     ConsentRepository,
     SmartHomeRepository,
 )
+from ..services.consent_policy_rule_service import ConsentPolicyRuleService
 
 
 class ConsentStateDict(TypedDict):
@@ -176,6 +178,7 @@ class ConsentService:
         selected_consents_uuids: List[UUID],
     ) -> None:
         """Marks selected consents as given for a DS in a specific smart home and application.
+        Makes sure that the rules has been succeffully deleted before setting the consent as given
 
         Args:
             current_user_id: The ID of the user with role `DATA_SUBJECT` who is giving consents.
@@ -206,6 +209,7 @@ class ConsentService:
         )
 
         available_consents_ids: list[int] = []
+        action_ids_by_uuid: dict[UUID, str | None] = {}
         for consent_uuid in selected_consents_uuids:
             available_consent = ConsentRepository.get_available_consent_by_uuid(
                 consent_uuid
@@ -219,13 +223,45 @@ class ConsentService:
                     "Selected consents do not all belong to the requested application!"
                 )
             available_consents_ids.append(available_consent.id)
+            action_ids_by_uuid[consent_uuid] = getattr(available_consent, "sifis_action_id", None)
 
-        for available_consent_id in available_consents_ids:
-            ConsentRepository.ensure_user_smart_home_available_consent(
-                current_user_id, smart_home_id, available_consent_id
+        from flask import request as flask_request
+        access_token = flask_request.cookies.get("st_access_token")
+        if not access_token:
+            raise MissingJWTException("Smartotum access token missing")
+
+        smart_home = SmartHomeRepository.get_home_by_ds_id_and_home_uuid(
+            current_user_id, smart_home_uuid
+        )
+        if not smart_home:
+            raise SmartHomeNotFoundException(
+                f"Smart Home with uuid {smart_home_uuid} not found among the owned smart homes!"
             )
-        db.session.commit()
-        return
+
+        cps = ConsentPolicyRuleService()
+        try:
+            # Delete consent-related rules first. If this fails, do not mark consents as given.
+            for consent_uuid, action_id in action_ids_by_uuid.items():
+                # Not every consent is mapped to an automatic deny rule.
+                # If there's no mapping, we can still accept the consent.
+                if not action_id:
+                    continue
+                cps.delete_consent_deny_rule(
+                    smart_home=smart_home,
+                    consent_uuid=consent_uuid,
+                    sifis_action_id=action_id,
+                    access_token=access_token,
+                )
+
+            for available_consent_id in available_consents_ids:
+                ConsentRepository.ensure_user_smart_home_available_consent(
+                    current_user_id, smart_home_id, available_consent_id
+                )
+            db.session.commit()
+            return
+        except Exception:
+            db.session.rollback()
+            raise
 
 
     @staticmethod

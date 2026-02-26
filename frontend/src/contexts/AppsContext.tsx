@@ -26,6 +26,7 @@ type AppsContextValue = {
   PIAByAppUUID: Record<string, PIA | null | undefined> //record cache dei PIA
   QuestionnaireByAppUUID: Record<string, Questionnaire | null | undefined>; //
   ConsentStatesByAppUUID: Record<string, ConsentModel[] | undefined>; //record cache consensi per app (DS e DC/DPO)
+  isSelectedAppOwner: boolean;
 
   //espone modo per cambiare app selezionata
   setSelectedAppUUID: (uuid: string | undefined) => void
@@ -109,6 +110,12 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       return undefined;
     }
   }, [apps, selectedAppUUID]);
+
+  const isSelectedAppOwner = useMemo<boolean>(() => {
+    if (!user) return false;
+    if (!selectedApp) return false;
+    return selectedApp.owner?.uuid === user.uuid;
+  }, [selectedApp, user?.uuid]);
 
   const loadApps = useCallback(async (applicationUUID?: string, force?: boolean): Promise<AppModel[] | undefined> => {
     
@@ -340,6 +347,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       PIAByAppUUID,
       QuestionnaireByAppUUID,
       ConsentStatesByAppUUID,
+      isSelectedAppOwner,
       loadingApps,
       updatingApps,
       errorApps,
@@ -361,6 +369,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       PIAByAppUUID,
       QuestionnaireByAppUUID,
       ConsentStatesByAppUUID,
+      isSelectedAppOwner,
       loadingApps,
       updatingApps,
       errorApps,

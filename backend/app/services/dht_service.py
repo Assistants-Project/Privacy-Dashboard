@@ -120,18 +120,19 @@ class DHTService:
             self.logger.error(f"Error publishing rule to DHT: {e}")
             return False
         
-        
 
-    def delete_rule(self, rule_uuid: str, home_uuid: str, access_token: str) -> bool:
-        """Delete a rule through Smartotum client."""
+    def delete_rule_strict(self, *, rule_uuid: str, home_uuid: str, access_token: str) -> None:
+        """Delete a rule and raise if it cannot be deleted."""
         try:
             client = SmartotumClient()
             deleted = client.delete_rule(access_token, str(home_uuid), str(rule_uuid))
-            if deleted:
-                self.logger.info(f"Successfully deleted rule {rule_uuid} through Smartotum client")
-            else:
-                self.logger.error(f"Failed to delete rule {rule_uuid} through Smartotum client")
-            return deleted
+            if not deleted:
+                raise SmartotumServiceUnavailableException(f"Failed to delete rule {rule_uuid}")
+            self.logger.info(f"Successfully deleted rule {rule_uuid} through Smartotum client")
+        except WrongUserCredentialsException:
+            raise
+        except (SmartotumServiceUnavailableException, SmartotumTimeoutException):
+            raise
         except Exception as e:
             self.logger.error(f"Error deleting rule from DHT: {e}")
-            return False
+            raise SmartotumServiceUnavailableException(f"Failed to delete rule {rule_uuid}") from e

@@ -118,6 +118,7 @@ class RequestRepository:
         additional_information: str,
         user_smart_home_application_id: int,
         selected_consents: list[UUID] | None = None,
+        commit: bool = True,
     ) -> Request:
         request = Request(
             right_type=right_type,
@@ -127,7 +128,10 @@ class RequestRepository:
             created_at=datetime.now(),
         )
         db.session.add(request)
-        db.session.commit()
+        if commit:
+            db.session.commit()
+        else:
+            db.session.flush()
         db.session.refresh(request)
         return request
 

@@ -7,6 +7,7 @@ from ..exceptions import (
     AvailableConsentEmptyListException,
     AvailableConsentNotFoundException,
     AvailableConsentWrongListException,
+    MissingJWTException,
     RequestNotFoundException,
     SmartHomeNotFoundException,
     UserNotFoundException,
@@ -19,6 +20,10 @@ from ..repositories import (
     SmartHomeRepository,
     UserRepository,
 )
+from ..extensions import db
+from ..services.consent_policy_rule_service import ConsentPolicyRuleService
+from ..services.dht_service import DHTService
+from config import BaseConfig
 
 
 class RequestDict(TypedDict):
@@ -184,7 +189,7 @@ class RequestService:
 
         selected_consents = None
         if request["right_type"] == RightType.WITHDRAW_CONSENT:
-            selected_consents, available_consent_ids = (
+            selected_consents, available_consent_ids, action_ids_by_uuid = (
                 RequestService._validate_selected_consents_for_withdraw_request(
                     current_user_id,
                     smart_home.id,
@@ -192,17 +197,69 @@ class RequestService:
                     request.get("selected_consents"),
                 )
             )
-            unique_available_consent_ids = list(set(available_consent_ids))
-            ConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id_and_available_consent_ids(
-                current_user_id, smart_home.id, unique_available_consent_ids
-            )
+            # Create consent-related deny rules first. If this fails, do not revoke consents and do not submit the request.
+            from flask import request as flask_request
+            access_token = flask_request.cookies.get("st_access_token")
+            if not access_token:
+                raise MissingJWTException("Smartotum access token missing")
 
-        return RequestRepository.create_request(
+            user = UserRepository.get_user_by_id(current_user_id)
+            if not user:
+                raise UserNotFoundException("User not found")
+
+            cps = ConsentPolicyRuleService()
+            dht = DHTService(BaseConfig.SMARTOTUM_DHT_URL, BaseConfig.SMARTOTUM_RULE_TOPIC)
+            published_dht_uuids: list[str] = []
+
+            try:
+                for consent_uuid in selected_consents:
+                    action_id = action_ids_by_uuid.get(consent_uuid)
+                    if not action_id:
+                        raise AvailableConsentWrongListException(
+                            f"Selected consent {consent_uuid} has no SIFIS action mapping"
+                        )
+                    _db_rule_id, published = cps.create_consent_deny_rule(
+                        smart_home=smart_home,
+                        subject_email=user.email,
+                        consent_uuid=consent_uuid,
+                        sifis_action_id=action_id,
+                        access_token=access_token,
+                    )
+                    published_dht_uuids.extend(published)
+
+                unique_available_consent_ids = list(set(available_consent_ids))
+                ConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id_and_available_consent_ids(
+                    current_user_id, smart_home.id, unique_available_consent_ids
+                )
+
+                created = RequestRepository.create_request(
+                    request["right_type"],
+                    request["additional_information"],
+                    user_smart_home_application.id,
+                    selected_consents,
+                    commit=False,
+                )
+                db.session.commit()
+                return created
+            except Exception:
+                db.session.rollback()
+                # Best-effort cleanup of published DHT entries
+                for dht_uuid in published_dht_uuids:
+                    try:
+                        dht.delete_rule_strict(rule_uuid=str(dht_uuid), home_uuid=str(smart_home.uuid), access_token=access_token)
+                    except Exception:
+                        pass
+                raise
+
+        created = RequestRepository.create_request(
             request["right_type"],
             request["additional_information"],
             user_smart_home_application.id,
             selected_consents,
+            commit=False,
         )
+        db.session.commit()
+        return created
     
     #valida i consensi essendo scritti in testo
     #controlla che il consenso esista
@@ -210,7 +267,7 @@ class RequestService:
     #controlla che il consenso sia stato dato
     # se tutto ok lo ritorna a submit_request che lo considera validato
     @staticmethod
-    def _validate_selected_consents_for_withdraw_request(current_user_id: int,smart_home_id: int,application_id: int,selected_consents_uuids: list[UUID] | None,) -> tuple[list[UUID], list[int]]:
+    def _validate_selected_consents_for_withdraw_request(current_user_id: int,smart_home_id: int,application_id: int,selected_consents_uuids: list[UUID] | None,) -> tuple[list[UUID], list[int], dict[UUID, str | None]]:
         
         #nessun consenso
         if not selected_consents_uuids:
@@ -222,6 +279,7 @@ class RequestService:
 
         selected_consents: list[UUID] = []
         available_consent_ids: list[int] = []
+        action_ids_by_uuid: dict[UUID, str | None] = {}
 
         for consent_uuid in selected_consents_uuids:
 
@@ -247,8 +305,9 @@ class RequestService:
                 )
             selected_consents.append(consent_uuid)
             available_consent_ids.append(available_consent.id)
+            action_ids_by_uuid[consent_uuid] = getattr(available_consent, "sifis_action_id", None)
 
-        return selected_consents, available_consent_ids
+        return selected_consents, available_consent_ids, action_ids_by_uuid
 
     @staticmethod
     def handle_request(

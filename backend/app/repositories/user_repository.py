@@ -41,6 +41,10 @@ class UserRepository:
         return db.session.scalar(statement)
 
     @staticmethod
+    def get_user_by_id(user_id: int) -> User | None:
+        return db.session.get(User, user_id)
+
+    @staticmethod
     def get_users_by_application_id_and_user_role(
         application_id: int, role: UserRole
     ) -> Iterator[User]:

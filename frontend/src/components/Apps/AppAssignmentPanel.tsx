@@ -7,8 +7,8 @@ import { User } from "../../models/user";
 import { addDataControllerManagerToApplication, assignDpoToApplication, removeDataControllerManagerFromApplication, removeDpoFromApplication } from "../../services/ApplicationService";
 
 function AppAssignmentPanel() {
-  const { user, isDataController } = useAuth();
-  const { selectedApp, selectedAppUUID, loadApps } = useApp();
+  const { user } = useAuth();
+  const { selectedApp, selectedAppUUID, loadApps, isSelectedAppOwner } = useApp();
 
   const [showAddManagerModal, setShowAddManagerModal] = useState(false);
   const [showAssignDpoModal, setShowAssignDpoModal] = useState(false);
@@ -25,7 +25,6 @@ function AppAssignmentPanel() {
 
   if (!selectedApp) return null;
 
-  const canManageAssignments = isDataController && !!user && selectedApp.owner.uuid === user.uuid;
   const managers = selectedApp.data_controllers.filter((user) => user.uuid !== selectedApp.owner.uuid);
 
   const userLabel = (user: User): string => `${user.firstname} ${user.lastname}`.trim() || user.email;
@@ -125,7 +124,7 @@ function AppAssignmentPanel() {
                 <Col>
                   <h5>Data Controllers</h5>
                 </Col>
-                {canManageAssignments ? (
+                {isSelectedAppOwner ? (
                   <Col xs="auto" className="pe-0 mt-0">
                     <Button
                       className="circular-button me-0"
@@ -185,7 +184,7 @@ function AppAssignmentPanel() {
                 <Col>
                   <h5>Data Protection Officer</h5>
                 </Col>
-                {canManageAssignments ? (
+                {isSelectedAppOwner ? (
                   <Col xs="auto" className="pe-0 mt-0">
                     <Button
                       className="circular-button me-0"

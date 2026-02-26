@@ -14,6 +14,7 @@ from ..repositories.user_repository import UserRepository
 from ..services.home_service import SmartHomeService
 from ..exceptions.entities.home_exception import SmartHomeNotFoundException, SmartHomeForbiddenException
 from ..exceptions import (
+    MissingJWTException,
     WrongUserCredentialsException,
     SmartotumServiceUnavailableException,
     SmartotumTimeoutException,
@@ -199,6 +200,8 @@ def get_rules(current_user, home_uuid):
         for rule in rules:
             rule_dict = {
                 "db_id": rule.db_id,
+                "rule_uuid": getattr(rule, "rule_uuid", None),
+                "consent_uuid": getattr(rule, "consent_uuid", None),
                 "type": rule.type,
                 "effect": rule.effect,
                 "subject": rule.subject,
@@ -260,6 +263,15 @@ def delete_rule(home_uuid, rule_id, current_user):
             return jsonify({"error": "User not found"}), 404
         
         home = SmartHomeService.verify_home_access(home_uuid, user)
+
+        # Consent-related rules are managed automatically and cannot be deleted by the user.
+        try:
+            db_rule = rule_service.rule_repo.get_rule_by_id_and_home(rule_id, home.id)
+            if db_rule and getattr(db_rule, "consent_uuid", None):
+                return jsonify({"error": "This rule is linked to a consent and cannot be deleted"}), 403
+        except Exception:
+            # If we can't check, fall back to normal delete flow.
+            pass
         
         # Delete rule through service layer (proper architecture)
         deleted = rule_service.delete_rule_by_home(rule_id, home)
@@ -269,6 +281,12 @@ def delete_rule(home_uuid, rule_id, current_user):
         
         return jsonify({"id": rule_id}), 200
     except (SmartHomeNotFoundException, SmartHomeForbiddenException) as e:
+        return jsonify({"error": str(e)}), e.code
+    except WrongUserCredentialsException as e:
+        return jsonify({"error": str(e)}), e.code
+    except MissingJWTException as e:
+        return jsonify({"error": str(e)}), e.code
+    except (SmartotumServiceUnavailableException, SmartotumTimeoutException) as e:
         return jsonify({"error": str(e)}), e.code
     except Exception as e:
         logging.error(f"Error deleting rule: {e}")

@@ -47,6 +47,8 @@ class SmartotumApplicationResult:
     description: str | None = None
     data_controllers_email: list[str] | None = None
     available_consents: list[str] | None = None
+    # Optional mapping: consent content -> SIFIS action id (e.g., sifis_all_video_actions)
+    available_consents_action_ids: Dict[str, str] | None = None
 
 @dataclass
 class SmartotumDeviceResult:
@@ -333,6 +335,9 @@ class SmartotumClient:
             response = self._session.delete(
                 complete_url, headers=headers, timeout=self._timeout
             )
+            # Idempotent delete: if already missing, treat as success.
+            if response.status_code == 404:
+                return True
             response.raise_for_status()
         except Timeout as exc:
             raise SmartotumTimeoutException("Smartotum request timed out") from exc
@@ -492,21 +497,31 @@ class SmartotumClient:
                     normalized_data_controllers_email.append(normalized_email)
 
                 available_consents = item.get("available_consents", [])
-                # stessa validazione per i consensi disponibili
                 if not isinstance(available_consents, list):
-                    raise ValueError(f"apps[{i}].available_consents must be an array of strings")
+                    raise ValueError(f"apps[{i}].available_consents must be an array of objects")
 
                 normalized_available_consents: list[str] = []
-                for consent in available_consents:
-                    if not isinstance(consent, str):
-                        raise ValueError(f"apps[{i}].available_consents must contain only strings")
-                    
-                    normalized_consent = consent.strip()
-                    if normalized_consent == "":
-                        continue
-                    normalized_available_consents.append(normalized_consent)
+                available_consents_action_ids: Dict[str, str] = {}
+                for j, consent in enumerate(available_consents):
+                    if not isinstance(consent, dict):
+                        raise ValueError(f"apps[{i}].available_consents[{j}] must be an object")
+
+                    content = consent.get("content")
+                    if not isinstance(content, str) or not content.strip():
+                        raise ValueError(f"apps[{i}].available_consents[{j}].content is required and must not be empty")
+                    normalized_content = content.strip()
+                    normalized_available_consents.append(normalized_content)
+
+                    sifis_action_id = consent.get("sifis_action_id")
+                    if sifis_action_id is not None:
+                        if not isinstance(sifis_action_id, str):
+                            raise ValueError(f"apps[{i}].available_consents[{j}].sifis_action_id must be a string or null")
+                        normalized_action_id = sifis_action_id.strip()
+                        if normalized_action_id and normalized_content not in available_consents_action_ids:
+                            available_consents_action_ids[normalized_content] = normalized_action_id
 
                 # creiamo l'oggetto applicazione finale già normalizzato
+                unique_available_consents = list(dict.fromkeys(normalized_available_consents))
                 applications.append(
                     SmartotumApplicationResult(
                         application_uuid = UUID(str(uuid.uuid4())),
@@ -514,7 +529,8 @@ class SmartotumClient:
                         name=normalized_name,
                         description=normalized_description,
                         data_controllers_email=list(dict.fromkeys(normalized_data_controllers_email)),
-                        available_consents=list(dict.fromkeys(normalized_available_consents)),
+                        available_consents=unique_available_consents,
+                        available_consents_action_ids=available_consents_action_ids or None,
                     )
                 )
 
@@ -565,6 +581,7 @@ class SmartotumClient:
                     description=description,
                     data_controllers_email=[],
                     available_consents=[],
+                    available_consents_action_ids=None,
                 )
             )
 

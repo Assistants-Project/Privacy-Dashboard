@@ -23,6 +23,7 @@ interface TriggerAction {
 
 interface Rule {
   db_id: number;
+  consent_uuid?: string | null;
   type: string;
   effect: string; // "permit" or "deny"
   subject: string;
@@ -83,17 +84,27 @@ const RuleList: React.FC<RuleListProps> = ({
   return (
     <>
       <div className="d-flex flex-column gap-3">
-        {rules.map((rule) => (
+        {rules.map((rule, idx) => (
           <Card key={rule.db_id} className="shadow-sm">
             <Card.Header className="bg-white py-2">
               <div className="d-flex align-items-center w-100 gap-3">
-                <span className="text-muted small fw-bold">#{rule.db_id}</span>
+                <span className="text-muted small fw-bold">#{idx + 1}</span>
+                <span className="text-muted small">ID {rule.db_id}</span>
                 <Badge
                   bg={rule.effect === "permit" ? "success" : "danger"}
                   className="me-2"
                 >
                   {rule.effect.toUpperCase()}
                 </Badge>
+                {!!rule.consent_uuid && (
+                  <Badge
+                    bg="secondary"
+                    className="me-2"
+                    title={`Consent rule (managed automatically)\nConsent UUID: ${rule.consent_uuid}`}
+                  >
+                    CONSENT RULE
+                  </Badge>
+                )}
                 <span className="fw-bold text-dark">
                   {rule.trigger?.service?.name || "Trigger"}
                 </span>
@@ -101,6 +112,11 @@ const RuleList: React.FC<RuleListProps> = ({
                 <span className="fw-bold text-dark">
                   {rule.action?.service?.name || "Action"}
                 </span>
+                {!!rule.consent_uuid && (
+                  <small className="text-muted ms-2" title="This rule is created/removed automatically when a consent is withdrawn/accepted">
+                    Managed automatically
+                  </small>
+                )}
 
                 {rule.expirationDate && (
                   <span className="text-muted small ms-2">
@@ -131,7 +147,16 @@ const RuleList: React.FC<RuleListProps> = ({
                     <Button
                       variant="outline-danger"
                       size="sm"
-                      onClick={() => onDelete(rule.db_id)}
+                      disabled={!!rule.consent_uuid}
+                      title={
+                        rule.consent_uuid
+                          ? "This rule is linked to a consent and cannot be deleted"
+                          : "Delete"
+                      }
+                      onClick={() => {
+                        if (rule.consent_uuid) return;
+                        onDelete(rule.db_id);
+                      }}
                     >
                       Delete
                     </Button>

@@ -10,6 +10,8 @@ class Rule:
     """Rule entity for OWL ontology."""
 
     db_id: Optional[int] = None
+    rule_uuid: Optional[str] = None
+    consent_uuid: Optional[str] = None
     trigger: Optional[Trigger] = None
     action: Optional[Action] = None
     parents: List["Rule"] = field(default_factory=list)
@@ -36,6 +38,7 @@ class Rule:
             self.action == other.action
             and self.db_id == other.db_id
             and self.effect == other.effect
+            and self.consent_uuid == other.consent_uuid
             and self.parents == other.parents
             and self.subject == other.subject
             and self.timestamp == other.timestamp
@@ -52,6 +55,8 @@ class Rule:
         return hash(
             (
                 self.db_id,
+                self.rule_uuid,
+                self.consent_uuid,
                 self.effect,
                 self.subject,
                 self.timestamp,
@@ -79,6 +84,8 @@ class Rule:
         """
         return {
             "db_id": self.db_id,
+            "rule_uuid": self.rule_uuid,
+            "consent_uuid": self.consent_uuid,
             "type": self.type,
             "effect": self.effect,
             "subject": self.subject,
