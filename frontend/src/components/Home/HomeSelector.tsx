@@ -5,7 +5,7 @@ function HomeSelector() {
     const {current_home_uuid,homes,updateCurrentHomeUUID} = useHome();
 
     const renderOptional = (value: string | undefined) =>
-        value && value.trim() ? value : <span className="muted">Non impostato</span>;
+        value && value.trim() ? value : <span className="muted">Not set</span>;
 
     return (
         <>
@@ -30,12 +30,12 @@ function HomeSelector() {
                                 >
                                     <Card.Title className="text-center"> {home.name?.trim()
                                         ? home.name
-                                        : "Nome non impostato"}
+                                        : "Name not set"}
                                     </Card.Title>
 
                                     <Card.Subtitle className="text-center mb-2 text-muted">
                                         UUID:{" "}
-                                        {home.uuid?.trim() ? home.uuid : "Non impostato"}
+                                        {home.uuid?.trim() ? home.uuid : "Not set"}
                                     </Card.Subtitle>
 
                                     <Card.Text as="div">

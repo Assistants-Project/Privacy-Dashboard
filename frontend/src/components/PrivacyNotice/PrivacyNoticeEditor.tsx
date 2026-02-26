@@ -5,24 +5,22 @@ import { fetchPrivacyNoticeTemplate, handleSubmitPrivacyNotice, } from "../../se
 import "react-quill/dist/quill.snow.css";
 import { useApp } from "../../contexts/AppsContext";
 import { useAuth } from "../../contexts/AuthContext";
-import { Role } from "../../models/user";
-import { PdfDownloadButton } from "../PdfDownloadButton";
+import { PdfDownloadButton } from "../Utilities/PdfDownloadButton";
 
 type Props = { closePanel: () => void; setPanelExpanded?: (expanded: boolean) => void };
 
 function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
   const [value, setValue,] = useState("");
   const { loadPrivacyNotice, PrivacyNoticeByAppUUID, selectedAppUUID, selectedApp} = useApp();
-  const { user } = useAuth();
+  const { user, isDataSubject } = useAuth();
 
   const draftRef = useRef<string>("");
   const templateHtmlRef = useRef<string>("");
   const quillRef = useRef<ReactQuill | null>(null);
   const [editMode, setEditMode,] = useState(false);
   const pn = selectedAppUUID ? PrivacyNoticeByAppUUID[selectedAppUUID] : undefined;
-  const canEdit = user?.role !== Role.DataSubject;
   const hasPn = !!(pn?.content && pn.content.trim() !== "");
-  const showEmptyPn = canEdit && !editMode && !hasPn;
+  const showEmptyPn = !isDataSubject && !editMode && !hasPn;
 
   useEffect(() => {
     setPanelExpanded?.(editMode);
@@ -119,7 +117,7 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
       <Row className="align-items-center">
         <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
           <h5 className="d-inline-block mb-0 ms-1">Privacy Notice | {title}</h5>
-          {canEdit ? (
+          {!isDataSubject ? (
             <div className="d-flex align-items-center">
               {hasPn && !editMode && (
                 <PdfDownloadButton
@@ -164,20 +162,20 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
         </Col>
       </Row>
 
-      {showEmptyPn ? (
-        <Card className="p-0">
-          <Card.Body className="text-muted">
-            {canEdit
+          {showEmptyPn ? (
+            <Card className="p-0">
+              <Card.Body className="text-muted">
+            {!isDataSubject
               ? "Press the Plus button to start writing the Privacy Notice."
               : "No Privacy Notice available."}
-          </Card.Body>
-        </Card>
-      ) : (
+              </Card.Body>
+            </Card>
+          ) : (
         <Stack
           className="flex-grow-1 pe-2 overflow-hidden"
           style={{ minHeight: 0 }}
         >
-          {canEdit ? (
+          {!isDataSubject ? (
             editMode ? (
               <Card
                 className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"

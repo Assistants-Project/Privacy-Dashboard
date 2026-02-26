@@ -1,11 +1,10 @@
-import { Button, Card, Col, Container, Row } from "react-bootstrap";
+import { Button, Card, Col, Row } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext";
-import { HomeModel } from "../../models/home";
-import { Role, User } from "../../models/user";
+import { User } from "../../models/user";
 import { useHome } from "../../contexts/HomeContext";
 
 export function UserMenu() {
-    const { user, logout, deleteUser } = useAuth();
+    const { user, logout, deleteUser, isDataSubject } = useAuth();
     const { current_home_uuid } = useHome();
 
 
@@ -33,7 +32,7 @@ export function UserMenu() {
                         <Col className="text-end">{user?.role}</Col>
                     </Row>
 
-                    {user?.role == Role.DataSubject && 
+                    {isDataSubject && 
                     
                     <Row className="align-items-start mb-2">
                         <Col xs="auto">Selected Home</Col>

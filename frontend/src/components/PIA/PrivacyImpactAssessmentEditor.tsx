@@ -4,7 +4,7 @@ import { AgGridReact } from "ag-grid-react";
 import {ColDef,GridReadyEvent,ILargeTextEditorParams,ISelectCellEditorParams,} from "ag-grid-community";
 import {fetchPiaTemplate,removePiaTemplate,submitPiaTemplate,} from "../../services/PrivacyImpactAssessmentService";
 import { useApp } from "../../contexts/AppsContext";
-import { PdfDownloadButton } from "../PdfDownloadButton";
+import { PdfDownloadButton } from "../Utilities/PdfDownloadButton";
 
 type Props = { closePanel: () => void };
 

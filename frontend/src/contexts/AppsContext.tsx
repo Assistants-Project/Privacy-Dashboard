@@ -1,5 +1,4 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState, } from "react";
-import { Role } from "../models/user";
 import { useAuth } from "./AuthContext";
 import { AppModel, CreateApplicationRequest, DocumentStatus } from "../models/app";
 import { fetchApplications, refreshInstalledApplications, createApplicationByDataController } from "../services/ApplicationService";
@@ -50,7 +49,7 @@ const AppsContext = React.createContext<AppsContextValue | undefined>(undefined)
 
 //dove mettere tutte le funzioni ed è quello da importare in react che wrappa tutto
 export function AppsProvider({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, isDataSubject, isDataController } = useAuth();
   const { current_home_uuid, loadingHomes } = useHome();
 
   const [apps, setApps] = useState<AppModel[] | undefined>(undefined);
@@ -88,10 +87,10 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (user.role === Role.DataSubject && loadingHomes) return;
+    if (isDataSubject && loadingHomes) return;
 
     loadApps();
-  }, [loading, updatingApps, user?.uuid, user?.role, current_home_uuid, loadingHomes]);
+  }, [loading, updatingApps, user?.uuid, isDataSubject, current_home_uuid, loadingHomes]);
 
   //invalidiamo la cache consensi quando cambia casa corrente (stato given dipende dalla home)
   useEffect(() => {
@@ -130,7 +129,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       }
 
       const res = await fetchApplications(
-        user?.role === Role.DataSubject ? (current_home_uuid ?? null) : undefined,
+        isDataSubject ? (current_home_uuid ?? null) : undefined,
         applicationUUID,
       );
 
@@ -176,11 +175,11 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
         setLoadingApps(false);
       }
     }
-  }, [apps, current_home_uuid, user?.uuid, user?.role]);
+  }, [apps, current_home_uuid, user?.uuid, isDataSubject]);
 
   const syncApps = useCallback(async () => {
     if (!user) return;
-    if (user.role !== Role.DataSubject) return;
+    if (!isDataSubject) return;
 
     setUpdatingApps(true);
     setErrorUpdatingApps(undefined);
@@ -194,7 +193,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setUpdatingApps(false);
     }
-  }, [user]);
+  }, [user?.uuid, isDataSubject]);
 
   const loadPrivacyNotice = useCallback(async (appUUID: string, force: boolean,): Promise<PrivacyNotice | null | undefined> => {
     if (!user) return undefined;
@@ -300,7 +299,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
 
     try {
 
-      if (user.role === Role.DataSubject) {
+      if (isDataSubject) {
         if (!current_home_uuid) return undefined;
         const consentStates = await fetchConsentsStateBySmartHomeAndApplication(current_home_uuid, appUUID);
         setConsentStatesByAppUUID((prev) => ({ ...prev, [appUUID]: consentStates }));
@@ -321,7 +320,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
 
   const createManagedApplication = useCallback(async (payload: CreateApplicationRequest): Promise<AppModel | undefined> => {
     if (!user) return undefined;
-    if (user.role !== Role.DataController) return undefined;
+    if (!isDataController) return undefined;
 
     const createdApp = await createApplicationByDataController(payload);
     //filter lo teniamo per evitare problemi durante 2 aggiornamenti concorrenti di apps
@@ -329,7 +328,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     setSelectedAppUUID(createdApp.uuid);
     return createdApp;
   },
-    [setSelectedAppUUID, user?.role],
+    [setSelectedAppUUID, user?.uuid, isDataController],
   );
 
 

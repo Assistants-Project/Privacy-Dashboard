@@ -1,23 +1,22 @@
 import { useEffect, useRef } from "react";
 import { NavDropdown, Spinner } from "react-bootstrap";
-import { ArrowRepeat, CheckCircle } from "react-bootstrap-icons";
+import { ArrowRepeat, CheckCircle, ExclamationTriangleFill } from "react-bootstrap-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useHome } from "../../contexts/HomeContext";
 import { useApp } from "../../contexts/AppsContext";
-import { Role } from "../../models/user";
 
 export function SyncPanel() {
-  const { user, loading, loginEventId } = useAuth();
-  const { updatingHomes, syncHomes } = useHome();
-  const { updatingApps, syncApps } = useApp();
+  const { loading, loginEventId, isDataSubject } = useAuth();
+  const { updatingHomes, syncHomes, errorupdatingHomes } = useHome();
+  const { updatingApps, syncApps, errorUpdatingApps } = useApp();
   const handledLoginEventIdRef = useRef(0);
 
-  const isDataSubject = user?.role === Role.DataSubject;
   const anySyncing = updatingHomes || updatingApps;
+  const anySyncError = !!errorupdatingHomes || !!errorUpdatingApps;
 
   useEffect(() => {
     if (loading) return;
-    if (user?.role !== Role.DataSubject) return;
+    if (!isDataSubject) return;
     if (loginEventId === 0) return;
     if (handledLoginEventIdRef.current === loginEventId) return;
 
@@ -26,29 +25,49 @@ export function SyncPanel() {
       await syncHomes();
       await syncApps();
     })();
-  }, [loading, user?.uuid, user?.role, loginEventId, syncHomes, syncApps]);
+  }, [loading, isDataSubject, loginEventId, syncHomes, syncApps]);
 
   if (!isDataSubject) return null;
 
   const syncedIcon = (<CheckCircle className="text-success" style={{ width: 18, height: 18 }} />);
   const syncingIcon = <Spinner animation="border" size="sm" />;
+  const errorIcon = (<ExclamationTriangleFill className="text-danger" style={{ width: 18, height: 18 }} />);
+  const statusIcon = anySyncing ? syncingIcon : anySyncError ? errorIcon : syncedIcon;
 
   return (
     <NavDropdown id="sync-dropdown" align="end"
       title={
-        <span className="d-inline-flex align-items-center gap-2 border rounded px-2 py-1" title={anySyncing ? "Sync in corso…" : "Sync completato"}>
+        <span
+          className="d-inline-flex align-items-center gap-2 border rounded px-2 py-1"
+          title={anySyncing ? "Syncing…" : anySyncError ? "Sync Failed" : "Sync Completed"}
+        >
           <span>Smartotum Sync</span>
-          {anySyncing ? syncingIcon : syncedIcon}
+          {statusIcon}
         </span>
       }
     >
       <NavDropdown.Header>Sync Status</NavDropdown.Header>
+      {anySyncError ? (
+        <>
+          {errorupdatingHomes ? (
+            <NavDropdown.ItemText className="text-danger small">
+              Homes Sync Failed
+            </NavDropdown.ItemText>
+          ) : undefined}
+          {errorUpdatingApps ? (
+            <NavDropdown.ItemText className="text-danger small">
+              Apps Sync Failed
+            </NavDropdown.ItemText>
+          ) : undefined}
+          <NavDropdown.Divider />
+        </>
+      ) : undefined}
       <NavDropdown.Item
         disabled={updatingHomes}
         className="d-flex align-items-center gap-2"
         onClick={() => !updatingHomes && syncHomes()}
       >
-        {updatingHomes ? syncingIcon : syncedIcon}
+        {updatingHomes ? syncingIcon : errorupdatingHomes ? errorIcon : syncedIcon}
         <span>Homes</span>
         <ArrowRepeat />
       </NavDropdown.Item>
@@ -57,7 +76,7 @@ export function SyncPanel() {
         className="d-flex align-items-center gap-2"
         onClick={() => !updatingApps && syncApps()}
       >
-        {updatingApps ? syncingIcon : syncedIcon}
+        {updatingApps ? syncingIcon : errorUpdatingApps ? errorIcon : syncedIcon}
         <span>Apps</span>
         <ArrowRepeat />
       </NavDropdown.Item>

@@ -3,11 +3,11 @@ import { Button, Card, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
 import { XCircle } from "react-bootstrap-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppsContext";
-import { Role, User } from "../../models/user";
+import { User } from "../../models/user";
 import { addDataControllerManagerToApplication, assignDpoToApplication, removeDataControllerManagerFromApplication, removeDpoFromApplication } from "../../services/ApplicationService";
 
 function AppAssignmentPanel() {
-  const { user } = useAuth();
+  const { user, isDataController } = useAuth();
   const { selectedApp, selectedAppUUID, loadApps } = useApp();
 
   const [showAddManagerModal, setShowAddManagerModal] = useState(false);
@@ -25,7 +25,6 @@ function AppAssignmentPanel() {
 
   if (!selectedApp) return null;
 
-  const isDataController = user?.role === Role.DataController;
   const canManageAssignments = isDataController && !!user && selectedApp.owner.uuid === user.uuid;
   const managers = selectedApp.data_controllers.filter((user) => user.uuid !== selectedApp.owner.uuid);
 

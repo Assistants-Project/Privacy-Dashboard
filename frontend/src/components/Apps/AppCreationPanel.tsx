@@ -3,7 +3,6 @@ import { Alert, Button, CloseButton, Form, InputGroup, Modal, Spinner } from "re
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppsContext";
-import { Role } from "../../models/user";
 
 type AppCreationPanelProps = {
   show: boolean;
@@ -11,7 +10,7 @@ type AppCreationPanelProps = {
 };
 
 function AppCreationPanel({ show, onHide }: AppCreationPanelProps) {
-  const { user } = useAuth();
+  const { user, isDataController } = useAuth();
   const { createManagedApplication } = useApp();
 
   const [name, setName] = useState<string>("");
@@ -56,7 +55,7 @@ function AppCreationPanel({ show, onHide }: AppCreationPanelProps) {
 
     setError(undefined);
 
-    if (!user || user.role !== Role.DataController) {
+    if (!user || !isDataController) {
       setError("Only Data Controllers can create applications.");
       return;
     }

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useHome } from "../contexts/HomeContext";
 import { RequestStatus } from "../models/request";
-import { Role } from "../models/user";
 import { fetchRequestsHome, fetchRequestsInbox, RequestListItem } from "../services/RightsService";
 
 type UseRightsRequestsResult = {
@@ -16,10 +15,8 @@ type UseRightsRequestsResult = {
 //Data Subject: requests della casa corrente
 //Data Controller / DPO: inbox delle requests ricevute
 function useRightsRequests(statusFilter: RequestStatus | undefined): UseRightsRequestsResult {
-  const { user, loading } = useAuth();
+  const { user, loading, isDataSubject } = useAuth();
   const { current_home_uuid, loadingHomes } = useHome();
-
-  const isDataSubject = user?.role === Role.DataSubject;
 
   const [requests, setRequests] = useState<RequestListItem[] | undefined>(undefined,);
   const [loadingRequests, setLoadingRequests] = useState<boolean>(true);

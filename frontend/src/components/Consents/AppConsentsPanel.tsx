@@ -5,7 +5,6 @@ import { useHome } from "../../contexts/HomeContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppsContext";
 import { addAvailableConsentToManagedApplication, giveConsentsInSmartHome, removeAvailableConsentFromManagedApplication } from "../../services/AvailableConsentService";
-import { Role } from "../../models/user";
 
 type AppConsentsPanelProps = {
   onWithdrawConsents?: (consentUuids: string[]) => void;
@@ -13,11 +12,8 @@ type AppConsentsPanelProps = {
 
 function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
   const { current_home_uuid } = useHome();
-  const { user } = useAuth();
+  const { user, isDataSubject, isManagerRole } = useAuth();
   const { selectedAppUUID, ConsentStatesByAppUUID, loadConsentsByApplication } = useApp();
-
-  const isDataSubject = user?.role === Role.DataSubject;
-  const canManageConsents = user?.role === Role.DataController || user?.role === Role.DPO;
 
   const [showManageConsentsModal, setShowManageConsentsModal] = useState(false);
   const [consentInput, setConsentInput] = useState("");
@@ -248,7 +244,7 @@ function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
               </Col>
             ) : undefined}
 
-            {canManageConsents ? (
+            {isManagerRole ? (
               <Col xs="auto">
                 <Button
                   className="circular-button me-0"
@@ -333,7 +329,7 @@ function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
         </Card.Body>
       </Card>
 
-      {canManageConsents ? (
+      {isManagerRole ? (
         <Modal show={showManageConsentsModal} onHide={() => setShowManageConsentsModal(false)} centered>
           <Modal.Header closeButton>
             <Modal.Title>Manage Consents</Modal.Title>

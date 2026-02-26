@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, Form, Modal, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { Role } from "../../models/user";
 import { buildPredefinedRightMessage, RIGHT_TYPE_LABELS, RightType } from "../../models/request";
 import { submitRightRequest } from "../../services/RightsService";
 import { useAuth } from "../../contexts/AuthContext";
@@ -28,7 +27,7 @@ function SubmitRightRequestModal({
 
   const navigate = useNavigate();
   
-  const { user } = useAuth();
+  const { user, isDataSubject } = useAuth();
   const { selectedApp, ConsentStatesByAppUUID, loadApps, loadConsentsByApplication } = useApp();
   const { current_home_uuid } = useHome();
 
@@ -71,7 +70,7 @@ function SubmitRightRequestModal({
   };
 
   const handleSubmit = async () => {
-    if (!user || user.role !== Role.DataSubject) return;
+    if (!user || !isDataSubject) return;
     if (!current_home_uuid) {
       setError("No home selected.");
       return;

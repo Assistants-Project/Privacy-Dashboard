@@ -1,5 +1,4 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { Role } from "../models/user";
 import { fetchHomes, updateHomesService } from "../services/HomesService"
 import { HomeModel } from "../models/home";
 import { useAuth } from "./AuthContext";
@@ -22,7 +21,7 @@ const HomeContext = React.createContext<HomeContextValue | undefined>(undefined)
 //dove mettere tutte le funzioni ed è quello da importare in react che wrappa tutto
 export function HomeProvider({ children }: { children: React.ReactNode }) {
 
-    const { user, loading } = useAuth();
+    const { user, loading, isDataSubject } = useAuth();
 
     const [current_home_uuid, setCurrent_home_uuid] = useState<string | undefined>(undefined);
     const [homes, setHomes] = useState<HomeModel[] | undefined>(undefined);
@@ -43,7 +42,7 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
 
         if (loading) return;
 
-        if (user?.role != Role.DataSubject) {
+        if (!isDataSubject) {
             setCurrent_home_uuid(undefined);
             setHomes(undefined);
             setLoadingHomes(false);
@@ -55,7 +54,7 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
 
 
         loadHomes();
-    }, [loading, updatingHomes, user?.uuid]);
+    }, [loading, updatingHomes, user?.uuid, isDataSubject]);
 
     const loadHomes = async () => {
 
