@@ -2,7 +2,6 @@ from uuid import UUID
 
 from ..exceptions import (
     ApplicationNotFoundException,
-    PrivacyNoticeAlreadyExists,
     PrivacyNoticeNotFoundException,
 )
 from ..models import PrivacyNotice
@@ -74,6 +73,8 @@ class PrivacyNoticeService:
         """Associates an existing `PrivacyNotice` with an `Application` if the `Application` with the given `UUID`
         exists and is managed by the given `DATA_CONTROLLER` or `DPO` user.
 
+        If the application already has a privacy notice, this overwrites the association (replace).
+
         Args:
             user_id: The ID of the user with role `DATA_CONTROLLER` or `DPO` who manages the application.
             application_uuid: The `UUID` of the `Application` to associate the `PrivacyNotice` to.
@@ -84,7 +85,6 @@ class PrivacyNoticeService:
 
         Raises:
             `ApplicationNotFoundException`: If the `Application` with the given `UUID` is not found among the applications managed by the given `DATA_CONTROLLER` or `DPO` user.
-            `PrivacyNoticeAlreadyExists`: If an already existing `PrivacyNotice` is found for the managed `Application` with the given `UUID`.
             `PrivacyNoticeNotFoundException`: If no existing `PrivacyNotice` is found with the given `UUID`.
         """
 
@@ -96,10 +96,6 @@ class PrivacyNoticeService:
         if not application:
             raise ApplicationNotFoundException(
                 f"Application with uuid {application_uuid} not found among the managed applications!"
-            )
-        if application.privacy_notice:
-            raise PrivacyNoticeAlreadyExists(
-                f"Privacy Notice already exists for the application with uuid {application_uuid}"
             )
         privacy_notice = PrivacyNoticeRepository.get_privacy_notice_by_uuid(
             privacy_notice_uuid

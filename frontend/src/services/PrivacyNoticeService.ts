@@ -114,7 +114,6 @@ export const handleReplacePrivacyNoticeWithExisting = async (
   targetApplicationUuid: string,
   privacyNoticeUuid: string,
 ): Promise<PrivacyNotice> => {
-  await removePrivacyNoticeByManagedApplicationUuid(targetApplicationUuid);
   const result = await associatePrivacyNoticeByManagedApplicationUuid(
     targetApplicationUuid,
     privacyNoticeUuid,
