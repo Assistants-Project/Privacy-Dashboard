@@ -3088,7 +3088,33 @@
                   "pm.test(\"Consent list is an array\", function () { pm.expect(data).to.be.an('array'); });",
                   "var target = data.find(function(c){ return c && c.content === 'processing of personal information to provide the service'; });",
                   "pm.test(\"Target consent found\", function () { pm.expect(target).to.not.eql(undefined); });",
-                  "pm.collectionVariables.set('ds_camera_consent_uuid', target.uuid);"
+                  "pm.collectionVariables.set('ds_camera_consent_uuid', target.uuid);",
+                  "pm.test(\"Consent is not given by default\", function () { pm.expect(target.given).to.eql(false); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Default Consent Deny Rule Exists In SIFIS Rules List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var rules = pm.response.json();",
+                  "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
+                  "var consentUuid = pm.collectionVariables.get('ds_camera_consent_uuid');",
+                  "var r = rules.find(function(x){ return x && x.consent_uuid === consentUuid; });",
+                  "pm.test(\"Default consent deny rule exists\", function () { pm.expect(r).to.not.eql(undefined); });"
                 ]
               }
             }

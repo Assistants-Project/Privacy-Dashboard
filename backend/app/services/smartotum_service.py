@@ -21,6 +21,7 @@ from ..exceptions.entities.room_exceptions import RoomNotFoundException
 from ..extensions import db
 from ..integrations.smartotum.client import SmartotumRule
 from typing import List
+from ..services.consent_policy_rule_service import ConsentPolicyRuleService
 
 class SmartotumService:
 
@@ -234,6 +235,8 @@ class SmartotumService:
                     )
                 return data_controller
 
+            cps = ConsentPolicyRuleService()
+
             # for every home owned by the user
             for system in systems_new:
 
@@ -334,8 +337,27 @@ class SmartotumService:
                         available_consents,
                         available_consents_action_ids_by_app_id.get(app_id, {}),
                     )
+
+                    # Default: if a consent is not given, enforce a deny rule immediately.
+                    # This keeps Smartotum behavior aligned with the UI unchecked consents from the start
+                    consent_rows = ConsentRepository.get_available_consents_with_given_state_by_ds_id_and_smart_home_id_and_application_id(
+                        user.id, found_home.id, application.id
+                    )
+                    for available_consent, given_at in consent_rows:
+                        if given_at is not None:
+                            continue
+                        action_id = getattr(available_consent, "sifis_action_id", None)
+                        if not action_id:
+                            continue
+                        cps.create_consent_deny_rule(
+                            smart_home=found_home,
+                            subject_email=user.email,
+                            consent_uuid=available_consent.uuid,
+                            sifis_action_id=action_id,
+                            access_token=access_token,
+                        )
                 
-            #committiamo una sola volta alla fine cosi se ci sono errori è facile fare il revert
+            #commit at the end to revert easily
             session.commit()
 
         except SQLAlchemyError as exc:
