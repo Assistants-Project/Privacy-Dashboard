@@ -1,7 +1,7 @@
 import { Button, Card, CloseButton, Col, Row, Stack } from "react-bootstrap";
 import { useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill";
-import { fetchPrivacyNoticeTemplate, handleSubmitPrivacyNotice, } from "../../services/PrivacyNoticeService";
+import { fetchPrivacyNoticeTemplate, handleRemovePrivacyNotice, handleSubmitPrivacyNotice, } from "../../services/PrivacyNoticeService";
 import "react-quill/dist/quill.snow.css";
 import { useApp } from "../../contexts/AppsContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -60,6 +60,26 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
     }
   };
 
+  const handleDeleteClick = async () => {
+    if (!selectedAppUUID) return;
+    if (!hasPn) return;
+
+    const confirmed = window.confirm("Remove the Privacy Notice from this application?");
+    if (!confirmed) return;
+
+    try {
+      await handleRemovePrivacyNotice(selectedAppUUID);
+      setEditMode(false);
+      setValue("");
+      draftRef.current = "";
+      templateHtmlRef.current = "";
+      await loadPrivacyNotice(selectedAppUUID, true);
+    } catch (err) {
+      console.error("Error deleting privacy notice:", err);
+      alert(err instanceof Error ? err.message : "Error deleting privacy notice.");
+    }
+  };
+
   const handleEditClick = () => {
     if (editMode) {
       setEditMode(false);
@@ -98,7 +118,10 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
     const editor = (quillRef.current as any)?.getEditor?.();
     if (editor) {
       const selection = editor.getSelection?.();
-      const index = selection?.index ?? editor.getLength?.() ?? 0;
+      // Quill always has a trailing newline; inserting at `getLength() - 1` avoids creating
+      // an extra empty first line when the editor is still empty and not focused.
+      const length = editor.getLength?.() ?? 0;
+      const index = selection?.index ?? Math.max(0, length - 1);
       editor.clipboard?.dangerouslyPasteHTML(index, templateHtml);
       const nextHtml = editor.root?.innerHTML;
       if (typeof nextHtml === "string") {
@@ -119,7 +142,9 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
     <>
       <Row className="align-items-center">
         <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
-          <h5 className="d-inline-block mb-0 ms-1">Privacy Notice | {title}</h5>
+          <h5 className="d-inline-block mb-0 ms-1">
+            Privacy Notice {title ? <span className="text-muted">| {title}</span> : null}
+          </h5>
           {!isDataSubject ? (
             <div className="d-flex align-items-center">
               {hasPn && !editMode && (
@@ -151,10 +176,12 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
               </Button>
               <Button
                 className="circular-button"
-                disabled
+                disabled={!selectedAppUUID || !hasPn || editMode}
                 style={{
                   color: "red",
                 }}
+                onClick={() => void handleDeleteClick()}
+                title="Remove Privacy Notice"
               >
                 <i className="fa-solid fa-trash"></i>
               </Button>
@@ -227,30 +254,20 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
                 </Card.Body>
               </Card>
             ) : (
-              <Card className="p-0">
-                <Card.Body className="d-flex flex-column">
-                  <Row className="g-1">
-                    <Col>
-                      <h5 className="mb-0">Privacy Notice content:</h5>
-                    </Col>
-                  </Row>
-                  <hr className="my-3" />
-                  <PrivacyNoticeHtmlPreview content={pn?.content} maxHeight="60vh" />
-                </Card.Body>
-              </Card>
+              <PrivacyNoticeHtmlPreview
+                content={pn?.content}
+                className="flex-grow-1"
+                style={{ minHeight: 0, height: 0 }}
+                maxHeight="none"
+              />
             )
           ) : (
-            <Card className="p-0">
-              <Card.Body className="d-flex flex-column">
-                <Row className="g-1">
-                  <Col>
-                    <h5 className="mb-0">Privacy Notice content</h5>
-                  </Col>
-                </Row>
-                <hr className="my-3" />
-                <PrivacyNoticeHtmlPreview content={pn?.content} maxHeight="70vh" />
-              </Card.Body>
-            </Card>
+            <PrivacyNoticeHtmlPreview
+              content={pn?.content}
+              className="flex-grow-1"
+              style={{ minHeight: 0, height: 0 }}
+              maxHeight="none"
+            />
           )}
         </Stack>
       )}

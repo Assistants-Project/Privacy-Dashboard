@@ -1,0 +1,1715 @@
+{
+  "content": {
+    "template_id": "cnil_pia_v1",
+    "sections": [
+      {
+        "section_key": "study_of_context",
+        "label": "1 Study of the context",
+        "subsections": [
+          {
+            "subsection_key": "processing_overview",
+            "label": "1.1 Overview of the processing",
+            "tables": [
+              {
+                "table_key": "processing_overview",
+                "title": "Description of the processing under consideration",
+                "columns": [
+                  {
+                    "key": "description",
+                    "label": "Description of the processing",
+                    "type": "text"
+                  },
+                  {
+                    "key": "purposes",
+                    "label": "Processing purposes",
+                    "type": "text"
+                  },
+                  {
+                    "key": "stakes",
+                    "label": "Processing stakes",
+                    "type": "text"
+                  },
+                  {
+                    "key": "controller",
+                    "label": "Controller",
+                    "type": "text"
+                  },
+                  {
+                    "key": "processor",
+                    "label": "Processor(s)",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "description": "Appdaemon is a local automation runtime deployed in a Smartotum smart home. It executes user-defined automation scripts triggered by home events (e.g., sensors, device state changes, schedules) and can issue commands to devices through Smartotum controllers.",
+                    "purposes": "Provide the home automation service requested by the user (event-driven and scheduled actions), support safety and comfort (e.g., alerts, presence-based automations), and ensure reliability through operational logging and troubleshooting.",
+                    "stakes": "Home events and automation logs can reveal personal habits (presence and routines). Unauthorized access or misconfiguration could lead to privacy breaches or unsafe device actions.",
+                    "controller": "Household Data Controller (the Primary Data Controller of the application in the Privacy Dashboard).",
+                    "processor": "Smartotum local controllers running Appdaemon and connected services (e.g., Home Assistant), operating within the smart home."
+                  }
+                ],
+                "addOrDeleteRowsEnabled": true
+              },
+              {
+                "table_key": "sector_standards",
+                "title": "Sector-specific standards applicable to the processing",
+                "columns": [
+                  {
+                    "key": "standards",
+                    "label": "Standards applicable to the processing",
+                    "type": "text"
+                  },
+                  {
+                    "key": "consideration",
+                    "label": "Consideration",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "standards": "GDPR principles (lawfulness, transparency, minimization, storage limitation); CNIL PIA methodology; OWASP recommendations for web/API security (as guidance).",
+                    "consideration": "Used as reference to define privacy-by-design and security-by-design controls. The deployment follows a local-first approach where possible."
+                  }
+                ],
+                "addOrDeleteRowsEnabled": true
+              }
+            ]
+          },
+          {
+            "subsection_key": "data_processes_assets",
+            "label": "1.2 Data, processes and supporting assets",
+            "tables": [
+              {
+                "table_key": "data_description_recipients_storage",
+                "title": "Data description, recipients and storage durations",
+                "columns": [
+                  {
+                    "key": "data_types",
+                    "label": "Data types",
+                    "type": "text"
+                  },
+                  {
+                    "key": "recipients",
+                    "label": "Recipients",
+                    "type": "text"
+                  },
+                  {
+                    "key": "storage_duration",
+                    "label": "Storage duration",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "data_types": "Device identifiers and metadata (UUIDs, device type, room/area references)",
+                    "recipients": "Appdaemon runtime and Smartotum controllers; Data Controller via the Privacy Dashboard",
+                    "storage_duration": "Stored while the application is installed and the smart home is managed; removed on uninstall/account deletion"
+                  },
+                  {
+                    "data_types": "Automation configuration (scripts, schedules, thresholds, policy settings)",
+                    "recipients": "Data Controller; Appdaemon runtime",
+                    "storage_duration": "Stored until modified or the application is removed"
+                  },
+                  {
+                    "data_types": "Operational events and logs (timestamps, triggers executed, error messages)",
+                    "recipients": "Data Controller for troubleshooting; local controllers",
+                    "storage_duration": "Rotating logs, e.g., 30 days (configurable)"
+                  },
+                  {
+                    "data_types": "Presence/occupancy signals (only when used by configured automations)",
+                    "recipients": "Local automation engine only",
+                    "storage_duration": "Not persisted by default; if persisted, short cache (<= 24 hours)"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": true
+              },
+              {
+                "table_key": "processes_supporting_assets",
+                "title": "Description of the processes and supporting assets",
+                "columns": [
+                  {
+                    "key": "processes",
+                    "label": "Processes",
+                    "type": "text"
+                  },
+                  {
+                    "key": "process_description",
+                    "label": "Detailed description of the process",
+                    "type": "text"
+                  },
+                  {
+                    "key": "data_supporting_assets",
+                    "label": "Data supporting assets",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "processes": "Event collection",
+                    "process_description": "Receive and filter events from Smartotum services and connected devices based on configured automations",
+                    "data_supporting_assets": "Smartotum DHT, home network (Wi-Fi/Ethernet), local controller"
+                  },
+                  {
+                    "processes": "Decision and automation execution",
+                    "process_description": "Evaluate conditions (time windows, device states, presence) and execute the corresponding automation scripts",
+                    "data_supporting_assets": "Appdaemon runtime, scheduler, automation scripts/configuration"
+                  },
+                  {
+                    "processes": "Actuation",
+                    "process_description": "Send commands to devices via Smartotum controllers (e.g., switch on/off, start/stop actions)",
+                    "data_supporting_assets": "Smartotum controllers, device topics and APIs"
+                  },
+                  {
+                    "processes": "Logging and auditing",
+                    "process_description": "Store minimal logs of executed automations and errors for debugging and accountability",
+                    "data_supporting_assets": "Local filesystem/DB, platform logs (optional)"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_key": "study_of_fundamental_principles",
+        "label": "2 Study of the fundamental principles",
+        "subsections": [
+          {
+            "subsection_key": "assessment_controls_proportionality_necessity",
+            "label": "2.1 Assessment of the controls guaranteeing the proportionality and necessity of the processing",
+            "tables": [
+              {
+                "table_key": "explanation_and_justification_of_purposes",
+                "title": "Explanation and justification of purposes",
+                "columns": [
+                  {
+                    "key": "purposes",
+                    "label": "Purposes",
+                    "type": "text"
+                  },
+                  {
+                    "key": "legitimacy",
+                    "label": "Legitimacy",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "purposes": "Home automation (core service)",
+                    "legitimacy": "Necessary to provide the automation service explicitly requested by the Data Subject in the smart home"
+                  },
+                  {
+                    "purposes": "Service security and troubleshooting",
+                    "legitimacy": "Legitimate interest to maintain reliability, prevent abuse, and investigate incidents with minimal and time-limited logs"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": true
+              },
+              {
+                "table_key": "explanation_and_justification_of_lawfulness",
+                "title": "Explanation and justification of lawfulness",
+                "columns": [
+                  {
+                    "key": "lawfulness_criteria",
+                    "label": "Lawfulness criteria",
+                    "type": "text"
+                  },
+                  {
+                    "key": "applicable",
+                    "label": "Applicable",
+                    "type": "text"
+                  },
+                  {
+                    "key": "justification",
+                    "label": "Justification",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "lawfulness_criteria": "The data subject has given consent to the processing of his or her personal data for one or more specific purposes",
+                    "applicable": "Yes (for optional/consent-based features)",
+                    "justification": "Where processing goes beyond what is strictly necessary for core automation, it is enabled only after explicit consent in the Privacy Dashboard. Consent can be withdrawn at any time."
+                  },
+                  {
+                    "lawfulness_criteria": "Processing is necessary for the performance of a contract to which the data subject is party or in order to take steps at the request of the data subject prior to entering into a contract",
+                    "applicable": "Yes (core)",
+                    "justification": "Processing is required to execute the automation service requested by the Data Subject (event ingestion, rule execution, and device control)."
+                  },
+                  {
+                    "lawfulness_criteria": "Processing is necessary for compliance with a legal obligation to which the controller is subject",
+                    "applicable": "No",
+                    "justification": "No specific legal obligation has been identified for this prototype."
+                  },
+                  {
+                    "lawfulness_criteria": "Processing is necessary in order to protect the vital interests of the data subject or of another natural person",
+                    "applicable": "No",
+                    "justification": "Not designed for emergency medical processing; safety automations are user-configured."
+                  },
+                  {
+                    "lawfulness_criteria": "Processing is necessary for the performance of a task carried out in the public interest or in the exercise of official authority vested in the controller",
+                    "applicable": "No",
+                    "justification": "Not applicable."
+                  },
+                  {
+                    "lawfulness_criteria": "Processing is necessary for the purposes of the legitimate interests pursued by the controller or by a third party, except where such interests are overridden by the interests or fundamental rights and freedoms of the data subject which require protection of personal data, in particular where the data subject is a child",
+                    "applicable": "Yes (security/operations)",
+                    "justification": "Limited operational monitoring and logs are processed to ensure security and availability. Data is minimized and retained for a limited time."
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "explanation_and_justification_of_data_minimization",
+                "title": "Explanation and justification of data minimization",
+                "columns": [
+                  {
+                    "key": "data_processed",
+                    "label": "Details about the data processed",
+                    "type": "text"
+                  },
+                  {
+                    "key": "data_categories",
+                    "label": "Data categories",
+                    "type": "text"
+                  },
+                  {
+                    "key": "justification",
+                    "label": "Justification of the need and relevance of the data",
+                    "type": "text"
+                  },
+                  {
+                    "key": "minimization_controls",
+                    "label": "Minimization controls",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "data_processed": "Device UUIDs, topics, and room references",
+                    "data_categories": "Technical identifiers",
+                    "justification": "Required to address devices and execute automations correctly",
+                    "minimization_controls": "Use pseudonymous UUIDs; scope data to the selected home; avoid storing unnecessary labels"
+                  },
+                  {
+                    "data_processed": "Automation logs (trigger, timestamp, action outcome)",
+                    "data_categories": "Usage and operational logs",
+                    "justification": "Needed for troubleshooting and accountability",
+                    "minimization_controls": "Do not store sensitive payloads; rotate logs; configurable retention"
+                  },
+                  {
+                    "data_processed": "Presence status (home/away) when enabled by the user",
+                    "data_categories": "Inferred data",
+                    "justification": "Used only for presence-based automations configured by the user",
+                    "minimization_controls": "Optional feature; compute locally; short-lived cache; can be disabled at any time"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": true
+              },
+              {
+                "table_key": "explanation_and_justification_of_data_quality",
+                "title": "Explanation and justification of data quality",
+                "columns": [
+                  {
+                    "key": "data_quality_controls",
+                    "label": "Data quality controls",
+                    "type": "text"
+                  },
+                  {
+                    "key": "justification",
+                    "label": "Justification",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "data_quality_controls": "Validate incoming events and configurations; apply sanity checks on timestamps and formats",
+                    "justification": "Prevents incorrect actions and improves reliability"
+                  },
+                  {
+                    "data_quality_controls": "Periodic synchronization with Smartotum device registry to avoid stale device references",
+                    "justification": "Ensures device identifiers and metadata remain accurate and up-to-date"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": true
+              },
+              {
+                "table_key": "explanation_and_justification_of_storage_durations",
+                "title": "Explanation and justification of storage durations",
+                "columns": [
+                  {
+                    "key": "data_types",
+                    "label": "Data types",
+                    "type": "text"
+                  },
+                  {
+                    "key": "storage_duration",
+                    "label": "Storage duration",
+                    "type": "text"
+                  },
+                  {
+                    "key": "justification_storage_duration",
+                    "label": "Justification of the storage duration",
+                    "type": "text"
+                  },
+                  {
+                    "key": "erasure_mechanism",
+                    "label": "Erasure mechanism at the end of the storage duration",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "data_types": "Common data",
+                    "storage_duration": "Until application uninstall or account deletion",
+                    "justification_storage_duration": "Required for operation and configuration of automations",
+                    "erasure_mechanism": "Deleted on uninstall; manual deletion via dashboard; periodic cleanup tasks"
+                  },
+                  {
+                    "data_types": "Archived data",
+                    "storage_duration": "Not used by default; if enabled for incident response: up to 90 days",
+                    "justification_storage_duration": "Short-term investigation and accountability",
+                    "erasure_mechanism": "Automatic purge after the retention period"
+                  },
+                  {
+                    "data_types": "Functional traces",
+                    "storage_duration": "",
+                    "justification_storage_duration": "",
+                    "erasure_mechanism": ""
+                  },
+                  {
+                    "data_types": "Technical logs",
+                    "storage_duration": "",
+                    "justification_storage_duration": "",
+                    "erasure_mechanism": ""
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "assessment_of_the_controls",
+                "title": "Assessment of the controls",
+                "columns": [
+                  {
+                    "key": "controls_guaranteeing_proportionality_necessity",
+                    "label": "Controls guaranteeing the proportionality and necessity of the processing",
+                    "type": "text"
+                  },
+                  {
+                    "key": "acceptable",
+                    "label": "Acceptable/can be improved on?",
+                    "type": "text"
+                  },
+                  {
+                    "key": "corrective_controls",
+                    "label": "Corrective controls",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "controls_guaranteeing_proportionality_necessity": "Purposes: specified, explicit and legitimate",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_guaranteeing_proportionality_necessity": "Basis: lawfulness of processing, prohibition of misuse",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_guaranteeing_proportionality_necessity": "Data minimization: adequate, relevant and limited",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_guaranteeing_proportionality_necessity": "Data quality: accurate and kept up-to-date",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_guaranteeing_proportionality_necessity": "Storage durations: limited",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              }
+            ]
+          },
+          {
+            "subsection_key": "assessment_of_controls_data_subjects_rights",
+            "label": "2.2 Assessment of controls protecting data subjects' rights",
+            "tables": [
+              {
+                "table_key": "controls_for_information",
+                "title": "Determination and description of the controls for information for the data subjects",
+                "columns": [
+                  {
+                    "key": "controls_right_to_information",
+                    "label": "Controls for the right to information",
+                    "type": "text"
+                  },
+                  {
+                    "key": "implementation",
+                    "label": "Implementation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "justification",
+                    "label": "Implementation justification or justification why not",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "controls_right_to_information": "Presentation of the terms & conditions for use/confidentiality",
+                    "implementation": "Provided via the application Privacy Notice and documentation in the Privacy Dashboard",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  },
+                  {
+                    "controls_right_to_information": "Possibility of accessing the terms & conditions for use/confidentiality",
+                    "implementation": "Provided via the application Privacy Notice and documentation in the Privacy Dashboard",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  },
+                  {
+                    "controls_right_to_information": "Legible and easy-to-understand terms",
+                    "implementation": "Privacy Notice uses short sentences and structured sections; UI provides previews",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  },
+                  {
+                    "controls_right_to_information": "Existence of clauses specific to the device",
+                    "implementation": "Device-specific details are documented where applicable (device type, actions, and constraints)",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  },
+                  {
+                    "controls_right_to_information": "Detailed presentation of the data processing purposes (specified objectives, data matching where applicable, etc.)",
+                    "implementation": "Purposes are documented in the Privacy Notice and in the PIA tables (processing overview)",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  },
+                  {
+                    "controls_right_to_information": "Detailed presentation of the personal data collected",
+                    "implementation": "Data categories and storage durations are documented in the PIA (data description table)",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  },
+                  {
+                    "controls_right_to_information": "Presentation of any access to the identifiers of the device, the smartphone/tablet or computer, by specifying whether these identifiers are communicated to third parties",
+                    "implementation": "Device UUIDs are used as pseudonymous identifiers; no third-party sharing by default",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  },
+                  {
+                    "controls_right_to_information": "Presentation of the user's rights (consent withdrawal, data erasure, etc.)",
+                    "implementation": "Rights requests and consent withdrawal are supported by the Privacy Dashboard",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  },
+                  {
+                    "controls_right_to_information": "Information on the secure data storage method, particularly in the event of sourcing",
+                    "implementation": "Data is stored locally where possible; access requires authentication and uses TLS in transit",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  },
+                  {
+                    "controls_right_to_information": "Arrangements for contacting the company (identity and contact details) about confidentiality issues",
+                    "implementation": "Provided via the application Privacy Notice and documentation in the Privacy Dashboard",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  },
+                  {
+                    "controls_right_to_information": "Where applicable, information for the user on any change concerning the data collected, the purposes and confidentiality clauses",
+                    "implementation": "Provided via the application Privacy Notice and documentation in the Privacy Dashboard",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  },
+                  {
+                    "controls_right_to_information": "Detailed presentation of the purposes of transmission to third parties",
+                    "implementation": "Not applicable in the default deployment (no third-party transmission)",
+                    "justification": "No third parties are involved by default; integrations must be documented if introduced"
+                  },
+                  {
+                    "controls_right_to_information": "Detailed presentation of the personal data transmitted to third parties",
+                    "implementation": "Not applicable in the default deployment (no third-party transmission)",
+                    "justification": "No third parties are involved by default; integrations must be documented if introduced"
+                  },
+                  {
+                    "controls_right_to_information": "Indication of the identity of third-party bodies",
+                    "implementation": "Not specified",
+                    "justification": "Transparency obligations (GDPR, fairness and transparency principle)"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "controls_for_obtaining_consent",
+                "title": "Determination and description of the controls for obtaining consent",
+                "columns": [
+                  {
+                    "key": "controls_obtaining_consent",
+                    "label": "Controls for obtaining consent",
+                    "type": "text"
+                  },
+                  {
+                    "key": "implementation",
+                    "label": "Implementation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "justification",
+                    "label": "Implementation justification or justification why not",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "controls_obtaining_consent": "Express consent during registration",
+                    "implementation": "Explicit consent selection is provided in the Privacy Dashboard for each application consent",
+                    "justification": "Consent must be specific, informed, and withdrawable when used as legal basis"
+                  },
+                  {
+                    "controls_obtaining_consent": "Consent segmented per data category or processing type",
+                    "implementation": "Consents are managed per application and per consent content/category",
+                    "justification": "Consent must be specific, informed, and withdrawable when used as legal basis"
+                  },
+                  {
+                    "controls_obtaining_consent": "Express consent prior to sharing data with other users",
+                    "implementation": "Explicit consent selection is provided in the Privacy Dashboard for each application consent",
+                    "justification": "Consent must be specific, informed, and withdrawable when used as legal basis"
+                  },
+                  {
+                    "controls_obtaining_consent": "Consent presented in an intelligible and easily accessible form, using clear and plain language adapted to the target user (particularly for children)",
+                    "implementation": "UI presents consent text clearly and links to the Privacy Notice",
+                    "justification": "Consent must be specific, informed, and withdrawable when used as legal basis"
+                  },
+                  {
+                    "controls_obtaining_consent": "Obtaining parents' consent for minors under 13 years of age",
+                    "implementation": "Not implemented (not in scope for this prototype)",
+                    "justification": "Target environment assumes adult household accounts"
+                  },
+                  {
+                    "controls_obtaining_consent": "For a new user, consent must once again be obtained",
+                    "implementation": "Consents are requested when the user first manages the application",
+                    "justification": "Consent must be specific, informed, and withdrawable when used as legal basis"
+                  },
+                  {
+                    "controls_obtaining_consent": "After a long period without use, the user must be asked to confirm his/her consent",
+                    "implementation": "Not implemented; could be added as a periodic re-consent policy",
+                    "justification": "Out of scope"
+                  },
+                  {
+                    "controls_obtaining_consent": "Where the user has consented to the processing of special data (e.g. his/her location), the interface clearly indicates that said processing takes place (icon, light)",
+                    "implementation": "If special categories are processed (e.g., presence), the dashboard highlights it via consent text",
+                    "justification": "Consent must be specific, informed, and withdrawable when used as legal basis"
+                  },
+                  {
+                    "controls_obtaining_consent": "Where the user changes device, smartphone or computer, reinstalls the mobile app or deletes his/her cookies, the settings associated with his/her consent are maintained",
+                    "implementation": "Consent state is stored server-side; re-login restores the current state",
+                    "justification": "Consent must be specific, informed, and withdrawable when used as legal basis"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "controls_for_rights_of_access",
+                "title": "Determination and description of the controls for the rights of access",
+                "columns": [
+                  {
+                    "key": "controls_right_of_access",
+                    "label": "Controls for the right of access",
+                    "type": "text"
+                  },
+                  {
+                    "key": "internal_data",
+                    "label": "Internal data",
+                    "type": "text"
+                  },
+                  {
+                    "key": "external_data",
+                    "label": "External data",
+                    "type": "text"
+                  },
+                  {
+                    "key": "justification",
+                    "label": "Justification",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "controls_right_of_access": "Possibility of accessing all of the user's personal data, via the common interfaces",
+                    "internal_data": "Supported via the Privacy Dashboard (view and export of managed information, consents, and policies)",
+                    "external_data": "Not applicable by default (no external processors)",
+                    "justification": "Provide data subjects with access to their information"
+                  },
+                  {
+                    "controls_right_of_access": "Possibility of securely consulting the traces of use associated with the user",
+                    "internal_data": "Supported via the Privacy Dashboard (view and export of managed information, consents, and policies)",
+                    "external_data": "Not applicable by default (no external processors)",
+                    "justification": "Provide data subjects with access to their information"
+                  },
+                  {
+                    "controls_right_of_access": "Possibility of downloading an archive of all the personal data associated with the user",
+                    "internal_data": "Supported via the Privacy Dashboard (view and export of managed information, consents, and policies)",
+                    "external_data": "Not applicable by default (no external processors)",
+                    "justification": "Provide data subjects with access to their information"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "controls_for_rights_of_data_portability",
+                "title": "Determination and description of the controls for the rights of data portability",
+                "columns": [
+                  {
+                    "key": "controls_right_of_portability",
+                    "label": "Controls for the right to data portability",
+                    "type": "text"
+                  },
+                  {
+                    "key": "internal_data",
+                    "label": "Internal data",
+                    "type": "text"
+                  },
+                  {
+                    "key": "external_data",
+                    "label": "External data",
+                    "type": "text"
+                  },
+                  {
+                    "key": "justification",
+                    "label": "Justification",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "controls_right_of_portability": "Possibility of retrieving, in an easily reusable format, personal data provided by the user, so as to transfer them to another service",
+                    "internal_data": "Export of relevant data in a structured format (JSON) can be provided on request",
+                    "external_data": "Not applicable by default",
+                    "justification": "Portability applies to data provided by the user where applicable"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "controls_for_rights_of_rectification_and_erasure",
+                "title": "Determination and description of the controls for the rights to rectification and erasure",
+                "columns": [
+                  {
+                    "key": "controls_right_of_rectification_and_erasure",
+                    "label": "Controls for the rights to rectification and erasure",
+                    "type": "text"
+                  },
+                  {
+                    "key": "internal_data",
+                    "label": "Internal data",
+                    "type": "text"
+                  },
+                  {
+                    "key": "external_data",
+                    "label": "External data",
+                    "type": "text"
+                  },
+                  {
+                    "key": "justification",
+                    "label": "Justification",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "controls_right_of_rectification_and_erasure": "Possibility of rectifying personal data",
+                    "internal_data": "Supported via the Privacy Dashboard (updates to assignments/documents and deletion of managed records)",
+                    "external_data": "Local controller data can be deleted by uninstalling the application and clearing logs",
+                    "justification": "Allow correction and deletion where feasible"
+                  },
+                  {
+                    "controls_right_of_rectification_and_erasure": "Possibility of erasing personal data",
+                    "internal_data": "Supported via the Privacy Dashboard (updates to assignments/documents and deletion of managed records)",
+                    "external_data": "Local controller data can be deleted by uninstalling the application and clearing logs",
+                    "justification": "Allow correction and deletion where feasible"
+                  },
+                  {
+                    "controls_right_of_rectification_and_erasure": "Indication of the personal data that will nevertheless be stored (technical requirements, legal obligations, etc.)",
+                    "internal_data": "Only technical identifiers may remain in backups for a limited retention period",
+                    "external_data": "Backups are rotated and deleted automatically",
+                    "justification": "Allow correction and deletion where feasible"
+                  },
+                  {
+                    "controls_right_of_rectification_and_erasure": "Implementing the right to be forgotten for minors",
+                    "internal_data": "Not implemented (not in scope)",
+                    "external_data": "Not implemented (not in scope)",
+                    "justification": "Prototype assumes adult accounts"
+                  },
+                  {
+                    "controls_right_of_rectification_and_erasure": "Clear indications and simple steps for erasing data before scrapping the device",
+                    "internal_data": "Supported via the Privacy Dashboard (updates to assignments/documents and deletion of managed records)",
+                    "external_data": "Local controller data can be deleted by uninstalling the application and clearing logs",
+                    "justification": "Allow correction and deletion where feasible"
+                  },
+                  {
+                    "controls_right_of_rectification_and_erasure": "Advice given about resetting the device before selling it",
+                    "internal_data": "Supported via the Privacy Dashboard (updates to assignments/documents and deletion of managed records)",
+                    "external_data": "Local controller data can be deleted by uninstalling the application and clearing logs",
+                    "justification": "Allow correction and deletion where feasible"
+                  },
+                  {
+                    "controls_right_of_rectification_and_erasure": "Possibility of erasing the data in the event the device is stolen",
+                    "internal_data": "Supported via the Privacy Dashboard (updates to assignments/documents and deletion of managed records)",
+                    "external_data": "Local controller data can be deleted by uninstalling the application and clearing logs",
+                    "justification": "Allow correction and deletion where feasible"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "controls_for_rights_of_restriction_and_objection",
+                "title": "Determination and description of the controls for the rights to restriction of processing and to object ",
+                "columns": [
+                  {
+                    "key": "controls_right_of_restriction_and_objection",
+                    "label": "Controls for the rights to restriction and to object",
+                    "type": "text"
+                  },
+                  {
+                    "key": "internal_data",
+                    "label": "Internal data",
+                    "type": "text"
+                  },
+                  {
+                    "key": "external_data",
+                    "label": "External data",
+                    "type": "text"
+                  },
+                  {
+                    "key": "justification",
+                    "label": "Justification",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "controls_right_of_restriction_and_objection": "Existence of 'Privacy' settings",
+                    "internal_data": "Privacy settings are implemented through consent management and policy translation rules",
+                    "external_data": "Not applicable",
+                    "justification": "Provide mechanisms to restrict processing and to object where applicable"
+                  },
+                  {
+                    "controls_right_of_restriction_and_objection": "Invitation to change the default settings",
+                    "internal_data": "Privacy settings are implemented through consent management and policy translation rules",
+                    "external_data": "Not applicable",
+                    "justification": "Provide mechanisms to restrict processing and to object where applicable"
+                  },
+                  {
+                    "controls_right_of_restriction_and_objection": "'Privacy' settings accessible during registration",
+                    "internal_data": "Privacy settings are implemented through consent management and policy translation rules",
+                    "external_data": "Not applicable",
+                    "justification": "Provide mechanisms to restrict processing and to object where applicable"
+                  },
+                  {
+                    "controls_right_of_restriction_and_objection": "'Privacy' settings accessible after registration",
+                    "internal_data": "Privacy settings are implemented through consent management and policy translation rules",
+                    "external_data": "Not applicable",
+                    "justification": "Provide mechanisms to restrict processing and to object where applicable"
+                  },
+                  {
+                    "controls_right_of_restriction_and_objection": "Existence of a parental control system for children under 13 years of age",
+                    "internal_data": "Not implemented (not in scope)",
+                    "external_data": "Not implemented (not in scope)",
+                    "justification": "Prototype assumes adult accounts"
+                  },
+                  {
+                    "controls_right_of_restriction_and_objection": "Compliance in terms of tracking (cookies, advertising, etc.)",
+                    "internal_data": "The platform does not perform advertising tracking; session cookies are used for authentication",
+                    "external_data": "Not applicable",
+                    "justification": "Provide mechanisms to restrict processing and to object where applicable"
+                  },
+                  {
+                    "controls_right_of_restriction_and_objection": "Exclusion of children under 13 years of age from automated profiling",
+                    "internal_data": "Not implemented (not in scope)",
+                    "external_data": "Not implemented (not in scope)",
+                    "justification": "Prototype assumes adult accounts"
+                  },
+                  {
+                    "controls_right_of_restriction_and_objection": "Effective exclusion of processing the user's data in the event consent is withdrawn",
+                    "internal_data": "Withdrawing consent enforces a deny policy and disables related processing",
+                    "external_data": "Policy is propagated to the Smartotum DHT",
+                    "justification": "Provide mechanisms to restrict processing and to object where applicable"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "controls_applicable_to_processors",
+                "title": "Determination and description of the controls applicable to processors",
+                "columns": [
+                  {
+                    "key": "processor_name",
+                    "label": "Processor's name",
+                    "type": "text"
+                  },
+                  {
+                    "key": "purpose",
+                    "label": "Purpose",
+                    "type": "text"
+                  },
+                  {
+                    "key": "scope",
+                    "label": "Scope",
+                    "type": "text"
+                  },
+                  {
+                    "key": "contract_reference",
+                    "label": "Contract reference",
+                    "type": "text"
+                  },
+                  {
+                    "key": "compliance_art28",
+                    "label": "Compliance with Art.28",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [],
+                "addOrDeleteRowsEnabled": true
+              },
+              {
+                "table_key": "controls_transfer_data_outside_eu",
+                "title": "Determination and description of the controls on transfer of data outside the European Union",
+                "columns": [
+                  {
+                    "key": "data_sets_storage_location",
+                    "label": "Data sets and storage location",
+                    "type": "text"
+                  },
+                  {
+                    "key": "france",
+                    "label": "France",
+                    "type": "text"
+                  },
+                  {
+                    "key": "eu",
+                    "label": "EU",
+                    "type": "text"
+                  },
+                  {
+                    "key": "outside_eu_adequate_country",
+                    "label": "Country recognized as providing adequate protection by the EU",
+                    "type": "text"
+                  },
+                  {
+                    "key": "other_country",
+                    "label": "Other country",
+                    "type": "text"
+                  },
+                  {
+                    "key": "justification_supervision",
+                    "label": "Justification and supervision (standard contractual clauses, internal corporate regulations)",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "data_sets_storage_location": "Default deployment is local-first (smart home) and Smartotum pod access uses authenticated HTTPS",
+                    "france": "N/A",
+                    "eu": "Yes (assumed)",
+                    "outside_eu_adequate_country": "N/A",
+                    "other_country": "N/A",
+                    "justification_supervision": "No transfers outside EU in the default deployment"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": true
+              },
+              {
+                "table_key": "assessment_controls_data_subjects_rights",
+                "title": "Assessment of the controls",
+                "columns": [
+                  {
+                    "key": "controls_right_data_subjects",
+                    "label": "Controls to protect the rights of data subjects",
+                    "type": "text"
+                  },
+                  {
+                    "key": "acceptable",
+                    "label": "Acceptable/can be improved on?",
+                    "type": "text"
+                  },
+                  {
+                    "key": "corrective_controls",
+                    "label": "Corrective controls",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "controls_right_data_subjects": "Information for the data subjects (fair and transparent processing)",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_right_data_subjects": "Obtaining consent",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_right_data_subjects": "Exercising the rights of access and to data portability",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_right_data_subjects": "Exercising the rights to rectification and erasure",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_right_data_subjects": "Exercising the rights to restriction of processing and to object",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_right_data_subjects": "Processors: identified and governed by a contract",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_right_data_subjects": "Transfers: compliance with the obligations bearing on transfer of data outside the European Union",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_key": "study_of_data_security_risks",
+        "label": "3 Study of data security risks",
+        "subsections": [
+          {
+            "subsection_key": "assessment_security_controls",
+            "label": "3.1 Assessment of security controls",
+            "tables": [
+              {
+                "table_key": "assessment_controls_risks_security",
+                "title": "Description and assessment of controls implemented for treating the risks related to data security",
+                "columns": [
+                  {
+                    "key": "controls_data_processed",
+                    "label": "Controls bearing specifically on the data being processed",
+                    "type": "text"
+                  },
+                  {
+                    "key": "implementation_or_justification",
+                    "label": "Implementation or justification why not",
+                    "type": "text"
+                  },
+                  {
+                    "key": "acceptable",
+                    "label": "Acceptable/can be improved on?",
+                    "type": "text"
+                  },
+                  {
+                    "key": "corrective_controls",
+                    "label": "Corrective controls",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "controls_data_processed": "Encryption",
+                    "implementation_or_justification": "Communications use HTTPS/TLS in transit. Data is stored locally where possible; disk-level encryption is recommended for the controller host. Access tokens are required for Smartotum DHT access.",
+                    "acceptable": "Partially",
+                    "corrective_controls": "Enforce encryption-at-rest requirements in deployment guidelines"
+                  },
+                  {
+                    "controls_data_processed": "Anonymization",
+                    "implementation_or_justification": "Device UUIDs are used as pseudonymous identifiers. Automation logs avoid storing sensitive payloads beyond what is required for troubleshooting.",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_data_processed": "Data partitioning (in relation to the rest of the information system)",
+                    "implementation_or_justification": "Processing is scoped per smart home. Services can be containerized and isolated from the rest of the home network. Access controls prevent cross-home data access.",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_data_processed": "Logical access control",
+                    "implementation_or_justification": "Role-based access control is enforced (Data Subject, Data Controller, DPO). Authenticated sessions and bearer tokens are required for protected operations.",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_data_processed": "Traceability (logging)",
+                    "implementation_or_justification": "Actions such as consent changes and rule changes are logged with timestamps. Operational logs are rotated and retained for a limited time.",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_data_processed": "Integrity monitoring",
+                    "implementation_or_justification": "Input validation is applied on API requests and configuration updates. Backups support recovery from accidental or malicious changes.",
+                    "acceptable": "Partially",
+                    "corrective_controls": "Add automated integrity checks for critical configuration files"
+                  },
+                  {
+                    "controls_data_processed": "Archiving",
+                    "implementation_or_justification": "Archiving is disabled by default; if enabled, access is restricted and retention is limited",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "controls_data_processed": "Paper document security",
+                    "implementation_or_justification": "Not applicable (digital-only processing)",
+                    "acceptable": "Not applicable",
+                    "corrective_controls": ""
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "assessment_general_security_controls",
+                "title": "Description and assessment of general security controls",
+                "columns": [
+                  {
+                    "key": "general_security_controls",
+                    "label": "General security controls regarding the system in which the processing is carried out",
+                    "type": "text"
+                  },
+                  {
+                    "key": "implementation_or_justification",
+                    "label": "Implementation or justification why not",
+                    "type": "text"
+                  },
+                  {
+                    "key": "acceptable",
+                    "label": "Acceptable/can be improved on?",
+                    "type": "text"
+                  },
+                  {
+                    "key": "corrective_controls",
+                    "label": "Corrective controls",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "general_security_controls": "Operating security",
+                    "implementation_or_justification": "Regular updates of OS and containers; timely security patches",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "general_security_controls": "Clamping down on malicious software",
+                    "implementation_or_justification": "Hardened services and minimal exposed surface; endpoint protection on admin workstations",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "general_security_controls": "Managing workstations",
+                    "implementation_or_justification": "Admin access restricted; auto-lock enabled; strong passwords and least privilege",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "general_security_controls": "Website security",
+                    "implementation_or_justification": "HTTPS/TLS, input validation, and authenticated endpoints; security headers recommended in production",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "general_security_controls": "Backups",
+                    "implementation_or_justification": "Automated backups with rotation; restore procedure tested periodically",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "general_security_controls": "Maintenance",
+                    "implementation_or_justification": "Maintenance access limited to authorized users; changes tracked and reviewed",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "general_security_controls": "Security of computer channels (networks)",
+                    "implementation_or_justification": "Home network segmentation and firewall rules recommended; secure remote access only via authenticated APIs",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "general_security_controls": "Monitoring",
+                    "implementation_or_justification": "Basic monitoring and alerting for service failures; logs reviewed for anomalies",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "general_security_controls": "Physical access control",
+                    "implementation_or_justification": "Controller hardware kept in a secure location within the home; physical access limited",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "general_security_controls": "Hardware security",
+                    "implementation_or_justification": "Secure configuration of the host device; disk encryption recommended; secure backups",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "general_security_controls": "Avoiding sources of risk",
+                    "implementation_or_justification": "Stable power/network; optional UPS; safe placement of hardware",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "general_security_controls": "Protecting against non-human sources of risks",
+                    "implementation_or_justification": "Basic environmental protections (heat, humidity, fire safety) as per home deployment",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "assessment_organizational_controls",
+                "title": "Description and assessment of organizational controls (governance)",
+                "columns": [
+                  {
+                    "key": "organizational_controls",
+                    "label": "Organizational controls (governance)",
+                    "type": "text"
+                  },
+                  {
+                    "key": "implementation_or_justification",
+                    "label": "Implementation or justification why not",
+                    "type": "text"
+                  },
+                  {
+                    "key": "acceptable",
+                    "label": "Acceptable/can be improved on?",
+                    "type": "text"
+                  },
+                  {
+                    "key": "corrective_controls",
+                    "label": "Corrective controls",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "organizational_controls": "Organization",
+                    "implementation_or_justification": "Roles and responsibilities are defined (owner, managers, DPO)",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "organizational_controls": "Policy (management of rules)",
+                    "implementation_or_justification": "Privacy and security policies are documented; changes to rules and consents are logged",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "organizational_controls": "Risk management",
+                    "implementation_or_justification": "PIA is maintained and reviewed; risks are assessed and mitigations tracked",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "organizational_controls": "Project management",
+                    "implementation_or_justification": "Changes are reviewed and tested; CI pipeline validates core workflows",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "organizational_controls": "Management of incidents and data breaches",
+                    "implementation_or_justification": "Incident response procedure defined; logs support investigation and notification when required",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "organizational_controls": "Personnel management",
+                    "implementation_or_justification": "Access is granted only to authorized personnel; basic security awareness expected",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "organizational_controls": "Relations with third parties",
+                    "implementation_or_justification": "Third-party integrations are not required by default; when used, agreements and documentation apply",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  },
+                  {
+                    "organizational_controls": "Supervision",
+                    "implementation_or_justification": "Periodic reviews of assignments, consents, and security settings",
+                    "acceptable": "Yes",
+                    "corrective_controls": ""
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              }
+            ]
+          },
+          {
+            "subsection_key": "risk_assessment_privacy_breaches",
+            "label": "3.2 Risk assessment: potential privacy breaches",
+            "tables": [
+              {
+                "table_key": "analysis_assessment_risks",
+                "title": "Analysis and assessment of risks",
+                "columns": [
+                  {
+                    "key": "risk",
+                    "label": "Risk",
+                    "type": "text"
+                  },
+                  {
+                    "key": "main_risk_sources",
+                    "label": "Main risk sources",
+                    "type": "text"
+                  },
+                  {
+                    "key": "main_threats",
+                    "label": "Main threats",
+                    "type": "text"
+                  },
+                  {
+                    "key": "main_potential_impacts",
+                    "label": "Main potential impacts",
+                    "type": "text"
+                  },
+                  {
+                    "key": "main_controls",
+                    "label": "Main controls reducing the severity and likelihood",
+                    "type": "text"
+                  },
+                  {
+                    "key": "severity",
+                    "label": "Severity",
+                    "type": "text"
+                  },
+                  {
+                    "key": "likelihood",
+                    "label": "Likelihood",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "risk": "Illegitimate access to data",
+                    "main_risk_sources": "Compromised credentials, leaked access tokens, network attacker",
+                    "main_threats": "Unauthorized API access and access to local logs/configuration",
+                    "main_potential_impacts": "Privacy breach; unauthorized device control; safety impact",
+                    "main_controls": "TLS, authentication and RBAC, limited retention, logging and monitoring",
+                    "severity": "High",
+                    "likelihood": "Medium"
+                  },
+                  {
+                    "risk": "Unwanted change of data",
+                    "main_risk_sources": "Malicious insider, misconfiguration, software vulnerability",
+                    "main_threats": "Tampering with rules, consents, or configuration",
+                    "main_potential_impacts": "Incorrect automations; denial of service; unsafe behaviors",
+                    "main_controls": "Access control, input validation, audit logs, backups and restore",
+                    "severity": "Medium",
+                    "likelihood": "Medium"
+                  },
+                  {
+                    "risk": "Disappearance of data",
+                    "main_risk_sources": "Disk failure, accidental deletion, ransomware",
+                    "main_threats": "Loss of configuration and logs",
+                    "main_potential_impacts": "Service disruption; inability to audit events",
+                    "main_controls": "Backups, rotation, restore procedures, minimal dependencies",
+                    "severity": "Medium",
+                    "likelihood": "Low"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "assessment_of_risks",
+                "title": "Assessment of the risks",
+                "columns": [
+                  {
+                    "key": "risks",
+                    "label": "Risks",
+                    "type": "text"
+                  },
+                  {
+                    "key": "acceptable",
+                    "label": "Acceptable/can be improved on?",
+                    "type": "text"
+                  },
+                  {
+                    "key": "corrective_controls",
+                    "label": "Corrective controls",
+                    "type": "text"
+                  },
+                  {
+                    "key": "residual_severity",
+                    "label": "Residual severity",
+                    "type": "text"
+                  },
+                  {
+                    "key": "residual_likelihood",
+                    "label": "Residual likelihood",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "risks": "Illegitimate access to data",
+                    "acceptable": "Acceptable with current controls; improve by adding MFA for privileged users",
+                    "corrective_controls": "Introduce MFA and periodic token rotation; harden remote access",
+                    "residual_severity": "Medium",
+                    "residual_likelihood": "Low"
+                  },
+                  {
+                    "risks": "Unwanted change of data",
+                    "acceptable": "Acceptable; changes are logged and reversible via backups",
+                    "corrective_controls": "Add stricter validation and optional approval workflow for critical changes",
+                    "residual_severity": "Low",
+                    "residual_likelihood": "Low"
+                  },
+                  {
+                    "risks": "Disappearance of data",
+                    "acceptable": "Acceptable; backups reduce the impact of data loss",
+                    "corrective_controls": "Periodic backup restore tests; consider redundant storage",
+                    "residual_severity": "Low",
+                    "residual_likelihood": "Low"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_key": "validation_of_pia",
+        "label": "4 Validation of the PIA",
+        "subsections": [
+          {
+            "subsection_key": "preparation_material_validation",
+            "label": "4.1 Preparation of the material required for validation",
+            "tables": [
+              {
+                "table_key": "synthesis_compliance_gdpr",
+                "title": "Elaboration of the synthesis regarding compliance with GDPR of the controls selected to ensure compliance with the fundamental principles",
+                "columns": [
+                  {
+                    "key": "controls_compliance_fundamental_principles",
+                    "label": "Controls selected to ensure compliance with the fundamental principles",
+                    "type": "text"
+                  },
+                  {
+                    "key": "assessment",
+                    "label": "Assessment",
+                    "type": "select",
+                    "options": [
+                      "Unsatisfactory",
+                      "Planned improvement",
+                      "Acceptable"
+                    ]
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "controls_compliance_fundamental_principles": "Purpose(s): specified, explicit and legitimate",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_compliance_fundamental_principles": "Basis: lawfulness of processing, prohibition of misuse",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_compliance_fundamental_principles": "Data minimization: adequate, relevant and limited",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_compliance_fundamental_principles": "Quality of data: accurate and kept up-to-date",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_compliance_fundamental_principles": "Storage durations: limited",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_compliance_fundamental_principles": "Information for the data subjects (fair and transparent processing)",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_compliance_fundamental_principles": "Obtaining consent",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_compliance_fundamental_principles": "Exercising the right of access and right to data portability",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_compliance_fundamental_principles": "Exercising the rights to rectification and erasure",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_compliance_fundamental_principles": "Exercising the rights to restriction of processing and to object",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_compliance_fundamental_principles": "Processors: identified and governed by a contract",
+                    "assessment": "Not applicable (local processing; no external processor by default)"
+                  },
+                  {
+                    "controls_compliance_fundamental_principles": "Transfers: compliance with the obligations bearing on transfer of data outside the European Union",
+                    "assessment": "Not applicable (no transfers outside EU in default deployment)"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "synthesis_compliance_security_practices",
+                "title": "Elaboration of the synthesis regarding compliance with good security practices of controls implemented for treating the risks related to data security ",
+                "columns": [
+                  {
+                    "key": "controls_risks_data_security",
+                    "label": "Controls implemented for treating the risks related to data security",
+                    "type": "text"
+                  },
+                  {
+                    "key": "assessment",
+                    "label": "Assessment",
+                    "type": "select",
+                    "options": [
+                      "Unsatisfactory",
+                      "Planned improvement",
+                      "Acceptable"
+                    ]
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "controls_risks_data_security": "Encryption",
+                    "assessment": "Partially satisfactory (TLS in transit; at-rest encryption depends on deployment)"
+                  },
+                  {
+                    "controls_risks_data_security": "Anonymization",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Data partitioning (in relation to the rest of the information system)",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Logical access control",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Traceability (logging)",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Integrity monitoring",
+                    "assessment": "Partially satisfactory (validation and backups; automated integrity checks can be improved)"
+                  },
+                  {
+                    "controls_risks_data_security": "Archiving",
+                    "assessment": "Not applicable"
+                  },
+                  {
+                    "controls_risks_data_security": "Paper document security",
+                    "assessment": "Not applicable"
+                  },
+                  {
+                    "controls_risks_data_security": "Operating security",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Clamping down on malicious software",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Managing workstations",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Website security",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Backups",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Maintenance",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Security of computer channels (networks)",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Monitoring",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Physical access control",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Hardware security",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Avoiding sources of risk",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Protecting against non-human sources of risks",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Organization",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Policy (management of rules)",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Risk management",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Project management",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Management of incidents and data breaches",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Personnel management",
+                    "assessment": "Satisfactory"
+                  },
+                  {
+                    "controls_risks_data_security": "Relations with third parties",
+                    "assessment": "Satisfactory (not required by default; documented when applicable)"
+                  },
+                  {
+                    "controls_risks_data_security": "Supervision",
+                    "assessment": "Satisfactory"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "elaboration_action_plan",
+                "title": "Elaboration of action plan",
+                "columns": [
+                  {
+                    "key": "additional_controls_requested",
+                    "label": "Additional controls requested",
+                    "type": "text"
+                  },
+                  {
+                    "key": "manager",
+                    "label": "Manager",
+                    "type": "text"
+                  },
+                  {
+                    "key": "frequency",
+                    "label": "Frequency",
+                    "type": "text"
+                  },
+                  {
+                    "key": "difficulty",
+                    "label": "Difficulty",
+                    "type": "text"
+                  },
+                  {
+                    "key": "cost",
+                    "label": "Cost",
+                    "type": "text"
+                  },
+                  {
+                    "key": "progress",
+                    "label": "Progress",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "additional_controls_requested": "Enable multi-factor authentication for privileged accounts (Data Controller owner/managers)",
+                    "manager": "Platform administrator",
+                    "frequency": "Once",
+                    "difficulty": "Medium",
+                    "cost": "Low",
+                    "progress": "Planned"
+                  },
+                  {
+                    "additional_controls_requested": "Automate periodic review of log retention and backup restore tests",
+                    "manager": "Platform administrator",
+                    "frequency": "Quarterly",
+                    "difficulty": "Low",
+                    "cost": "Low",
+                    "progress": "Planned"
+                  }
+                ],
+                "addOrDeleteRowsEnabled": true
+              },
+              {
+                "table_key": "documentation_advice_data_protection",
+                "title": "Documentation of the advice of the person in charge of 'Data Protection' aspects",
+                "columns": [
+                  {
+                    "key": "content",
+                    "label": "Content",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "content": "The PIA was reviewed from a data protection perspective. Recommendations: use short retention for operational logs, document any third-party integration, and enforce stronger authentication (e.g., MFA) for privileged users."
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              },
+              {
+                "table_key": "documentation_view_data_subjects",
+                "title": "Documentation of the view of data subjects or their representatives",
+                "columns": [
+                  {
+                    "key": "content",
+                    "label": "Content",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "content": "Data subjects expect local-first processing and clear control over consents and automation policies. They require transparency on what data is processed and how to withdraw consent."
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              }
+            ]
+          },
+          {
+            "subsection_key": "formal_validation_pia",
+            "label": "4.2 Formal validation of the PIA",
+            "tables": [
+              {
+                "table_key": "documentation_validation",
+                "title": "Documentation of the validation",
+                "columns": [
+                  {
+                    "key": "content",
+                    "label": "Content",
+                    "type": "text"
+                  }
+                ],
+                "initial_rows": [
+                  {
+                    "content": "PIA validated by the Primary Data Controller for this application on 2026-03-03."
+                  }
+                ],
+                "addOrDeleteRowsEnabled": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,5 +1,7 @@
 import React from "react";
 import { Button, Badge, Row, Col, Card } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { useApp } from "../../contexts/AppsContext";
 
 interface Detail {
   name: string;
@@ -24,6 +26,7 @@ interface TriggerAction {
 interface Rule {
   db_id: number;
   consent_uuid?: string | null;
+  consent_application_uuid?: string | null;
   type: string;
   effect: string; // "permit" or "deny"
   subject: string;
@@ -46,6 +49,15 @@ const RuleList: React.FC<RuleListProps> = ({
   onDownload,
   onCheck,
 }) => {
+  const navigate = useNavigate();
+  const { setSelectedAppUUID } = useApp();
+
+  const openConsentApp = (applicationUuid: string | null | undefined) => {
+    if (!applicationUuid) return;
+    setSelectedAppUUID(applicationUuid);
+    navigate("/installed-apps");
+  };
+
   const renderDetails = (details: Detail[]) => {
     if (!details || details.length === 0) return null;
     return (
@@ -61,6 +73,23 @@ const RuleList: React.FC<RuleListProps> = ({
             displayValue = d.value.replace(/[\[\]'"]/g, "");
           } else if (typeof d.value === "object" && d.value) {
             displayValue = d.value.name || JSON.stringify(d.value);
+          }
+
+          const isDeviceDetail =
+            (typeof d.type === "string" &&
+              (d.type.toLowerCase() === "device" ||
+                d.type.toLowerCase() === "entity")) ||
+            (typeof d.name === "string" && d.name.toLowerCase().includes("device"));
+          if (isDeviceDetail) {
+            const trimmed =
+              typeof displayValue === "string" ? displayValue.trim() : displayValue;
+            if (
+              displayValue === null ||
+              displayValue === undefined ||
+              (typeof displayValue === "string" && trimmed === "")
+            ) {
+              displayValue = "Any";
+            }
           }
 
           return (
@@ -100,9 +129,34 @@ const RuleList: React.FC<RuleListProps> = ({
                   <Badge
                     bg="secondary"
                     className="me-2"
-                    title={`Consent rule (managed automatically)\nConsent UUID: ${rule.consent_uuid}`}
+                    role={rule.consent_application_uuid ? "button" : undefined}
+                    tabIndex={rule.consent_application_uuid ? 0 : undefined}
+                    style={
+                      rule.consent_application_uuid
+                        ? { cursor: "pointer", textUnderlineOffset: "2px" }
+                        : undefined
+                    }
+                    title={
+                      rule.consent_application_uuid
+                        ? `Consent rule (managed automatically)\nClick to open the related app\nConsent UUID: ${rule.consent_uuid}`
+                        : `Consent rule (managed automatically)\nConsent UUID: ${rule.consent_uuid}`
+                    }
+                    onClick={() => openConsentApp(rule.consent_application_uuid)}
+                    onKeyDown={(e) => {
+                      if (!rule.consent_application_uuid) return;
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        openConsentApp(rule.consent_application_uuid);
+                      }
+                    }}
                   >
                     CONSENT RULE
+                    {rule.consent_application_uuid ? (
+                      <i
+                        className="fa-solid fa-arrow-up-right-from-square ms-1"
+                        aria-hidden="true"
+                      ></i>
+                    ) : null}
                   </Badge>
                 )}
                 <span className="fw-bold text-dark">
@@ -150,7 +204,7 @@ const RuleList: React.FC<RuleListProps> = ({
                       disabled={!!rule.consent_uuid}
                       title={
                         rule.consent_uuid
-                          ? "This rule is linked to a consent and cannot be deleted"
+                          ? "Cannot delete consent related rule"
                           : "Delete"
                       }
                       onClick={() => {
@@ -178,7 +232,11 @@ const RuleList: React.FC<RuleListProps> = ({
 
                 <Col md={6} className="mb-1 border-start">
                   <h6 className="text-uppercase text-secondary fw-bold small mb-1">
-                    Then Execute This
+                    {rule.effect === "permit"
+                      ? "Then Allow This"
+                      : rule.effect === "deny"
+                        ? "Then Deny This"
+                        : "Then Execute This"}
                   </h6>
                   <div className="fw-bold fs-6">
                     {rule.action?.name || rule.action?.description}

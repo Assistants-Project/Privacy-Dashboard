@@ -44,14 +44,14 @@ async function getInstalledApplications(smartHomeUuid: string, applicationUuid?:
 
 }
 
-async function createApplication(name: string,description?: string,availableConsents?: string[]): Promise<unknown> {
+async function createApplication(id: string,title: string,description?: string,availableConsents?: string[]): Promise<unknown> {
   
   const payload: {
-    name: string;
+    id: string;
+    title: string;
     description?: string;
     available_consents?: string[];
-  } = { name };
-
+  } = { id, title };
   if (description !== undefined) {
     payload.description = description;
   }

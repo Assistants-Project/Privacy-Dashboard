@@ -46,11 +46,27 @@ type PdfDownloadButtonProps = {
   documentType?: string;
 };
 
+const toSafeFilenamePart = (value: string): string => {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "_")
+    .replace(/\./g, "_")
+    .replace(/[^\w.-]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+};
+
 function PdfDownloadButton({
   htmlContent,
   applicationName,
   documentType,
 }: PdfDownloadButtonProps) {
+  const now = new Date();
+  const safeDocumentType = toSafeFilenamePart(documentType ?? "document");
+  const safeApplicationName = toSafeFilenamePart(applicationName || "application");
+  const safeDate = now.toLocaleDateString().replace(/\//g, "_");
+  const safeTime = now.toLocaleTimeString().replace(/:/g, "_").replace(/\s+/g, "_");
+
   return (
     <>
       <PDFDownloadLink
@@ -80,7 +96,7 @@ function PdfDownloadButton({
             </Page>
           </Document>
         }
-        fileName={`${documentType?.toLowerCase().replace(/\s+/g, "_")}_${new Date().toLocaleDateString().replace(/\//g, "_")}_${new Date().toLocaleTimeString().replace(/:/g, "_")}.pdf`}
+        fileName={`${safeDocumentType}_${safeApplicationName}_${safeDate}_${safeTime}.pdf`}
         className="btn circular-button me-2"
       >
         <i className="fa-solid fa-download"></i>

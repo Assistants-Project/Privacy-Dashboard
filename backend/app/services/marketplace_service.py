@@ -20,7 +20,7 @@ from ..repositories import (
 
 class MarketplaceService:
     @staticmethod
-    def ingest_marketplace_application(
+    def register_marketplace_application(
         application_id: str,
         title: str,
         owner_email: str,
@@ -104,46 +104,13 @@ class MarketplaceService:
             normalized_application_id
         )
         if existing_application:
+            # Create only mode: once the app exists, the Privacy Dashboard becomes the source of truth
+            # (including delegates and available consents). The marketplace can
+            # safely send again the payload without overwriting local edits.
             if existing_application.owner_user_id != owner_data_controller.id:
                 raise ApplicationAlreadyExistsException(
                     f"Application with id '{normalized_application_id}' already exists with a different owner!"
                 )
-
-            existing_description = (
-                existing_application.description.strip()
-                if isinstance(existing_application.description, str)
-                else None
-            )
-            if (
-                existing_application.title != normalized_title
-                or existing_description != normalized_description
-            ):
-                raise ApplicationAlreadyExistsException(
-                    f"Application with id '{normalized_application_id}' already exists with different metadata!"
-                )
-
-            expected_data_controller_ids = {
-                owner_data_controller.id,
-                *[delegate.id for delegate in delegate_data_controllers],
-            }
-            existing_data_controller_ids = (
-                ApplicationRepository.get_data_controller_user_ids_for_application(
-                    existing_application.id
-                )
-            )
-            if existing_data_controller_ids != expected_data_controller_ids:
-                raise ApplicationAlreadyExistsException(
-                    f"Application with id '{normalized_application_id}' already exists with different delegates!"
-                )
-
-            existing_available_consents = {
-                consent.content for consent in existing_application.available_consents
-            }
-            if existing_available_consents != set(normalized_available_consents):
-                raise ApplicationAlreadyExistsException(
-                    f"Application with id '{normalized_application_id}' already exists with different consents!"
-                )
-
             return False
 
         try:

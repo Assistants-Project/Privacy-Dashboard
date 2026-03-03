@@ -8,7 +8,8 @@ export enum DocumentStatus {
 }
 
 export type CreateApplicationRequest = {
-    name: string;
+    id: string;
+    title: string;
     description?: string;
     available_consents?: string[];
 };

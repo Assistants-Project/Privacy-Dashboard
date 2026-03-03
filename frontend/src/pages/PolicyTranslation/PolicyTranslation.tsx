@@ -151,7 +151,7 @@ function PolicyTranslation() {
             <>
               {view === "list" ? (
                 <>
-                  <Card className="h-100 p-0">
+                  <Card className="h-100 p-0 overflow-hidden" style={{ borderColor: "var(--border-strong)" }}>
                     <Card.Header className="bg-white d-flex align-items-center">
                       <div className="fw-semibold">Policy Translation</div>
                       <div className="ms-auto">

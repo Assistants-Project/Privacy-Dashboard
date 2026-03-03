@@ -87,9 +87,9 @@
     "data_controllers_email": ["controller.smartotum@example.com"],
     "available_consents": [
       {
-        "content": "processing of personal information to provide the service",
-        "sifis_action_id": "sifis_all_video_actions"
-      }
+	        "content": "processing of personal information to provide the service",
+	        "sifis_action_id": "sifis_record_video_action"
+	      }
     ]
   },
   {

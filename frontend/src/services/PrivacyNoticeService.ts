@@ -104,9 +104,10 @@ export const handleSubmitPrivacyNotice = async (
 export const handleRemovePrivacyNotice = async (applicationUuid: string) => {
   try {
     await removePrivacyNoticeByManagedApplicationUuid(applicationUuid);
-    console.log("Existing privacy notice deleted.");
+    console.log("Existing privacy notice removed from application.");
   } catch (err) {
-    console.error("Error deleting privacy notice:", err);
+    console.error("Error removing privacy notice:", err);
+    throw err;
   }
 };
 

@@ -9,11 +9,14 @@ type AppCreationPanelProps = {
   onHide: () => void;
 };
 
+const MANUAL_APP_ID_PREFIX = "com.privacydashboard.";
+
 function AppCreationPanel({ show, onHide }: AppCreationPanelProps) {
   const { user, isDataController } = useAuth();
   const { createManagedApplication } = useApp();
 
   const [name, setName] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [consentInput, setConsentInput] = useState<string>("");
   const [availableConsents, setAvailableConsents] = useState<string[]>([]);
@@ -23,6 +26,7 @@ function AppCreationPanel({ show, onHide }: AppCreationPanelProps) {
   useEffect(() => {
     if (!show) return;
     setName("");
+    setTitle("");
     setDescription("");
     setConsentInput("");
     setAvailableConsents([]);
@@ -61,6 +65,7 @@ function AppCreationPanel({ show, onHide }: AppCreationPanelProps) {
     }
 
     const normalizedName = name.trim();
+    const normalizedTitle = title.trim();
     const normalizedDescription = description.trim() === "" ? undefined : description.trim();
     const pendingConsent = consentInput.trim();
     const selectedConsents = [...availableConsents];
@@ -74,7 +79,11 @@ function AppCreationPanel({ show, onHide }: AppCreationPanelProps) {
     }
 
     if (normalizedName === "") {
-      setError("Please provide an application name.");
+      setError("Please provide an application id.");
+      return;
+    }
+    if (normalizedTitle === "") {
+      setError("Please provide an application title.");
       return;
     }
 
@@ -82,7 +91,8 @@ function AppCreationPanel({ show, onHide }: AppCreationPanelProps) {
 
     try {
       await createManagedApplication({
-        name: normalizedName,
+        id: normalizedName,
+        title: normalizedTitle,
         description: normalizedDescription,
         available_consents: selectedConsents.length > 0 ? selectedConsents : undefined,
       });
@@ -97,21 +107,41 @@ function AppCreationPanel({ show, onHide }: AppCreationPanelProps) {
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Create application</Modal.Title>
+        <Modal.Title>Create Application</Modal.Title>
       </Modal.Header>
 
       <Modal.Body className="d-flex flex-column gap-3">
         {error ? <Alert variant="danger" className="mb-0">{error}</Alert> : undefined}
 
         <Form.Group>
-          <Form.Label className="mb-1">Name(*)</Form.Label>
+          <Form.Label className="mb-1">ID(*)</Form.Label>
+          <InputGroup>
+            <InputGroup.Text>{MANUAL_APP_ID_PREFIX}</InputGroup.Text>
+            <Form.Control
+              type="text"
+              placeholder="my-app"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={creating}
+            />
+          </InputGroup>
+          <Form.Text className="text-muted">
+            Only letters, numbers and '-' are allowed.
+          </Form.Text>
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Label className="mb-1">Title</Form.Label>
           <Form.Control
             type="text"
-            placeholder="Application name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            placeholder="Application title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             disabled={creating}
           />
+          <Form.Text className="text-muted">
+            This is the name shown in the dashboard.
+          </Form.Text>
         </Form.Group>
 
         <Form.Group>
@@ -184,7 +214,7 @@ function AppCreationPanel({ show, onHide }: AppCreationPanelProps) {
               Creating…
             </span>
           ) : (
-            "Create application"
+            "Create Application"
           )}
         </Button>
       </Modal.Footer>

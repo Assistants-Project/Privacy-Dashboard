@@ -1,12 +1,11 @@
 import { Card, Col, Container, Row } from "react-bootstrap";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useApp } from "../../contexts/AppsContext";
 import { AppsList } from "../../components/Apps/AppsList";
 import { PrivacyNoticeEditor } from "../../components/PrivacyNotice/PrivacyNoticeEditor";
 
 function PrivacyNotice() {
   const { setSelectedAppUUID, selectedApp } = useApp();
-  const [panelExpanded,setPanelExpanded,] = useState(true);
 
   const closePanel = useCallback(() => {
     setSelectedAppUUID(undefined);
@@ -15,25 +14,25 @@ function PrivacyNotice() {
   return (
     <Container fluid className="py-2 d-flex flex-column overflow-hidden h-100" style={{ minHeight: 0 }}>
       <Row className="g-3 flex-grow-1 overflow-hidden" style={{ minHeight: 0 }}>
-        <Col xs={3} lg={4} className="d-flex flex-column overflow-hidden" style={{ minHeight: 0 }}>
+        <Col xs={2} lg={3} className="d-flex flex-column overflow-hidden pe-0 ps-0" style={{ minHeight: 0 }}>
           <AppsList closePanel={closePanel} getDocumentStatus={(app) => app.pn_status} />
         </Col>
 
-        <Col xs={9} lg={8} className="d-flex flex-column overflow-hidden" style={{ minHeight: 0 }}>
+        <Col xs={10} lg={9} className="d-flex flex-column overflow-hidden ps-0 pe-0" style={{ minHeight: 0 }}>
           {!selectedApp ? (
             <Card className="p-0">
               <Card.Body className="text-muted">
                 Select an app to see the Privacy Notice.
               </Card.Body>
             </Card>
-	          ) : (
-	            <Card className={panelExpanded ? "p-0 overflow-hidden d-flex flex-column flex-grow-1" : "p-0"} style={panelExpanded ? { minHeight: 0 } : undefined}>
-	              <Card.Body className={panelExpanded ? "d-flex flex-column flex-grow-1 gap-3 overflow-hidden" : "d-flex flex-column gap-3"} style={panelExpanded ? { minHeight: 0 } : undefined}>
-	                <PrivacyNoticeEditor closePanel={closePanel} setPanelExpanded={setPanelExpanded} />
-	              </Card.Body>
-	            </Card>
-	          )}
-	        </Col>
+		          ) : (
+		            <Card className="p-0 overflow-hidden d-flex flex-column flex-grow-1" style={{ minHeight: 0 }}>
+		              <Card.Body className="d-flex flex-column flex-grow-1 gap-3 overflow-hidden" style={{ minHeight: 0 }}>
+		                <PrivacyNoticeEditor closePanel={closePanel} />
+		              </Card.Body>
+		            </Card>
+		          )}
+		        </Col>
       </Row>
     </Container>
   );

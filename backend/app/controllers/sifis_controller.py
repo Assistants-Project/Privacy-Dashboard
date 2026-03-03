@@ -5,11 +5,13 @@ from ..utils import ds_required
 from io import BytesIO
 import zipfile
 from pathlib import Path
+from uuid import UUID
 import os
 
 from ..services import OWLService, XACMLService
 from ..services.rule_service import RuleService
 from ..services.petrinet_service import PetriNetService
+from ..repositories import ConsentRepository
 from ..repositories.user_repository import UserRepository
 from ..services.home_service import SmartHomeService
 from ..exceptions.entities.home_exception import SmartHomeNotFoundException, SmartHomeForbiddenException
@@ -198,10 +200,22 @@ def get_rules(current_user, home_uuid):
         # Convert Rule objects to dict for JSON serialization
         rules_data = []
         for rule in rules:
+            consent_application_uuid = None
+            try:
+                if getattr(rule, "consent_uuid", None):
+                    consent = ConsentRepository.get_available_consent_by_uuid(
+                        UUID(str(rule.consent_uuid))
+                    )
+                    if consent and getattr(consent, "application", None):
+                        consent_application_uuid = str(consent.application.uuid)
+            except Exception:
+                consent_application_uuid = None
+
             rule_dict = {
                 "db_id": rule.db_id,
                 "rule_uuid": getattr(rule, "rule_uuid", None),
                 "consent_uuid": getattr(rule, "consent_uuid", None),
+                "consent_application_uuid": consent_application_uuid,
                 "type": rule.type,
                 "effect": rule.effect,
                 "subject": rule.subject,

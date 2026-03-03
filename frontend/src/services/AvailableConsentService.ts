@@ -4,6 +4,7 @@ import {ConsentModel,} from "../models/available_consent";
 type AvailableConsentDto = {
   uuid: string;
   content: string;
+  sifis_action_id?: string | null;
 };
 
 type ConsentStateDto = {
@@ -11,6 +12,7 @@ type ConsentStateDto = {
   content: string;
   given?: boolean;
   given_at?: string | null;
+  sifis_action_id?: string | null;
 };
 
 const normalizeString = (value: unknown): string =>
@@ -32,6 +34,7 @@ const toConsentModel = (dto: ConsentStateDto,): ConsentModel => {
     normalizeString(dto.content),
     normalizeBoolean(dto.given),
     normalizedGivenAt,
+    normalizeOptionalString(dto.sifis_action_id === null ? undefined : dto.sifis_action_id),
   );
 };
 

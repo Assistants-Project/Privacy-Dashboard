@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Card, Col, Container, Form, Row, Stack } from "react-bootstrap";
-import { ExclamationDiamondFill } from "react-bootstrap-icons";
+import { FileEarmarkX } from "react-bootstrap-icons";
 import { useApp } from "../../contexts/AppsContext";
 import { AppModel, DocumentStatus } from "../../models/app";
 
@@ -33,7 +33,7 @@ function AppsList(props: AppsListProps) {
   };
 
   return (
-    <Container fluid className="d-flex flex-column flex-grow-1 gap-3 overflow-hidden"
+    <Container fluid className="d-flex flex-column flex-grow-1 gap-3 overflow-hidden ps-0"
       style={{ minHeight: 0 }}
     >
       <Card className="p-0">
@@ -96,7 +96,17 @@ function AppsList(props: AppsListProps) {
                             {description ? (<div className="text-muted">{description}</div>) : (<div className="text-muted">(no description)</div>)}
                           </Col>
                           <Col xs="auto">
-                            {warning && <Button variant="link" className="text-warning pe-0" onClick={(e) => e.stopPropagation()} aria-label="App details"><ExclamationDiamondFill size={20} /></Button>}
+                            {warning && (
+                              <Button
+                                variant="link"
+                                className="text-danger pe-0"
+                                onClick={(e) => e.stopPropagation()}
+                                aria-label="Missing document"
+                                title="Missing document"
+                              >
+                                <FileEarmarkX size={20} />
+                              </Button>
+                            )}
                           </Col>
                         </Row>
 

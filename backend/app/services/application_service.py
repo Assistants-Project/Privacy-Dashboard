@@ -185,21 +185,23 @@ class ApplicationService:
 
     #Permette ad un DC di creare un app e assegnarla automaticamente a se stesso
     @staticmethod
-    def create_application_managed_by_data_controller(current_user: User,name: str,description: str | None = None,available_consents: list[str] | None = None,) -> ManagedApplicationItem:
+    def create_application_managed_by_data_controller(current_user: User,id: str,title: str,description: str | None = None,available_consents: list[str] | None = None,) -> ManagedApplicationItem:
         
         if current_user.role != UserRole.DATA_CONTROLLER:
             raise WrongUserRoleException("User is not a Data Controller!")
 
-        normalized_name = name.strip()
-        if not normalized_name:
-            raise InvalidApplicationNameException("Application name cannot be blank!")
-        if not re.fullmatch(r"[A-Za-z0-9-]+", normalized_name):
+        normalized_id = id.strip()
+        if not normalized_id:
+            raise InvalidApplicationNameException("Application id cannot be blank!")
+        if not re.fullmatch(r"[A-Za-z0-9-]+", normalized_id):
             raise InvalidApplicationNameException(
-                "Application name can contain only letters, numbers and '-'!"
+                "Application id can contain only letters, numbers and '-'!"
             )
 
-        application_id = f"com.privacydashboard.{normalized_name}"
-        application_title = normalized_name
+        application_id = f"com.privacydashboard.{normalized_id}"
+        application_title = title.strip()
+        if not application_title:
+            raise InvalidApplicationNameException("Application title cannot be blank!")
 
         normalized_description = None
         if isinstance(description, str):
@@ -224,7 +226,7 @@ class ApplicationService:
         )
         if existing_application:
             raise ApplicationAlreadyExistsException(
-                f"Application with name '{application_id}' already exists!"
+                f"Application with id '{application_id}' already exists!"
             )
 
         try:
@@ -244,7 +246,7 @@ class ApplicationService:
             #protezione da race condition (applicazione con lo stesso nome è stata aggiunta dopo
             #l'ultimo controllo)
             raise ApplicationAlreadyExistsException(
-                f"Application with name '{application_id}' already exists!"
+                f"Application with id '{application_id}' already exists!"
             )
 
         return {

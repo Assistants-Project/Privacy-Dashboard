@@ -164,7 +164,7 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
           <Row className="align-items-center">
             <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
               <h5 className="d-inline-block mb-0 ms-1">
-                Questionnaire | {title}
+                Questionnaire {title ? <span className="text-muted">| {title}</span> : null}
               </h5>
               <div className="d-flex align-items-center">
                 {!editMode &&
@@ -334,7 +334,6 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
                         </span>
                       </p>
                       <p>{shownQuestionnaireSummary}</p>
-                      <hr className="my-3" />
                     </Row>
                   )}
                   <div

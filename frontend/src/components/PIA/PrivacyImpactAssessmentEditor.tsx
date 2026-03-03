@@ -208,7 +208,7 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
           <Row className="align-items-center">
             <Col className="d-flex flex-grow-1 justify-content-between align-items-center">
               <h5 className="d-inline-block mb-0 ms-1">
-                Privacy Impact Assessment | {title}
+                Privacy Impact Assessment {title ? <span className="text-muted">| {title}</span> : null}
               </h5>
               <div className="d-flex align-items-center">
                 {hasPia && !editMode && (
@@ -358,16 +358,6 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
                   className="d-flex flex-column flex-grow-1"
                   style={{ minHeight: 0 }}
                 >
-                  {hasPia && (
-                    <>
-                      <Row className="g-1">
-                        <Col>
-                          <h5 className="mb-0">PIA content:</h5>
-                        </Col>
-                      </Row>
-                      <hr className="my-3" />
-                    </>
-                  )}
                   <div
                     className="flex-grow-1 overflow-auto"
                     style={{ minHeight: 0, height: 0 }}
@@ -376,14 +366,14 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
                       pia.content.sections.map((section: any) => (
                         <Card key={section.section_key} className="p-0 mb-3">
                           <Card.Body>
-                            <h4 className="mb-3">{section.label}</h4>
+                            <h4 className="mb-2">{section.label}</h4>
                             {section.subsections?.map((subsection: any) => (
                               <Card
                                 key={subsection.subsection_key}
-                                className="p-0 mb-3"
+                                className="p-0 mb-2"
                               >
                                 <Card.Body>
-                                  <h5 className="mb-3">{subsection.label}</h5>
+                                  <h5 className="mb-2">{subsection.label}</h5>
                                   <Accordion
                                     alwaysOpen
                                     activeKey={activeTableKeys}

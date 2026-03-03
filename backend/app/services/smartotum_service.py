@@ -20,7 +20,7 @@ from ..repositories.user_repository import UserRepository
 from ..exceptions.entities.room_exceptions import RoomNotFoundException
 from ..extensions import db
 from ..integrations.smartotum.client import SmartotumRule
-from typing import List
+from typing import Any, List
 from ..services.consent_policy_rule_service import ConsentPolicyRuleService
 
 class SmartotumService:
@@ -235,6 +235,71 @@ class SmartotumService:
                     )
                 return data_controller
 
+            def get_action_id_from_rule_url(url: str | None) -> str | None:
+                if not url:
+                    return None
+                if "#" in url:
+                    return url.split("#")[-1]
+                return url
+
+            def sync_consent_policy_rule(available_consent: Any, given_at: Any, smart_home: SmartHome, subject_email: str) -> None:
+                desired_action_id = getattr(available_consent, "sifis_action_id", None)
+                base_rule_uuid = cps.consent_rule_uuid(
+                    home_uuid=str(smart_home.uuid),
+                    consent_uuid=available_consent.uuid,
+                )
+                existing_rule = cps._rule_service.rule_repo.get_rule_by_uuid(base_rule_uuid)
+                existing_action_url = None
+                if existing_rule and getattr(existing_rule, "actions", None):
+                    try:
+                        existing_action_url = existing_rule.actions[0].url
+                    except Exception:
+                        existing_action_url = None
+                existing_action_id = get_action_id_from_rule_url(existing_action_url)
+
+                # If consent is given OR mapping is missing, make sure consent rule is not present.
+                if given_at is not None or not desired_action_id:
+                    if existing_rule:
+                        action_id_for_delete = desired_action_id or existing_action_id
+                        if not action_id_for_delete:
+                            raise SmartotumSyncException(
+                                f"Cannot cleanup consent rule for consent {available_consent.uuid}: missing action id"
+                            )
+                        cps.delete_consent_deny_rule(
+                            smart_home=smart_home,
+                            consent_uuid=available_consent.uuid,
+                            sifis_action_id=action_id_for_delete,
+                            access_token=access_token,
+                        )
+                    return
+
+                # Consent not given and mapping exists: ensure rule exists and matches the desired action.
+                if existing_rule:
+                    if existing_action_id != desired_action_id:
+                        action_id_for_delete = existing_action_id or desired_action_id
+                        cps.delete_consent_deny_rule(
+                            smart_home=smart_home,
+                            consent_uuid=available_consent.uuid,
+                            sifis_action_id=action_id_for_delete,
+                            access_token=access_token,
+                        )
+                        cps.create_consent_deny_rule(
+                            smart_home=smart_home,
+                            subject_email=subject_email,
+                            consent_uuid=available_consent.uuid,
+                            sifis_action_id=desired_action_id,
+                            access_token=access_token,
+                        )
+                    return
+
+                cps.create_consent_deny_rule(
+                    smart_home=smart_home,
+                    subject_email=subject_email,
+                    consent_uuid=available_consent.uuid,
+                    sifis_action_id=desired_action_id,
+                    access_token=access_token,
+                )
+
             cps = ConsentPolicyRuleService()
 
             # for every home owned by the user
@@ -344,17 +409,11 @@ class SmartotumService:
                         user.id, found_home.id, application.id
                     )
                     for available_consent, given_at in consent_rows:
-                        if given_at is not None:
-                            continue
-                        action_id = getattr(available_consent, "sifis_action_id", None)
-                        if not action_id:
-                            continue
-                        cps.create_consent_deny_rule(
-                            smart_home=found_home,
-                            subject_email=user.email,
-                            consent_uuid=available_consent.uuid,
-                            sifis_action_id=action_id,
-                            access_token=access_token,
+                        sync_consent_policy_rule(
+                            available_consent,
+                            given_at,
+                            found_home,
+                            user.email,
                         )
                 
             #commit at the end to revert easily

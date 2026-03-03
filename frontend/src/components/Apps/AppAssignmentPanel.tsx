@@ -135,8 +135,8 @@ function AppAssignmentPanel() {
                         setManagerEmail("");
                         setShowAddManagerModal(true);
                       }}
-                      title="Manage managers"
-                      aria-label="Manage managers"
+                      title="Manage Data Controllers"
+                      aria-label="Manage Data Controllers"
                     >
                       <i className="fa-solid fa-pencil" style={{ fontSize: "0.90rem" }}></i>
                     </Button>
@@ -151,14 +151,14 @@ function AppAssignmentPanel() {
                         const isOwnerContact = contact.uuid === selectedApp.owner.uuid;
                         return (
                           <Col xs="auto" className="my-1" key={contact.email}>
-                            <div className="d-inline-flex align-items-center border rounded-pill px-3 py-2">
+                            <div className="d-inline-flex align-items-center border rounded-pill px-2 py-1">
                               {isMine ? (
                                 <span className="fs-6 text-primary fw-semibold">Me</span>
                               ) : (
                                 <span className="fs-6 text-nowrap">{userLabel(contact)}</span>
                               )}
                               {isOwnerContact ? (
-                                <span className="small text-muted ms-1">- Owner</span>
+                                <span className="small text-muted ms-1 text-nowrap">- Owner</span>
                               ) : undefined}
                             </div>
                           </Col>
@@ -231,7 +231,7 @@ function AppAssignmentPanel() {
 
       <Modal show={showAddManagerModal} onHide={() => setShowAddManagerModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Manage Managers</Modal.Title>
+          <Modal.Title>Manage Data Controllers</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Row className="g-3">
@@ -315,7 +315,7 @@ function AppAssignmentPanel() {
 
       <Modal show={showAssignDpoModal} onHide={() => setShowAssignDpoModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Assign DPO</Modal.Title>
+          <Modal.Title>Assign Data Protection Officer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group className="mb-0">
@@ -338,7 +338,7 @@ function AppAssignmentPanel() {
                   <Spinner animation="border" size="sm" />
                   Removing…
                 </span>
-              ) : "Remove DPO"}
+              ) : "Unassign"}
             </Button>
           ) : undefined}
           <Button variant="outline-secondary" onClick={() => setShowAssignDpoModal(false)} disabled={assigningDpo}>

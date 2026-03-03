@@ -96,6 +96,20 @@ def _has_internal_session(token: str) -> bool:
         return False
 
 
+def _is_internal_token(token: str) -> bool:
+    """classification: internal JWT vs Smartotum JWT.
+
+    We must keep this distinct from `_has_internal_session`: an internal token can be
+    valid but expired. In that case we still want to classify it as internal so we
+    return a consistent error instead of falling back to Smartotum decode.
+    """
+    try:
+        decode_token(token, allow_expired=True)
+        return True
+    except (JWTExtendedException, PyJWTError, RuntimeError, KeyError):
+        return False
+
+
 def _ensure_smartotum_claims() -> dict[str, Any]:
     """Ensure Smartotum claims are available for this request."""
 
@@ -128,10 +142,12 @@ def get_current_user_from_claims() -> User:
     if not token:
         raise MissingJWTException("Authentication token missing")
 
-    if _has_internal_session(token):
+    if _is_internal_token(token):
         try:
             claims = decode_token(token)
             user_uuid = UUID(claims["sub"])
+        except ExpiredSignatureError as exc:
+            raise ExpiredJWTException("The JSON Web Token has expired!") from exc
         except (
             JWTExtendedException,
             PyJWTError,
@@ -255,7 +271,7 @@ def unlogged_required():
     return wrapper
 
 
-def marketplace_ingest_required():
+def marketplace_register_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):

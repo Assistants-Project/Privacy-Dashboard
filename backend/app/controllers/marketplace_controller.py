@@ -1,8 +1,8 @@
 from flask_smorest import Blueprint
 
-from ..schemas import MarketplaceApplicationIngestReqSchema
+from ..schemas import MarketplaceApplicationRegisterReqSchema
 from ..services import MarketplaceService
-from ..utils import marketplace_ingest_required
+from ..utils import marketplace_register_required
 
 marketplace_bp = Blueprint(
     "Marketplace API",
@@ -13,9 +13,9 @@ marketplace_bp = Blueprint(
 
 
 @marketplace_bp.route("/marketplace/apps", methods=["POST"])
-@marketplace_bp.arguments(MarketplaceApplicationIngestReqSchema, location="json", as_kwargs=True)
-@marketplace_ingest_required()
-def ingest_marketplace_application(
+@marketplace_bp.arguments(MarketplaceApplicationRegisterReqSchema, location="json", as_kwargs=True)
+@marketplace_register_required()
+def register_marketplace_application(
     id: str,
     name: str,
     owner_email: str,
@@ -23,7 +23,7 @@ def ingest_marketplace_application(
     delegates_email: list[str] | None = None,
     available_consents: list[str] | None = None,
 ):
-    created = MarketplaceService.ingest_marketplace_application(
+    created = MarketplaceService.register_marketplace_application(
         application_id=id,
         title=name,
         owner_email=owner_email,

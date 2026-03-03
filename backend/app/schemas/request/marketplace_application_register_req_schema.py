@@ -3,7 +3,7 @@ from marshmallow import validate
 from ...extensions import ma
 
 
-class MarketplaceApplicationIngestReqSchema(ma.Schema):
+class MarketplaceApplicationRegisterReqSchema(ma.Schema):
     id = ma.String(required=True, allow_none=False)
     name = ma.String(required=True, allow_none=False)
     description = ma.String(required=False, allow_none=True)

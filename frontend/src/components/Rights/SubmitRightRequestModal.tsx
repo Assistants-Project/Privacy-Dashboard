@@ -154,6 +154,7 @@ function SubmitRightRequestModal({
             <Card.Body className="d-flex flex-column gap-2">
               <div className="small text-muted">
                 By sending the request, the selected consent(s) will be automatically revoked.
+                If a consent is linked to a Smart Home action, the platform will also enforce the withdrawal by creating an automatic deny policy in the selected home.
               </div>
               <div className="d-flex justify-content-between align-items-center">
                 <strong>Select consent(s) to withdraw</strong>
@@ -186,7 +187,16 @@ function SubmitRightRequestModal({
                       id={`selected-consent-${givenConsent.uuid}`}
                       checked={selectedConsents.includes(givenConsent.uuid)}
                       onChange={() => toggleSelectedConsent(givenConsent.uuid)}
-                      label={givenConsent.content}
+                      label={
+                        <div>
+                          <div>{givenConsent.content}</div>
+                          {givenConsent.sifis_action_id ? (
+                            <div className="text-muted small mt-1">
+                              Automatic policy: deny <code>{givenConsent.sifis_action_id}</code> in this Smart Home
+                            </div>
+                          ) : undefined}
+                        </div>
+                      }
                     />
                   ))}
                 </div>

@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from ..extensions import db
 from ..exceptions import (
     ApplicationNotFoundException,
+    ApplicationNotManagedException,
     AvailableConsentApplicationMismatchException,
     AvailableConsentEmptyListException,
     AvailableConsentNotFoundException,
@@ -26,9 +27,14 @@ class ConsentStateDict(TypedDict):
     content: str
     given: bool
     given_at: datetime | None
+    sifis_action_id: str | None
 
 
 class ConsentService:
+    @staticmethod
+    def _is_smartotum_application_name(application_name: str) -> bool:
+        return "com.smartotum" in (application_name or "").lower()
+
     @staticmethod
     def add_available_consent_to_managed_application(
         current_user_id: int, application_uuid: UUID, content: str
@@ -53,6 +59,10 @@ class ConsentService:
         if not application:
             raise ApplicationNotFoundException(
                 f"Application with uuid {application_uuid} not found among your managed applications!"
+            )
+        if ConsentService._is_smartotum_application_name(application.name):
+            raise ApplicationNotManagedException(
+                "Consents for Smartotum applications are managed by Smartotum and cannot be edited in the Privacy Dashboard."
             )
 
         normalized_content = content.strip()
@@ -94,6 +104,10 @@ class ConsentService:
         if not application:
             raise ApplicationNotFoundException(
                 f"Application with uuid {application_uuid} not found among your managed applications!"
+            )
+        if ConsentService._is_smartotum_application_name(application.name):
+            raise ApplicationNotManagedException(
+                "Consents for Smartotum applications are managed by Smartotum and cannot be edited in the Privacy Dashboard."
             )
 
         deleted = (
@@ -166,6 +180,7 @@ class ConsentService:
                 "content": available_consent.content,
                 "given": given_at is not None,
                 "given_at": given_at,
+                "sifis_action_id": getattr(available_consent, "sifis_action_id", None),
             }
             for available_consent, given_at in iterator
         ]

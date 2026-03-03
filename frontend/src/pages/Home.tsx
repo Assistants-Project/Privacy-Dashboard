@@ -45,11 +45,11 @@ function Home() {
           </Col>
         </Row>
       ) : undefined}
-      <Row className={hasAppsNeedingAttention ? "flex-grow-1" : undefined} style={hasAppsNeedingAttention ? { minHeight: 0 } : undefined}>
-        <Col className={hasAppsNeedingAttention ? "d-flex flex-column" : undefined} style={hasAppsNeedingAttention ? { minHeight: 0 } : undefined}>
+      <Row>
+        <Col>
           <Container
             fluid
-            className={`border rounded-3 p-3 d-flex flex-column ${hasAppsNeedingAttention ? "h-100" : ""}`}
+            className="border rounded-3 p-3 d-flex flex-column"
             style={sectionStyle}
           >
             <AppsOverviewPanel />

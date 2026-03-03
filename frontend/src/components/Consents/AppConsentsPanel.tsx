@@ -13,7 +13,7 @@ type AppConsentsPanelProps = {
 function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
   const { current_home_uuid } = useHome();
   const { user, isDataSubject, isManagerRole } = useAuth();
-  const { selectedAppUUID, ConsentStatesByAppUUID, loadConsentsByApplication } = useApp();
+  const { selectedApp, selectedAppUUID, ConsentStatesByAppUUID, loadConsentsByApplication } = useApp();
 
   const [showManageConsentsModal, setShowManageConsentsModal] = useState(false);
   const [consentInput, setConsentInput] = useState("");
@@ -244,7 +244,7 @@ function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
               </Col>
             ) : undefined}
 
-            {isManagerRole ? (
+            {isManagerRole && !((selectedApp?.name ?? "").toLowerCase().includes("com.smartotum")) ? (
               <Col xs="auto">
                 <Button
                   className="circular-button me-0"
@@ -329,7 +329,7 @@ function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
         </Card.Body>
       </Card>
 
-      {isManagerRole ? (
+      {isManagerRole && !((selectedApp?.name ?? "").toLowerCase().includes("com.smartotum")) ? (
         <Modal show={showManageConsentsModal} onHide={() => setShowManageConsentsModal(false)} centered>
           <Modal.Header closeButton>
             <Modal.Title>Manage Consents</Modal.Title>

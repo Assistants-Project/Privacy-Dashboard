@@ -50,7 +50,7 @@ export function AppsOverviewPanel() {
   }, [appsNeedingAttention, currentPage]);
 
   return (
-    <div className="h-100 d-flex flex-column mb-3">
+    <div className="d-flex flex-column mb-3">
       <Row className="pt-2 mb-2">
         <Col className="d-flex align-items-baseline gap-2">
           <h2 className="mb-0">{isDataSubject ? "Pending Right Requests" : "Apps Overview"}</h2>

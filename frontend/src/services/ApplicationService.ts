@@ -169,14 +169,15 @@ export const removeDataControllerManagerFromApplication = async (applicationUuid
 };
 
 export const createApplicationByDataController = async (payload: CreateApplicationRequest,): Promise<AppModel> => {
-  const name = payload.name;
+  const id = payload.id;
+  const title = payload.title.trim();
   const description = normalizeOptionalString(payload.description);
   const availableConsents = Array.isArray(payload.available_consents)
     ? [...new Set(payload.available_consents.map((consent) => consent.trim()).filter((consent) => consent !== ""))]
     : undefined;
   
     try {
-    const createdApplication = (await createApplication(name,description,
+    const createdApplication = (await createApplication(id,title,description,
       availableConsents && availableConsents.length > 0 ? availableConsents : undefined,
     )) as ApplicationDto;
     return toAppModel(createdApplication);

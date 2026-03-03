@@ -498,7 +498,7 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
                       <option value="">Select Trigger...</option>
                       {triggers.map((t) => (
                         <option key={t.url} value={t.url}>
-                          {t.name} - {t.description}
+                          {t.name || t.description}
                         </option>
                       ))}
                     </Form.Select>
@@ -532,16 +532,7 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
                 <Card.Header>Then (Action)</Card.Header>
                 <Card.Body>
                   <Form.Group className="mb-3">
-                    <Form.Label>
-                      Service{" "}
-                      {actionsLoading && (
-                        <Spinner
-                          animation="border"
-                          size="sm"
-                          className="ms-2"
-                        />
-                      )}
-                    </Form.Label>
+                    <Form.Label>Service</Form.Label>
                     <Form.Select
                       value={selectedActionService}
                       onChange={(e) => {
@@ -558,6 +549,31 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
                     </Form.Select>
                   </Form.Group>
 
+                  <Form.Group className="mb-3">
+                    <Form.Label>
+                      Action{" "}
+                      {actionsLoading && (
+                        <Spinner animation="border" size="sm" className="ms-2" />
+                      )}
+                    </Form.Label>
+                    <Form.Select
+                      value={selectedAction}
+                      onChange={(e) => setSelectedAction(e.target.value)}
+                      disabled={!selectedActionService || actionsLoading}
+                    >
+                      {actions.length === 0 ? (
+                        <option value="">No actions available</option>
+                      ) : undefined}
+                      {actions.map((a) => {
+                        return (
+                          <option key={a.url} value={a.url}>
+                            {a.name || a.description}
+                          </option>
+                        );
+                      })}
+                    </Form.Select>
+                  </Form.Group>
+
                   {/* Action Details */}
                   {actionDetailsLoading && (
                     <div className="text-muted">
@@ -568,7 +584,6 @@ const RuleEditor: React.FC<RuleEditorProps> = ({
                   {actionDetails.length > 0 && !actionDetailsLoading && (
                     <Card className="mb-3 bg-light">
                       <Card.Body>
-                        <h6>Action Details</h6>
                         {actionDetails.map((d) => {
                           const isEntityType = d.type === "entity";
                           let showLabel = true;
