@@ -36,7 +36,7 @@ services:
       PIA_TEMPLATE_PATH: ${PIA_TEMPLATE_PATH:-./config/privacy-impact-assessment-template.json}
       PIA_SCHEMA_PATH: ${PIA_SCHEMA_PATH:-./config/privacy-impact-assessment-schema.json}
       SMARTOTUM_APPLICATIONS_JSON: ${SMARTOTUM_APPLICATIONS_JSON:-./config/smartotum-apps.json}
-      MARKETPLACE_INGEST_TOKEN: ${MARKETPLACE_INGEST_TOKEN:?MARKETPLACE_INGEST_TOKEN is required}
+      MARKETPLACE_INTEGRATION_TOKEN: ${MARKETPLACE_INTEGRATION_TOKEN:?MARKETPLACE_INTEGRATION_TOKEN is required}
     command:
       - sh
       - -c

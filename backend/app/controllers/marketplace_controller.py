@@ -1,6 +1,9 @@
 from flask_smorest import Blueprint
 
-from ..schemas import MarketplaceApplicationRegisterReqSchema
+from ..schemas import (
+    MarketplaceApplicationPatchReqSchema,
+    MarketplaceApplicationRegisterReqSchema,
+)
 from ..services import MarketplaceService
 from ..utils import marketplace_register_required
 
@@ -32,3 +35,14 @@ def register_marketplace_application(
         available_consents=available_consents,
     )
     return "", 201 if created else 204
+
+
+@marketplace_bp.route("/marketplace/apps/<application_id>", methods=["PATCH"])
+@marketplace_bp.arguments(MarketplaceApplicationPatchReqSchema, location="json", as_kwargs=False)
+@marketplace_register_required()
+def patch_marketplace_application(payload, application_id: str):
+    MarketplaceService.patch_marketplace_application_metadata(
+        application_id=application_id,
+        patch=payload,
+    )
+    return "", 204

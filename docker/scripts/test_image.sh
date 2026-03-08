@@ -8,7 +8,7 @@ DEPLOY_ENV_FILE="${DEPLOY_ENV_FILE:-/env/privacydashboard-test.env}"
 export TEST_PROJECT_NAME="privacy-dashboard-demo-test"
 export APP_PORT="15050"
 export APP_IMAGE="privacydashboard-demo-test:${CI_COMMIT_SHORT_SHA:-local}"
-export MARKETPLACE_INGEST_TOKEN="BS4bieIhYQxIREcnBleLx/qqlBvSnPJ4"
+export MARKETPLACE_INTEGRATION_TOKEN="BS4bieIhYQxIREcnBleLx/qqlBvSnPJ4"
 export COMPOSE_PROJECT_NAME="${TEST_PROJECT_NAME}"
 # Default to testing, but allow running the same stack/tests in demo mode as well.
 export FLASK_ENV="${TEST_FLASK_ENV:-testing}"
@@ -58,7 +58,7 @@ NEWMAN_CONTAINER_ID="$(docker create \
   postman/newman:alpine \
   run /etc/newman/collection.json \
   --env-var "baseURL=http://app:5050" \
-  --env-var "marketplace_ingest_token=${MARKETPLACE_INGEST_TOKEN}")"
+  --env-var "marketplace_integration_token=${MARKETPLACE_INTEGRATION_TOKEN}")"
 
 docker cp "${COLLECTION_FILE}" "${NEWMAN_CONTAINER_ID}:/etc/newman/collection.json"
 

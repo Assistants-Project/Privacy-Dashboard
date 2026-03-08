@@ -20,6 +20,9 @@ from .request.message_req_schema import MessageReqSchema
 from .request.marketplace_application_register_req_schema import (
     MarketplaceApplicationRegisterReqSchema,
 )
+from .request.marketplace_application_patch_req_schema import (
+    MarketplaceApplicationPatchReqSchema,
+)
 from .request.privacy_impact_assessment_req_schema import PrivacyImpactAssessmentReqSchema
 from .request.privacy_notice_req_schema import PrivacyNoticeReqSchema
 from .request.questionnaire_req_schema import QuestionnaireReqSchema
@@ -66,6 +69,7 @@ __all__ = [
     "AvailableConsentContentReqSchema",
     "AvailableConsentsReqSchema",
     "MessageReqSchema",
+    "MarketplaceApplicationPatchReqSchema",
     "MarketplaceApplicationRegisterReqSchema",
     "PrivacyImpactAssessmentReqSchema",
     "PrivacyNoticeReqSchema",

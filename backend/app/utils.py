@@ -275,19 +275,19 @@ def marketplace_register_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-            expected_token = current_app.config.get("MARKETPLACE_INGEST_TOKEN")
+            expected_token = current_app.config.get("MARKETPLACE_INTEGRATION_TOKEN")
             if not expected_token:
-                raise InvalidJWTException("Marketplace ingest token not configured")
+                raise InvalidJWTException("Marketplace integration token not configured")
 
             authorization = request.headers.get("Authorization", "")
             if not authorization.startswith("Bearer "):
-                raise MissingJWTException("Marketplace ingest token missing")
+                raise MissingJWTException("Marketplace integration token missing")
 
             provided_token = authorization[len("Bearer ") :].strip()
             if not provided_token or not secrets.compare_digest(
                 provided_token, expected_token
             ):
-                raise InvalidJWTException("Marketplace ingest token is invalid")
+                raise InvalidJWTException("Marketplace integration token is invalid")
 
             return fn(*args, **kwargs)
 

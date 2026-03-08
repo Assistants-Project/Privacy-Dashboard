@@ -56,8 +56,8 @@ SMARTOTUM_DEVICE_TOPICS=domo_light,domo_light_dimmable,domo_rgbw_light,domo_swit
 SMARTOTUM_TIMEOUT=5
 #If set, Smartotum applications are loaded from this local JSON file instead of calling the remote API
 SMARTOTUM_APPLICATIONS_JSON=./config/smartotum-apps.json
-#Token for marketplace ingestion endpoint
-MARKETPLACE_INGEST_TOKEN=<set_a_strong_random_token>
+#Token for marketplace integration endpoints
+MARKETPLACE_INTEGRATION_TOKEN=<set_a_strong_random_token>
 
 #ONTOLOGY
 ONTOLOGY_DIRECTORY=app/ontologies/
@@ -84,7 +84,7 @@ The minimum secrets required for full app functionality are:
 
 - `SECRET_KEY`
 - `JWT_SECRET_KEY`
-- `MARKETPLACE_INGEST_TOKEN`: required only if you use Marketplace ingestion endpoint
+- `MARKETPLACE_INTEGRATION_TOKEN`: required only if you use Marketplace integration endpoints
 
 You can generate all of them at once with:
 
@@ -93,7 +93,7 @@ python - <<'PY'
 import secrets
 print("SECRET_KEY=" + secrets.token_hex(32))
 print("JWT_SECRET_KEY=" + secrets.token_hex(32))
-print("MARKETPLACE_INGEST_TOKEN=" + secrets.token_urlsafe(24))
+print("MARKETPLACE_INTEGRATION_TOKEN=" + secrets.token_urlsafe(24))
 PY
 ```
 
@@ -103,7 +103,7 @@ Alternative (OpenSSL):
 
 ```bash
 openssl rand -hex 32      # SECRET_KEY / JWT_SECRET_KEY
-openssl rand -base64 24   # MARKETPLACE_INGEST_TOKEN
+openssl rand -base64 24   # MARKETPLACE_INTEGRATION_TOKEN
 ```
 
 ### RUN IN DEVELOPMENT
@@ -234,7 +234,7 @@ The app is reachable at `http://localhost:5050` (frontend) and `http://localhost
 ### Endpoint
 
 - `POST /api/integrations/marketplace/apps`
-- Header: `Authorization: Bearer <MARKETPLACE_INGEST_TOKEN>`
+- Header: `Authorization: Bearer <MARKETPLACE_INTEGRATION_TOKEN>`
 
 ### Payload
 
@@ -256,7 +256,7 @@ The app is reachable at `http://localhost:5050` (frontend) and `http://localhost
 ```bash
 curl -X POST "http://localhost:5050/api/integrations/marketplace/apps" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ${MARKETPLACE_INGEST_TOKEN}" \
+  -H "Authorization: Bearer ${MARKETPLACE_INTEGRATION_TOKEN}" \
   -d '{
     "id": "com.marketplace.app1",
     "name": "App1",
@@ -269,11 +269,25 @@ curl -X POST "http://localhost:5050/api/integrations/marketplace/apps" \
   }'
 ```
 
+### Update metadata (PATCH)
+
+- `PATCH /api/integrations/marketplace/apps/<application_id>`
+
+```bash
+curl -X PATCH "http://localhost:5050/api/integrations/marketplace/apps/com.marketplace.app1" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${MARKETPLACE_INTEGRATION_TOKEN}" \
+  -d '{
+    "title": "App1 (new title)",
+    "description": "updated description"
+  }'
+```
+
 ### Response semantics
 
 - `201 Created`: new application created.
-- `204 No Content`: idempotent replay (same app already present with same owner/managers/consents/metadata).
+- `204 No Content`: application already present with the same owner (create-only behavior, no overwrite).
 - `401 Unauthorized`: token missing or invalid.
 - `404 Not Found`: one or more provided emails do not exist in the dashboard.
 - `403 Forbidden`: one or more provided users are not Data Controllers.
-- `409 Conflict`: same app id already exists with different owner or different metadata/delegates/consents.
+- `409 Conflict`: same app id already exists with a different owner.

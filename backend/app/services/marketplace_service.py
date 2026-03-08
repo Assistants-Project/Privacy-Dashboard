@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 from ..exceptions import (
     ApplicationAlreadyExistsException,
+    ApplicationNotFoundException,
     AvailableConsentWrongListException,
     InvalidApplicationNameException,
     UserNotFoundException,
@@ -19,6 +20,62 @@ from ..repositories import (
 
 
 class MarketplaceService:
+    @staticmethod
+    def patch_marketplace_application_metadata(
+        application_id: str,
+        patch: dict,
+    ) -> bool:
+        normalized_application_id = application_id.strip()
+        if not normalized_application_id:
+            raise InvalidApplicationNameException("Application id cannot be blank!")
+        if any(char.isspace() for char in normalized_application_id):
+            raise InvalidApplicationNameException(
+                "Application id must not contain spaces!"
+            )
+        #avoids the endpoint to update an application that is not from the marketplace
+        if not re.fullmatch(r"com\.marketplace\.[a-z0-9-]+", normalized_application_id):
+            raise InvalidApplicationNameException(
+                "Application id must match 'com.marketplace.<slug>' (lowercase letters, numbers, '-')!"
+            )
+
+        application = ApplicationRepository.get_application_by_name(
+            normalized_application_id
+        )
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with id '{normalized_application_id}' not found!"
+            )
+
+        changed = False
+
+        title_update = None
+        if "title" in patch:
+            title_update = patch.get("title")
+        elif "name" in patch:
+            title_update = patch.get("name")
+
+        if title_update is not None:
+            normalized_title = str(title_update).strip()
+            if not normalized_title:
+                raise InvalidApplicationNameException("Application name cannot be blank!")
+            if application.title != normalized_title:
+                application.title = normalized_title
+                changed = True
+
+        if "description" in patch:
+            description = patch.get("description")
+            normalized_description = None
+            if isinstance(description, str):
+                normalized_description = description.strip() or None
+            if application.description != normalized_description:
+                application.description = normalized_description
+                changed = True
+
+        if changed:
+            db.session.commit()
+
+        return changed
+
     @staticmethod
     def register_marketplace_application(
         application_id: str,

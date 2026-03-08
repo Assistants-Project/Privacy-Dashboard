@@ -1,9 +1,7 @@
-# backend/app/integrations/smartotum/jwks.py
 from functools import lru_cache
 from typing import Any
-
 import jwt
-from jwt import PyJWKClient, InvalidTokenError, PyJWKClientError
+from jwt import PyJWKClient, PyJWKClientError
 from flask import current_app
 
 @lru_cache(maxsize=1)

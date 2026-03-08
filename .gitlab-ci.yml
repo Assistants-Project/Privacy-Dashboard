@@ -1,3 +1,16 @@
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "frontend"'
+    - when: never
+
+default:
+  tags:
+    - deploy_demo
+  before_script:
+    - docker version
+    - docker compose version
+
 stages:
   - build
   - test
@@ -6,57 +19,44 @@ stages:
 
 build_image:
   stage: build
-  tags:
-    - deploy_demo
-  before_script:
-    - docker version
-    - docker compose version
   script:
     - bash docker/scripts/create_image_local.sh
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "frontend"'
+    - when: never
 
 test_image:
   stage: test
-  tags:
-    - deploy_demo
   needs:
     - build_image
   variables:
     HEALTHCHECK_INTERVAL_SECONDS: "5"
     HEALTHCHECK_RETRIES: "90"
-  before_script:
-    - docker version
-    - docker compose version
   script:
     - bash docker/scripts/test_image.sh
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "frontend"'
+    - when: never
 
 push_image:
   stage: publish
-  tags:
-    - deploy_demo
   needs:
     - test_image
-  before_script:
-    - docker version
-    - docker compose version
   script:
     - bash docker/scripts/push_image.sh
   rules:
     - if: '$CI_COMMIT_BRANCH == "frontend"'
+    - when: never
 
 deploy_demo:
   stage: deploy
-  tags:
-    - deploy_demo
   needs:
     - push_image
-  before_script:
-    - docker version
-    - docker compose version
+  resource_group: demo-deploy
   script:
     - bash docker/scripts/deploy_demo.sh
   rules:
     - if: '$CI_COMMIT_BRANCH == "frontend"'
+    - when: never

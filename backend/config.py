@@ -31,7 +31,7 @@ class BaseConfig:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     JWT_COOKIE_SECURE = _env_bool("JWT_COOKIE_SECURE", True)
     JWT_SESSION_COOKIE = False
-    JWT_CSRF_METHODS = ["GET", "POST", "PUT", "DELETE"]
+    JWT_CSRF_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"]
     # --- Smartotum ---
     SMARTOTUM_BASE_URL = os.getenv("SMARTOTUM_BASE_URL", "https://api.smartotum.com")
     SMARTOTUM_DHT_URL = os.getenv("SMARTOTUM_DHT_URL", "https://house_name.pods.smartotum.com/.dht/")
@@ -62,8 +62,8 @@ class BaseConfig:
     SMARTOTUM_APPLICATIONS_JSON = os.getenv("SMARTOTUM_APPLICATIONS_JSON", None)
     # If set, Marketplace applications are loaded from this local JSON file (mock) instead of calling a remote API.
     MARKETPLACE_APPLICATIONS_JSON = os.getenv("MARKETPLACE_APPLICATIONS_JSON", None)
-    # Token used by external marketplace to ingest applications through integration endpoint.
-    MARKETPLACE_INGEST_TOKEN = os.getenv("MARKETPLACE_INGEST_TOKEN", None)
+    # Token used by external marketplace to call integration endpoints.
+    MARKETPLACE_INTEGRATION_TOKEN = os.getenv("MARKETPLACE_INTEGRATION_TOKEN", None)
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.getenv("DEV_DATABASE_URI")

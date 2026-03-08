@@ -142,3 +142,4 @@ dist
 .env
 backend/app/ontologies/homes/fixissuesbpoyqq.owl
 docs/RequirementsGapAnalysis.md
+docs_hidden
