@@ -8,6 +8,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { PdfDownloadButton } from "../Utilities/PdfDownloadButton";
 import { ApplyExistingPrivacyNoticeModal } from "./ApplyExistingPrivacyNoticeModal";
 import { PrivacyNoticeHtmlPreview } from "./PrivacyNoticeHtmlPreview";
+import sanitizeHtml from "./sanitizeHtml";
 
 type Props = { closePanel: () => void; setPanelExpanded?: (expanded: boolean) => void };
 
@@ -52,7 +53,10 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
       return;
     }
     try {
-      await handleSubmitPrivacyNotice(selectedAppUUID, value);
+      const safeHtml = sanitizeHtml(value);
+      await handleSubmitPrivacyNotice(selectedAppUUID, safeHtml);
+      setValue(safeHtml);
+      draftRef.current = safeHtml;
       await loadPrivacyNotice(selectedAppUUID, true);
     } catch (err) {
       //find a place where to print it
@@ -100,13 +104,14 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
       setValue("");
       draftRef.current = "";
     } else {
-      // Restore the fetched privacy notice content
+      // Restore the fetched privacy notice content (sanitized)
       const content = pn?.content ?? "";
+      const safeContent = sanitizeHtml(content);
       if (editor) {
-        editor.clipboard?.dangerouslyPasteHTML(0, content);
+        editor.clipboard?.dangerouslyPasteHTML(0, safeContent);
       }
-      setValue(content);
-      draftRef.current = content;
+      setValue(safeContent);
+      draftRef.current = safeContent;
     }
     setEditMode(true);
   };
@@ -114,6 +119,7 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
   const handleInsertTemplate = async () => {
     const templateHtml = await ensureTemplateLoaded();
     if (!templateHtml) return;
+    const safeTemplate = sanitizeHtml(templateHtml);
 
     const editor = (quillRef.current as any)?.getEditor?.();
     if (editor) {
@@ -122,7 +128,7 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
       // an extra empty first line when the editor is still empty and not focused.
       const length = editor.getLength?.() ?? 0;
       const index = selection?.index ?? Math.max(0, length - 1);
-      editor.clipboard?.dangerouslyPasteHTML(index, templateHtml);
+      editor.clipboard?.dangerouslyPasteHTML(index, safeTemplate);
       const nextHtml = editor.root?.innerHTML;
       if (typeof nextHtml === "string") {
         setValue(nextHtml);
@@ -131,7 +137,7 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
       return;
     }
 
-    const merged = value ? `${value}<hr />${templateHtml}` : templateHtml;
+    const merged = value ? `${value}<hr />${safeTemplate}` : safeTemplate;
     setValue(merged);
     draftRef.current = merged;
   };

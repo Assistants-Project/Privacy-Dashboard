@@ -1,5 +1,6 @@
 import { Spinner } from "react-bootstrap";
 import type { CSSProperties } from "react";
+import sanitizeHtml from "./sanitizeHtml";
 
 type Props = {
   content?: string | null;
@@ -12,7 +13,8 @@ type Props = {
 
 function PrivacyNoticeHtmlPreview({ content, loading, emptyText, maxHeight, className, style }: Props) {
   const normalized = typeof content === "string" ? content.trim() : "";
-  const hasContent = normalized !== "";
+  const safe = sanitizeHtml(normalized);
+  const hasContent = safe !== "";
 
   return (
     <div
@@ -23,7 +25,7 @@ function PrivacyNoticeHtmlPreview({ content, loading, emptyText, maxHeight, clas
         <div
           className="ql-editor p-0"
           style={{ padding: 0, overflowY: "visible", height: "auto" }}
-          dangerouslySetInnerHTML={{ __html: normalized }}
+          dangerouslySetInnerHTML={{ __html: safe }}
         />
       ) : loading ? (
         <div className="d-inline-flex align-items-center gap-2 text-muted small">
