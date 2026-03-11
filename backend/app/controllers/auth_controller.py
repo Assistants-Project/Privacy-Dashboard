@@ -1,7 +1,7 @@
 from flask import Response, current_app, jsonify
 from flask_smorest import Blueprint
 
-from ..schemas import AuthReqSchema, RegistrationReqSchema, UserResSchema
+from ..schemas import AuthReqSchema, CurrentUserPatchReqSchema, RegistrationReqSchema, UserResSchema
 from ..services import AuthService
 from ..utils import logged_in_required, unlogged_required, get_current_user_from_claims
 from ..services.home_service import SmartHomeService
@@ -60,6 +60,14 @@ def login(email: str, password: str):
 @logged_in_required()
 def current(current_user):
     return jsonify(UserResSchema().dump(current_user))
+
+@auth_bp.route("/current", methods=["PATCH"])
+@auth_bp.arguments(CurrentUserPatchReqSchema, location="json", as_kwargs=True)
+@auth_bp.response(200, UserResSchema(many=False))
+@logged_in_required()
+def patch_current(current_user, current_password: str, email: str | None = None, new_password: str | None = None):
+    updated_user = AuthService.update_current_user(current_user, current_password, email, new_password)
+    return jsonify(UserResSchema().dump(updated_user))
 
 @auth_bp.route("/current", methods=["DELETE"])
 @auth_bp.response(204, description="User Deleted Succefully")

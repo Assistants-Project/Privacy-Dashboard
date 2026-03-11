@@ -12,13 +12,15 @@ class ConsentRepository:
     #utilizzata sia nel contesto di sync smartotum sia nel caso di creazione di una nuova app
     #non cancella i consensi non più presenti -> bisogna decidere come gestire la cancellazione -> avere is active = false sarebbe la soluzione migliore
     @staticmethod
-    def upsert_available_consents_for_application(application_id: int, available_consent_contents: list[str], sifis_action_id_by_content: dict[str, str] | None = None) -> None:
-
-        if not available_consent_contents:
-            return
-
+    def upsert_available_consents_for_application(
+        application_id: int,
+        available_consent_contents: list[str],
+        sifis_action_id_by_content: dict[str, str] | None = None,
+        prune_missing: bool = False,
+    ) -> None:
         statement = db.select(AvailableConsent).where(AvailableConsent.application_id == application_id)
         existing = {c.content: c for c in db.session.scalars(statement).all()}
+        desired_contents = set(available_consent_contents)
 
         for content in available_consent_contents:
             existing_row = existing.get(content)
@@ -36,6 +38,12 @@ class ConsentRepository:
             )
             db.session.add(new_consent)
             existing[content] = new_consent
+
+        if prune_missing:
+            for content, existing_row in list(existing.items()):
+                if content in desired_contents:
+                    continue
+                db.session.delete(existing_row)
         return
 
     @staticmethod

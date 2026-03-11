@@ -30,6 +30,30 @@ class ConsentStateDict(TypedDict):
     sifis_action_id: str | None
 
 
+def normalize_available_consents_payload(available_consents: list[str] | None, *, deduplicate: bool) -> list[str]:
+    normalized_available_consents: list[str] = []
+    if available_consents is not None:
+        for available_consent in available_consents:
+            if not isinstance(available_consent, str):
+                raise AvailableConsentWrongListException(
+                    "Available consents must be a list of non-empty strings!"
+                )
+            normalized_available_consent = available_consent.strip()
+            if not normalized_available_consent:
+                raise AvailableConsentWrongListException(
+                    "Available consents must be a list of non-empty strings!"
+                )
+            normalized_available_consents.append(normalized_available_consent)
+
+    if deduplicate:
+        return list(dict.fromkeys(normalized_available_consents))
+
+    if len(normalized_available_consents) != len(set(normalized_available_consents)):
+        raise AvailableConsentWrongListException("Duplicate consents selected!")
+
+    return normalized_available_consents
+
+
 class ConsentService:
     @staticmethod
     def _is_smartotum_application_name(application_name: str) -> bool:

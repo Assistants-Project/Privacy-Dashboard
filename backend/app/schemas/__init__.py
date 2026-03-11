@@ -11,9 +11,11 @@ from .request.application_and_user_uuid_req_schema import (
     ApplicationAndUserUuidReqSchema,
 )
 from .request.application_create_req_schema import ApplicationCreateReqSchema
+from .request.application_patch_req_schema import ApplicationPatchReqSchema
 from .request.application_uuid_req_schema import ApplicationUuidReqSchema
 from .request.optional_application_uuid_req_schema import OptionalApplicationUuidReqSchema
 from .request.auth_req_schema import AuthReqSchema
+from .request.current_user_patch_req_schema import CurrentUserPatchReqSchema
 from .request.available_consent_content_req_schema import AvailableConsentContentReqSchema
 from .request.available_consents_req_schema import AvailableConsentsReqSchema
 from .request.message_req_schema import MessageReqSchema
@@ -52,6 +54,7 @@ from .response.privacy_impact_assessment_res_schema import PrivacyImpactAssessme
 from .response.privacy_notice_res_schema import PrivacyNoticeResSchema
 from .response.question_res_schema import QuestionResSchema
 from .response.questionnaire_res_schema import QuestionnaireResSchema
+from .response.refresh_result_res_schema import RefreshResultResSchema
 from .response.request_res_schema import RequestResSchema, RequestSchema
 from .response.room_res_schema import RoomResSchema
 from .response.user_message_res_schema import UserMessageResSchema
@@ -63,9 +66,11 @@ __all__ = [
     "ApplicationAndUserEmailReqSchema",
     "ApplicationAndUserUuidReqSchema",
     "ApplicationCreateReqSchema",
+    "ApplicationPatchReqSchema",
     "ApplicationUuidReqSchema",
     "OptionalApplicationUuidReqSchema",
     "AuthReqSchema",
+    "CurrentUserPatchReqSchema",
     "AvailableConsentContentReqSchema",
     "AvailableConsentsReqSchema",
     "MessageReqSchema",
@@ -93,6 +98,7 @@ __all__ = [
     "PrivacyNoticeResSchema",
     "QuestionResSchema",
     "QuestionnaireResSchema",
+    "RefreshResultResSchema",
     "RequestResSchema",
     "RequestSchema",
     "RoomResSchema",

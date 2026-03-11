@@ -4,8 +4,7 @@ from typing import List
 from uuid import UUID, uuid4
 
 from sqlalchemy import Enum, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...extensions import db
@@ -37,8 +36,16 @@ class Request(db.Model):
         uuid: A unique randomly generated UUID that identifies the request.
         right_type: An enum that represents the type of right requested by the Data Subject.
         additional_information: A text field that represents additional information about the request.
-        selected_consents: An optional list of consent UUIDs selected by the Data Subject
-            when the request type is `WITHDRAW_CONSENT`.
+        selected_consents: An optional snapshot of the consents selected by the Data Subject
+            when the request type is `WITHDRAW_CONSENT`. Each entry stores the consent UUID and
+            its content at submission time for audit purposes.
+        data_subject_user_id: The internal user id of the Data Subject that submitted the request.
+            This is stored to retain an audit trail even if the app is uninstalled and the
+            user-home-app relation is pruned.
+        application_id: The internal application id the request refers to (at submission time).
+            Stored for audit and to query requests without relying on the installed-app relation.
+        smart_home_uuid: The Smartotum smart home UUID where the request was submitted.
+            Stored for audit, even if the corresponding smart home is later detached/pruned.
         response: A text field that represents the response given by the Data Controller or DPO to the request, if any.
         created_at: A datetime object that represents the date and time the request was created.
             It is set to the current date and time by default.
@@ -46,7 +53,7 @@ class Request(db.Model):
             It is set to `None` by default and updated when the request is handled.
         status: An enum that represents the status of the request, either `PENDING` or `HANDLED`.
         user_smart_home_application_relation_id: A foreign key ID of the User-SmartHome-Application combination
-            that submitted the request.
+            that submitted the request. This may become `None` if the relation is pruned.
         user_smart_home_application_relation: A combination of a `User`, a `SmartHome` and an `Application` that
             has submitted the request.
             Represents a many-to-one relationship with the `UserSmartHomeApplication` class.
@@ -60,18 +67,27 @@ class Request(db.Model):
     uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True)
     right_type = mapped_column(Enum(RightType, validate_strings=True), nullable=False)
     additional_information = mapped_column(Text, nullable=False)
-    selected_consents: Mapped[list[UUID] | None] = mapped_column(ARRAY(PG_UUID(as_uuid=True)), default=None) #avoid having another table
+    selected_consents: Mapped[list[dict[str, str | None]] | None] = mapped_column(
+        JSONB, default=None
+    )
+    data_subject_user_id: Mapped[int] = mapped_column(nullable=False)
+    application_id: Mapped[int] = mapped_column(nullable=False)
+    smart_home_uuid: Mapped[str] = mapped_column(nullable=False)
     response = mapped_column(Text, default=None, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())
     handled_at: Mapped[datetime] = mapped_column(default=None, nullable=True)
     status = mapped_column(
         Enum(Status, validate_strings=True), default=Status.PENDING, nullable=False
     )
-    user_smart_home_application_relation_id: Mapped[int] = mapped_column(
-        ForeignKey("user_smart_home_application_relations.id", ondelete="CASCADE")
+    user_smart_home_application_relation_id: Mapped[int | None] = mapped_column(
+        ForeignKey(
+            "user_smart_home_application_relations.id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
     )
 
-    user_smart_home_application_relation: Mapped["UserSmartHomeApplication"] = (  # noqa: F821 # type: ignore
+    user_smart_home_application_relation: Mapped["UserSmartHomeApplication | None"] = (  # noqa: F821 # type: ignore
         relationship(back_populates="submitted_requests")
     )
     generated_notifications: Mapped[List["Notification"]] = relationship(  # noqa: F821 # type: ignore

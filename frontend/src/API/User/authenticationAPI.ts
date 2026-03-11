@@ -71,5 +71,21 @@ async function delete_current() {
     throw await getApiError(response);
 }
 
+async function updateCurrentUserProfile(payload: { current_password: string; email?: string; new_password?: string; }) {
+    const response = await fetch(baseURL + "auth/current", {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    });
+    if (response.ok) {
+        const user = await response.json();
+        return user;
+    }
 
-export default {login, logOut, getUserInfo, delete_current, register}
+    throw await getApiError(response);
+}
+
+export default { login, logOut, getUserInfo, delete_current, register, updateCurrentUserProfile }

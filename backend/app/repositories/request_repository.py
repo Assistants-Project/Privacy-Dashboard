@@ -27,14 +27,12 @@ class RequestRepository:
                 Application.name,
                 Application.uuid, #aggiunto per visualizzare meglio i rights nel frontend e collegarli comodamente alle app
             )
-            .join(
-                Request.user_smart_home_application_relation.and_(
-                    UserSmartHomeApplication.application_id == application_id,
-                    UserSmartHomeApplication.user_id == user_id,
-                )
+            .join(User, User.id == Request.data_subject_user_id)
+            .join(Application, Application.id == Request.application_id)
+            .where(
+                Request.application_id == application_id,
+                Request.data_subject_user_id == user_id,
             )
-            .join(User, User.id == UserSmartHomeApplication.user_id)
-            .join(Application, Application.id == UserSmartHomeApplication.application_id)
             .order_by(Request.created_at.desc(), Request.id.desc())
         )
         return db.session.execute(statement)
@@ -55,13 +53,9 @@ class RequestRepository:
                 Application.name,
                 Application.uuid, #....
             )
-            .join(
-                Request.user_smart_home_application_relation.and_(
-                    UserSmartHomeApplication.application_id.in_(subquery),
-                )
-            )
-            .join(User, User.id == UserSmartHomeApplication.user_id)
-            .join(Application, Application.id == UserSmartHomeApplication.application_id)
+            .join(User, User.id == Request.data_subject_user_id)
+            .join(Application, Application.id == Request.application_id)
+            .where(Request.application_id.in_(subquery))
              #per ottenere le richieste in ordine dalla più recente alla meno recente per comodità del client
             .order_by(Request.created_at.desc(), Request.id.desc())
         )
@@ -77,19 +71,17 @@ class RequestRepository:
             db.select(UserSmartHomeApplication.application_id)
             .where(UserSmartHomeApplication.user_id == current_user_id)
         )
-        statement = db.select(Request).join(
-            Request.user_smart_home_application_relation.and_(
-                UserSmartHomeApplication.application_id.in_(subquery),
-                Request.uuid == request_uuid,
-            )
+        statement = db.select(Request).where(
+            Request.application_id.in_(subquery),
+            Request.uuid == request_uuid,
         )
         return db.session.scalar(statement)
 
 
     # per data subject ritorna tutte le sue richieste nella casa specificata con un determinato stato (può essere facoltativo)
     @staticmethod
-    def get_requests_by_ds_id_and_smart_home_id_and_status(
-        current_user_id: int, smart_home_id: int, status: Status | None
+    def get_requests_by_ds_id_and_smart_home_uuid_and_status(
+        current_user_id: int, smart_home_uuid: str, status: Status | None
     ) -> Iterator[Tuple[Request, str, str, UUID]]:
         statement = (
             db.select(
@@ -98,14 +90,12 @@ class RequestRepository:
                 Application.name,
                 Application.uuid,
             )
-            .join(
-                Request.user_smart_home_application_relation.and_(
-                    UserSmartHomeApplication.smart_home_id == smart_home_id,
-                    UserSmartHomeApplication.user_id == current_user_id,
-                )
+            .join(User, User.id == Request.data_subject_user_id)
+            .join(Application, Application.id == Request.application_id)
+            .where(
+                Request.data_subject_user_id == current_user_id,
+                Request.smart_home_uuid == smart_home_uuid,
             )
-            .join(User, User.id == UserSmartHomeApplication.user_id)
-            .join(Application, Application.id == UserSmartHomeApplication.application_id)
             .order_by(Request.created_at.desc(), Request.id.desc())
         )
         if status:
@@ -117,13 +107,19 @@ class RequestRepository:
         right_type: RightType,
         additional_information: str,
         user_smart_home_application_id: int,
-        selected_consents: list[UUID] | None = None,
+        data_subject_user_id: int,
+        application_id: int,
+        smart_home_uuid: str,
+        selected_consents: list[dict[str, str | None]] | None = None,
         commit: bool = True,
     ) -> Request:
         request = Request(
             right_type=right_type,
             additional_information=additional_information,
             selected_consents=selected_consents,
+            data_subject_user_id=data_subject_user_id,
+            application_id=application_id,
+            smart_home_uuid=smart_home_uuid,
             user_smart_home_application_relation_id=user_smart_home_application_id,
             created_at=datetime.now(),
         )

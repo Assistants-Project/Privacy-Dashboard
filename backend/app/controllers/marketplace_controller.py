@@ -41,7 +41,7 @@ def register_marketplace_application(
 @marketplace_bp.arguments(MarketplaceApplicationPatchReqSchema, location="json", as_kwargs=False)
 @marketplace_register_required()
 def patch_marketplace_application(payload, application_id: str):
-    MarketplaceService.patch_marketplace_application_metadata(
+    MarketplaceService.patch_marketplace_application(
         application_id=application_id,
         patch=payload,
     )

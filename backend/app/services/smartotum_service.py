@@ -1,6 +1,7 @@
+import json
 from uuid import UUID
 
-from flask import request
+from flask import current_app, request
 from sqlalchemy.exc import SQLAlchemyError
 
 from ..exceptions import MissingJWTException, SmartotumSyncException
@@ -26,13 +27,19 @@ from ..services.consent_policy_rule_service import ConsentPolicyRuleService
 class SmartotumService:
 
     @staticmethod
-    def update_database_smartotum(access_token: str, user: User):
+    def update_database_smartotum(access_token: str,user: User,target_home_uuid: str | None = None,prune_missing_homes: bool = True):
         #for now it doesn't update rules, waiting for a database implementation for rules by the PTP app
         session = db.session
         try:
             client = SmartotumClient()
             #get system list of the user
             systems_new = client.get_systems(access_token)
+
+            #to force update of only a home
+            if target_home_uuid is not None:
+                systems_new = [
+                    system for system in systems_new if system.home_uuid == target_home_uuid
+                ]
             
             from ..services.rule_service import RuleService
             rule_service = RuleService()
@@ -43,7 +50,7 @@ class SmartotumService:
             for system in systems_new:
                 new_homes_uuid.add(system.home_uuid)
                 #insert or update the home
-                home = SmartHomeRepository.upsert_home(system.home_uuid, system.name, system.address)
+                home = SmartHomeRepository.upsert_home(system.home_uuid,system.name,system.address,system.zip_code,system.country)
                 #assign the home to the user
                 SmartHomeRepository.assign_home(home.id,user.id)
                 #get all the rooms of the home from smartotum
@@ -151,27 +158,28 @@ class SmartotumService:
                 except Exception as e:
                      print(f"Failed to sync rules for home {system.home_uuid}: {e}")
 
-            existing_home: list[SmartHome] = SmartHomeRepository.get_homes_by_user_id(user.id)
+            if prune_missing_homes and target_home_uuid is None:
+                existing_home: list[SmartHome] = SmartHomeRepository.get_homes_by_user_id(user.id)
 
-            for home in existing_home:
-                if home.uuid not in new_homes_uuid:
-                    # The home might be shared with other users
-                    # we remove only the relation and delete the home only if no ones shares it.
-                    ApplicationRepository.update_applications_for_home(
-                        user_id=user.id,
-                        smart_home_id=home.id,
-                        applications=[],
-                    )
-                    ConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id(
-                        user_id=user.id,
-                        smart_home_id=home.id,
-                    )
-                    SmartHomeRepository.unassign_home(home.id, user.id)
-                    session.flush()
+                for home in existing_home:
+                    if home.uuid not in new_homes_uuid:
+                        # The home might be shared with other users
+                        # we remove only the relation and delete the home only if no ones shares it.
+                        ApplicationRepository.update_applications_for_home(
+                            user_id=user.id,
+                            smart_home_id=home.id,
+                            applications=[],
+                        )
+                        ConsentRepository.delete_user_smart_home_available_consents_by_ds_id_and_smart_home_id(
+                            user_id=user.id,
+                            smart_home_id=home.id,
+                        )
+                        SmartHomeRepository.unassign_home(home.id, user.id)
+                        session.flush()
 
-                    owners = SmartHomeRepository.get_home_owners_by_home_id(home.id)
-                    if not owners:
-                        SmartHomeRepository.delete_home(home)
+                        owners = SmartHomeRepository.get_home_owners_by_home_id(home.id)
+                        if not owners:
+                            SmartHomeRepository.delete_home(home)
             
             session.commit()
 
@@ -217,6 +225,7 @@ class SmartotumService:
             raise MissingJWTException("Smartotum access token missing")
         
         session = db.session
+        warnings: list[str] = []
 
         try:
             client = SmartotumClient()
@@ -234,6 +243,17 @@ class SmartotumService:
                         f"User {email} is not a Data Controller for application {app_identifier}."
                     )
                 return data_controller
+
+            def append_warning(message: str) -> None:
+                warnings.append(message)
+
+            def append_skipped_application_warning(app_identifier: str) -> None:
+                warnings.append(
+                    f"Application {app_identifier} could not be synchronized because no valid Data Controller is registered in the dashboard. The application was skipped."
+                )
+
+            def log_sync_issue(message: str) -> None:
+                current_app.logger.warning("Smartotum applications refresh for %s: %s", user.email, message)
 
             def get_action_id_from_rule_url(url: str | None) -> str | None:
                 if not url:
@@ -302,40 +322,67 @@ class SmartotumService:
 
             cps = ConsentPolicyRuleService()
 
+            # Application sync depends on the local home snapshot.
+            # If a home is missing locally, refresh only that home without pruning the others.
+            for system in systems_new:
+                found_home = SmartHomeRepository.get_home_by_uuid(system.home_uuid)
+                if found_home is not None:
+                    continue
+
+                SmartotumService.update_database_smartotum(access_token,user,target_home_uuid=system.home_uuid,prune_missing_homes=False)
+
             # for every home owned by the user
             for system in systems_new:
 
                 # update installed applications for the home
-                smartotum_applications = client.get_home_applications(
-                    access_token, system.home_uuid
-                )
+                try:
+                    smartotum_applications = client.get_home_applications(
+                        access_token, system.home_uuid
+                    )
+                except json.JSONDecodeError as exc:
+                    raise SmartotumSyncException(
+                        f"Smartotum applications synchronization failed: invalid applications configuration for home {system.home_uuid}"
+                    ) from exc
 
                 applications_payload: list[Application] = []
                 data_controller_emails_by_app_id: dict[str, list[str]] = {}
                 available_consents_by_app_id: dict[str, list[str]] = {}
                 available_consents_action_ids_by_app_id: dict[str, dict[str, str]] = {}
+                app_is_new_by_id: dict[str, bool] = {}
 
                 for smartotum_application in smartotum_applications:
                     app_id = smartotum_application.id
                     app_title = smartotum_application.name
                     data_controller_emails = smartotum_application.data_controllers_email or []
+                    app_is_new_by_id[app_id] = (
+                        ApplicationRepository.get_application_by_name(app_id) is None
+                    )
                     if len(data_controller_emails) == 0:
-                        raise SmartotumSyncException(
-                            f"Application {app_id} has no Data Controller owner."
-                        )
+                        append_skipped_application_warning(app_id)
+                        log_sync_issue(f"Application {app_id} has no Data Controller owner in Smartotum payload.")
+                        continue
                     owner_email = data_controller_emails[0]
-                    owner_data_controller = get_valid_data_controller(owner_email, app_id)
+                    try:
+                        owner_data_controller = get_valid_data_controller(owner_email, app_id)
+                    except SmartotumSyncException as exc:
+                        if app_is_new_by_id[app_id]:
+                            append_skipped_application_warning(app_id)
+                            log_sync_issue(exc.message)
+                            continue
+                        owner_data_controller = None
+                        log_sync_issue(f"{exc.message} Existing application {app_id} kept its local owner and managers.")
                     applications_payload.append(
                         Application(
                             name=app_id,
                             title=app_title,
                             description=smartotum_application.description,
-                            owner_user_id=owner_data_controller.id,
+                            owner_user_id=owner_data_controller.id if owner_data_controller is not None else None,
                         )
                     )
-                    data_controller_emails_by_app_id[app_id] = (
-                        data_controller_emails
-                    )
+                    if owner_data_controller is not None:
+                        data_controller_emails_by_app_id[app_id] = (
+                            data_controller_emails
+                        )
                     available_consents_by_app_id[app_id] = (
                         smartotum_application.available_consents or []
                     )
@@ -346,7 +393,7 @@ class SmartotumService:
                 found_home = SmartHomeRepository.get_home_by_uuid(system.home_uuid)
 
                 if found_home is None:
-                    # If the home is not known locally we skip this system and continue with the others.
+                    # The targeted home refresh should have created the local home snapshot.
                     continue
 
                 ApplicationRepository.update_applications_for_home(
@@ -362,30 +409,38 @@ class SmartotumService:
                     if not application:
                         continue
 
-                    if len(data_controller_emails) == 0:
-                        raise SmartotumSyncException(
-                            f"Application {app_id} has no Data Controller owner."
-                        )
-
                     owner_email = data_controller_emails[0]
-                    owner_data_controller = get_valid_data_controller(owner_email, app_id)
+                    try:
+                        owner_data_controller = get_valid_data_controller(owner_email, app_id)
+                    except SmartotumSyncException as exc:
+                        log_sync_issue(f"{exc.message} Existing application {app_id} kept its local owner and managers.")
+                        continue
 
                     if application.owner_user_id is None:
                         application.owner_user_id = owner_data_controller.id
                     elif application.owner_user_id != owner_data_controller.id:
-                        raise SmartotumSyncException(
+                        log_sync_issue(
                             f"Owner mismatch for application {app_id}: "
-                            f"current owner id={application.owner_user_id}, incoming owner={owner_email}."
+                            f"current owner id={application.owner_user_id}, incoming owner={owner_email}. "
+                            f"Keeping current owner and skipping remote manager update."
                         )
+                        continue
 
                     ApplicationRepository.ensure_application_managed_by_user(
                         owner_data_controller.id, application.id
                     )
 
+                    if not app_is_new_by_id.get(app_id, False):
+                        continue
+
                     for delegate_email in data_controller_emails[1:]:
-                        delegate_data_controller = get_valid_data_controller(
-                            delegate_email, app_id
-                        )
+                        try:
+                            delegate_data_controller = get_valid_data_controller(
+                                delegate_email, app_id
+                            )
+                        except SmartotumSyncException as exc:
+                            log_sync_issue(f"{exc.message} Delegate was skipped for application {app_id}.")
+                            continue
                         ApplicationRepository.ensure_application_managed_by_user(
                             delegate_data_controller.id, application.id
                         )
@@ -418,10 +473,17 @@ class SmartotumService:
                 
             #commit at the end to revert easily
             session.commit()
+            return {
+                "message": "Apps updated from Smartotum installed apps of " + user.email,
+                "warnings": warnings,
+            }
 
         except SQLAlchemyError as exc:
             session.rollback()
             raise SmartotumSyncException("Failed to synchronize Smartotum applications") from exc
+        except SmartotumSyncException:
+            session.rollback()
+            raise
         except Exception as exc:
             session.rollback()
             raise SmartotumSyncException("Smartotum applications synchronization failed") from exc

@@ -27062,6 +27062,495 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Current User Profile API",
+      "description": "Regression coverage for `PATCH /api/auth/current`.\n\n- Logs in as a Data Controller and verifies email change is forbidden.\n- Rotates the Data Controller password, verifies login with the updated password, then restores the seeded password.\n- Logs in as a DPO, rotates email and password, verifies login with the updated credentials, then restores the seeded credentials.\n\n**Requests in this folder (14)**\n- Successful Login - Data Controller (Profile)\n- Forbidden Update Current User Email - Data Controller\n- Update Current User Password - Data Controller\n- Successful Logout - Data Controller (Updated Password)\n- Successful Login - Data Controller (Updated Password)\n- Restore Current User Password - Data Controller\n- Successful Logout - Data Controller (Restored Profile)\n- Successful Login - DPO (Profile)\n- Update Current User Email And Password - DPO\n- Successful Logout - DPO (Updated Credentials)\n- Successful Login - DPO (Updated Credentials)\n- Restore Current User Email And Password - DPO\n- Successful Logout - DPO (Restored Profile)\n- Successful Login - DPO (Restored Profile)\n\n**Inputs used in this folder**\n- `dc_email`\n- `dc_password`\n- `dc_updated_password`\n- `dpo_email`\n- `dpo_password`\n- `dpo_updated_email`\n- `dpo_updated_password`\n\n**Notes**\n- This folder is self-contained: it performs its own login/logout steps and restores the seeded credentials before handing control to Cleanup.",
+      "item": [
+        {
+          "name": "Successful Login - Data Controller (Profile)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{dc_email}}\",\"password\":\"{{dc_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Logged user is Data Controller\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dc_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_CONTROLLER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nLogs in as the seeded Data Controller for current-user profile tests.\n\n**What the test checks**\n- Response status code is 200\n- Logged user is Data Controller"
+        },
+        {
+          "name": "Forbidden Update Current User Email - Data Controller",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/current",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"current_password\":\"{{dc_password}}\",\"email\":\"controller.blocked@example.com\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 403\", function () { pm.expect(pm.response.code).to.eql(403); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Data Controller cannot change email\", function () {",
+                  "  pm.expect(body).to.have.property(\"message\", \"Only Data Protection Officers can change their email from the dashboard.\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that Data Controllers cannot change their email from the dashboard.\n\n**What the test checks**\n- Response status code is 403\n- The backend returns the role-forbidden message"
+        },
+        {
+          "name": "Update Current User Password - Data Controller",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/current",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"current_password\":\"{{dc_password}}\",\"new_password\":\"{{dc_updated_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Data Controller password update succeeds\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dc_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_CONTROLLER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the current Data Controller can change password.\n\n**What the test checks**\n- Response status code is 200\n- Updated user payload is returned"
+        },
+        {
+          "name": "Successful Logout - Data Controller (Updated Password)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/auth/logout"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nEnds the Data Controller session after password update.\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Successful Login - Data Controller (Updated Password)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{dc_email}}\",\"password\":\"{{dc_updated_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Updated Data Controller password works\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dc_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_CONTROLLER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the updated Data Controller password can be used to authenticate.\n\n**What the test checks**\n- Response status code is 200\n- Updated password works"
+        },
+        {
+          "name": "Restore Current User Password - Data Controller",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/current",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"current_password\":\"{{dc_updated_password}}\",\"new_password\":\"{{dc_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Data Controller password restore succeeds\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dc_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_CONTROLLER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nRestores the seeded Data Controller password before switching user.\n\n**What the test checks**\n- Response status code is 200\n- Restore payload matches the Data Controller"
+        },
+        {
+          "name": "Successful Logout - Data Controller (Restored Profile)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/auth/logout"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nEnds the restored Data Controller session before DPO login.\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Successful Login - DPO (Profile)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{dpo_email}}\",\"password\":\"{{dpo_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Logged user is DPO\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dpo_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_PROTECTION_OFFICER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nLogs in as the seeded DPO for current-user profile tests.\n\n**What the test checks**\n- Response status code is 200\n- Logged user is DPO"
+        },
+        {
+          "name": "Update Current User Email And Password - DPO",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/current",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"current_password\":\"{{dpo_password}}\",\"email\":\"{{dpo_updated_email}}\",\"new_password\":\"{{dpo_updated_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"DPO email and password update succeeds\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dpo_updated_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_PROTECTION_OFFICER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the current DPO can change both email and password.\n\n**What the test checks**\n- Response status code is 200\n- Updated DPO payload contains the new email"
+        },
+        {
+          "name": "Successful Logout - DPO (Updated Credentials)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/auth/logout"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nEnds the DPO session after credentials update.\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Successful Login - DPO (Updated Credentials)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{dpo_updated_email}}\",\"password\":\"{{dpo_updated_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Updated DPO credentials work\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dpo_updated_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_PROTECTION_OFFICER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the updated DPO email/password can be used to authenticate.\n\n**What the test checks**\n- Response status code is 200\n- Updated DPO credentials work"
+        },
+        {
+          "name": "Restore Current User Email And Password - DPO",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/current",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"current_password\":\"{{dpo_updated_password}}\",\"email\":\"{{dpo_email}}\",\"new_password\":\"{{dpo_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"DPO credentials restore succeeds\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dpo_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_PROTECTION_OFFICER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nRestores the seeded DPO email/password before Cleanup.\n\n**What the test checks**\n- Response status code is 200\n- Restore payload matches the original DPO email"
+        },
+        {
+          "name": "Successful Logout - DPO (Restored Profile)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/auth/logout"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nEnds the restored DPO session before the final login check.\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Successful Login - DPO (Restored Profile)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{dpo_email}}\",\"password\":\"{{dpo_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Restored DPO credentials work\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dpo_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_PROTECTION_OFFICER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the original DPO credentials work again before Cleanup.\n\n**What the test checks**\n- Response status code is 200\n- Restored DPO credentials work"
+        }
+      ]
     }
   ],
   "event": [
@@ -27101,6 +27590,26 @@
     {
       "key": "baseURL",
       "value": "http://127.0.0.1:5000"
+    },
+    {
+      "key": "dpo_password",
+      "value": "dpogeneral",
+      "description": "Input. Data Protection Officer password used for current-user profile tests."
+    },
+    {
+      "key": "dc_updated_password",
+      "value": "controllersmartotum-updated",
+      "description": "Input. Temporary Data Controller password used during current-user profile tests."
+    },
+    {
+      "key": "dpo_updated_email",
+      "value": "dpo.general.updated@example.com",
+      "description": "Input. Temporary Data Protection Officer email used during current-user profile tests."
+    },
+    {
+      "key": "dpo_updated_password",
+      "value": "dpogeneral-updated",
+      "description": "Input. Temporary Data Protection Officer password used during current-user profile tests."
     }
   ]
 }

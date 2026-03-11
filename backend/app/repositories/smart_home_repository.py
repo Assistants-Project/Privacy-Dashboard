@@ -63,18 +63,32 @@ class SmartHomeRepository:
         db.session.delete(home)
 
     @staticmethod
-    def upsert_home(home_uuid: str, name: str, address: str) -> SmartHome:
+    def upsert_home(
+        home_uuid: str,
+        name: str,
+        address: str,
+        zip_code: str | None = None,
+        country: str | None = None,
+    ) -> SmartHome:
         """Create or update a SmartHome given the UUID."""
         home = SmartHomeRepository.get_home_by_uuid(home_uuid)
 
         if home is None:
-            home = SmartHome(uuid=home_uuid, name=name, address=address or "")
+            home = SmartHome(
+                uuid=home_uuid,
+                name=name,
+                address=address or "",
+                zip_code=zip_code or None,
+                country=country or None,
+            )
             db.session.add(home)
             db.session.flush()
             return home
 
         home.name = name
         home.address = address or ""
+        home.zip_code = zip_code or None
+        home.country = country or None
         return home
 
     @staticmethod

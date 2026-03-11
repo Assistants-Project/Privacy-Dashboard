@@ -195,6 +195,23 @@ npm run dev
 - Application sync still uses `SMARTOTUM_APPLICATIONS_JSON`.
 - After login, call `POST /api/homes/refresh` to load mocked homes into the local database.
 
+#### Run the automated API regression suite
+
+The cleaned Postman collection under `backend/testing/tests/Privacy-Dashboard-API.postman_collection_cleaned.json`
+is executed with Newman by the helper script below. The script starts a temporary demo stack, waits for the app
+health check, runs the collection, and then destroys the stack.
+
+```bash
+docker build -f docker/Dockerfile.deploy -t privacydashboard-demo-test:local .
+DEPLOY_ENV_FILE=.env TEST_FLASK_ENV=testing bash docker/scripts/test_image.sh
+```
+
+The current regression suite also covers:
+
+- Marketplace PATCH updates for both metadata and available-consent catalog replacement.
+- Withdraw-consent request snapshots, so selected consent `uuid` and `content` remain available even if the catalog changes later.
+- Smartotum application refresh behavior, verifying that seeded delegates are not re-added after local removal.
+
 ### RUN IN DEMO
 
 - In demo mode only 1 container is created that contains all the components of the application
@@ -279,9 +296,16 @@ curl -X PATCH "http://localhost:5050/api/integrations/marketplace/apps/com.marke
   -H "Authorization: Bearer ${MARKETPLACE_INTEGRATION_TOKEN}" \
   -d '{
     "title": "App1 (new title)",
-    "description": "updated description"
+    "description": "updated description",
+    "available_consents": [
+      "processing of personal information for the patched service",
+      "processing of personal information for analytics"
+    ]
   }'
 ```
+
+When `available_consents` is provided, the marketplace PATCH request reconciles the catalog for that application:
+new items are added, existing matching items are kept, and missing items are removed.
 
 ### Response semantics
 

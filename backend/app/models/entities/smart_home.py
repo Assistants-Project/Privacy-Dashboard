@@ -20,6 +20,8 @@ class SmartHome(db.Model):
         uuid: A unique randomly generated UUID that identifies the smart home.
         name: A unique string that represents the name of the smart home.
         address: A string that represents the address of the smart home.
+        zip_code: The postal code of the smart home address (if provided by the home automation system).
+        country: The country of the smart home address (if provided by the home automation system).
         owned_by_users: A list of `UserSmartHome` instances.
             Represents a one-to-many relationship with the `UserSmartHome` class.
         installed_applications: A list of `UserSmartHomeApplication` instances.
@@ -34,6 +36,8 @@ class SmartHome(db.Model):
     uuid: Mapped[str] = mapped_column(unique=True)
     name: Mapped[str] = mapped_column(unique=True)
     address: Mapped[str]
+    zip_code: Mapped[str | None] = mapped_column(nullable=True)
+    country: Mapped[str | None] = mapped_column(nullable=True)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -58,4 +62,7 @@ class SmartHome(db.Model):
     )
 
     def __repr__(self) -> str:
-        return f"SmartHome(id={self.id}, uuid={self.uuid}, name={self.name}, address={self.address})"
+        return (
+            f"SmartHome(id={self.id}, uuid={self.uuid}, name={self.name}, address={self.address}, "
+            f"zip_code={self.zip_code}, country={self.country})"
+        )

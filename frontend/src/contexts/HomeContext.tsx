@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { fetchHomes, updateHomesService } from "../services/HomesService"
+import { SyncMessage } from "../models/app";
 import { HomeModel } from "../models/home";
 import { useAuth } from "./AuthContext";
 
@@ -9,7 +10,7 @@ type HomeContextValue = {
     loadingHomes: boolean;
     updatingHomes: boolean;
     errorHomes: string | undefined;
-    errorupdatingHomes: string | undefined
+    homesSyncMessages: SyncMessage[];
     homes: HomeModel[] | undefined;
     updateCurrentHomeUUID: (current_home: string) => void;
     syncHomes: () => Promise<void>;
@@ -29,7 +30,7 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
     const [loadingHomes, setLoadingHomes] = useState(true);
     const [updatingHomes, setUpdatingHomes] = useState(false);
     const [errorHomes, setErrorHomes] = useState<string | undefined>(undefined);
-    const [errorupdatingHomes, setErrorUpdatingHomes] = useState<string | undefined>(undefined);
+    const [homesSyncMessages, setHomesSyncMessages] = useState<SyncMessage[]>([]);
 
 
     const updateCurrentHomeUUID = useCallback((uuid: string) => {
@@ -48,7 +49,7 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
             setLoadingHomes(false);
             setUpdatingHomes(false);
             setErrorHomes(undefined);
-            setErrorUpdatingHomes(undefined);
+            setHomesSyncMessages([]);
             return
         }
 
@@ -82,12 +83,12 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
     const syncHomes = useCallback(async () => {
 
         setUpdatingHomes(true);
-        setErrorUpdatingHomes(undefined);
+        setHomesSyncMessages([]);
 
         try {
             await updateHomesService();
         } catch (err) {
-            setErrorUpdatingHomes(err instanceof Error ? err.message : "Unexpected Error")
+            setHomesSyncMessages([{ level: "error", text: err instanceof Error ? err.message : "Unexpected Error" }]);
         } finally {
             setUpdatingHomes(false);
         }
@@ -95,8 +96,8 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
 
     //per ottimizzare il caricamento riguardare meglio
     const value = useMemo<HomeContextValue>(
-        () => ({current_home_uuid,loadingHomes,updatingHomes,errorHomes,errorupdatingHomes,homes,updateCurrentHomeUUID,syncHomes}),
-        [current_home_uuid, loadingHomes, updatingHomes, errorHomes, errorupdatingHomes, homes, updateCurrentHomeUUID, syncHomes],
+        () => ({current_home_uuid,loadingHomes,updatingHomes,errorHomes,homesSyncMessages,homes,updateCurrentHomeUUID,syncHomes}),
+        [current_home_uuid, loadingHomes, updatingHomes, errorHomes, homesSyncMessages, homes, updateCurrentHomeUUID, syncHomes],
     );
 
     return <HomeContext.Provider value={value}>{children}</HomeContext.Provider>;

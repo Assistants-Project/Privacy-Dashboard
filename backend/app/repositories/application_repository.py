@@ -192,20 +192,12 @@ class ApplicationRepository:
             return {}
 
         statement = (
-            db.select(
-                UserSmartHomeApplication.application_id,
-                func.count(Request.id),
-            )
-            .join(
-                Request,
-                Request.user_smart_home_application_relation_id
-                == UserSmartHomeApplication.id,
-            )
+            db.select(Request.application_id, func.count(Request.id))
             .where(
-                UserSmartHomeApplication.application_id.in_(application_ids),
+                Request.application_id.in_(application_ids),
                 Request.status == Status.PENDING,
             )
-            .group_by(UserSmartHomeApplication.application_id)
+            .group_by(Request.application_id)
         )
         rows = db.session.execute(statement).all()
         return {
@@ -216,29 +208,21 @@ class ApplicationRepository:
     @staticmethod
     def get_pending_request_counts_for_installed_applications(
         user_id: int,
-        smart_home_id: int,
+        smart_home_uuid: str,
         application_ids: list[int],
     ) -> dict[int, int]:
         if not application_ids:
             return {}
 
         statement = (
-            db.select(
-                UserSmartHomeApplication.application_id,
-                func.count(Request.id),
-            )
-            .join(
-                Request,
-                Request.user_smart_home_application_relation_id
-                == UserSmartHomeApplication.id,
-            )
+            db.select(Request.application_id, func.count(Request.id))
             .where(
-                UserSmartHomeApplication.user_id == user_id,
-                UserSmartHomeApplication.smart_home_id == smart_home_id,
-                UserSmartHomeApplication.application_id.in_(application_ids),
+                Request.data_subject_user_id == user_id,
+                Request.smart_home_uuid == smart_home_uuid,
+                Request.application_id.in_(application_ids),
                 Request.status == Status.PENDING,
             )
-            .group_by(UserSmartHomeApplication.application_id)
+            .group_by(Request.application_id)
         )
         rows = db.session.execute(statement).all()
         return {

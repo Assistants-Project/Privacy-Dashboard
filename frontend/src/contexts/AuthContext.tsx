@@ -19,6 +19,7 @@ type AuthContextValue = {
     password: string,
     role: Role,
   ) => Promise<void>;
+  updateProfile: (payload: { current_password: string; email?: string; new_password?: string; }) => Promise<void>;
   logout: () => Promise<void>;
   deleteUser: () => Promise<void>;
 };
@@ -97,6 +98,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfile = async (payload: { current_password: string; email?: string; new_password?: string; }) => {
+    const u = await authentication.updateCurrentUserProfile(payload);
+    setUser(new User(u.uuid, u.email, u.firstname, u.lastname, u.role));
+  };
+
   const isDataSubject = user?.role === Role.DataSubject;
   const isDataController = user?.role === Role.DataController;
   const isDpo = user?.role === Role.DPO;
@@ -104,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   //per ottimizzare il caricamento riguardare meglio
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, loginEventId, isDataSubject, isDataController, isDpo, isManagerRole, login, logout, register, deleteUser }),
+    () => ({ user, loading, loginEventId, isDataSubject, isDataController, isDpo, isManagerRole, login, register, updateProfile, logout, deleteUser }),
     [user, loading, loginEventId, isDataSubject, isDataController, isDpo, isManagerRole],
   );
 

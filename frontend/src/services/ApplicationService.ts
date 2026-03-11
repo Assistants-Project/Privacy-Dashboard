@@ -1,5 +1,5 @@
-import { getManagedApplications, getInstalledApplications, createApplication, assignDpoToManagedApplication, removeDpoFromManagedApplication, addDataControllerManagerToManagedApplication, removeDataControllerManagerFromManagedApplication, refreshApplications } from "../API/Applications/applicationAPI";
-import { AppModel, CreateApplicationRequest, DocumentStatus } from "../models/app"
+import { getManagedApplications, getInstalledApplications, createApplication, updateManagedApplication, assignDpoToManagedApplication, removeDpoFromManagedApplication, addDataControllerManagerToManagedApplication, removeDataControllerManagerFromManagedApplication, refreshApplications } from "../API/Applications/applicationAPI";
+import { AppModel, CreateApplicationRequest, DocumentStatus, RefreshApplicationsResult, UpdateApplicationRequest } from "../models/app"
 import { Evaluation } from "../models/question";
 import { Role, User } from "../models/user";
 
@@ -127,9 +127,9 @@ const fetchApplications = async (smartHomeUuid?: string | null, applicationUuid?
   }
 };
 
-export const refreshInstalledApplications = async (): Promise<boolean | undefined> => {
+export const refreshInstalledApplications = async (): Promise<RefreshApplicationsResult | undefined> => {
   try {
-    const response = (await refreshApplications()) as boolean;
+    const response = (await refreshApplications()) as RefreshApplicationsResult;
     return response;
   } catch (err) {
      throw err
@@ -181,6 +181,18 @@ export const createApplicationByDataController = async (payload: CreateApplicati
       availableConsents && availableConsents.length > 0 ? availableConsents : undefined,
     )) as ApplicationDto;
     return toAppModel(createdApplication);
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const updateManagedApplicationByDataController = async (applicationUuid: string, payload: UpdateApplicationRequest): Promise<AppModel> => {
+  const title = payload.title.trim();
+  const description = normalizeOptionalString(payload.description);
+
+  try {
+    const updatedApplication = (await updateManagedApplication(applicationUuid, title, description)) as ApplicationDto;
+    return toAppModel(updatedApplication);
   } catch (err) {
     throw err;
   }

@@ -40,6 +40,11 @@ class RequestSubmitPayload(TypedDict):
     selected_consents: NotRequired[list[UUID] | None]
 
 
+class SelectedConsentSnapshot(TypedDict):
+    uuid: str
+    content: str | None
+
+
 class RequestService:
     @staticmethod
     def get_requests_by_dc_or_dpo_id_and_application_uuid_and_user_uuid(
@@ -143,8 +148,8 @@ class RequestService:
             raise SmartHomeNotFoundException(
                 f"Smart Home with uuid {smart_home_uuid} not found among the owned smart homes!"
             )
-        iterator = RequestRepository.get_requests_by_ds_id_and_smart_home_id_and_status(
-            current_user_id, smart_home.id, status
+        iterator = RequestRepository.get_requests_by_ds_id_and_smart_home_uuid_and_status(
+            current_user_id, smart_home.uuid, status
         )
         return [
             {
@@ -189,7 +194,7 @@ class RequestService:
 
         selected_consents = None
         if request["right_type"] == RightType.WITHDRAW_CONSENT:
-            selected_consents, available_consent_ids, action_ids_by_uuid = (
+            selected_consents, selected_consent_uuids, available_consent_ids, action_ids_by_uuid = (
                 RequestService._validate_selected_consents_for_withdraw_request(
                     current_user_id,
                     smart_home.id,
@@ -212,7 +217,7 @@ class RequestService:
             published_dht_uuids: list[str] = []
 
             try:
-                for consent_uuid in selected_consents:
+                for consent_uuid in selected_consent_uuids:
                     action_id = action_ids_by_uuid.get(consent_uuid)
                     if not action_id:
                         raise AvailableConsentWrongListException(
@@ -236,7 +241,10 @@ class RequestService:
                     request["right_type"],
                     request["additional_information"],
                     user_smart_home_application.id,
-                    selected_consents,
+                    data_subject_user_id=current_user_id,
+                    application_id=user_smart_home_application.application_id,
+                    smart_home_uuid=smart_home.uuid,
+                    selected_consents=selected_consents,
                     commit=False,
                 )
                 db.session.commit()
@@ -255,7 +263,10 @@ class RequestService:
             request["right_type"],
             request["additional_information"],
             user_smart_home_application.id,
-            selected_consents,
+            data_subject_user_id=current_user_id,
+            application_id=user_smart_home_application.application_id,
+            smart_home_uuid=smart_home.uuid,
+            selected_consents=selected_consents,
             commit=False,
         )
         db.session.commit()
@@ -267,7 +278,17 @@ class RequestService:
     #controlla che il consenso sia stato dato
     # se tutto ok lo ritorna a submit_request che lo considera validato
     @staticmethod
-    def _validate_selected_consents_for_withdraw_request(current_user_id: int,smart_home_id: int,application_id: int,selected_consents_uuids: list[UUID] | None,) -> tuple[list[UUID], list[int], dict[UUID, str | None]]:
+    def _validate_selected_consents_for_withdraw_request(
+        current_user_id: int,
+        smart_home_id: int,
+        application_id: int,
+        selected_consents_uuids: list[UUID] | None,
+    ) -> tuple[
+        list[SelectedConsentSnapshot],
+        list[UUID],
+        list[int],
+        dict[UUID, str | None],
+    ]:
         
         #nessun consenso
         if not selected_consents_uuids:
@@ -277,7 +298,8 @@ class RequestService:
         if len(selected_consents_uuids) != len(set(selected_consents_uuids)):
             raise AvailableConsentWrongListException("Duplicate consents selected!")
 
-        selected_consents: list[UUID] = []
+        selected_consents: list[SelectedConsentSnapshot] = []
+        selected_consent_uuids: list[UUID] = []
         available_consent_ids: list[int] = []
         action_ids_by_uuid: dict[UUID, str | None] = {}
 
@@ -303,11 +325,17 @@ class RequestService:
                 raise AvailableConsentNotFoundException(
                     f"Available Consent with uuid {consent_uuid} is not currently given in this smart home!"
                 )
-            selected_consents.append(consent_uuid)
+            selected_consents.append(
+                {
+                    "uuid": str(available_consent.uuid),
+                    "content": available_consent.content,
+                }
+            )
+            selected_consent_uuids.append(consent_uuid)
             available_consent_ids.append(available_consent.id)
             action_ids_by_uuid[consent_uuid] = getattr(available_consent, "sifis_action_id", None)
 
-        return selected_consents, available_consent_ids, action_ids_by_uuid
+        return selected_consents, selected_consent_uuids, available_consent_ids, action_ids_by_uuid
 
     @staticmethod
     def handle_request(

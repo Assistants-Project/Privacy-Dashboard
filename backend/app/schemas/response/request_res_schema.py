@@ -3,6 +3,14 @@ from ...models import Request
 
 
 class RequestSchema(ma.SQLAlchemyAutoSchema):
+    selected_consents = ma.List(
+        ma.Dict(
+            keys=ma.String(),
+            values=ma.Raw(allow_none=True),
+        ),
+        allow_none=True,
+    )
+
     class Meta:
         model = Request
         include_fk = False

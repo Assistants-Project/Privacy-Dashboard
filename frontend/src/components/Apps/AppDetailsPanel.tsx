@@ -9,6 +9,7 @@ import { RightType } from "../../models/request";
 import { SubmitRightRequestModal } from "../Rights/SubmitRightRequestModal";
 import { AppAssignmentPanel } from "./AppAssignmentPanel";
 import { AppConsentsPanel } from "../Consents/AppConsentsPanel";
+import { AppCreationPanel } from "./AppCreationPanel";
 
 type SubmitRightModalPreset = {
   initialRightType?: RightType;
@@ -19,9 +20,11 @@ type SubmitRightModalPreset = {
 
 export function AppDetailsPanel() {
   const { isDataSubject } = useAuth();
-  const { selectedApp, setSelectedAppUUID, ConsentStatesByAppUUID } = useApp();
+  const { selectedApp, setSelectedAppUUID, ConsentStatesByAppUUID, isSelectedAppOwner } = useApp();
   const [showSubmitRightModal, setShowSubmitRightModal] = useState(false);
+  const [showEditApplicationModal, setShowEditApplicationModal] = useState(false);
   const [submitRightModalPreset, setSubmitRightModalPreset] = useState<SubmitRightModalPreset>({});
+  const canEditSelectedApplication = !!selectedApp && isSelectedAppOwner && selectedApp.name.startsWith("com.privacydashboard.");
 
   const closePanel = () => setSelectedAppUUID(undefined);
   const openSubmitRightModal = (preset: SubmitRightModalPreset = {}) => {
@@ -53,9 +56,20 @@ export function AppDetailsPanel() {
             <>
               <Container fluid className="d-flex px-0 justify-content-between align-items-start">
                 <Container fluid className="ps-0">
-                  <h3>
+                  <h3 className="d-flex align-items-center flex-wrap gap-2">
                     {selectedApp.title}
-                    <span className="text-muted fw-normal fs-6 ms-2">| {selectedApp.name}</span>
+                    <span className="text-muted fw-normal fs-6">| {selectedApp.name}</span>
+                    {canEditSelectedApplication ? (
+                      <Button
+                        className="circular-button ms-1"
+                        style={{ color: "#181d1f" }}
+                        onClick={() => setShowEditApplicationModal(true)}
+                        aria-label="Edit application"
+                        title="Edit application"
+                      >
+                        <i className="fa-solid fa-pencil" style={{ fontSize: "0.90rem" }}></i>
+                      </Button>
+                    ) : undefined}
                   </h3>
                   <div className="text-muted">
                     <span>Vote:&nbsp;</span>
@@ -167,6 +181,15 @@ export function AppDetailsPanel() {
           show={showSubmitRightModal}
           onHide={() => setShowSubmitRightModal(false)}
           {...submitRightModalPreset}
+        />
+      ) : undefined}
+
+      {selectedApp && canEditSelectedApplication ? (
+        <AppCreationPanel
+          show={showEditApplicationModal}
+          onHide={() => setShowEditApplicationModal(false)}
+          mode="edit"
+          application={selectedApp}
         />
       ) : undefined}
     </>
