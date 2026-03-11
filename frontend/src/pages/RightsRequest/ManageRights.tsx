@@ -5,7 +5,6 @@ import { useSearchParams } from "react-router-dom";
 import { RequestStatus, RIGHT_TYPE_LABELS, RightType } from "../../models/request";
 import { RightRequestHandleForm } from "../../components/Rights/RightRequestHandleForm";
 import { RightsRequestsListPanel } from "../../components/Rights/RightsRequestsListPanel";
-import { useApp } from "../../contexts/AppsContext";
 import { useRightsRequests } from "../../hooks/useRightsRequests";
 import { formatIsoDateOrTime } from "../../services/MessageService";
 
@@ -20,14 +19,10 @@ export function ManageRights() {
       : undefined;
   const [statusFilter, setStatusFilter] = useState<RequestStatus | undefined>(statusFilterFromURL);
   const {requests,loadingRequests,errorRequests,loadRequests} = useRightsRequests(statusFilter); //carica l'hook
-  const { loadConsentsByApplication } = useApp();
 
   const [selectedRequestUuid, setSelectedRequestUuid] = useState<string | undefined>(undefined);
   const selectedItem = selectedRequestUuid? requests?.find((r) => r.request.uuid === selectedRequestUuid): undefined;
   const selectedRequest = selectedItem?.request;
-  const [consentContentByUuid, setConsentContentByUuid] = useState<Record<string, string>>({});
-  const [loadingRequestedConsents, setLoadingRequestedConsents] = useState<boolean>(false);
-  const [errorRequestedConsents, setErrorRequestedConsents] = useState<string | undefined>(undefined);
 
   const closePanel = () => setSelectedRequestUuid(undefined);
 
@@ -35,57 +30,6 @@ export function ManageRights() {
     if (status === RequestStatus.HANDLED) return "success";
     return "warning";
   };
-
-  useEffect(() => {
-    if (!selectedRequest || selectedRequest.right_type !== RightType.WITHDRAW_CONSENT) {
-      setConsentContentByUuid({});
-      setLoadingRequestedConsents(false);
-      setErrorRequestedConsents(undefined);
-      return;
-    }
-
-    const selectedConsents = selectedRequest.selected_consents ?? [];
-    if (selectedConsents.length === 0) {
-      setConsentContentByUuid({});
-      setLoadingRequestedConsents(false);
-      setErrorRequestedConsents(undefined);
-      return;
-    }
-
-    let cancelled = false;
-    setLoadingRequestedConsents(true);
-    setErrorRequestedConsents(undefined);
-
-    const loadConsentContents = async () => {
-      try {
-        const availableConsents = await loadConsentsByApplication(selectedRequest.application_uuid, false);
-        if (cancelled) return;
-
-        const contentByUuid: Record<string, string> = {};
-        (availableConsents ?? []).forEach((consent) => {
-          contentByUuid[consent.uuid] = consent.content;
-        });
-        setConsentContentByUuid(contentByUuid);
-      } catch (err) {
-        if (cancelled) return;
-        setConsentContentByUuid({});
-        setErrorRequestedConsents(err instanceof Error ? err.message : "Unexpected Error");
-      } finally {
-        if (!cancelled) setLoadingRequestedConsents(false);
-      }
-    };
-
-    void loadConsentContents();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    selectedRequest?.uuid,
-    selectedRequest?.application_uuid,
-    selectedRequest?.right_type,
-    loadConsentsByApplication,
-  ]);
 
   useEffect(() => {
     setStatusFilter(statusFilterFromURL);
@@ -181,29 +125,20 @@ export function ManageRights() {
                     </Card>
 
                     {selectedRequest!.right_type === RightType.WITHDRAW_CONSENT ? (
-                      <Card className="p-0">
+                        <Card className="p-0">
                         <Card.Body>
                           <strong>Selected consents to withdraw</strong>
-                          {loadingRequestedConsents ? (
-                            <div className="mt-2 d-flex align-items-center gap-2 text-muted">
-                              <Spinner animation="border" size="sm" />
-                              Loading consent details…
-                            </div>
-                          ) : selectedRequest!.selected_consents?.length ? (
+                          {selectedRequest!.selected_consents?.length ? (
                             <ul className="mt-2 mb-0">
-                              {selectedRequest!.selected_consents.map((consentUuid) => (
-                                <li key={consentUuid}>
-                                  {consentContentByUuid[consentUuid] ?? consentUuid}
+                              {selectedRequest!.selected_consents.map((consent) => (
+                                <li key={consent.uuid}>
+                                  {consent.content?.trim() ? consent.content : consent.uuid}
                                 </li>
                               ))}
                             </ul>
                           ) : (
                             <div className="mt-2 text-muted">No consents selected.</div>
                           )}
-
-                          {errorRequestedConsents ? (
-                            <div className="mt-2 text-danger small">{errorRequestedConsents}</div>
-                          ) : undefined}
                         </Card.Body>
                       </Card>
                     ) : undefined}

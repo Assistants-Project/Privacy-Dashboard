@@ -52,6 +52,7 @@ from .entities.user_exceptions import (
     WrongUserRoleException,
     WrongUserUuidException,
 )
+from .entities.user_profile_exceptions import UserEmailAlreadyInUseException
 from .relations.question_application_exceptions import (
     QuestionnaireNotFoundException,
     QuestionnaireSubmissionException,
@@ -88,6 +89,7 @@ __all__ = [
     "MissingRequiredAnswerException",
     "QuestionNotFoundException",
     "RequestNotFoundException",
+    "UserEmailAlreadyInUseException",
     "UserNotFoundException",
     "WrongUserCredentialsException",
     "WrongUserRoleException",

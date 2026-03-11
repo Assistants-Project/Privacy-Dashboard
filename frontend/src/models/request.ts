@@ -1,8 +1,13 @@
+type RequestSelectedConsent = {
+    uuid: string;
+    content?: string;
+}
+
 class RequestModel {
     uuid: string
     right_type: RightType
     additional_information: string
-    selected_consents: string[] | undefined
+    selected_consents: RequestSelectedConsent[] | undefined
     response: string | undefined
     created_at: string //sempre presente
     handled_at: string | undefined
@@ -70,3 +75,4 @@ enum RequestStatus {
 }
 
 export { RequestModel, RightType, RIGHT_TYPE_LABELS, RIGHT_TYPE_MESSAGE_PREFIX, buildPredefinedRightMessage, RequestStatus }
+export type { RequestSelectedConsent }

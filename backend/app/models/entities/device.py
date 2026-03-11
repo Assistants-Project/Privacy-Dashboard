@@ -30,7 +30,7 @@ class Device(db.Model):
         ForeignKey("smart_homes.id", ondelete="CASCADE"), nullable=False
     )
     room_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("rooms.room_id", ondelete="CASCADE"), nullable=True
+        ForeignKey("rooms.room_id", ondelete="SET NULL"), nullable=True
     )
     name: Mapped[str]
     topic_name: Mapped[Optional[str]] = mapped_column(nullable=True)

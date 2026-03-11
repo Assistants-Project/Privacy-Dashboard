@@ -37,7 +37,7 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
   };
 
   // Helper to render rule string
-  const renderRuleString = (rule: any) => {
+  const renderRuleString = (rule: any, ruleIndex?: number) => {
       const effect = rule.effect === "permit" ? "PERMIT" : "DENY";
       const badgeClass = rule.effect === "permit" ? "success" : "danger";
       const triggerName = rule.trigger?.name || rule.trigger?.service?.name || "Unknown Trigger";
@@ -46,7 +46,9 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
       return (
           <div className="w-100">
               <div className="d-flex align-items-center">
-                  <span className="text-muted small fw-bold me-2">#{rIdx + 1}</span>
+                  {typeof ruleIndex === "number" ? (
+                    <span className="text-muted small fw-bold me-2">#{ruleIndex + 1}</span>
+                  ) : null}
                   <span className="text-muted small me-2">ID {rule.db_id}</span>
                   <Badge bg={badgeClass} className="me-2" style={{minWidth: '60px'}}>{effect}</Badge>
                   {!!rule.consent_uuid && (
@@ -98,8 +100,8 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
                 <ListGroup key={idx} className="mb-2">
                     <ListGroup.Item variant="danger"><strong>Loop #{idx + 1}</strong></ListGroup.Item>
                     {loop.map((rule, rIdx) => (
-                        <ListGroup.Item key={rIdx}>
-                            {rIdx + 1}. {renderRuleString(rule)}
+                    <ListGroup.Item key={rIdx}>
+                            {renderRuleString(rule, rIdx)}
                         </ListGroup.Item>
                     ))}
                 </ListGroup>
@@ -119,7 +121,7 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
                     <ListGroup.Item variant="warning"><strong>Conflict Group #{gIdx + 1}</strong></ListGroup.Item>
                     {group.map((rule: any, rIdx: number) => (
                         <ListGroup.Item key={rIdx} className="d-flex justify-content-between align-items-center">
-                             <div className="flex-grow-1">{renderRuleString(rule)}</div>
+                             <div className="flex-grow-1">{renderRuleString(rule, rIdx)}</div>
                              <Button 
                                 variant="danger" 
                                 size="sm" 
@@ -156,7 +158,7 @@ const VerificationReport: React.FC<VerificationReportProps> = ({ show, onHide, r
                     <ListGroup.Item variant="info"><strong>Redundancy Group #{gIdx + 1}</strong></ListGroup.Item>
                     {group.map((rule: any, rIdx: number) => (
                         <ListGroup.Item key={rIdx} className="d-flex justify-content-between align-items-center">
-                             <div className="flex-grow-1">{renderRuleString(rule)}</div>
+                             <div className="flex-grow-1">{renderRuleString(rule, rIdx)}</div>
                              <Button 
                                 variant="danger" 
                                 size="sm" 

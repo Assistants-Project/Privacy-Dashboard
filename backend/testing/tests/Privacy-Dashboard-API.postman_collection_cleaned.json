@@ -4,7 +4,8 @@
     "name": "Privacy Dashboard API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "49801020",
-    "_collection_link": "https://go.postman.co/collection/49801020-e9ff8fa3-2a94-4e73-b966-df442d7be92b?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/49801020-e9ff8fa3-2a94-4e73-b966-df442d7be92b?source=collection_link",
+    "description": "# Privacy Dashboard API - Postman Test Collection\n\nThis collection contains automated API tests for the Privacy Dashboard backend. It is designed to be executed with the Postman Collection Runner in the order shown in the sidebar.\n\n## How to Run\n\n1. Start the backend locally or in your target environment.\n2. Set `baseURL` to the backend URL (default: `http://127.0.0.1:5050`).\n3. Ensure the required test users exist (internal users for Data Controller/DPO; Smartotum credentials for Data Subject).\n4. Run the collection from top to bottom. Many requests store UUIDs in collection variables and reuse them later.\n\n## Authentication Notes\n\n- Authenticated endpoints rely on an HTTP-only session cookie named `st_access_token`. Postman will automatically store and send cookies for subsequent requests (Cookie Jar).\n- Smartotum-specific folders require Smartotum services (and DHT access for DHT/SIFIS checks).\n- Current-user profile coverage verifies role restrictions plus credential rotation/restoration for Data Controller and DPO on `PATCH /api/auth/current`.\n\n## Collection Variables\n\nThe collection uses two categories of variables:\n- **Inputs**: values you set (base URL and test credentials).\n- **Generated values**: IDs captured/generated during the run and reused later.\n\n| Variable | Type | Notes / Set by |\n|---|---|---|\n| `baseURL` | Input | Base URL of the backend API. |\n| `dc_email` | Input | Data Controller email used for internal login tests. |\n| `dc_password` | Input | Data Controller password used for internal login tests. |\n| `ds_email` | Input | Smartotum Data Subject email used for Smartotum-backed login tests. |\n| `ds_password` | Input | Smartotum Data Subject password used for Smartotum-backed login tests. |\n| `delegate_email` | Input | Email of an additional Data Controller used as manager/delegate in assignment tests. |\n| `dpo_email` | Input | Email of a Data Protection Officer used in assignment tests. |\n| `dpo_password` | Input | Password of the Data Protection Officer used in current-user profile tests. |\n| `marketplace_integration_token` | Input | Bearer token required by the Marketplace integration endpoints. |\n| `dc_updated_password` | Input | Temporary Data Controller password used during current-user profile tests. |\n| `dpo_updated_email` | Input | Temporary Data Protection Officer email used during current-user profile tests. |\n| `dpo_updated_password` | Input | Temporary Data Protection Officer password used during current-user profile tests. |\n| `camera_devices_count` | Generated | Set by: DHT - List Camera Devices (count) (test) |\n| `contact_uuid` | Generated | Set by: Get Contacts (test) |\n| `created_application_id` | Generated | Set by: Create Application (Manual) (test) |\n| `created_application_title` | Generated | Set by: Create Application (Manual) (test) |\n| `created_application_uuid` | Generated | Set by: Create Application (Manual) (test) |\n| `created_consent_uuid` | Generated | Set by: Add Available Consent To Created Application (test) |\n| `dc_uuid` | Generated | Set by: Successful Login - Data Controller (test) |\n| `dht_created_rule_uuids` | Generated | Set by: DHT - List Rules After Create (match expiration) (test) |\n| `dht_test_expiration_date` | Generated | Set by: Create Rule - Video Deny Entire Home (test) |\n| `ds_camera_app_uuid` | Generated | Set by: Find Camera Manager App (has mapping) (test) |\n| `ds_camera_consent_uuid` | Generated | Set by: Find Consent UUID For Camera Manager (test) |\n| `ds_camera_device_uuids` | Generated | Set by: DHT - List Camera Devices (for consent rule checks) (test) |\n| `ds_consent_rule_base_uuid` | Generated | Set by: Verify Default Consent Deny Rule Exists In SIFIS Rules List (test) |\n| `ds_consent_rule_dht_uuids` | Generated | Set by: DHT - Verify Initial Consent Rule Entries Exist (test) |\n| `ds_consent_uuid` | Generated | Set by: Get Consent State By Home And Application (test) |\n| `ds_home_uuid` | Generated | Set by: List Homes - Data Subject (Setup) (test) |\n| `ds_installed_application_uuid` | Generated | Set by: List Installed Applications - Data Subject (Setup) (test) |\n| `ds_request_uuid` | Generated | Set by: Submit Request - Data Subject (Setup) (test) |\n| `ds_room_uuid` | Generated | Set by: List Home Rooms - Data Subject (Setup) (test) |\n| `ds_withdraw_request_uuid` | Generated | Set by: Withdraw Consent Request (creates deny rules automatically) (test) |\n| `entire_home_rule_id` | Generated | Set by: Create Rule - Video Deny Entire Home (test) |\n| `first_available_consent_uuid` | Generated | Set by: Get Available Consents By Created Application (test) |\n| `managed_application_name` | Generated | Set by: List Managed Applications (test) |\n| `managed_application_uuid` | Generated | Set by: List Managed Applications (test) |\n| `managed_data_subject_uuid` | Generated | Set by: Get Data Subjects By Managed Application (test) |\n| `marketplace_app_id` | Generated | Set by: Successful Marketplace Ingest - Create Application (prerequest) |\n| `marketplace_app_title` | Generated | Set by: Successful Marketplace Ingest - Create Application (prerequest) |\n| `missing_request_uuid` | Generated | Set by: Handle Request - Missing Response Field Regression (prerequest) |\n| `new_app_short_name` | Generated | Set by: Create Application (Manual) (prerequest) |\n| `pia_template_id` | Generated | Set by: Get PIA Template (test) |\n| `pia_template_json` | Generated | Set by: Get PIA Template (test) |\n| `pn_missing_app_uuid` | Generated | Set by: Associate Existing Privacy Notice - Missing Application UUID (prerequest) |\n| `pn_missing_uuid` | Generated | Set by: Associate Existing Privacy Notice - Missing PN UUID (prerequest) |\n| `pn_no_pn_application_uuid` | Generated | Set by: Create Application (No PN) (test) |\n| `pn_no_pn_short_name` | Generated | Set by: Create Application (No PN) (prerequest) |\n| `pn_target_application_uuid` | Generated | Set by: Create Application (PN Target) (test) |\n| `pn_target_short_name` | Generated | Set by: Create Application (PN Target) (prerequest) |\n| `pn_target_temp_uuid` | Generated | Set by: Update Privacy Notice By Managed Application (Target Temporary) (test) |\n| `privacy_notice_uuid` | Generated | Set by: Update Privacy Notice By Managed Application (test) |\n| `question_first_choice` | Generated | Set by: Get Questionnaire Template (test) |\n| `question_uuid` | Generated | Set by: Get Questionnaire Template (test) |\n| `sent_message_content` | Generated | Set by: Send Message To Contact (prerequest) |\n| `sifis_always_trigger_url` | Generated | Set by: SIFIS Get Triggers - sifis_time (test) |\n| `sifis_location_detail_url` | Generated | Set by: SIFIS Get Video Action Details (location url) (test) |\n| `sifis_video_action_id` | Generated | Set by: SIFIS Get Actions - sifis_video (test) |\n| `sifis_video_action_url` | Generated | Set by: SIFIS Get Actions - sifis_video (test) |\n"
   },
   "item": [
     {
@@ -37,7 +38,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that the endpoint is protected and requires authentication.\n\n**Scope**\nAuthentication API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/auth/current`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 401\n- Response has required fields: code, message, status"
         },
         {
           "name": "Unauthorized List Managed Applications",
@@ -62,7 +64,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that the endpoint is protected and requires authentication.\n\n**Scope**\nAuthentication API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/applications/managed`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 401\n- Unauthorized payload is returned"
         },
         {
           "name": "Unauthorized Logout",
@@ -87,7 +90,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that the endpoint is protected and requires authentication.\n\n**Scope**\nAuthentication API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/logout`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 401\n- Unauthorized payload is returned"
         },
         {
           "name": "Unprocessable Login - Empty Email",
@@ -128,7 +132,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies request validation: invalid input is rejected (422 Unprocessable Entity).\n\n**Scope**\nAuthentication API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/login`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 422\n- Response has validation errors on email\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Unprocessable Login - Wrong Email",
@@ -169,7 +174,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies request validation: invalid input is rejected (422 Unprocessable Entity).\n\n**Scope**\nAuthentication API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/login`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 422\n- Response has validation errors on email\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Unauthorized Login - Wrong Password",
@@ -208,9 +214,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that the endpoint is protected and requires authentication.\n\n**Scope**\nAuthentication API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/login`\n- Uses collection variables: `baseURL`, `dc_email`\n\n**What the test checks**\n- Response status code is 401\n- Wrong credentials message is returned\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         }
-      ]
+      ],
+      "description": "Basic authentication and authorization checks.\n\n- Validates that protected endpoints return `401 Unauthorized` when no session cookie is present.\n- Validates input validation errors during login (missing/wrong email, wrong password).\n\n**Requests in this folder (6)**\n- Unauthorized Current User\n- Unauthorized List Managed Applications\n- Unauthorized Logout\n- Unprocessable Login - Empty Email\n- Unprocessable Login - Wrong Email\n- Unauthorized Login - Wrong Password\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Data Subject - Smartotum Setup",
@@ -252,7 +260,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nLogs in and verifies the authenticated session is established.\n\n**Scope**\nData Subject - Smartotum Setup\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/login`\n- Uses collection variables: `baseURL`, `ds_email`, `ds_password`\n\n**What the test checks**\n- Response status code is 200\n- Logged user is Data Subject\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Forbidden List Managed Applications - Data Subject",
@@ -277,7 +286,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies role-based access control (RBAC): the current role cannot access this endpoint.\n\n**Scope**\nData Subject - Smartotum Setup\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/applications/managed`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 403\n- Forbidden payload is returned"
         },
         {
           "name": "Refresh Homes - Data Subject (Setup)",
@@ -297,7 +307,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nTriggers a snapshot refresh to synchronize Smartotum data into the local database.\n\n**Scope**\nData Subject - Smartotum Setup\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/homes/refresh`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 202"
         },
         {
           "name": "Refresh Applications - Data Subject (Setup)",
@@ -313,11 +324,21 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Response status code is 202\", function () { pm.expect(pm.response.code).to.eql(202); });"
+                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test('Refresh result contains message and warnings', function () {",
+                  "  pm.expect(body).to.have.property('message');",
+                  "  pm.expect(body).to.have.property('warnings');",
+                  "  pm.expect(body.message).to.be.a('string').and.to.have.length.above(0);",
+                  "  pm.expect(body.warnings).to.be.an('array');",
+                  "  body.warnings.forEach(function (warning) { pm.expect(warning).to.be.a('string'); });",
+                  "  pm.expect(body.warnings.length).to.eql(0);",
+                  "});"
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nTriggers the Smartotum application refresh and validates the structured sync feedback returned by the backend.\n\n**Scope**\nData Subject - Smartotum Setup\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/applications/refresh`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 200\n- The response contains a non-empty sync `message`\n- The response contains a `warnings` array\n- Each warning entry is a string\n- No user-facing warnings are returned in the nominal setup flow"
         },
         {
           "name": "List Homes - Data Subject (Setup)",
@@ -342,7 +363,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nData Subject - Smartotum Setup\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/homes`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 200\n- Homes list is an array\n\n**Collection variables captured from the response**\n- `ds_home_uuid`"
         },
         {
           "name": "List Home Rooms - Data Subject (Setup)",
@@ -367,7 +389,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nData Subject - Smartotum Setup\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/homes/{{ds_home_uuid}}/rooms`\n- Uses collection variables: `baseURL`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Rooms list is an array\n\n**Collection variables captured from the response**\n- `ds_room_uuid`"
         },
         {
           "name": "List Home Devices - Data Subject (Setup)",
@@ -391,7 +414,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nData Subject - Smartotum Setup\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/homes/{{ds_home_uuid}}/devices`\n- Uses collection variables: `baseURL`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Devices list is an array"
         },
         {
           "name": "List Room Devices - Data Subject (Setup)",
@@ -415,7 +439,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nData Subject - Smartotum Setup\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/homes/{{ds_home_uuid}}/rooms/{{ds_room_uuid}}/devices`\n- Uses collection variables: `baseURL`, `ds_home_uuid`, `ds_room_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Room devices is an array"
         },
         {
           "name": "List Installed Applications - Data Subject (Setup)",
@@ -440,9 +465,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nData Subject - Smartotum Setup\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/applications/home/{{ds_home_uuid}}`\n- Uses collection variables: `baseURL`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Installed applications is an array\n\n**Collection variables captured from the response**\n- `ds_installed_application_uuid`"
         }
-      ]
+      ],
+      "description": "Initial setup flow for a Smartotum Data Subject.\n\n- Logs in as a Data Subject (Smartotum-backed).\n- Triggers snapshot refresh for homes and applications.\n- Verifies that the Smartotum application refresh returns structured sync feedback (`message` + `warnings`).\n- Lists homes, rooms, devices, and installed applications and stores key UUIDs as collection variables for later tests.\n\n**Requests in this folder (9)**\n- Successful Login - Data Subject (Setup)\n- Forbidden List Managed Applications - Data Subject\n- Refresh Homes - Data Subject (Setup)\n- Refresh Applications - Data Subject (Setup)\n- List Homes - Data Subject (Setup)\n- List Home Rooms - Data Subject (Setup)\n- List Home Devices - Data Subject (Setup)\n- List Room Devices - Data Subject (Setup)\n- List Installed Applications - Data Subject (Setup)\n\n**Variables produced in this folder**\n- `ds_home_uuid`\n- `ds_installed_application_uuid`\n- `ds_room_uuid`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Requests API",
@@ -485,7 +512,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nRequests API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/requests/submit`\n- Uses collection variables: `baseURL`, `ds_home_uuid`, `ds_installed_application_uuid`\n\n**What the test checks**\n- Response status code is 201\n- Created request has uuid\n\n**Collection variables captured from the response**\n- `ds_request_uuid`\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Successful Logout - Data Subject (Setup)",
@@ -505,7 +533,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nEnds the session and verifies access is removed.\n\n**Scope**\nRequests API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/logout`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 204"
         },
         {
           "name": "Successful Login - Data Controller",
@@ -546,7 +575,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nLogs in and verifies the authenticated session is established.\n\n**Scope**\nRequests API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/login`\n- Uses collection variables: `baseURL`, `dc_email`, `dc_password`\n\n**What the test checks**\n- Response status code is 200\n- Logged user is Data Controller\n\n**Collection variables captured from the response**\n- `dc_uuid`\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Current User - Data Controller",
@@ -571,7 +601,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nRequests API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/auth/current`\n- Uses collection variables: `baseURL`, `dc_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Current user matches login"
         },
         {
           "name": "Forbidden List Homes - Data Controller",
@@ -596,7 +627,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies role-based access control (RBAC): the current role cannot access this endpoint.\n\n**Scope**\nRequests API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/homes`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 403\n- Forbidden payload is returned"
         },
         {
           "name": "List Requests Inbox",
@@ -618,7 +650,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nRequests API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/requests/`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 200\n- Requests inbox is an array"
         },
         {
           "name": "List Pending Requests Inbox",
@@ -640,7 +673,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nRequests API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/requests/?status=PENDING`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 200\n- Pending requests response is an array"
         },
         {
           "name": "Handle Request - Missing Response Field Regression",
@@ -695,7 +729,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nRequests API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/requests/handle/{{missing_request_uuid}}`\n- Uses collection variables: `baseURL`, `missing_request_uuid`\n\n**Pre-request script**\nThis request generates input data and sets:\n- `missing_request_uuid`\n\n**What the test checks**\n- Response status code is 404 (no TypeError 500)\n- Error payload is returned\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Verify DS Request In Pending Inbox",
@@ -722,7 +757,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that a previous step had the expected effect.\n\n**Scope**\nRequests API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/requests/?status=PENDING`\n- Uses collection variables: `baseURL`, `ds_request_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Pending inbox contains DS request"
         },
         {
           "name": "Handle DS Request",
@@ -761,7 +797,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nRequests API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/requests/handle/{{ds_request_uuid}}`\n- Uses collection variables: `baseURL`, `ds_request_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Request is handled\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Verify DS Request In Handled Inbox",
@@ -788,9 +825,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that a previous step had the expected effect.\n\n**Scope**\nRequests API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/requests/?status=HANDLED`\n- Uses collection variables: `baseURL`, `ds_request_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Handled inbox contains DS request"
         }
-      ]
+      ],
+      "description": "End-to-end flow for GDPR right requests across roles.\n\n- Data Subject submits a request.\n- Data Controller logs in and lists the inbox.\n- Data Controller handles the request and verifies it moved from `PENDING` to `HANDLED`.\n\n**Requests in this folder (11)**\n- Submit Request - Data Subject (Setup)\n- Successful Logout - Data Subject (Setup)\n- Successful Login - Data Controller\n- Current User - Data Controller\n- Forbidden List Homes - Data Controller\n- List Requests Inbox\n- List Pending Requests Inbox\n- Handle Request - Missing Response Field Regression\n- Verify DS Request In Pending Inbox\n- Handle DS Request\n- Verify DS Request In Handled Inbox\n\n**Variables produced in this folder**\n- `dc_uuid`\n- `ds_request_uuid`\n- `missing_request_uuid`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Applications API",
@@ -822,7 +861,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nApplications API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/applications/managed`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 200\n- Managed applications is an array\n\n**Collection variables captured from the response**\n- `managed_application_name`\n- `managed_application_uuid`"
         },
         {
           "name": "Create Application (Manual)",
@@ -881,7 +921,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nCreates a new resource and verifies the response.\n\n**Scope**\nApplications API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/applications`\n- Uses collection variables: `baseURL`, `dc_email`, `new_app_short_name`\n\n**Pre-request script**\nThis request generates input data and sets:\n- `new_app_short_name`\n\n**What the test checks**\n- Response status code is 201\n- Created application structure is valid\n\n**Collection variables captured from the response**\n- `created_application_id`\n- `created_application_title`\n- `created_application_uuid`\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Bad Request Create Application - Invalid Name (Spaces)",
@@ -920,7 +961,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies request validation: invalid input is rejected (400 Bad Request).\n\n**Scope**\nApplications API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/applications`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 400\n- Bad request payload is returned\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Get Single Managed Application By UUID (Query)",
@@ -946,7 +988,93 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nApplications API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/applications/managed?application_uuid={{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Response is a single-item array"
+        },
+        {
+          "name": "Patch Manual Application Metadata",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/applications/managed/{{created_application_uuid}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"{{created_application_patched_title}}\", \"description\": \"{{created_application_patched_description}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var shortName = pm.collectionVariables.get('new_app_short_name');",
+                  "pm.collectionVariables.set('created_application_patched_title', shortName + '-edited');",
+                  "pm.collectionVariables.set('created_application_patched_description', 'Updated by Postman automated tests');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test('Patched application fields are returned', function () {",
+                  "  pm.expect(body).to.have.nested.property('application.uuid', pm.collectionVariables.get('created_application_uuid'));",
+                  "  pm.expect(body).to.have.nested.property('application.name', pm.collectionVariables.get('created_application_id'));",
+                  "  pm.expect(body).to.have.nested.property('application.title', pm.collectionVariables.get('created_application_patched_title'));",
+                  "  pm.expect(body).to.have.nested.property('application.description', pm.collectionVariables.get('created_application_patched_description'));",
+                  "  pm.expect(body.owner).to.have.property('email', pm.collectionVariables.get('dc_email'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nUpdates the editable metadata of a manual application and verifies that only the allowed fields changed.\n\n**Scope**\nApplications API\n\n**Request**\n- Endpoint: `PATCH {{baseURL}}/api/applications/managed/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `created_application_id`, `created_application_patched_title`, `created_application_patched_description`, `dc_email`\n\n**Pre-request script**\nThis request prepares:\n- `created_application_patched_title`\n- `created_application_patched_description`\n\n**What the test checks**\n- Response status code is 200\n- The patched application UUID matches the created one\n- The application `name` is unchanged\n- The application `title` and `description` match the patched values\n- The owner is unchanged\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
+        },
+        {
+          "name": "Verify Patched Manual Application By UUID (Query)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed?application_uuid={{created_application_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test('Patched manual application is returned with updated metadata', function () {",
+                  "  pm.expect(data).to.be.an('array');",
+                  "  pm.expect(data.length).to.eql(1);",
+                  "  pm.expect(data[0]).to.have.nested.property('application.uuid', pm.collectionVariables.get('created_application_uuid'));",
+                  "  pm.expect(data[0]).to.have.nested.property('application.name', pm.collectionVariables.get('created_application_id'));",
+                  "  pm.expect(data[0]).to.have.nested.property('application.title', pm.collectionVariables.get('created_application_patched_title'));",
+                  "  pm.expect(data[0]).to.have.nested.property('application.description', pm.collectionVariables.get('created_application_patched_description'));",
+                  "  pm.expect(data[0].owner).to.have.property('email', pm.collectionVariables.get('dc_email'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nReloads the patched manual application from the managed list endpoint to confirm that the metadata update persisted.\n\n**Scope**\nApplications API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/applications/managed?application_uuid={{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `created_application_id`, `created_application_patched_title`, `created_application_patched_description`, `dc_email`\n\n**What the test checks**\n- Response status code is 200\n- The response contains exactly one application\n- The application `name` is unchanged\n- The application `title` and `description` match the patched values\n- The owner is unchanged"
         },
         {
           "name": "Assign Delegate Data Controller",
@@ -966,7 +1094,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nApplications API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/applications/managed/{{created_application_uuid}}/managers/{{delegate_email}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `delegate_email`\n\n**What the test checks**\n- Response status code is 201"
         },
         {
           "name": "Assign Delegate Data Controller (Idempotent)",
@@ -986,7 +1115,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that repeating the same request is safe and does not create duplicates (idempotency).\n\n**Scope**\nApplications API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/applications/managed/{{created_application_uuid}}/managers/{{delegate_email}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `delegate_email`\n\n**What the test checks**\n- Response status code is 204"
         },
         {
           "name": "Assign DPO",
@@ -1006,7 +1136,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nApplications API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/applications/managed/{{created_application_uuid}}/dpo/{{dpo_email}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `dpo_email`\n\n**What the test checks**\n- Response status code is 201"
         },
         {
           "name": "Assign DPO (Idempotent)",
@@ -1026,7 +1157,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that repeating the same request is safe and does not create duplicates (idempotency).\n\n**Scope**\nApplications API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/applications/managed/{{created_application_uuid}}/dpo/{{dpo_email}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `dpo_email`\n\n**What the test checks**\n- Response status code is 204"
         },
         {
           "name": "Get Available Consents By Created Application",
@@ -1052,9 +1184,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nApplications API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/consents/application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Available consents are returned\n\n**Collection variables captured from the response**\n- `first_available_consent_uuid`"
         }
-      ]
+      ],
+      "description": "Managed application lifecycle and role assignment.\n\n- Lists managed apps.\n- Creates a manual application.\n- Updates manual application metadata through the dedicated PATCH endpoint and verifies that only editable fields change.\n- Assigns managers (delegates) and a DPO (including idempotency checks).\n- Reads available consents for the created application.\n\n**Requests in this folder (11)**\n- List Managed Applications\n- Create Application (Manual)\n- Bad Request Create Application - Invalid Name (Spaces)\n- Get Single Managed Application By UUID (Query)\n- Patch Manual Application Metadata\n- Verify Patched Manual Application By UUID (Query)\n- Assign Delegate Data Controller\n- Assign Delegate Data Controller (Idempotent)\n- Assign DPO\n- Assign DPO (Idempotent)\n- Get Available Consents By Created Application\n\n**Variables produced in this folder**\n- `created_application_id`\n- `created_application_title`\n- `created_application_uuid`\n- `first_available_consent_uuid`\n- `managed_application_name`\n- `managed_application_uuid`\n- `new_app_short_name`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Users API",
@@ -1087,7 +1221,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nUsers API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/users/contacts`\n- Uses collection variables: `baseURL`, `dc_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Contacts list is not empty\n\n**Collection variables captured from the response**\n- `contact_uuid`"
         },
         {
           "name": "Get Data Subjects By Managed Application",
@@ -1110,7 +1245,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nUsers API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/users/managed-application/{{managed_application_uuid}}?role=DATA_SUBJECT`\n- Uses collection variables: `baseURL`, `managed_application_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Response is an array\n\n**Collection variables captured from the response**\n- `managed_data_subject_uuid`"
         },
         {
           "name": "Get Data Controllers By Created Application",
@@ -1136,7 +1272,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nUsers API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/users/managed-application/{{created_application_uuid}}?role=DATA_CONTROLLER`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `delegate_email`\n\n**What the test checks**\n- Response status code is 200\n- Data controllers list contains owner and delegate"
         },
         {
           "name": "Get DPO By Created Application",
@@ -1162,9 +1299,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nUsers API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/users/managed-application/{{created_application_uuid}}?role=DATA_PROTECTION_OFFICER`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `dpo_email`\n\n**What the test checks**\n- Response status code is 200\n- DPO list contains assigned DPO"
         }
-      ]
+      ],
+      "description": "User listing endpoints used by the UI.\n\n- Lists contacts.\n- Lists users by application and role (Data Subjects / Data Controllers / DPOs).\n\n**Requests in this folder (4)**\n- Get Contacts\n- Get Data Subjects By Managed Application\n- Get Data Controllers By Created Application\n- Get DPO By Created Application\n\n**Variables produced in this folder**\n- `contact_uuid`\n- `managed_data_subject_uuid`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Messages API",
@@ -1217,7 +1356,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nMessages API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/messages/send`\n- Uses collection variables: `baseURL`, `contact_uuid`, `sent_message_content`\n\n**Pre-request script**\nThis request generates input data and sets:\n- `sent_message_content`\n\n**What the test checks**\n- Response status code is 201\n- Message response has sender and receiver\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Get Message History With Contact",
@@ -1242,7 +1382,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nMessages API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/messages/history/{{contact_uuid}}`\n- Uses collection variables: `baseURL`, `contact_uuid`, `sent_message_content`\n\n**What the test checks**\n- Response status code is 200\n- History is an array\n- History contains the sent message"
         },
         {
           "name": "Cannot Send Message To Yourself",
@@ -1281,7 +1422,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that an invalid action is correctly blocked.\n\n**Scope**\nMessages API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/messages/send`\n- Uses collection variables: `baseURL`, `dc_uuid`\n\n**What the test checks**\n- Response status code is 400\n- Bad request payload is returned\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Cannot Get Message History With Yourself",
@@ -1306,7 +1448,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that an invalid action is correctly blocked.\n\n**Scope**\nMessages API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/messages/history/{{dc_uuid}}`\n- Uses collection variables: `baseURL`, `dc_uuid`\n\n**What the test checks**\n- Response status code is 400\n- Bad request payload is returned"
         },
         {
           "name": "Get Messaged Contacts",
@@ -1333,9 +1476,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nMessages API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/users/contacts/messaged`\n- Uses collection variables: `baseURL`, `contact_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Messaged contacts includes the contacted user"
         }
-      ]
+      ],
+      "description": "Messaging features between users.\n\n- Sends a message to a valid contact.\n- Retrieves message history with a contact.\n- Verifies self-messaging is blocked.\n- Lists contacts with whom at least one message exists.\n\n**Requests in this folder (5)**\n- Send Message To Contact\n- Get Message History With Contact\n- Cannot Send Message To Yourself\n- Cannot Get Message History With Yourself\n- Get Messaged Contacts\n\n**Variables produced in this folder**\n- `sent_message_content`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Privacy Notices API",
@@ -1359,7 +1504,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/privacy-notices/template`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 200\n- Template response body is not empty"
         },
         {
           "name": "Update Privacy Notice By Managed Application",
@@ -1399,7 +1545,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/privacy-notices/managed-application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `new_app_short_name`\n\n**What the test checks**\n- Response status code is 200\n- Privacy notice has uuid and content\n\n**Collection variables captured from the response**\n- `privacy_notice_uuid`\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Get Privacy Notice By Managed Application",
@@ -1421,7 +1568,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/privacy-notices/managed-application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Privacy notice content contains test marker"
         },
         {
           "name": "Create Application (PN Target)",
@@ -1471,7 +1619,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nCreates a new resource and verifies the response.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/applications`\n- Uses collection variables: `baseURL`, `pn_target_short_name`\n\n**Pre-request script**\nThis request generates input data and sets:\n- `pn_target_short_name`\n\n**What the test checks**\n- Response status code is 201\n- Created application has uuid\n\n**Collection variables captured from the response**\n- `pn_target_application_uuid`\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Associate Existing Privacy Notice To Target Application",
@@ -1495,7 +1644,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/privacy-notices/managed-application/{{pn_target_application_uuid}}/privacy-notice/{{privacy_notice_uuid}}`\n- Uses collection variables: `baseURL`, `pn_target_application_uuid`, `privacy_notice_uuid`\n\n**What the test checks**\n- Response status code is 201\n- Associated privacy notice uuid matches source"
         },
         {
           "name": "Verify Privacy Notice By Managed Application (Target)",
@@ -1519,7 +1669,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that a previous step had the expected effect.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/privacy-notices/managed-application/{{pn_target_application_uuid}}`\n- Uses collection variables: `baseURL`, `pn_target_application_uuid`, `privacy_notice_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Target app privacy notice matches source uuid"
         },
         {
           "name": "Update Privacy Notice By Managed Application (Target Temporary)",
@@ -1558,7 +1709,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/privacy-notices/managed-application/{{pn_target_application_uuid}}`\n- Uses collection variables: `baseURL`, `pn_target_application_uuid`, `privacy_notice_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Target temp privacy notice uuid differs from source\n\n**Collection variables captured from the response**\n- `pn_target_temp_uuid`\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Associate Existing Privacy Notice To Target Application (Overwrite Existing)",
@@ -1582,7 +1734,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/privacy-notices/managed-application/{{pn_target_application_uuid}}/privacy-notice/{{privacy_notice_uuid}}`\n- Uses collection variables: `baseURL`, `pn_target_application_uuid`, `privacy_notice_uuid`\n\n**What the test checks**\n- Response status code is 201\n- Overwrite sets privacy notice uuid to source"
         },
         {
           "name": "Verify Privacy Notice By Managed Application (Target After Overwrite)",
@@ -1606,7 +1759,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that a previous step had the expected effect.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/privacy-notices/managed-application/{{pn_target_application_uuid}}`\n- Uses collection variables: `baseURL`, `pn_target_application_uuid`, `privacy_notice_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Target app privacy notice matches source uuid"
         },
         {
           "name": "Delete Privacy Notice By Managed Application (Target Temporary)",
@@ -1626,7 +1780,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nDeletes or disassociates a resource and verifies the effect.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `DELETE {{baseURL}}/api/privacy-notices/managed-application/{{pn_target_application_uuid}}`\n- Uses collection variables: `baseURL`, `pn_target_application_uuid`\n\n**What the test checks**\n- Response status code is 204"
         },
         {
           "name": "Associate Existing Privacy Notice To Target Application (After Delete)",
@@ -1650,7 +1805,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/privacy-notices/managed-application/{{pn_target_application_uuid}}/privacy-notice/{{privacy_notice_uuid}}`\n- Uses collection variables: `baseURL`, `pn_target_application_uuid`, `privacy_notice_uuid`\n\n**What the test checks**\n- Response status code is 201\n- Associated privacy notice uuid matches source"
         },
         {
           "name": "Verify Privacy Notice By Managed Application (Target After Replace)",
@@ -1674,7 +1830,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that a previous step had the expected effect.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/privacy-notices/managed-application/{{pn_target_application_uuid}}`\n- Uses collection variables: `baseURL`, `pn_target_application_uuid`, `privacy_notice_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Target app privacy notice matches source uuid"
         },
         {
           "name": "Delete Privacy Notice By Managed Application",
@@ -1694,7 +1851,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nDeletes or disassociates a resource and verifies the effect.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `DELETE {{baseURL}}/api/privacy-notices/managed-application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 204"
         },
         {
           "name": "Privacy Notice Not Found After Delete",
@@ -1714,7 +1872,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/privacy-notices/managed-application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 404"
         },
         {
           "name": "Create Application (No PN)",
@@ -1760,7 +1919,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nCreates a new resource and verifies the response.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/applications`\n- Uses collection variables: `baseURL`, `pn_no_pn_short_name`\n\n**Pre-request script**\nThis request generates input data and sets:\n- `pn_no_pn_short_name`\n\n**What the test checks**\n- Response status code is 201\n\n**Collection variables captured from the response**\n- `pn_no_pn_application_uuid`\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Delete Privacy Notice By Managed Application (No PN)",
@@ -1780,7 +1940,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nDeletes or disassociates a resource and verifies the effect.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `DELETE {{baseURL}}/api/privacy-notices/managed-application/{{pn_no_pn_application_uuid}}`\n- Uses collection variables: `baseURL`, `pn_no_pn_application_uuid`\n\n**What the test checks**\n- Response status code is 404"
         },
         {
           "name": "Associate Existing Privacy Notice - Missing PN UUID",
@@ -1809,7 +1970,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/privacy-notices/managed-application/{{pn_no_pn_application_uuid}}/privacy-notice/{{pn_missing_uuid}}`\n- Uses collection variables: `baseURL`, `pn_missing_uuid`, `pn_no_pn_application_uuid`\n\n**Pre-request script**\nThis request generates input data and sets:\n- `pn_missing_uuid`\n\n**What the test checks**\n- Response status code is 404"
         },
         {
           "name": "Associate Existing Privacy Notice - Missing Application UUID",
@@ -1838,7 +2000,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/privacy-notices/managed-application/{{pn_missing_app_uuid}}/privacy-notice/{{privacy_notice_uuid}}`\n- Uses collection variables: `baseURL`, `pn_missing_app_uuid`, `privacy_notice_uuid`\n\n**Pre-request script**\nThis request generates input data and sets:\n- `pn_missing_app_uuid`\n\n**What the test checks**\n- Response status code is 404"
         },
         {
           "name": "Unprocessable Get Privacy Notice - Wrong UUID",
@@ -1864,9 +2027,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies request validation: invalid input is rejected (422 Unprocessable Entity).\n\n**Scope**\nPrivacy Notices API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/privacy-notices/managed-application/not-a-uuid`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 422\n- Validation errors payload is returned"
         }
-      ]
+      ],
+      "description": "Privacy Notice template and assignment flows.\n\n- Retrieves the template.\n- Creates/updates and fetches a Privacy Notice for a managed application.\n- Applies an existing Privacy Notice to another app (including overwrite and delete/disassociate flows).\n- Covers key edge cases (missing UUIDs, wrong UUID format, deleting when missing).\n\n**Requests in this folder (19)**\n- Get Privacy Notice Template\n- Update Privacy Notice By Managed Application\n- Get Privacy Notice By Managed Application\n- Create Application (PN Target)\n- Associate Existing Privacy Notice To Target Application\n- Verify Privacy Notice By Managed Application (Target)\n- Update Privacy Notice By Managed Application (Target Temporary)\n- Associate Existing Privacy Notice To Target Application (Overwrite Existing)\n- Verify Privacy Notice By Managed Application (Target After Overwrite)\n- Delete Privacy Notice By Managed Application (Target Temporary)\n- Associate Existing Privacy Notice To Target Application (After Delete)\n- Verify Privacy Notice By Managed Application (Target After Replace)\n- Delete Privacy Notice By Managed Application\n- Privacy Notice Not Found After Delete\n- Create Application (No PN)\n- Delete Privacy Notice By Managed Application (No PN)\n- Associate Existing Privacy Notice - Missing PN UUID\n- Associate Existing Privacy Notice - Missing Application UUID\n- Unprocessable Get Privacy Notice - Wrong UUID\n\n**Variables produced in this folder**\n- `pn_missing_app_uuid`\n- `pn_missing_uuid`\n- `pn_no_pn_application_uuid`\n- `pn_no_pn_short_name`\n- `pn_target_application_uuid`\n- `pn_target_short_name`\n- `pn_target_temp_uuid`\n- `privacy_notice_uuid`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Privacy Impact Assessments API",
@@ -1895,7 +2060,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nPrivacy Impact Assessments API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/privacy-impact-assessments/template`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 200\n- Template contains template_id\n\n**Collection variables captured from the response**\n- `pia_template_id`\n- `pia_template_json`"
         },
         {
           "name": "PIA Not Found Before Submit",
@@ -1915,7 +2081,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nPrivacy Impact Assessments API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/privacy-impact-assessments/managed/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 404"
         },
         {
           "name": "Submit PIA By Managed Application",
@@ -1949,7 +2116,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nPrivacy Impact Assessments API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/privacy-impact-assessments/managed/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `pia_template_json`\n\n**What the test checks**\n- Response status code is 204\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Get PIA By Managed Application",
@@ -1975,7 +2143,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nPrivacy Impact Assessments API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/privacy-impact-assessments/managed/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `pia_template_id`\n\n**What the test checks**\n- Response status code is 200\n- PIA content is returned"
         },
         {
           "name": "Delete PIA By Managed Application",
@@ -1995,7 +2164,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nDeletes or disassociates a resource and verifies the effect.\n\n**Scope**\nPrivacy Impact Assessments API\n\n**Request**\n- Endpoint: `DELETE {{baseURL}}/api/privacy-impact-assessments/managed/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 204"
         },
         {
           "name": "PIA Not Found After Delete",
@@ -2015,9 +2185,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nPrivacy Impact Assessments API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/privacy-impact-assessments/managed/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 404"
         }
-      ]
+      ],
+      "description": "Privacy Impact Assessment (PIA) template and CRUD flows for managed applications.\n\n**Requests in this folder (6)**\n- Get PIA Template\n- PIA Not Found Before Submit\n- Submit PIA By Managed Application\n- Get PIA By Managed Application\n- Delete PIA By Managed Application\n- PIA Not Found After Delete\n\n**Variables produced in this folder**\n- `pia_template_id`\n- `pia_template_json`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Questionnaires API",
@@ -2052,7 +2224,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nQuestionnaires API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/questionnaires/template`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 200\n- Template contains at least one question\n\n**Collection variables captured from the response**\n- `question_first_choice`\n- `question_uuid`"
         },
         {
           "name": "Questionnaire Not Found Before Submit",
@@ -2072,7 +2245,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nQuestionnaires API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/questionnaires/managed-application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 404"
         },
         {
           "name": "Submit Questionnaire (Minimal)",
@@ -2112,7 +2286,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nQuestionnaires API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/questionnaires/managed-application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `question_first_choice`, `question_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Questionnaire submission has given_answers\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Get Questionnaire By Managed Application",
@@ -2137,9 +2312,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nQuestionnaires API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/questionnaires/managed-application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Questionnaire exists after submission"
         }
-      ]
+      ],
+      "description": "Questionnaire template and minimal submission flow for managed applications.\n\n**Requests in this folder (4)**\n- Get Questionnaire Template\n- Questionnaire Not Found Before Submit\n- Submit Questionnaire (Minimal)\n- Get Questionnaire By Managed Application\n\n**Variables produced in this folder**\n- `question_first_choice`\n- `question_uuid`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Marketplace Integration API",
@@ -2181,7 +2358,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that the endpoint is protected and requires authentication.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/integrations/marketplace/apps`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 401\n- Unauthorized payload is returned\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Successful Marketplace Ingest - Create Application",
@@ -2194,7 +2372,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{marketplace_ingest_token}}"
+                "value": "Bearer {{marketplace_integration_token}}"
               }
             ],
             "url": "{{baseURL}}/api/integrations/marketplace/apps",
@@ -2232,7 +2410,8 @@
               }
             }
           ],
-          "response": []
+          "response": [],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/integrations/marketplace/apps`\n- Uses collection variables: `baseURL`, `dc_email`, `delegate_email`, `marketplace_app_id`, `marketplace_app_title`, `marketplace_integration_token`\n\n**Pre-request script**\nThis request generates input data and sets:\n- `marketplace_app_id`\n- `marketplace_app_title`\n\n**What the test checks**\n- Response status code is 201\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Successful Marketplace Ingest - Idempotent Re-Ingest",
@@ -2245,7 +2424,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{marketplace_ingest_token}}"
+                "value": "Bearer {{marketplace_integration_token}}"
               }
             ],
             "url": "{{baseURL}}/api/integrations/marketplace/apps",
@@ -2272,7 +2451,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that repeating the same request is safe and does not create duplicates (idempotency).\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/integrations/marketplace/apps`\n- Uses collection variables: `baseURL`, `dc_email`, `delegate_email`, `marketplace_app_id`, `marketplace_app_title`, `marketplace_integration_token`\n\n**What the test checks**\n- Response status code is 204\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Verify Marketplace Ingested App In Managed List",
@@ -2298,6 +2478,7 @@
                   "pm.test(\"Ingested marketplace app is present\", function () {",
                   "  pm.expect(found).to.not.eql(undefined);",
                   "});",
+                  "pm.collectionVariables.set('marketplace_app_uuid', found.application.uuid);",
                   "pm.test(\"Ingested app owner is the expected data controller\", function () {",
                   "  pm.expect(found.owner).to.have.property(\"email\", pm.collectionVariables.get(\"dc_email\"));",
                   "});"
@@ -2305,7 +2486,181 @@
               }
             }
           ],
-          "response": []
+          "response": [],
+          "description": "**Purpose**\nVerifies that a previous step had the expected effect.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/applications/managed`\n- Uses collection variables: `baseURL`, `dc_email`, `marketplace_app_id`\n\n**What the test checks**\n- Response status code is 200\n- Ingested marketplace app is present\n- Ingested app owner is the expected data controller"
+        },
+        {
+          "name": "Marketplace PATCH - Update Application Metadata",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_integration_token}}"
+              }
+            ],
+            "url": "{{baseURL}}/api/integrations/marketplace/apps/{{marketplace_app_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"{{marketplace_app_patched_title}}\", \"description\": \"{{marketplace_app_patched_description}}\", \"available_consents\": [\"{{marketplace_app_patched_consent_1}}\", \"{{marketplace_app_patched_consent_2}}\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var patchedTitle = pm.collectionVariables.get('marketplace_app_title') + ' (patched)';",
+                  "pm.collectionVariables.set('marketplace_app_patched_title', patchedTitle);",
+                  "pm.collectionVariables.set('marketplace_app_patched_description', 'Marketplace patched description');",
+                  "pm.collectionVariables.set('marketplace_app_patched_consent_1', 'marketplace patched processing consent');",
+                  "pm.collectionVariables.set('marketplace_app_patched_consent_2', 'marketplace patched analytics consent');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nUpdates marketplace-managed metadata using `title` as the only accepted display-name field and replaces the marketplace consent catalog with a patched payload.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `PATCH {{baseURL}}/api/integrations/marketplace/apps/{{marketplace_app_id}}`\n- Uses collection variables: `baseURL`, `marketplace_app_id`, `marketplace_app_title`, `marketplace_integration_token`\n\n**Pre-request script**\nSets:\n- `marketplace_app_patched_title`\n- `marketplace_app_patched_description`\n- `marketplace_app_patched_consent_1`\n- `marketplace_app_patched_consent_2`\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Unprocessable Marketplace PATCH - Unsupported Name Field",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_integration_token}}"
+              }
+            ],
+            "url": "{{baseURL}}/api/integrations/marketplace/apps/{{marketplace_app_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Deprecated marketplace title field\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 422\", function () { pm.expect(pm.response.code).to.eql(422); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Unsupported name field is rejected\", function () {",
+                  "  pm.expect(body).to.have.property(\"errors\");",
+                  "  pm.expect(body.errors).to.have.property(\"json\");",
+                  "  pm.expect(body.errors.json).to.have.property(\"name\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the marketplace PATCH endpoint rejects the unsupported `name` field.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `PATCH {{baseURL}}/api/integrations/marketplace/apps/{{marketplace_app_id}}`\n- Uses collection variables: `baseURL`, `marketplace_app_id`, `marketplace_integration_token`\n\n**What the test checks**\n- Response status code is 422\n- Validation errors report the unsupported `name` field"
+        },
+        {
+          "name": "Verify Marketplace Patched Metadata In Managed List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "var data = pm.response.json();",
+                  "var targetId = pm.collectionVariables.get(\"marketplace_app_id\");",
+                  "var found = data.find(function (item) {",
+                  "  return item.application && item.application.name === targetId;",
+                  "});",
+                  "pm.test(\"Marketplace app is present\", function () {",
+                  "  pm.expect(found).to.not.eql(undefined);",
+                  "});",
+                  "pm.collectionVariables.set('marketplace_app_uuid', found.application.uuid);",
+                  "pm.test(\"Marketplace app title is updated\", function () {",
+                  "  pm.expect(found.application).to.have.property(\"title\", pm.collectionVariables.get(\"marketplace_app_patched_title\"));",
+                  "});",
+                  "pm.test(\"Marketplace app description is updated\", function () {",
+                  "  pm.expect(found.application).to.have.property(\"description\", pm.collectionVariables.get(\"marketplace_app_patched_description\"));",
+                  "});",
+                  "pm.test(\"Marketplace app owner is unchanged\", function () {",
+                  "  pm.expect(found.owner).to.have.property(\"email\", pm.collectionVariables.get(\"dc_email\"));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [],
+          "description": "**Purpose**\nVerifies that the PATCH request updated the application metadata and keeps the same owner.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/applications/managed`\n- Uses collection variables: `baseURL`, `dc_email`, `marketplace_app_id`, `marketplace_app_patched_title`, `marketplace_app_patched_description`\n\n**What the test checks**\n- Response status code is 200\n- Application title/description match the patched values\n- Owner is unchanged\n\n**Collection variables captured from the response**\n- `marketplace_app_uuid`"
+        },
+        {
+          "name": "Verify Marketplace Patched Consents Catalog",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/consents/application/{{marketplace_app_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var consents = pm.response.json();",
+                  "pm.test('Consent list is an array', function () { pm.expect(consents).to.be.an('array'); });",
+                  "var contents = consents.map(function (item) { return item.content; }).sort();",
+                  "var expected = [",
+                  "  pm.collectionVariables.get('marketplace_app_patched_consent_1'),",
+                  "  pm.collectionVariables.get('marketplace_app_patched_consent_2')",
+                  "].sort();",
+                  "pm.test('Marketplace consent catalog matches the patched payload', function () { pm.expect(contents).to.eql(expected); });",
+                  "pm.test('Original marketplace consents were pruned', function () {",
+                  "  pm.expect(contents).to.not.include('processing of personal information to provide the service');",
+                  "  pm.expect(contents).to.not.include('sharing data with analytics service');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the marketplace PATCH request replaced the available-consent catalog for the application.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/consents/application/{{marketplace_app_uuid}}`\n- Uses collection variables: `baseURL`, `marketplace_app_patched_consent_1`, `marketplace_app_patched_consent_2`, `marketplace_app_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Consent list is an array\n- Patched consents are present\n- Original consents are pruned"
         },
         {
           "name": "Unauthorized Marketplace Ingest - Wrong Bearer",
@@ -2343,9 +2698,290 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that the endpoint is protected and requires authentication.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/integrations/marketplace/apps`\n- Uses collection variables: `baseURL`, `dc_email`\n\n**What the test checks**\n- Response status code is 401\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         }
-      ]
+      ],
+      "description": "Marketplace integration tests for registering (ingesting) applications into the dashboard.\n\n- Verifies authentication via Bearer token.\n- Creates an application via the marketplace endpoint.\n- Verifies idempotent re-ingest does not overwrite local changes.\n- Confirms the ingested app appears in the managed list.\n- Updates application metadata via PATCH using `title` as the accepted display-name field.\n- Verifies the unsupported `name` field is rejected by marketplace PATCH validation.\n- Reconciles the marketplace consent catalog via PATCH and verifies the pruned result.\n\n**Requests in this folder (9)**\n- Unauthorized Marketplace Ingest - Missing Bearer\n- Successful Marketplace Ingest - Create Application\n- Successful Marketplace Ingest - Idempotent Re-Ingest\n- Verify Marketplace Ingested App In Managed List\n- Marketplace PATCH - Update Application Metadata\n- Unprocessable Marketplace PATCH - Unsupported Name Field\n- Verify Marketplace Patched Metadata In Managed List\n- Verify Marketplace Patched Consents Catalog\n- Unauthorized Marketplace Ingest - Wrong Bearer\n\n**Variables produced in this folder**\n- `marketplace_app_id`\n- `marketplace_app_title`\n- `marketplace_app_uuid`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
+    },
+    {
+      "name": "Smartotum Manager Seed Regression",
+      "item": [
+        {
+          "name": "Find Smartotum App In Managed List (Seed Check)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var data = pm.response.json();",
+                  "var targetId = pm.collectionVariables.get('smartotum_seeded_app_id');",
+                  "var found = data.find(function (item) { return item.application && item.application.name === targetId; });",
+                  "pm.test('Seeded Smartotum app is present', function () { pm.expect(found).to.not.eql(undefined); });",
+                  "pm.collectionVariables.set('smartotum_seeded_app_uuid', found.application.uuid);"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nFinds the Smartotum application used for manager seed regression checks.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/applications/managed`\n- Uses collection variables: `baseURL`, `smartotum_seeded_app_id`\n\n**What the test checks**\n- Response status code is 200\n- Seeded Smartotum app is present\n\n**Collection variables captured from the response**\n- `smartotum_seeded_app_uuid`"
+        },
+        {
+          "name": "Verify Seeded Delegate Present On Smartotum App",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/users/managed-application/{{smartotum_seeded_app_uuid}}?role=DATA_CONTROLLER"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var users = pm.response.json();",
+                  "var emails = users.map(function (item) { return item.email; });",
+                  "pm.test('Seeded delegate is present before manual removal', function () { pm.expect(emails).to.include(pm.collectionVariables.get('delegate_email')); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the Smartotum fixture seeds the delegate manager on first sync.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/users/managed-application/{{smartotum_seeded_app_uuid}}?role=DATA_CONTROLLER`\n- Uses collection variables: `baseURL`, `delegate_email`, `smartotum_seeded_app_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Seeded delegate is present before manual removal"
+        },
+        {
+          "name": "Remove Seeded Delegate From Smartotum App",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed/{{smartotum_seeded_app_uuid}}/managers/{{delegate_email}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 204', function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nRemoves the seeded Smartotum delegate locally before a subsequent Smartotum refresh.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `DELETE {{baseURL}}/api/applications/managed/{{smartotum_seeded_app_uuid}}/managers/{{delegate_email}}`\n- Uses collection variables: `baseURL`, `delegate_email`, `smartotum_seeded_app_uuid`\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Verify Seeded Delegate Removed From Smartotum App",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/users/managed-application/{{smartotum_seeded_app_uuid}}?role=DATA_CONTROLLER"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var users = pm.response.json();",
+                  "var emails = users.map(function (item) { return item.email; });",
+                  "pm.test('Seeded delegate is removed locally', function () { pm.expect(emails).to.not.include(pm.collectionVariables.get('delegate_email')); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the delegate removal took effect locally before the refresh.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/users/managed-application/{{smartotum_seeded_app_uuid}}?role=DATA_CONTROLLER`\n- Uses collection variables: `baseURL`, `delegate_email`, `smartotum_seeded_app_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Seeded delegate is removed locally"
+        },
+        {
+          "name": "Successful Logout - Data Controller (Seed Check)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/auth/logout"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 204', function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nEnds the Data Controller session before switching back to the Data Subject.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/logout`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Successful Login - Data Subject (Seed Check)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{ds_email}}\", \"password\": \"{{ds_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test('Logged user is Data Subject', function () {",
+                  "  pm.expect(body).to.have.property('uuid');",
+                  "  pm.expect(body).to.have.property('email', pm.collectionVariables.get('ds_email'));",
+                  "  pm.expect(body).to.have.property('role', 'DATA_SUBJECT');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nLogs in as the Data Subject to trigger the Smartotum application refresh.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/login`\n- Uses collection variables: `baseURL`, `ds_email`, `ds_password`\n\n**What the test checks**\n- Response status code is 200\n- Logged user is Data Subject\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
+        },
+        {
+          "name": "Refresh Applications - Data Subject (Seed Check)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/refresh"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test('Refresh result contains message and warnings', function () {",
+                  "  pm.expect(body).to.have.property('message');",
+                  "  pm.expect(body).to.have.property('warnings');",
+                  "  pm.expect(body.message).to.be.a('string').and.to.have.length.above(0);",
+                  "  pm.expect(body.warnings).to.be.an('array');",
+                  "  body.warnings.forEach(function (warning) { pm.expect(warning).to.be.a('string'); });",
+                  "  pm.expect(body.warnings.length).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nRefreshes Smartotum applications after the local delegate removal and validates that the sync completes cleanly without re-seeding the removed manager.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/applications/refresh`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 200\n- The response contains a non-empty sync `message`\n- The response contains a `warnings` array\n- Each warning entry is a string\n- No user-facing warnings are returned in this regression scenario"
+        },
+        {
+          "name": "Successful Logout - Data Subject (Seed Check)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/auth/logout"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 204', function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nEnds the Data Subject session after the Smartotum refresh.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/logout`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Successful Login - Data Controller (Seed Check After Refresh)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{dc_email}}\", \"password\": \"{{dc_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test('Logged user is Data Controller', function () {",
+                  "  pm.expect(body).to.have.property('uuid');",
+                  "  pm.expect(body).to.have.property('email', pm.collectionVariables.get('dc_email'));",
+                  "  pm.expect(body).to.have.property('role', 'DATA_CONTROLLER');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nLogs back in as the Data Controller to verify the post-refresh manager set.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/login`\n- Uses collection variables: `baseURL`, `dc_email`, `dc_password`\n\n**What the test checks**\n- Response status code is 200\n- Logged user is Data Controller\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
+        },
+        {
+          "name": "Verify Seeded Delegate Not Re-added After Smartotum Refresh",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/users/managed-application/{{smartotum_seeded_app_uuid}}?role=DATA_CONTROLLER"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var users = pm.response.json();",
+                  "var emails = users.map(function (item) { return item.email; });",
+                  "pm.test('Seeded delegate is not re-added by Smartotum refresh', function () { pm.expect(emails).to.not.include(pm.collectionVariables.get('delegate_email')); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that a subsequent Smartotum application refresh does not re-seed delegates after local removal.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/users/managed-application/{{smartotum_seeded_app_uuid}}?role=DATA_CONTROLLER`\n- Uses collection variables: `baseURL`, `delegate_email`, `smartotum_seeded_app_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Seeded delegate is not re-added by Smartotum refresh"
+        }
+      ],
+      "description": "Regression coverage for Smartotum manager seeding.\n\n- Finds a Smartotum-managed application with a seeded delegate from the mock catalog.\n- Removes the delegate locally as the owner Data Controller.\n- Refreshes applications again as the Data Subject.\n- Verifies that the removed delegate is not re-added by subsequent Smartotum syncs.\n- Verifies that the refresh still returns a clean structured sync result (`message` + empty `warnings`).\n\n**Requests in this folder (10)**\n- Find Smartotum App In Managed List (Seed Check)\n- Verify Seeded Delegate Present On Smartotum App\n- Remove Seeded Delegate From Smartotum App\n- Verify Seeded Delegate Removed From Smartotum App\n- Successful Logout - Data Controller (Seed Check)\n- Successful Login - Data Subject (Seed Check)\n- Refresh Applications - Data Subject (Seed Check)\n- Successful Logout - Data Subject (Seed Check)\n- Successful Login - Data Controller (Seed Check After Refresh)\n- Verify Seeded Delegate Not Re-added After Smartotum Refresh\n\n**Variables produced in this folder**\n- `smartotum_seeded_app_uuid`\n\n**Notes**\n- This folder assumes the mock Smartotum application catalog seeds `{{delegate_email}}` as an initial delegate for `{{smartotum_seeded_app_id}}`."
     },
     {
       "name": "Applications Assignment Cleanup",
@@ -2368,7 +3004,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nDeletes or disassociates a resource and verifies the effect.\n\n**Scope**\nApplications Assignment Cleanup\n\n**Request**\n- Endpoint: `DELETE {{baseURL}}/api/applications/managed/{{created_application_uuid}}/managers/{{delegate_email}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `delegate_email`\n\n**What the test checks**\n- Response status code is 204"
         },
         {
           "name": "Verify Delegate Removed From Managers",
@@ -2393,7 +3030,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that a previous step had the expected effect.\n\n**Scope**\nApplications Assignment Cleanup\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/users/managed-application/{{created_application_uuid}}?role=DATA_CONTROLLER`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Managers list is empty (current user excluded)"
         },
         {
           "name": "Remove DPO",
@@ -2413,7 +3051,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nDeletes or disassociates a resource and verifies the effect.\n\n**Scope**\nApplications Assignment Cleanup\n\n**Request**\n- Endpoint: `DELETE {{baseURL}}/api/applications/managed/{{created_application_uuid}}/dpo`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 204"
         },
         {
           "name": "Verify DPO Removed",
@@ -2438,9 +3077,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that a previous step had the expected effect.\n\n**Scope**\nApplications Assignment Cleanup\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/users/managed-application/{{created_application_uuid}}?role=DATA_PROTECTION_OFFICER`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 200\n- DPO list is empty"
         }
-      ]
+      ],
+      "description": "Cleanup steps for application manager/DPO assignments created earlier in the collection.\n\n**Requests in this folder (4)**\n- Remove Delegate Data Controller\n- Verify Delegate Removed From Managers\n- Remove DPO\n- Verify DPO Removed\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Consents API",
@@ -2483,7 +3124,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nConsents API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/consents/application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 201\n- Created consent structure is valid\n\n**Collection variables captured from the response**\n- `created_consent_uuid`\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Add Available Consent Duplicate",
@@ -2522,7 +3164,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nConsents API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/consents/application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 422\n- Unprocessable payload is returned\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Add Available Consent - Blank Content",
@@ -2556,7 +3199,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nConsents API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/consents/application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`\n\n**What the test checks**\n- Response status code is 422\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Remove Available Consent From Created Application",
@@ -2576,7 +3220,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nDeletes or disassociates a resource and verifies the effect.\n\n**Scope**\nConsents API\n\n**Request**\n- Endpoint: `DELETE {{baseURL}}/api/consents/application/{{created_application_uuid}}/{{created_consent_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `created_consent_uuid`\n\n**What the test checks**\n- Response status code is 204"
         },
         {
           "name": "Verify Removed Consent Not Present",
@@ -2601,7 +3246,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that a previous step had the expected effect.\n\n**Scope**\nConsents API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/consents/application/{{created_application_uuid}}`\n- Uses collection variables: `baseURL`, `created_application_uuid`, `created_consent_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Consent list is an array\n- Removed consent is no longer present"
         },
         {
           "name": "Successful Login - Data Subject (Consents)",
@@ -2639,7 +3285,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nLogs in and verifies the authenticated session is established.\n\n**Scope**\nConsents API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/login`\n- Uses collection variables: `baseURL`, `ds_email`, `ds_password`\n\n**What the test checks**\n- Response status code is 200\n- Logged user is Data Subject\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Get Consent State By Home And Application",
@@ -2665,7 +3312,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nConsents API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_installed_application_uuid}}`\n- Uses collection variables: `baseURL`, `ds_home_uuid`, `ds_installed_application_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Consent state list is not empty\n\n**Collection variables captured from the response**\n- `ds_consent_uuid`"
         },
         {
           "name": "Set Given Consent - Empty List",
@@ -2699,7 +3347,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nConsents API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_installed_application_uuid}}`\n- Uses collection variables: `baseURL`, `ds_home_uuid`, `ds_installed_application_uuid`\n\n**What the test checks**\n- Response status code is 422\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Set Given Consent By Home And Application",
@@ -2733,7 +3382,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nPerforms a state-changing operation and verifies the result.\n\n**Scope**\nConsents API\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_installed_application_uuid}}`\n- Uses collection variables: `baseURL`, `ds_consent_uuid`, `ds_home_uuid`, `ds_installed_application_uuid`\n\n**What the test checks**\n- Response status code is 204\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Verify Consent Given After Update",
@@ -2758,9 +3408,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that a previous step had the expected effect.\n\n**Scope**\nConsents API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_installed_application_uuid}}`\n- Uses collection variables: `baseURL`, `ds_consent_uuid`, `ds_home_uuid`, `ds_installed_application_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Updated consent is present\n- Updated consent is marked as given"
         }
-      ]
+      ],
+      "description": "Available consents management (Data Controller) and consent state management (Data Subject).\n\n- Adds/removes available consents for a created application (including validation and duplicate checks).\n- Logs in as a Data Subject and updates given consents for an installed app.\n\n**Requests in this folder (10)**\n- Add Available Consent To Created Application\n- Add Available Consent Duplicate\n- Add Available Consent - Blank Content\n- Remove Available Consent From Created Application\n- Verify Removed Consent Not Present\n- Successful Login - Data Subject (Consents)\n- Get Consent State By Home And Application\n- Set Given Consent - Empty List\n- Set Given Consent By Home And Application\n- Verify Consent Given After Update\n\n**Variables produced in this folder**\n- `created_consent_uuid`\n- `ds_consent_uuid`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Requests API (Data Subject)",
@@ -2790,9 +3442,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nFetches data and verifies basic response structure.\n\n**Scope**\nRequests API (Data Subject)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/requests/home/{{ds_home_uuid}}?status=HANDLED`\n- Uses collection variables: `baseURL`, `ds_home_uuid`, `ds_request_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Handled requests contains the handled DS request"
         }
-      ]
+      ],
+      "description": "Data Subject view of right requests for a specific smart home.\n\n**Requests in this folder (1)**\n- List Handled Requests - Data Subject\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "SIFIS API",
@@ -2820,9 +3474,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nSIFIS API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/sifis/health`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 200\n- Health payload is valid"
         }
-      ]
+      ],
+      "description": "Basic SIFIS integration smoke test (health check).\n\n**Requests in this folder (1)**\n- Health Check\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "SIFIS Rules - Entire Home DHT Fan-out",
@@ -2850,7 +3506,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nSIFIS Rules - Entire Home DHT Fan-out\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/trigger-services/sifis_time/triggers`\n- Uses collection variables: `baseURL`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Triggers list is an array\n- Always trigger found\n\n**Collection variables captured from the response**\n- `sifis_always_trigger_url`"
         },
         {
           "name": "SIFIS Get Actions - sifis_video",
@@ -2876,7 +3533,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nSIFIS Rules - Entire Home DHT Fan-out\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/action-services/sifis_video/actions`\n- Uses collection variables: `baseURL`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Actions list is an array\n- Video action found\n\n**Collection variables captured from the response**\n- `sifis_video_action_id`\n- `sifis_video_action_url`"
         },
         {
           "name": "SIFIS Get Video Action Details (location url)",
@@ -2901,7 +3559,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nSIFIS Rules - Entire Home DHT Fan-out\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/action-services/sifis_video/actions/{{sifis_video_action_id}}/details`\n- Uses collection variables: `baseURL`, `ds_home_uuid`, `sifis_video_action_id`\n\n**What the test checks**\n- Response status code is 200\n- Details list is an array\n- Location detail found\n\n**Collection variables captured from the response**\n- `sifis_location_detail_url`"
         },
         {
           "name": "Create Rule - Video Deny Entire Home",
@@ -2939,7 +3598,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nCreates a new resource and verifies the response.\n\n**Scope**\nSIFIS Rules - Entire Home DHT Fan-out\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules`\n- Uses collection variables: `baseURL`, `ds_email`, `ds_home_uuid`, `sifis_always_trigger_url`, `sifis_location_detail_url`, `sifis_video_action_url`\n\n**What the test checks**\n- Response status code is 200\n- Rule id returned\n\n**Collection variables captured from the response**\n- `dht_test_expiration_date`\n- `entire_home_rule_id`\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "DHT - List Camera Devices (count)",
@@ -2963,7 +3623,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nSIFIS Rules - Entire Home DHT Fan-out\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/domo_camera`\n- Uses collection variables: `baseURL`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Devices list is an array\n- At least one camera exists\n\n**Collection variables captured from the response**\n- `camera_devices_count`"
         },
         {
           "name": "DHT - List Rules After Create (match expiration)",
@@ -2990,7 +3651,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nSIFIS Rules - Entire Home DHT Fan-out\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule`\n- Uses collection variables: `baseURL`, `camera_devices_count`, `dht_test_expiration_date`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Rules list is an array\n- DHT rules were created for all cameras\n\n**Collection variables captured from the response**\n- `dht_created_rule_uuids`"
         },
         {
           "name": "Delete Rule - Entire Home",
@@ -3012,7 +3674,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nDeletes or disassociates a resource and verifies the effect.\n\n**Scope**\nSIFIS Rules - Entire Home DHT Fan-out\n\n**Request**\n- Endpoint: `DELETE {{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules/{{entire_home_rule_id}}`\n- Uses collection variables: `baseURL`, `ds_home_uuid`, `entire_home_rule_id`\n\n**What the test checks**\n- Response status code is 200\n- Deleted rule id returned"
         },
         {
           "name": "DHT - List Rules After Delete (should be gone)",
@@ -3037,9 +3700,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nSIFIS Rules - Entire Home DHT Fan-out\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule`\n- Uses collection variables: `baseURL`, `dht_test_expiration_date`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Rules list is an array\n- DHT rules are deleted"
         }
-      ]
+      ],
+      "description": "Policy Translation (SIFIS) rule creation and DHT fan-out checks.\n\n- Discovers trigger/action services.\n- Creates an \"Entire Home\" rule that expands into multiple DHT entries (one per device).\n- Verifies DHT entries are created and later removed after deletion.\n\n**Requests in this folder (8)**\n- SIFIS Get Triggers - sifis_time\n- SIFIS Get Actions - sifis_video\n- SIFIS Get Video Action Details (location url)\n- Create Rule - Video Deny Entire Home\n- DHT - List Camera Devices (count)\n- DHT - List Rules After Create (match expiration)\n- Delete Rule - Entire Home\n- DHT - List Rules After Delete (should be gone)\n\n**Variables produced in this folder**\n- `camera_devices_count`\n- `dht_created_rule_uuids`\n- `dht_test_expiration_date`\n- `entire_home_rule_id`\n- `sifis_always_trigger_url`\n- `sifis_location_detail_url`\n- `sifis_video_action_id`\n- `sifis_video_action_url`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Consent Auto Rules (Withdraw/Accept)",
@@ -3067,7 +3732,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/applications/home/{{ds_home_uuid}}`\n- Uses collection variables: `baseURL`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Installed applications is an array\n- Camera manager app is installed\n\n**Collection variables captured from the response**\n- `ds_camera_app_uuid`"
         },
         {
           "name": "Find Consent UUID For Camera Manager",
@@ -3093,7 +3759,33 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_camera_app_uuid}}`\n- Uses collection variables: `baseURL`, `ds_camera_app_uuid`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Consent list is an array\n- Target consent found\n- Consent is not given by default\n\n**Collection variables captured from the response**\n- `ds_camera_consent_uuid`"
+        },
+        {
+          "name": "DHT - List Camera Devices (for consent rule checks)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/domo_camera"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var devices = pm.response.json();",
+                  "pm.test(\"Devices list is an array\", function () { pm.expect(devices).to.be.an('array'); });",
+                  "pm.test(\"At least one camera exists\", function () { pm.expect(devices.length).to.be.above(0); });",
+                  "pm.collectionVariables.set('ds_camera_device_uuids', JSON.stringify(devices.map(function(d){ return d.topic_uuid; })));"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nCollects the camera device UUIDs needed to verify DHT fan-out of consent rules.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/domo_camera`\n- Uses collection variables: `baseURL`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Devices list is an array\n- At least one camera exists\n\n**Collection variables captured from the response**\n- `ds_camera_device_uuids`"
         },
         {
           "name": "Verify Default Consent Deny Rule Exists In SIFIS Rules List",
@@ -3113,12 +3805,65 @@
                   "var rules = pm.response.json();",
                   "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
                   "var consentUuid = pm.collectionVariables.get('ds_camera_consent_uuid');",
-                  "var r = rules.find(function(x){ return x && x.consent_uuid === consentUuid; });",
-                  "pm.test(\"Default consent deny rule exists\", function () { pm.expect(r).to.not.eql(undefined); });"
+                  "var rule = rules.find(function(x){ return x && x.consent_uuid === consentUuid; });",
+                  "pm.test(\"Default consent deny rule exists\", function () { pm.expect(rule).to.not.eql(undefined); });",
+                  "function hexToBytes(hex){ var out=[]; for (var i=0;i<hex.length;i+=2){ out.push(parseInt(hex.substr(i,2),16)); } return out; }",
+                  "function bytesToUuid(b){ var hex=b.map(function(x){ return ('0'+x.toString(16)).slice(-2); }).join(''); return [hex.substr(0,8),hex.substr(8,4),hex.substr(12,4),hex.substr(16,4),hex.substr(20,12)].join('-'); }",
+                  "function uuidV5(name, namespaceUuid){ var nsHex = (namespaceUuid||'').replace(/-/g,''); var nameHex = CryptoJS.enc.Utf8.parse(String(name)).toString(CryptoJS.enc.Hex); var toHashHex = nsHex + nameHex; var hashHex = CryptoJS.SHA1(CryptoJS.enc.Hex.parse(toHashHex)).toString(); var bytes = hexToBytes(hashHex).slice(0,16); bytes[6] = (bytes[6] & 0x0f) | 0x50; bytes[8] = (bytes[8] & 0x3f) | 0x80; return bytesToUuid(bytes); }",
+                  "var homeUuid = pm.collectionVariables.get('ds_home_uuid');",
+                  "var consentNamespace = '7a6b7c3c-9d61-4b8e-9a1f-2fd51f2a4e6c';",
+                  "var computedBase = uuidV5('consent:' + homeUuid + ':' + consentUuid, consentNamespace);",
+                  "var ruleUuid = rule ? rule.rule_uuid : undefined;",
+                  "pm.test(\"Consent base rule UUID is deterministic\", function(){ pm.expect(String(ruleUuid)).to.eql(String(computedBase)); });",
+                  "pm.collectionVariables.set('ds_consent_rule_base_uuid', String(computedBase));"
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies the initial consent-enforcement state in SIFIS before the consent is accepted.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules`\n- Uses collection variables: `baseURL`, `ds_camera_consent_uuid`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Rules list is an array\n- Default consent deny rule exists\n- Consent base rule UUID is deterministic\n\n**Collection variables captured from the response**\n- `ds_consent_rule_base_uuid`"
+        },
+        {
+          "name": "DHT - Verify Initial Consent Rule Entries Exist",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function hexToBytes(hex){ var out=[]; for (var i=0;i<hex.length;i+=2){ out.push(parseInt(hex.substr(i,2),16)); } return out; }",
+                  "function bytesToUuid(b){ var hex=b.map(function(x){ return ('0'+x.toString(16)).slice(-2); }).join(''); return [hex.substr(0,8),hex.substr(8,4),hex.substr(12,4),hex.substr(16,4),hex.substr(20,12)].join('-'); }",
+                  "function uuidV5(name, namespaceUuid){ var nsHex = (namespaceUuid||'').replace(/-/g,''); var nameHex = CryptoJS.enc.Utf8.parse(String(name)).toString(CryptoJS.enc.Hex); var toHashHex = nsHex + nameHex; var hashHex = CryptoJS.SHA1(CryptoJS.enc.Hex.parse(toHashHex)).toString(); var bytes = hexToBytes(hashHex).slice(0,16); bytes[6] = (bytes[6] & 0x0f) | 0x50; bytes[8] = (bytes[8] & 0x3f) | 0x80; return bytesToUuid(bytes); }",
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var rules = pm.response.json();",
+                  "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
+                  "var byUuid = {}; rules.forEach(function(r){ if (r && r.topic_uuid) byUuid[String(r.topic_uuid)] = r; });",
+                  "var baseRuleUuid = pm.collectionVariables.get('ds_consent_rule_base_uuid');",
+                  "pm.test(\"Stored base rule UUID is available\", function(){ pm.expect(baseRuleUuid).to.be.a('string').and.not.empty; });",
+                  "var devices = JSON.parse(pm.collectionVariables.get('ds_camera_device_uuids') || '[]');",
+                  "pm.test(\"At least one camera exists\", function(){ pm.expect(devices.length).to.be.above(0); });",
+                  "var expectedUuids = (devices.length === 1) ? [baseRuleUuid] : devices.map(function(devUuid){ return uuidV5(String(devUuid), baseRuleUuid); });",
+                  "pm.collectionVariables.set('ds_consent_rule_dht_uuids', JSON.stringify(expectedUuids));",
+                  "expectedUuids.forEach(function(u, i){",
+                  "  pm.test('Initial consent DHT rule exists: ' + u, function(){ pm.expect(byUuid[u]).to.not.eql(undefined); });",
+                  "  var item = byUuid[u];",
+                  "  var expectedTarget = (devices.length === 1) ? devices[0] : devices[i];",
+                  "  pm.test('Initial consent DHT rule targets correct device: ' + u, function(){",
+                  "    pm.expect(item.value).to.have.property('target_topic', 'domo_camera');",
+                  "    pm.expect(String(item.value.target_uuid)).to.eql(String(expectedTarget));",
+                  "    pm.expect(item.value).to.have.property('expiration_date', '2099/12/31');",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies the initial DHT fan-out associated with the default deny consent rule.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule`\n- Uses collection variables: `baseURL`, `ds_camera_device_uuids`, `ds_consent_rule_base_uuid`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Rules list is an array\n- Stored base rule UUID is available\n- At least one camera exists\n- Initial consent DHT rule exists\n- Initial consent DHT rule targets the correct device\n\n**Collection variables captured from the response**\n- `ds_consent_rule_dht_uuids`"
         },
         {
           "name": "Give Consent (Camera Manager)",
@@ -3152,7 +3897,87 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nAccepts the mapped consent to verify that automatic deny enforcement is removed.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_camera_app_uuid}}`\n- Uses collection variables: `baseURL`, `ds_camera_app_uuid`, `ds_camera_consent_uuid`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 204\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
+        },
+        {
+          "name": "Verify Consent Given After Accept",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_camera_app_uuid}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var data = pm.response.json();",
+                  "var targetUuid = pm.collectionVariables.get('ds_camera_consent_uuid');",
+                  "var matched = data.find(function (item) { return item.uuid === targetUuid; });",
+                  "pm.test(\"Consent is present\", function () { pm.expect(matched).to.not.eql(undefined); });",
+                  "pm.test(\"Consent is given\", function () { pm.expect(matched.given).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the consent state has been updated after acceptance.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_camera_app_uuid}}`\n- Uses collection variables: `baseURL`, `ds_camera_app_uuid`, `ds_camera_consent_uuid`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Consent is present\n- Consent is given"
+        },
+        {
+          "name": "Verify Consent Rule Removed From SIFIS Rules List After Accept",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var rules = pm.response.json();",
+                  "var consentUuid = pm.collectionVariables.get('ds_camera_consent_uuid');",
+                  "var r = rules.find(function(x){ return x && x.consent_uuid === consentUuid; });",
+                  "pm.test(\"Consent rule is removed\", function () { pm.expect(r).to.eql(undefined); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that accepting the consent removes the deny rule from SIFIS.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules`\n- Uses collection variables: `baseURL`, `ds_camera_consent_uuid`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Consent rule is removed"
+        },
+        {
+          "name": "DHT - Verify Consent Rule Entries Gone After Accept",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var rules = pm.response.json();",
+                  "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
+                  "var byUuid = {}; rules.forEach(function(r){ if (r && r.topic_uuid) byUuid[String(r.topic_uuid)] = r; });",
+                  "var derived = JSON.parse(pm.collectionVariables.get('ds_consent_rule_dht_uuids') || '[]');",
+                  "derived.forEach(function(u){",
+                  "  pm.test('Derived DHT rule is deleted after accept: ' + u, function(){ pm.expect(byUuid[u]).to.eql(undefined); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that accepting the consent removes the related DHT fan-out entries.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule`\n- Uses collection variables: `baseURL`, `ds_consent_rule_dht_uuids`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Rules list is an array\n- Derived DHT rule is deleted after accept"
         },
         {
           "name": "Withdraw Consent Request (creates deny rules automatically)",
@@ -3185,11 +4010,18 @@
                   "pm.test(\"Response status code is 201\", function () { pm.expect(pm.response.code).to.eql(201); });",
                   "var body = pm.response.json();",
                   "pm.test(\"Withdraw request uuid returned\", function () { pm.expect(body).to.have.property('uuid'); });",
+                  "pm.test('Withdraw request stores selected consent snapshot', function () {",
+                  "  pm.expect(body.selected_consents).to.be.an('array').with.lengthOf(1);",
+                  "  pm.expect(body.selected_consents[0]).to.have.property('uuid', pm.collectionVariables.get('ds_camera_consent_uuid'));",
+                  "  pm.expect(body.selected_consents[0]).to.have.property('content');",
+                  "  pm.expect(body.selected_consents[0].content).to.be.a('string').and.to.have.length.above(0);",
+                  "});",
                   "pm.collectionVariables.set('ds_withdraw_request_uuid', body.uuid);"
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nRuns an API call and verifies expected behavior.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/requests/submit`\n- Uses collection variables: `baseURL`, `ds_camera_app_uuid`, `ds_camera_consent_uuid`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 201\n- Withdraw request uuid returned\n- The created request stores a consent snapshot (`uuid` + `content`)\n\n**Collection variables captured from the response**\n- `ds_withdraw_request_uuid`\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         },
         {
           "name": "Verify Consent Revoked After Withdraw",
@@ -3214,7 +4046,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that a previous step had the expected effect.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_camera_app_uuid}}`\n- Uses collection variables: `baseURL`, `ds_camera_app_uuid`, `ds_camera_consent_uuid`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Consent is present\n- Consent is revoked"
         },
         {
           "name": "Verify Consent Rule Created In SIFIS Rules List",
@@ -3234,144 +4067,25 @@
                   "var rules = pm.response.json();",
                   "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
                   "var consentUuid = pm.collectionVariables.get('ds_camera_consent_uuid');",
-                  "var r = rules.find(function(x){ return x && x.consent_uuid === consentUuid; });",
-                  "pm.test(\"Consent rule exists\", function () { pm.expect(r).to.not.eql(undefined); });",
-                  "pm.collectionVariables.set('ds_consent_rule_base_uuid', r.rule_uuid);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "DHT - List Camera Devices (for derived UUIDs)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/domo_camera"
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
-                  "var devices = pm.response.json();",
-                  "pm.test(\"Devices list is an array\", function () { pm.expect(devices).to.be.an('array'); });",
-                  "pm.test(\"At least one camera exists\", function () { pm.expect(devices.length).to.be.above(0); });",
-                  "pm.collectionVariables.set('ds_camera_device_uuids', JSON.stringify(devices.map(function(d){ return d.topic_uuid; })));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "DHT - Verify Consent Rule Entries Exist (uuid5 fan-out)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule"
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
+                  "var rule = rules.find(function(x){ return x && x.consent_uuid === consentUuid; });",
+                  "pm.test(\"Consent rule exists\", function () { pm.expect(rule).to.not.eql(undefined); });",
                   "function hexToBytes(hex){ var out=[]; for (var i=0;i<hex.length;i+=2){ out.push(parseInt(hex.substr(i,2),16)); } return out; }",
                   "function bytesToUuid(b){ var hex=b.map(function(x){ return ('0'+x.toString(16)).slice(-2); }).join(''); return [hex.substr(0,8),hex.substr(8,4),hex.substr(12,4),hex.substr(16,4),hex.substr(20,12)].join('-'); }",
                   "function uuidV5(name, namespaceUuid){ var nsHex = (namespaceUuid||'').replace(/-/g,''); var nameHex = CryptoJS.enc.Utf8.parse(String(name)).toString(CryptoJS.enc.Hex); var toHashHex = nsHex + nameHex; var hashHex = CryptoJS.SHA1(CryptoJS.enc.Hex.parse(toHashHex)).toString(); var bytes = hexToBytes(hashHex).slice(0,16); bytes[6] = (bytes[6] & 0x0f) | 0x50; bytes[8] = (bytes[8] & 0x3f) | 0x80; return bytesToUuid(bytes); }",
-                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
-                  "var rules = pm.response.json();",
-                  "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
-                  "var byUuid = {}; rules.forEach(function(r){ if (r && r.topic_uuid) byUuid[String(r.topic_uuid)] = r; });",
                   "var homeUuid = pm.collectionVariables.get('ds_home_uuid');",
-                  "var consentUuid = pm.collectionVariables.get('ds_camera_consent_uuid');",
-                  "var baseFromApi = pm.collectionVariables.get('ds_consent_rule_base_uuid');",
                   "var consentNamespace = '7a6b7c3c-9d61-4b8e-9a1f-2fd51f2a4e6c';",
                   "var computedBase = uuidV5('consent:' + homeUuid + ':' + consentUuid, consentNamespace);",
-                  "pm.test(\"Base rule UUID is deterministic\", function(){ pm.expect(String(baseFromApi)).to.eql(String(computedBase)); });",
-                  "var devices = JSON.parse(pm.collectionVariables.get('ds_camera_device_uuids') || '[]');",
-                  "pm.test(\"At least one camera exists\", function(){ pm.expect(devices.length).to.be.above(0); });",
-                  "var expectedUuids = (devices.length === 1) ? [computedBase] : devices.map(function(devUuid){ return uuidV5(String(devUuid), computedBase); });",
-                  "pm.collectionVariables.set('ds_consent_rule_dht_uuids', JSON.stringify(expectedUuids));",
-                  "expectedUuids.forEach(function(u, i){",
-                  "  pm.test('Consent DHT rule exists: ' + u, function(){ pm.expect(byUuid[u]).to.not.eql(undefined); });",
-                  "  var item = byUuid[u];",
-                  "  var expectedTarget = (devices.length === 1) ? devices[0] : devices[i];",
-                  "  pm.test('Consent DHT rule targets correct device: ' + u, function(){",
-                  "    pm.expect(item.value).to.have.property('target_topic', 'domo_camera');",
-                  "    pm.expect(String(item.value.target_uuid)).to.eql(String(expectedTarget));",
-                  "    pm.expect(item.value).to.have.property('expiration_date', '2099/12/31');",
-                  "  });",
-                  "});"
+                  "var ruleUuid = rule ? rule.rule_uuid : undefined;",
+                  "pm.test(\"Consent base rule UUID is deterministic\", function(){ pm.expect(String(ruleUuid)).to.eql(String(computedBase)); });",
+                  "pm.collectionVariables.set('ds_consent_rule_base_uuid', String(computedBase));"
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that withdrawing consent recreates the deny rule in SIFIS.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules`\n- Uses collection variables: `baseURL`, `ds_camera_consent_uuid`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Rules list is an array\n- Consent rule exists\n- Consent base rule UUID is deterministic\n\n**Collection variables captured from the response**\n- `ds_consent_rule_base_uuid`"
         },
         {
-          "name": "Accept Consent Again (should delete consent rule)",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": "{{baseURL}}/api/consents/home/{{ds_home_uuid}}/application/{{ds_camera_app_uuid}}",
-            "body": {
-              "mode": "raw",
-              "raw": "{\"selected_consents\": [\"{{ds_camera_consent_uuid}}\"]}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Verify Consent Rule Removed From SIFIS Rules List",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseURL}}/api/sifis/homes/{{ds_home_uuid}}/rules"
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
-                  "var rules = pm.response.json();",
-                  "var consentUuid = pm.collectionVariables.get('ds_camera_consent_uuid');",
-                  "var r = rules.find(function(x){ return x && x.consent_uuid === consentUuid; });",
-                  "pm.test(\"Consent rule is removed\", function () { pm.expect(r).to.eql(undefined); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "DHT - Verify Consent Rule Entries Gone",
+          "name": "DHT - Verify Consent Rule Entries Exist After Withdraw",
           "request": {
             "method": "GET",
             "header": [],
@@ -3389,13 +4103,512 @@
                   "pm.test(\"Rules list is an array\", function () { pm.expect(rules).to.be.an('array'); });",
                   "var byUuid = {}; rules.forEach(function(r){ if (r && r.topic_uuid) byUuid[String(r.topic_uuid)] = r; });",
                   "var derived = JSON.parse(pm.collectionVariables.get('ds_consent_rule_dht_uuids') || '[]');",
-                  "derived.forEach(function(u){",
-                  "  pm.test('Derived DHT rule is deleted: ' + u, function(){ pm.expect(byUuid[u]).to.eql(undefined); });",
+                  "var devices = JSON.parse(pm.collectionVariables.get('ds_camera_device_uuids') || '[]');",
+                  "derived.forEach(function(u, i){",
+                  "  pm.test('Consent DHT rule exists after withdraw: ' + u, function(){ pm.expect(byUuid[u]).to.not.eql(undefined); });",
+                  "  var item = byUuid[u];",
+                  "  var expectedTarget = (devices.length === 1) ? devices[0] : devices[i];",
+                  "  pm.test('Consent DHT rule targets correct device after withdraw: ' + u, function(){",
+                  "    pm.expect(item.value).to.have.property('target_topic', 'domo_camera');",
+                  "    pm.expect(String(item.value.target_uuid)).to.eql(String(expectedTarget));",
+                  "    pm.expect(item.value).to.have.property('expiration_date', '2099/12/31');",
+                  "  });",
                   "});"
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that withdrawing consent recreates the expected DHT fan-out entries.\n\n**Scope**\nConsent Auto Rules (Withdraw/Accept)\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/dht/homes/{{ds_home_uuid}}/topic_name/privacy_rule`\n- Uses collection variables: `baseURL`, `ds_camera_device_uuids`, `ds_consent_rule_dht_uuids`, `ds_home_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Rules list is an array\n- Consent DHT rule exists after withdraw\n- Consent DHT rule targets the correct device after withdraw"
+        }
+      ],
+      "description": "Consent-to-enforcement automation.\n\n- Finds an app/consent that is mapped to a SIFIS action.\n- Verifies the initial default deny behavior in both SIFIS and DHT.\n- Accepting the consent removes the deny rule and its DHT fan-out.\n- Withdrawing consent through a GDPR request recreates the deny rule and its DHT fan-out.\n\n**Requests in this folder (13)**\n- Find Camera Manager App (has mapping)\n- Find Consent UUID For Camera Manager\n- DHT - List Camera Devices (for consent rule checks)\n- Verify Default Consent Deny Rule Exists In SIFIS Rules List\n- DHT - Verify Initial Consent Rule Entries Exist\n- Give Consent (Camera Manager)\n- Verify Consent Given After Accept\n- Verify Consent Rule Removed From SIFIS Rules List After Accept\n- DHT - Verify Consent Rule Entries Gone After Accept\n- Withdraw Consent Request (creates deny rules automatically)\n- Verify Consent Revoked After Withdraw\n- Verify Consent Rule Created In SIFIS Rules List\n- DHT - Verify Consent Rule Entries Exist After Withdraw\n\n**Variables produced in this folder**\n- `ds_camera_app_uuid`\n- `ds_camera_consent_uuid`\n- `ds_camera_device_uuids`\n- `ds_consent_rule_base_uuid`\n- `ds_consent_rule_dht_uuids`\n- `ds_withdraw_request_uuid`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
+    },
+    {
+      "name": "Current User Profile API",
+      "description": "Regression coverage for `PATCH /api/auth/current`.\n\n- Logs in as a Data Controller and verifies email change is forbidden.\n- Rotates the Data Controller password, verifies login with the updated password, then restores the seeded password.\n- Logs in as a DPO, rotates email and password, verifies login with the updated credentials, then restores the seeded credentials.\n\n**Requests in this folder (14)**\n- Successful Login - Data Controller (Profile)\n- Forbidden Update Current User Email - Data Controller\n- Update Current User Password - Data Controller\n- Successful Logout - Data Controller (Updated Password)\n- Successful Login - Data Controller (Updated Password)\n- Restore Current User Password - Data Controller\n- Successful Logout - Data Controller (Restored Profile)\n- Successful Login - DPO (Profile)\n- Update Current User Email And Password - DPO\n- Successful Logout - DPO (Updated Credentials)\n- Successful Login - DPO (Updated Credentials)\n- Restore Current User Email And Password - DPO\n- Successful Logout - DPO (Restored Profile)\n- Successful Login - DPO (Restored Profile)\n\n**Inputs used in this folder**\n- `dc_email`\n- `dc_password`\n- `dc_updated_password`\n- `dpo_email`\n- `dpo_password`\n- `dpo_updated_email`\n- `dpo_updated_password`\n\n**Notes**\n- This folder is self-contained: it performs its own login/logout steps and restores the seeded credentials before handing control to Cleanup.",
+      "item": [
+        {
+          "name": "Successful Login - Data Controller (Profile)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{dc_email}}\",\"password\":\"{{dc_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Logged user is Data Controller\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dc_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_CONTROLLER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nLogs in as the seeded Data Controller for current-user profile tests.\n\n**What the test checks**\n- Response status code is 200\n- Logged user is Data Controller"
+        },
+        {
+          "name": "Forbidden Update Current User Email - Data Controller",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/current",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"current_password\":\"{{dc_password}}\",\"email\":\"controller.blocked@example.com\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 403\", function () { pm.expect(pm.response.code).to.eql(403); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Data Controller cannot change email\", function () {",
+                  "  pm.expect(body).to.have.property(\"message\", \"Only Data Protection Officers can change their email from the dashboard.\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that Data Controllers cannot change their email from the dashboard.\n\n**What the test checks**\n- Response status code is 403\n- The backend returns the role-forbidden message"
+        },
+        {
+          "name": "Update Current User Password - Data Controller",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/current",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"current_password\":\"{{dc_password}}\",\"new_password\":\"{{dc_updated_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Data Controller password update succeeds\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dc_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_CONTROLLER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the current Data Controller can change password.\n\n**What the test checks**\n- Response status code is 200\n- Updated user payload is returned"
+        },
+        {
+          "name": "Successful Logout - Data Controller (Updated Password)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/auth/logout"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nEnds the Data Controller session after password update.\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Successful Login - Data Controller (Updated Password)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{dc_email}}\",\"password\":\"{{dc_updated_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Updated Data Controller password works\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dc_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_CONTROLLER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the updated Data Controller password can be used to authenticate.\n\n**What the test checks**\n- Response status code is 200\n- Updated password works"
+        },
+        {
+          "name": "Restore Current User Password - Data Controller",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/current",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"current_password\":\"{{dc_updated_password}}\",\"new_password\":\"{{dc_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Data Controller password restore succeeds\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dc_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_CONTROLLER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nRestores the seeded Data Controller password before switching user.\n\n**What the test checks**\n- Response status code is 200\n- Restore payload matches the Data Controller"
+        },
+        {
+          "name": "Successful Logout - Data Controller (Restored Profile)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/auth/logout"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nEnds the restored Data Controller session before DPO login.\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Successful Login - DPO (Profile)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{dpo_email}}\",\"password\":\"{{dpo_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Logged user is DPO\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dpo_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_PROTECTION_OFFICER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nLogs in as the seeded DPO for current-user profile tests.\n\n**What the test checks**\n- Response status code is 200\n- Logged user is DPO"
+        },
+        {
+          "name": "Update Current User Email And Password - DPO",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/current",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"current_password\":\"{{dpo_password}}\",\"email\":\"{{dpo_updated_email}}\",\"new_password\":\"{{dpo_updated_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"DPO email and password update succeeds\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dpo_updated_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_PROTECTION_OFFICER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the current DPO can change both email and password.\n\n**What the test checks**\n- Response status code is 200\n- Updated DPO payload contains the new email"
+        },
+        {
+          "name": "Successful Logout - DPO (Updated Credentials)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/auth/logout"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nEnds the DPO session after credentials update.\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Successful Login - DPO (Updated Credentials)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{dpo_updated_email}}\",\"password\":\"{{dpo_updated_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Updated DPO credentials work\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dpo_updated_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_PROTECTION_OFFICER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the updated DPO email/password can be used to authenticate.\n\n**What the test checks**\n- Response status code is 200\n- Updated DPO credentials work"
+        },
+        {
+          "name": "Restore Current User Email And Password - DPO",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/current",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"current_password\":\"{{dpo_updated_password}}\",\"email\":\"{{dpo_email}}\",\"new_password\":\"{{dpo_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"DPO credentials restore succeeds\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dpo_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_PROTECTION_OFFICER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nRestores the seeded DPO email/password before Cleanup.\n\n**What the test checks**\n- Response status code is 200\n- Restore payload matches the original DPO email"
+        },
+        {
+          "name": "Successful Logout - DPO (Restored Profile)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/api/auth/logout"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 204\", function () { pm.expect(pm.response.code).to.eql(204); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nEnds the restored DPO session before the final login check.\n\n**What the test checks**\n- Response status code is 204"
+        },
+        {
+          "name": "Successful Login - DPO (Restored Profile)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{dpo_email}}\",\"password\":\"{{dpo_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Restored DPO credentials work\", function () {",
+                  "  pm.expect(body).to.have.property(\"email\", pm.collectionVariables.get(\"dpo_email\"));",
+                  "  pm.expect(body).to.have.property(\"role\", \"DATA_PROTECTION_OFFICER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nVerifies that the original DPO credentials work again before Cleanup.\n\n**What the test checks**\n- Response status code is 200\n- Restored DPO credentials work"
         }
       ]
     },
@@ -3420,7 +4633,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nEnds the session and verifies access is removed.\n\n**Scope**\nCleanup\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/logout`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 204"
         },
         {
           "name": "Unauthorized Current After Cleanup",
@@ -3449,199 +4663,328 @@
                 ]
               }
             }
-          ]
+          ],
+          "description": "**Purpose**\nVerifies that the endpoint is protected and requires authentication.\n\n**Scope**\nCleanup\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/auth/current`\n- Uses collection variables: `baseURL`\n\n**What the test checks**\n- Response status code is 401\n- Response has required fields: code, message, status"
         }
-      ]
+      ],
+      "description": "Final cleanup: logs out and verifies endpoints are unauthorized.\n\n**Requests in this folder (2)**\n- Successful Logout\n- Unauthorized Current After Cleanup\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     }
   ],
   "variable": [
     {
       "key": "baseURL",
-      "value": "http://127.0.0.1:5050"
+      "value": "http://127.0.0.1:5050",
+      "description": "Base URL of the backend API."
     },
     {
       "key": "dc_email",
-      "value": "controller.smartotum@example.com"
+      "value": "controller.smartotum@example.com",
+      "description": "Data Controller email used for internal login tests."
     },
     {
       "key": "dc_password",
-      "value": "controllersmartotum"
+      "value": "controllersmartotum",
+      "description": "Data Controller password used for internal login tests."
     },
     {
       "key": "ds_email",
-      "value": "s312192@studenti.polito.it"
+      "value": "s312192@studenti.polito.it",
+      "description": "Smartotum Data Subject email used for Smartotum-backed login tests."
     },
     {
       "key": "ds_password",
-      "value": "Smartotum2025"
+      "value": "Smartotum2025",
+      "description": "Smartotum Data Subject password used for Smartotum-backed login tests."
     },
     {
       "key": "delegate_email",
-      "value": "controller.general@example.com"
+      "value": "controller.general@example.com",
+      "description": "Email of an additional Data Controller used as manager/delegate in assignment tests."
     },
     {
       "key": "dpo_email",
-      "value": "dpo.general@example.com"
+      "value": "dpo.general@example.com",
+      "description": "Email of a Data Protection Officer used in assignment tests."
     },
     {
-      "key": "dc_uuid",
-      "value": ""
-    },
-    {
-      "key": "managed_application_uuid",
-      "value": ""
-    },
-    {
-      "key": "managed_application_name",
-      "value": ""
-    },
-    {
-      "key": "created_application_uuid",
-      "value": ""
-    },
-    {
-      "key": "created_application_id",
-      "value": ""
-    },
-    {
-      "key": "created_application_title",
-      "value": ""
-    },
-    {
-      "key": "new_app_short_name",
-      "value": ""
-    },
-    {
-      "key": "contact_uuid",
-      "value": ""
-    },
-    {
-      "key": "sent_message_content",
-      "value": ""
-    },
-    {
-      "key": "question_uuid",
-      "value": ""
-    },
-    {
-      "key": "question_first_choice",
-      "value": ""
-    },
-    {
-      "key": "missing_request_uuid",
-      "value": ""
-    },
-    {
-      "key": "first_available_consent_uuid",
-      "value": ""
-    },
-    {
-      "key": "privacy_notice_uuid",
-      "value": ""
-    },
-    {
-      "key": "managed_data_subject_uuid",
-      "value": ""
-    },
-    {
-      "key": "marketplace_ingest_token",
-      "value": "BS4bieIhYQxIREcnBleLx/qqlBvSnPJ4"
-    },
-    {
-      "key": "marketplace_app_id",
-      "value": ""
-    },
-    {
-      "key": "marketplace_app_title",
-      "value": ""
-    },
-    {
-      "key": "created_consent_uuid",
-      "value": ""
-    },
-    {
-      "key": "ds_home_uuid",
-      "value": ""
-    },
-    {
-      "key": "ds_installed_application_uuid",
-      "value": ""
-    },
-    {
-      "key": "ds_consent_uuid",
-      "value": ""
-    },
-    {
-      "key": "ds_room_uuid",
-      "value": ""
-    },
-    {
-      "key": "ds_request_uuid",
-      "value": ""
-    },
-    {
-      "key": "ds_withdraw_request_uuid",
-      "value": ""
-    },
-    {
-      "key": "ds_camera_app_uuid",
-      "value": ""
-    },
-    {
-      "key": "ds_camera_consent_uuid",
-      "value": ""
-    },
-    {
-      "key": "ds_consent_rule_base_uuid",
-      "value": ""
-    },
-    {
-      "key": "ds_camera_device_uuids",
-      "value": ""
-    },
-    {
-      "key": "ds_consent_rule_dht_uuids",
-      "value": ""
-    },
-    {
-      "key": "pia_template_json",
-      "value": ""
-    },
-    {
-      "key": "pia_template_id",
-      "value": ""
-    },
-    {
-      "key": "sifis_always_trigger_url",
-      "value": ""
-    },
-    {
-      "key": "sifis_video_action_id",
-      "value": ""
-    },
-    {
-      "key": "sifis_video_action_url",
-      "value": ""
-    },
-    {
-      "key": "sifis_location_detail_url",
-      "value": ""
-    },
-    {
-      "key": "entire_home_rule_id",
-      "value": ""
+      "key": "marketplace_integration_token",
+      "value": "BS4bieIhYQxIREcnBleLx/qqlBvSnPJ4",
+      "description": "Bearer token required by the Marketplace integration endpoints."
     },
     {
       "key": "camera_devices_count",
-      "value": ""
+      "value": "",
+      "description": "Generated by the collection. Set by: DHT - List Camera Devices (count) (test)"
     },
     {
-      "key": "dht_test_expiration_date",
-      "value": ""
+      "key": "contact_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Get Contacts (test)"
+    },
+    {
+      "key": "created_application_id",
+      "value": "",
+      "description": "Generated by the collection. Set by: Create Application (Manual) (test)"
+    },
+    {
+      "key": "created_application_title",
+      "value": "",
+      "description": "Generated by the collection. Set by: Create Application (Manual) (test)"
+    },
+    {
+      "key": "created_application_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Create Application (Manual) (test)"
+    },
+    {
+      "key": "created_consent_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Add Available Consent To Created Application (test)"
+    },
+    {
+      "key": "dc_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Successful Login - Data Controller (test)"
     },
     {
       "key": "dht_created_rule_uuids",
-      "value": ""
+      "value": "",
+      "description": "Generated by the collection. Set by: DHT - List Rules After Create (match expiration) (test)"
+    },
+    {
+      "key": "dht_test_expiration_date",
+      "value": "",
+      "description": "Generated by the collection. Set by: Create Rule - Video Deny Entire Home (test)"
+    },
+    {
+      "key": "ds_camera_app_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Find Camera Manager App (has mapping) (test)"
+    },
+    {
+      "key": "ds_camera_consent_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Find Consent UUID For Camera Manager (test)"
+    },
+    {
+      "key": "ds_camera_device_uuids",
+      "value": "",
+      "description": "Generated by the collection. Set by: DHT - List Camera Devices (for consent rule checks) (test)"
+    },
+    {
+      "key": "ds_consent_rule_base_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Verify Default Consent Deny Rule Exists In SIFIS Rules List (test)"
+    },
+    {
+      "key": "ds_consent_rule_dht_uuids",
+      "value": "",
+      "description": "Generated by the collection. Set by: DHT - Verify Initial Consent Rule Entries Exist (test)"
+    },
+    {
+      "key": "ds_consent_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Get Consent State By Home And Application (test)"
+    },
+    {
+      "key": "ds_home_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: List Homes - Data Subject (Setup) (test)"
+    },
+    {
+      "key": "ds_installed_application_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: List Installed Applications - Data Subject (Setup) (test)"
+    },
+    {
+      "key": "ds_request_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Submit Request - Data Subject (Setup) (test)"
+    },
+    {
+      "key": "ds_room_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: List Home Rooms - Data Subject (Setup) (test)"
+    },
+    {
+      "key": "ds_withdraw_request_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Withdraw Consent Request (creates deny rules automatically) (test)"
+    },
+    {
+      "key": "entire_home_rule_id",
+      "value": "",
+      "description": "Generated by the collection. Set by: Create Rule - Video Deny Entire Home (test)"
+    },
+    {
+      "key": "first_available_consent_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Get Available Consents By Created Application (test)"
+    },
+    {
+      "key": "managed_application_name",
+      "value": "",
+      "description": "Generated by the collection. Set by: List Managed Applications (test)"
+    },
+    {
+      "key": "managed_application_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: List Managed Applications (test)"
+    },
+    {
+      "key": "managed_data_subject_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Get Data Subjects By Managed Application (test)"
+    },
+    {
+      "key": "marketplace_app_id",
+      "value": "",
+      "description": "Generated by the collection. Set by: Successful Marketplace Ingest - Create Application (prerequest)"
+    },
+    {
+      "key": "marketplace_app_title",
+      "value": "",
+      "description": "Generated by the collection. Set by: Successful Marketplace Ingest - Create Application (prerequest)"
+    },
+    {
+      "key": "missing_request_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Handle Request - Missing Response Field Regression (prerequest)"
+    },
+    {
+      "key": "new_app_short_name",
+      "value": "",
+      "description": "Generated by the collection. Set by: Create Application (Manual) (prerequest)"
+    },
+    {
+      "key": "pia_template_id",
+      "value": "",
+      "description": "Generated by the collection. Set by: Get PIA Template (test)"
+    },
+    {
+      "key": "pia_template_json",
+      "value": "",
+      "description": "Generated by the collection. Set by: Get PIA Template (test)"
+    },
+    {
+      "key": "pn_missing_app_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Associate Existing Privacy Notice - Missing Application UUID (prerequest)"
+    },
+    {
+      "key": "pn_missing_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Associate Existing Privacy Notice - Missing PN UUID (prerequest)"
+    },
+    {
+      "key": "pn_no_pn_application_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Create Application (No PN) (test)"
+    },
+    {
+      "key": "pn_no_pn_short_name",
+      "value": "",
+      "description": "Generated by the collection. Set by: Create Application (No PN) (prerequest)"
+    },
+    {
+      "key": "pn_target_application_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Create Application (PN Target) (test)"
+    },
+    {
+      "key": "pn_target_short_name",
+      "value": "",
+      "description": "Generated by the collection. Set by: Create Application (PN Target) (prerequest)"
+    },
+    {
+      "key": "pn_target_temp_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Update Privacy Notice By Managed Application (Target Temporary) (test)"
+    },
+    {
+      "key": "privacy_notice_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Update Privacy Notice By Managed Application (test)"
+    },
+    {
+      "key": "question_first_choice",
+      "value": "",
+      "description": "Generated by the collection. Set by: Get Questionnaire Template (test)"
+    },
+    {
+      "key": "question_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Get Questionnaire Template (test)"
+    },
+    {
+      "key": "sent_message_content",
+      "value": "",
+      "description": "Generated by the collection. Set by: Send Message To Contact (prerequest)"
+    },
+    {
+      "key": "sifis_always_trigger_url",
+      "value": "",
+      "description": "Generated by the collection. Set by: SIFIS Get Triggers - sifis_time (test)"
+    },
+    {
+      "key": "sifis_location_detail_url",
+      "value": "",
+      "description": "Generated by the collection. Set by: SIFIS Get Video Action Details (location url) (test)"
+    },
+    {
+      "key": "sifis_video_action_id",
+      "value": "",
+      "description": "Generated by the collection. Set by: SIFIS Get Actions - sifis_video (test)"
+    },
+    {
+      "key": "sifis_video_action_url",
+      "value": "",
+      "description": "Generated by the collection. Set by: SIFIS Get Actions - sifis_video (test)"
+    },
+    {
+      "key": "marketplace_app_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Verify Marketplace Ingested App In Managed List / Verify Marketplace Patched Metadata In Managed List (test)"
+    },
+    {
+      "key": "marketplace_app_patched_consent_1",
+      "value": "",
+      "description": "Generated by the collection. Set by: Marketplace PATCH - Update Application Metadata (prerequest)"
+    },
+    {
+      "key": "marketplace_app_patched_consent_2",
+      "value": "",
+      "description": "Generated by the collection. Set by: Marketplace PATCH - Update Application Metadata (prerequest)"
+    },
+    {
+      "key": "smartotum_seeded_app_id",
+      "value": "com.smartotum.smartotum-camera-manager",
+      "description": "Seeded test fixture application used to verify Smartotum manager seeding behavior."
+    },
+    {
+      "key": "smartotum_seeded_app_uuid",
+      "value": "",
+      "description": "Generated by the collection. Set by: Find Smartotum App In Managed List (Seed Check) (test)"
+    },
+    {
+      "key": "dpo_password",
+      "value": "dpogeneral",
+      "description": "Input. Data Protection Officer password used for current-user profile tests."
+    },
+    {
+      "key": "dc_updated_password",
+      "value": "controllersmartotum-updated",
+      "description": "Input. Temporary Data Controller password used during current-user profile tests."
+    },
+    {
+      "key": "dpo_updated_email",
+      "value": "dpo.general.updated@example.com",
+      "description": "Input. Temporary Data Protection Officer email used during current-user profile tests."
+    },
+    {
+      "key": "dpo_updated_password",
+      "value": "dpogeneral-updated",
+      "description": "Input. Temporary Data Protection Officer password used during current-user profile tests."
     }
   ]
 }

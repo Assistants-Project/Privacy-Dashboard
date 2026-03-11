@@ -1,6 +1,6 @@
 from uuid import UUID
 from flask_smorest import Blueprint
-from ..schemas import ApplicationAndUserEmailReqSchema, ApplicationCreateReqSchema, ApplicationUuidReqSchema, InstalledApplicationResSchema, ManagedApplicationResSchema, OptionalApplicationUuidReqSchema, SmartHomeUuidReqSchema
+from ..schemas import ApplicationAndUserEmailReqSchema, ApplicationCreateReqSchema, ApplicationPatchReqSchema, ApplicationUuidReqSchema, InstalledApplicationResSchema, ManagedApplicationResSchema, OptionalApplicationUuidReqSchema, RefreshResultResSchema, SmartHomeUuidReqSchema
 from ..services import ApplicationService, SmartotumService
 from ..utils import dc_or_dpo_required, dc_required, ds_required
 
@@ -29,6 +29,14 @@ def get_installed_applications(smart_home_uuid: str, current_user, application_u
 def create_application(id: str,current_user,title: str,description: str | None = None,available_consents: list[str] | None = None):
     created_application = ApplicationService.create_application_managed_by_data_controller(current_user, id, title, description, available_consents)
     return created_application
+
+@application_bp.route("/managed/<application_uuid>", methods=["PATCH"])
+@application_bp.arguments(ApplicationUuidReqSchema, location="path", as_kwargs=True)
+@application_bp.arguments(ApplicationPatchReqSchema, location="json", as_kwargs=True)
+@application_bp.response(200, ManagedApplicationResSchema)
+@dc_required()
+def update_owned_manual_application(application_uuid, current_user, title: str, description: str | None = None):
+    return ApplicationService.update_owned_manual_application(current_user, application_uuid, title, description)
 
 #Recupera app gestite da un data controller / dpo
 @application_bp.route("/managed", methods=["GET"])
@@ -77,8 +85,7 @@ def remove_data_controller_manager_from_application(application_uuid, user_email
 
 #Flusso di refresh applicazioni da smartotum
 @application_bp.route("/refresh", methods=["POST"])
-@application_bp.response(202, description="Refresh started")
+@application_bp.response(200, RefreshResultResSchema)
 @ds_required()
 def refresh_apps(current_user):
-    SmartotumService.update_installed_application_for_user(current_user)
-    return "Apps updated from Smartotum Installed App of " + current_user.email, 202
+    return SmartotumService.update_installed_application_for_user(current_user)

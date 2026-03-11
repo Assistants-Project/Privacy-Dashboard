@@ -3,12 +3,13 @@ from datetime import datetime
 from typing import List, TypedDict
 from uuid import UUID
 from sqlalchemy.exc import IntegrityError
-from ..exceptions import ApplicationAlreadyExistsException, ApplicationNotManagedException, AvailableConsentWrongListException, InvalidApplicationNameException, MissingDpoUuidException, SmartHomeNotFoundException, UserNotFoundException, WrongUserRoleException
+from ..exceptions import ApplicationAlreadyExistsException, ApplicationNotManagedException, InvalidApplicationNameException, MissingDpoUuidException, SmartHomeNotFoundException, UserNotFoundException, WrongUserRoleException
 from ..models import Application
 from ..repositories import ApplicationRepository, ConsentRepository, SmartHomeRepository, UserRepository
 from ..models import UserRole
 from ..models import User
 from ..extensions import db
+from .consent_service import normalize_available_consents_payload
 
 
 class ApplicationItem(TypedDict):
@@ -31,9 +32,13 @@ class InstalledApplicationItem(ApplicationItem):
 
 class ApplicationService:
 
-    
+    MANUAL_APPLICATION_ID_PREFIX = "com.privacydashboard."
     DOC_STATUS_AVAILABLE = "AVAILABLE"
     DOC_STATUS_MISSING = "MISSING"
+
+    @staticmethod
+    def _is_manual_application_name(application_name: str) -> bool:
+        return application_name.startswith(ApplicationService.MANUAL_APPLICATION_ID_PREFIX)
 
     @staticmethod
     def _get_owned_managed_application(current_user: User, application_uuid) -> Application:
@@ -173,7 +178,7 @@ class ApplicationService:
 
         pending_request_counts = (
             ApplicationRepository.get_pending_request_counts_for_installed_applications(
-                user_id, smart_home.id, list(installed.keys())
+                user_id, smart_home.uuid, list(installed.keys())
             )
         )
         for application_id, item in installed.items():
@@ -198,7 +203,7 @@ class ApplicationService:
                 "Application id can contain only letters, numbers and '-'!"
             )
 
-        application_id = f"com.privacydashboard.{normalized_id}"
+        application_id = f"{ApplicationService.MANUAL_APPLICATION_ID_PREFIX}{normalized_id}"
         application_title = title.strip()
         if not application_title:
             raise InvalidApplicationNameException("Application title cannot be blank!")
@@ -208,18 +213,7 @@ class ApplicationService:
             description = description.strip()
             normalized_description = description if description else None
 
-        normalized_available_consents: list[str] = []
-        if available_consents is not None:
-            for available_consent in available_consents:
-                if not isinstance(available_consent, str):
-                    raise AvailableConsentWrongListException("Available consents must be a list of non-empty strings!")
-                normalized_available_consent = available_consent.strip()
-                if not normalized_available_consent:
-                    raise AvailableConsentWrongListException("Available consents must be a list of non-empty strings!")
-                normalized_available_consents.append(normalized_available_consent)
-
-            if len(normalized_available_consents) != len(set(normalized_available_consents)):
-                raise AvailableConsentWrongListException("Duplicate consents selected!")
+        normalized_available_consents = normalize_available_consents_payload(available_consents, deduplicate=False)
 
         existing_application = ApplicationRepository.get_application_by_name(
             application_id
@@ -258,6 +252,32 @@ class ApplicationService:
             "pia_status": ApplicationService.DOC_STATUS_MISSING,
             "pending_right_requests_count": 0,
         }
+
+    @staticmethod
+    def update_owned_manual_application(current_user: User, application_uuid, title: str, description: str | None = None) -> ManagedApplicationItem:
+        if current_user.role != UserRole.DATA_CONTROLLER:
+            raise WrongUserRoleException("User is not a Data Controller!")
+
+        managed_application = ApplicationService._get_owned_managed_application(current_user, application_uuid)
+        if not ApplicationService._is_manual_application_name(managed_application.name):
+            raise ApplicationNotManagedException(
+                "Only applications created in the Privacy Dashboard can be edited."
+            )
+
+        normalized_title = title.strip()
+        if not normalized_title:
+            raise InvalidApplicationNameException("Application title cannot be blank!")
+
+        normalized_description = None
+        if isinstance(description, str):
+            description = description.strip()
+            normalized_description = description if description else None
+
+        managed_application.title = normalized_title
+        managed_application.description = normalized_description
+        db.session.commit()
+
+        return ApplicationService.get_applications_by_dc_or_dpo_id(current_user, managed_application.uuid)[0]
 
     @staticmethod
     def assign_dpo_to_managed_application(

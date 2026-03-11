@@ -1,7 +1,8 @@
 import os
 from dataclasses import dataclass
 
-from ..exceptions import WrongUserCredentialsException, UserAlreadyRegisteredException
+from ..exceptions import UserAlreadyRegisteredException, UserEmailAlreadyInUseException, WrongUserCredentialsException, WrongUserRoleException
+from ..extensions import db
 from ..models import User, UserRole
 from ..repositories import UserRepository
 
@@ -119,3 +120,37 @@ class AuthService:
         # Before deleting a DATA_CONTROLLER, application ownership must be transferred.
         # This flow will be implemented in a dedicated procedure.
         UserRepository.delete_user(user)
+
+    @staticmethod
+    def update_current_user(current_user: User, current_password: str, email: str | None = None, new_password: str | None = None) -> User:
+        if current_user.role not in {UserRole.DATA_CONTROLLER, UserRole.DATA_PROTECTION_OFFICER}:
+            raise WrongUserRoleException("Only Data Controllers and Data Protection Officers can update their profile from the dashboard.")
+
+        if not current_user.check_password(current_password):
+            raise WrongUserCredentialsException("Current password is invalid!")
+
+        changed = False
+
+        if email is not None:
+            normalized_email = email.strip()
+            if not normalized_email:
+                raise WrongUserCredentialsException("Email cannot be blank!")
+            if current_user.role != UserRole.DATA_PROTECTION_OFFICER and normalized_email != current_user.email:
+                raise WrongUserRoleException("Only Data Protection Officers can change their email from the dashboard.")
+            if normalized_email != current_user.email:
+                existing_user = UserRepository.get_user_by_email(normalized_email)
+                if existing_user is not None and existing_user.id != current_user.id:
+                    raise UserEmailAlreadyInUseException("Email already in use by another user!")
+                current_user.email = normalized_email
+                changed = True
+
+        if new_password is not None:
+            if new_password == "":
+                raise WrongUserCredentialsException("New password cannot be blank!")
+            current_user.password_hash = generate_password_hash(new_password)
+            changed = True
+
+        if changed:
+            db.session.commit()
+
+        return current_user

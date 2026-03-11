@@ -75,6 +75,28 @@ async function createApplication(id: string,title: string,description?: string,a
   throw await getApiError(response);
 }
 
+async function updateManagedApplication(applicationUuid: string,title: string,description?: string): Promise<unknown> {
+  const payload: { title: string; description?: string } = { title };
+  if (description !== undefined) {
+    payload.description = description;
+  }
+
+  const response = await fetch(baseURL + `applications/managed/${encodeURIComponent(applicationUuid)}`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (response.ok) {
+    return await response.json();
+  }
+
+  throw await getApiError(response);
+}
+
 async function assignDpoToManagedApplication(applicationUuid: string, dpoEmail: string): Promise<boolean> {
   const response = await fetch(
     baseURL +
@@ -143,7 +165,7 @@ async function removeDataControllerManagerFromManagedApplication(applicationUuid
 async function refreshApplications() {
   let response = await fetch(baseURL + "applications/refresh", { method: "POST", credentials: "include" });
   if (response.ok) {
-    return true;
+    return await response.json();
   }
 
   throw await getApiError(response);
@@ -240,6 +262,7 @@ export {
   removePiaByManagedApplicationUuid,
   getInstalledApplications,
   createApplication,
+  updateManagedApplication,
   assignDpoToManagedApplication,
   removeDpoFromManagedApplication,
   addDataControllerManagerToManagedApplication,

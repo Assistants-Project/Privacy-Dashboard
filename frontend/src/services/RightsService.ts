@@ -4,7 +4,7 @@ import {
   handleRequest,
   submitRequest,
 } from "../API/GDPR/RightsAPI";
-import { RequestModel, RequestStatus, RightType } from "../models/request";
+import { RequestModel, RequestSelectedConsent, RequestStatus, RightType } from "../models/request";
 
 //l'idea principale è che recuperiamo la risposta ottenuta dal backend già come oggetto e la
 //castiamo al DTO che lo realizziamo nel modo più generale possibile compatibilmente
@@ -23,7 +23,7 @@ type RequestDto = {
   uuid: string;
   right_type: RightType;
   additional_information: string;
-  selected_consents?: string[] | null;
+  selected_consents?: Array<{ uuid?: string | null; content?: string | null }> | null;
   response: string | null; //può arrivare vuota dal backend
   created_at: string;
   handled_at: string | null;
@@ -69,16 +69,32 @@ const normalizeString = (value: unknown): string =>
 const normalizeOptionalString = (value: unknown): string | undefined =>
   typeof value === "string" && value.trim() !== "" ? value : undefined;
 
-const normalizeOptionalStringArray = (value: unknown): string[] | undefined => {
+const normalizeOptionalSelectedConsents = (
+  value: unknown,
+): RequestSelectedConsent[] | undefined => {
   if (!Array.isArray(value)) return undefined;
 
   const normalized = value
-    .filter((item): item is string => typeof item === "string")
-    .map((item) => item.trim())
-    .filter((item) => item !== "");
+    .map((item): RequestSelectedConsent | undefined => {
+      if (typeof item === "string") {
+        const uuid = item.trim();
+        return uuid ? { uuid } : undefined;
+      }
+      if (!item || typeof item !== "object") return undefined;
+      const rawUuid = "uuid" in item ? item.uuid : undefined;
+      const rawContent = "content" in item ? item.content : undefined;
+      const uuid = typeof rawUuid === "string" ? rawUuid.trim() : "";
+      if (!uuid) return undefined;
+      const content =
+        typeof rawContent === "string" && rawContent.trim() !== ""
+          ? rawContent
+          : undefined;
+      return { uuid, ...(content ? { content } : {}) };
+    })
+    .filter((item): item is RequestSelectedConsent => item !== undefined);
 
   if (normalized.length === 0) return undefined;
-  return [...new Set(normalized)];
+  return normalized;
 };
 
 //trasforma quello che riceve dal backend nel nostro RequestModel
@@ -94,7 +110,7 @@ const toRequestModel = (dto: RequestDto, application_uuid: unknown): RequestMode
   );
 
   //questi due campi possono essere null o stringa vuota, quindi li mappiamo a undefined
-  model.selected_consents = normalizeOptionalStringArray(dto.selected_consents);
+  model.selected_consents = normalizeOptionalSelectedConsents(dto.selected_consents);
   model.response = normalizeOptionalString(dto.response);
   model.handled_at = normalizeOptionalString(dto.handled_at);
 

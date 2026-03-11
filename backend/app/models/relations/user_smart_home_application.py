@@ -64,9 +64,10 @@ class UserSmartHomeApplication(db.Model):
     application: Mapped["Application"] = relationship(  # noqa: F821 # type: ignore
         back_populates="installed_by_user_smart_home_combinations"
     )
+    # Requests are retained as audit records even if this relation is pruned.
+    # The DB FK is configured as ON DELETE SET NULL.
     submitted_requests: Mapped[List["Request"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="user_smart_home_application_relation",
-        cascade="all, delete-orphan",
         passive_deletes=True,
     )
 

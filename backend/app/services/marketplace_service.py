@@ -5,7 +5,6 @@ from sqlalchemy.exc import IntegrityError
 from ..exceptions import (
     ApplicationAlreadyExistsException,
     ApplicationNotFoundException,
-    AvailableConsentWrongListException,
     InvalidApplicationNameException,
     UserNotFoundException,
     WrongUserRoleException,
@@ -17,11 +16,12 @@ from ..repositories import (
     ConsentRepository,
     UserRepository,
 )
+from .consent_service import normalize_available_consents_payload
 
 
 class MarketplaceService:
     @staticmethod
-    def patch_marketplace_application_metadata(
+    def patch_marketplace_application(
         application_id: str,
         patch: dict,
     ) -> bool:
@@ -48,16 +48,11 @@ class MarketplaceService:
 
         changed = False
 
-        title_update = None
         if "title" in patch:
             title_update = patch.get("title")
-        elif "name" in patch:
-            title_update = patch.get("name")
-
-        if title_update is not None:
             normalized_title = str(title_update).strip()
             if not normalized_title:
-                raise InvalidApplicationNameException("Application name cannot be blank!")
+                raise InvalidApplicationNameException("Application title cannot be blank!")
             if application.title != normalized_title:
                 application.title = normalized_title
                 changed = True
@@ -70,6 +65,15 @@ class MarketplaceService:
             if application.description != normalized_description:
                 application.description = normalized_description
                 changed = True
+
+        if "available_consents" in patch:
+            normalized_available_consents = normalize_available_consents_payload(patch.get("available_consents"), deduplicate=True)
+            ConsentRepository.upsert_available_consents_for_application(
+                application.id,
+                normalized_available_consents,
+                prune_missing=True,
+            )
+            changed = True
 
         if changed:
             db.session.commit()
@@ -142,28 +146,12 @@ class MarketplaceService:
                 raise WrongUserRoleException("User is not a Data Controller!")
             delegate_data_controllers.append(delegate_data_controller)
 
-        normalized_available_consents: list[str] = []
-        if available_consents is not None:
-            for available_consent in available_consents:
-                if not isinstance(available_consent, str):
-                    raise AvailableConsentWrongListException(
-                        "Available consents must be a list of non-empty strings!"
-                    )
-                normalized_available_consent = available_consent.strip()
-                if not normalized_available_consent:
-                    raise AvailableConsentWrongListException(
-                        "Available consents must be a list of non-empty strings!"
-                    )
-                normalized_available_consents.append(normalized_available_consent)
-        normalized_available_consents = list(dict.fromkeys(normalized_available_consents))
+        normalized_available_consents = normalize_available_consents_payload(available_consents, deduplicate=True)
 
         existing_application = ApplicationRepository.get_application_by_name(
             normalized_application_id
         )
         if existing_application:
-            # Create only mode: once the app exists, the Privacy Dashboard becomes the source of truth
-            # (including delegates and available consents). The marketplace can
-            # safely send again the payload without overwriting local edits.
             if existing_application.owner_user_id != owner_data_controller.id:
                 raise ApplicationAlreadyExistsException(
                     f"Application with id '{normalized_application_id}' already exists with a different owner!"

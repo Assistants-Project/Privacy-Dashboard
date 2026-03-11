@@ -1,22 +1,19 @@
+import { useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext";
-import { User } from "../../models/user";
 import { useHome } from "../../contexts/HomeContext";
+import { UpdateProfileModal } from "./UpdateProfileModal";
 
 export function UserMenu() {
     const { user, logout, deleteUser, isDataSubject } = useAuth();
     const { current_home_uuid } = useHome();
-
+    const [showUpdateProfile, setShowUpdateProfile] = useState(false);
 
     return (
         <>
             <Card style={{ minWidth: 350 }} className="border-0 shadow-none">
                 <Card.Title className="text-center"> {user?.firstname + " " + user?.lastname}
                 </Card.Title>
-
-                <Card.Subtitle className="text-center mb-3 text-muted">
-
-                </Card.Subtitle>
 
                 <Card.Text as="div">
                     <Row className="align-items-start mb-2">
@@ -41,23 +38,26 @@ export function UserMenu() {
 
                     }
                     
-                    <Row className="justify-content-center">
-                        <Col xs="auto">
-                        <Button variant="outline-warning" onClick={logout}>
-                            Exit
+                    <div className="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                        {!isDataSubject &&
+                        <Button variant="outline-primary" onClick={() => setShowUpdateProfile(true)}>
+                            UPDATE PROFILE
                         </Button>
-                        </Col>
-                        <Col xs="auto">
+                        }
                         <Button variant="danger" onClick={deleteUser}>
-                            DELETE USER
+                            DELETE PROFILE
                         </Button>
-                        </Col>
-                    </Row>
+                    </div>
+                    <div className="d-flex justify-content-center mt-2">
+                        <Button variant="outline-warning" onClick={logout}>
+                            Logout
+                        </Button>
+                    </div>
 
                 </Card.Text>
                 
             </Card>
-
+            {!isDataSubject && <UpdateProfileModal show={showUpdateProfile} onHide={() => setShowUpdateProfile(false)} />}
         </>
 
     )

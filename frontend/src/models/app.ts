@@ -14,6 +14,21 @@ export type CreateApplicationRequest = {
     available_consents?: string[];
 };
 
+export type UpdateApplicationRequest = {
+    title: string;
+    description?: string;
+};
+
+export type RefreshApplicationsResult = {
+    message: string;
+    warnings: string[];
+};
+
+export type SyncMessage = {
+    level: "warning" | "error";
+    text: string;
+};
+
 export type CreateApplicationResponse = {
     application_uuid: string;
 };

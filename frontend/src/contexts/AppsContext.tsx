@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState, } from "react";
 import { useAuth } from "./AuthContext";
-import { AppModel, CreateApplicationRequest, DocumentStatus } from "../models/app";
+import { AppModel, CreateApplicationRequest, DocumentStatus, SyncMessage } from "../models/app";
 import { fetchApplications, refreshInstalledApplications, createApplicationByDataController } from "../services/ApplicationService";
 import { useHome } from "./HomeContext";
 import { PrivacyNotice } from "../models/privacy_notice";
@@ -21,7 +21,7 @@ type AppsContextValue = {
   loadingApps: boolean; //indica se è in corso un fetch delle apps dal backend
   errorApps: string | undefined; //indica se c'è stato un errore durante il fetch di qualcosa delle app dal backend
   updatingApps: boolean; //indica se è in corso un update delle apps nel backend (attraverso un refresh)
-  errorUpdatingApps: string | undefined; //indica se c'è stato un errore durante il refresh del backend
+  appsSyncMessages: SyncMessage[];
   PrivacyNoticeByAppUUID: Record<string, PrivacyNotice | null | undefined> //record cache dei PN
   PIAByAppUUID: Record<string, PIA | null | undefined> //record cache dei PIA
   QuestionnaireByAppUUID: Record<string, Questionnaire | null | undefined>; //
@@ -63,7 +63,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
   const [loadingApps, setLoadingApps] = useState(true);
   const [updatingApps, setUpdatingApps] = useState(false);
   const [errorApps, setErrorApps] = useState<string | undefined>(undefined);
-  const [errorUpdatingApps, setErrorUpdatingApps] = useState<string | undefined>(undefined);
+  const [appsSyncMessages, setAppsSyncMessages] = useState<SyncMessage[]>([]);
 
   const setSelectedAppUUID = useCallback((uuid: string | undefined) => {
     //possiamo aggiungere logica extra
@@ -80,7 +80,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       setLoadingApps(false);
       setUpdatingApps(false);
       setErrorApps(undefined);
-      setErrorUpdatingApps(undefined);
+      setAppsSyncMessages([]);
       setPrivacyNoticeByAppUUID({});
       setPIAByAppUUID({});
       setQuestionnaireByAppUUID({});
@@ -189,14 +189,13 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     if (!isDataSubject) return;
 
     setUpdatingApps(true);
-    setErrorUpdatingApps(undefined);
+    setAppsSyncMessages([]);
 
     try {
-      await refreshInstalledApplications();
+      const refreshResult = await refreshInstalledApplications();
+      setAppsSyncMessages((refreshResult?.warnings ?? []).map((warning) => ({ level: "warning", text: warning })));
     } catch (err) {
-      setErrorUpdatingApps(
-        err instanceof Error ? err.message : "Unexpected Error",
-      );
+      setAppsSyncMessages([{ level: "error", text: err instanceof Error ? err.message : "Unexpected Error" }]);
     } finally {
       setUpdatingApps(false);
     }
@@ -351,7 +350,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       loadingApps,
       updatingApps,
       errorApps,
-      errorUpdatingApps,
+      appsSyncMessages,
       selectedAppUUID,
       selectedApp,
       syncApps,
@@ -373,7 +372,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       loadingApps,
       updatingApps,
       errorApps,
-      errorUpdatingApps,
+      appsSyncMessages,
       selectedAppUUID,
       selectedApp,
       syncApps,

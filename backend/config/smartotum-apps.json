@@ -84,7 +84,10 @@
     "id": "com.smartotum.smartotum-camera-manager",
     "name": "Smartotum-camera-manager",
     "description": "for managing cameras",
-    "data_controllers_email": ["controller.smartotum@example.com"],
+    "data_controllers_email": [
+      "controller.smartotum@example.com",
+      "controller.general@example.com"
+    ],
     "available_consents": [
       {
 	        "content": "processing of personal information to provide the service",
