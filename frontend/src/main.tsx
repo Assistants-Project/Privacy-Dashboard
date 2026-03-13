@@ -17,8 +17,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <AuthProvider>
         <HomeProvider>
           <AppsProvider>
-        <PrivacyDashboard />
-        </AppsProvider>
+            <PrivacyDashboard />
+          </AppsProvider>
         </HomeProvider>
       </AuthProvider>
     </BrowserRouter>

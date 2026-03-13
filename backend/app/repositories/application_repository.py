@@ -185,6 +185,17 @@ class ApplicationRepository:
         return db.session.scalar(statement)
 
     @staticmethod
+    def get_user_smart_home_applications_by_ds_id_and_application_id(
+        user_id: int, application_id: int
+    ) -> list[UserSmartHomeApplication]:
+        statement = db.select(UserSmartHomeApplication).where(
+            UserSmartHomeApplication.user_id == user_id,
+            UserSmartHomeApplication.application_id == application_id,
+            UserSmartHomeApplication.smart_home_id.isnot(None),
+        )
+        return list(db.session.scalars(statement).all())
+
+    @staticmethod
     def get_pending_request_counts_for_managed_applications(
         application_ids: list[int],
     ) -> dict[int, int]:

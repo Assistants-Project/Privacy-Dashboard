@@ -24,7 +24,6 @@ def register_marketplace_application(
     owner_email: str,
     description: str | None = None,
     delegates_email: list[str] | None = None,
-    available_consents: list[str] | None = None,
 ):
     created = MarketplaceService.register_marketplace_application(
         application_id=id,
@@ -32,7 +31,6 @@ def register_marketplace_application(
         owner_email=owner_email,
         delegates_email=delegates_email,
         description=description,
-        available_consents=available_consents,
     )
     return "", 201 if created else 204
 

@@ -17,7 +17,7 @@ const MANUAL_APP_ID_PREFIX = "com.privacydashboard.";
 
 function AppCreationPanel({ show, onHide, mode = "create", application }: AppCreationPanelProps) {
   const { user, isDataController } = useAuth();
-  const { createManagedApplication, loadApps } = useApp();
+  const { createManagedApp, loadApps } = useApp();
 
   const [name, setName] = useState<string>("");
   const [title, setTitle] = useState<string>("");
@@ -106,7 +106,7 @@ function AppCreationPanel({ show, onHide, mode = "create", application }: AppCre
         });
         await loadApps(application.uuid, true);
       } else {
-        await createManagedApplication({
+        await createManagedApp({
           id: normalizedName,
           title: normalizedTitle,
           description: normalizedDescription,

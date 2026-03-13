@@ -8,7 +8,7 @@ import {
   Row,
 } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext";
-import { User } from "../../models/user";
+import { UserModel } from "../../models/user";
 
 import { useEffect, useState } from "react";
 import { Chat } from "../../components/Messages/Chat";
@@ -21,11 +21,11 @@ import {
 } from "../../services/MessageService";
 
 export function Messages() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [messagedContacts, setMessagedContacts] = useState<
     MessagedContact[] | undefined
   >(undefined);
-  const [selectedContact, setSelectedContact] = useState<User | undefined>(
+  const [selectedContact, setSelectedContact] = useState<UserModel | undefined>(
     undefined,
   );
   const [typedMessage, setTypedMessage] = useState<string>("");

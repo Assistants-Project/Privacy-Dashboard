@@ -1,4 +1,4 @@
-class PIA {
+class PIAModel {
     application_uuid: string
     content: any
 
@@ -9,4 +9,4 @@ class PIA {
     }
 }
 
-export { PIA }
+export { PIAModel }

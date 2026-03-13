@@ -24,7 +24,7 @@ function PrivacyNoticeEditor({ closePanel, setPanelExpanded, }: Props) {
   const [editMode, setEditMode,] = useState(false);
   const pn = selectedAppUUID ? PrivacyNoticeByAppUUID[selectedAppUUID] : undefined;
   const hasPn = !!(pn?.content && pn.content.trim() !== "");
-  const showEmptyPn = !isDataSubject && !editMode && !hasPn;
+  const showEmptyPn = !editMode && !hasPn;
 
   useEffect(() => {
     setPanelExpanded?.(editMode);

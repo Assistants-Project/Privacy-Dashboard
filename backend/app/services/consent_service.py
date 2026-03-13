@@ -12,12 +12,16 @@ from ..exceptions import (
     AvailableConsentWrongListException,
     MissingJWTException,
     SmartHomeNotFoundException,
+    UserNotFoundException,
 )
-from ..models import AvailableConsent
+from ..models import AvailableConsent, NotificationType, UserRole
 from ..repositories import (
     ApplicationRepository,
     ConsentRepository,
+    NotificationRepository,
+    ProcessingContextRepository,
     SmartHomeRepository,
+    UserRepository,
 )
 from ..services.consent_policy_rule_service import ConsentPolicyRuleService
 
@@ -248,6 +252,7 @@ class ConsentService:
         )
 
         available_consents_ids: list[int] = []
+        available_consents_by_id: dict[int, AvailableConsent] = {}
         action_ids_by_uuid: dict[UUID, str | None] = {}
         for consent_uuid in selected_consents_uuids:
             available_consent = ConsentRepository.get_available_consent_by_uuid(
@@ -262,6 +267,7 @@ class ConsentService:
                     "Selected consents do not all belong to the requested application!"
                 )
             available_consents_ids.append(available_consent.id)
+            available_consents_by_id[available_consent.id] = available_consent
             action_ids_by_uuid[consent_uuid] = getattr(available_consent, "sifis_action_id", None)
 
         from flask import request as flask_request
@@ -276,6 +282,26 @@ class ConsentService:
             raise SmartHomeNotFoundException(
                 f"Smart Home with uuid {smart_home_uuid} not found among the owned smart homes!"
             )
+        user = UserRepository.get_user_by_id(current_user_id)
+        if not user:
+            raise UserNotFoundException("User not found")
+        application = ApplicationRepository.get_application_by_uuid(application_uuid)
+        if not application:
+            raise ApplicationNotFoundException(
+                f"Application with uuid {application_uuid} not found among the installed applications of smart home with uuid {smart_home_uuid}!"
+            )
+        user_smart_home_application = ApplicationRepository.get_user_smart_home_application_by_ds_id_and_smart_home_id_and_application_id(
+            current_user_id, smart_home.id, application_id
+        )
+        processing_context = ProcessingContextRepository.get_or_create_processing_context(
+            current_user_id,
+            user.email,
+            application.id,
+            application.uuid,
+            application.name,
+            smart_home.uuid,
+            user_smart_home_application.id if user_smart_home_application else None,
+        )
 
         cps = ConsentPolicyRuleService()
         try:
@@ -292,9 +318,43 @@ class ConsentService:
                     access_token=access_token,
                 )
 
+            newly_granted_consents: list[AvailableConsent] = []
             for available_consent_id in available_consents_ids:
-                ConsentRepository.ensure_user_smart_home_available_consent(
+                created = ConsentRepository.ensure_user_smart_home_available_consent(
                     current_user_id, smart_home_id, available_consent_id
+                )
+                if created:
+                    newly_granted_consents.append(available_consents_by_id[available_consent_id])
+
+            receiver_ids = list(
+                {
+                    recipient.id
+                    for recipient in UserRepository.get_users_by_application_id_and_user_role(
+                        application_id, UserRole.DATA_CONTROLLER
+                    )
+                }
+                | {
+                    recipient.id
+                    for recipient in UserRepository.get_users_by_application_id_and_user_role(
+                        application_id, UserRole.DATA_PROTECTION_OFFICER
+                    )
+                }
+            )
+            for granted_consent in newly_granted_consents:
+                if not receiver_ids:
+                    break
+                NotificationRepository.create_notification(
+                    NotificationType.CONSENT_GRANTED,
+                    current_user_id,
+                    user.email,
+                    receiver_ids,
+                    application_id=application_id,
+                    processing_context_id=processing_context.id,
+                    payload={
+                        "consent_uuid": str(granted_consent.uuid),
+                        "consent_content": granted_consent.content,
+                    },
+                    commit=False,
                 )
             db.session.commit()
             return

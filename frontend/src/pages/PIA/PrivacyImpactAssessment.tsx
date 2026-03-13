@@ -18,7 +18,7 @@ function PrivacyImpactAssessment() {
           <AppsList closePanel={closePanel} getDocumentStatus={(app) => app.pia_status} />
         </Col>
 
-        <Col xs={10} lg={9} className="d-flex flex-column overflow-hidden ps-0 ps-0" style={{ minHeight: 0 }}>
+        <Col xs={10} lg={9} className="d-flex flex-column overflow-hidden ps-0 pe-0" style={{ minHeight: 0 }}>
           {!selectedApp ? (
             <Card className="p-0">
               <Card.Body className="text-muted">

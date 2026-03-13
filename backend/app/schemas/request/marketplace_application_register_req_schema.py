@@ -15,8 +15,3 @@ class MarketplaceApplicationRegisterReqSchema(ma.Schema):
         required=False,
         allow_none=True,
     )
-    available_consents = ma.List(
-        ma.String(required=True, allow_none=False),
-        required=False,
-        allow_none=True,
-    )

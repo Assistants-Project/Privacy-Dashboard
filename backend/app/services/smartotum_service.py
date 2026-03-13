@@ -452,10 +452,109 @@ class SmartotumService:
                     if not application:
                         continue
 
+                    desired_available_consents = list(available_consents)
+                    desired_action_ids_by_content = dict(
+                        available_consents_action_ids_by_app_id.get(app_id, {})
+                    )
+                    desired_available_consents_set = set(desired_available_consents)
+                    removed_available_consents = [
+                        available_consent
+                        for available_consent in list(application.available_consents)
+                        if available_consent.content not in desired_available_consents_set
+                    ]
+
+                    if removed_available_consents:
+                        installed_relations = (
+                            ApplicationRepository.get_user_smart_home_applications_by_ds_id_and_application_id(
+                                user.id, application.id
+                            )
+                        )
+
+                        for removed_available_consent in removed_available_consents:
+                            should_keep_removed_consent = False
+
+                            for relation in installed_relations:
+                                smart_home = relation.smart_home
+                                if smart_home is None:
+                                    continue
+
+                                base_rule_uuid = cps.consent_rule_uuid(
+                                    home_uuid=str(smart_home.uuid),
+                                    consent_uuid=removed_available_consent.uuid,
+                                )
+                                existing_rule = (
+                                    cps._rule_service.rule_repo.get_rule_by_uuid(
+                                        base_rule_uuid
+                                    )
+                                )
+                                if existing_rule is None:
+                                    continue
+
+                                action_id_for_delete = getattr(
+                                    removed_available_consent, "sifis_action_id", None
+                                )
+                                if not action_id_for_delete:
+                                    existing_action_url = None
+                                    if getattr(existing_rule, "actions", None):
+                                        try:
+                                            existing_action_url = (
+                                                existing_rule.actions[0].url
+                                            )
+                                        except Exception:
+                                            existing_action_url = None
+                                    action_id_for_delete = get_action_id_from_rule_url(
+                                        existing_action_url
+                                    )
+
+                                if not action_id_for_delete:
+                                    should_keep_removed_consent = True
+                                    message = (
+                                        f"Application {app_id} kept removed consent "
+                                        f"'{removed_available_consent.content}' because a DHT cleanup "
+                                        f"rule exists in home {smart_home.uuid} but no action id is available."
+                                    )
+                                    append_warning(message)
+                                    log_sync_issue(message)
+                                    break
+
+                                try:
+                                    cps.delete_consent_deny_rule(
+                                        smart_home=smart_home,
+                                        consent_uuid=removed_available_consent.uuid,
+                                        sifis_action_id=action_id_for_delete,
+                                        access_token=access_token,
+                                    )
+                                except Exception as exc:
+                                    should_keep_removed_consent = True
+                                    message = (
+                                        f"Application {app_id} kept removed consent "
+                                        f"'{removed_available_consent.content}' because DHT cleanup failed "
+                                        f"for home {smart_home.uuid}: {exc}"
+                                    )
+                                    append_warning(message)
+                                    log_sync_issue(message)
+                                    break
+
+                            if should_keep_removed_consent:
+                                desired_available_consents.append(
+                                    removed_available_consent.content
+                                )
+                                desired_available_consents_set.add(
+                                    removed_available_consent.content
+                                )
+                                existing_action_id = getattr(
+                                    removed_available_consent, "sifis_action_id", None
+                                )
+                                if existing_action_id:
+                                    desired_action_ids_by_content[
+                                        removed_available_consent.content
+                                    ] = existing_action_id
+
                     ConsentRepository.upsert_available_consents_for_application(
                         application.id,
-                        available_consents,
-                        available_consents_action_ids_by_app_id.get(app_id, {}),
+                        desired_available_consents,
+                        desired_action_ids_by_content,
+                        prune_missing=True,
                     )
 
                     # Default: if a consent is not given, enforce a deny rule immediately.

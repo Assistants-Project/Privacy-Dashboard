@@ -34,8 +34,11 @@ type RequestDto = {
 type RequestResItemDto = {
   request: RequestDto;
   user_email: string;
+  user_firstname?: string | null;
+  user_lastname?: string | null;
   application_name: string;
   application_uuid: string;
+  processing_context_uuid: string;
 };
 
 //DTO per la submit della request (rispetta lo schema del backend)
@@ -58,7 +61,10 @@ type HandleRequestDto = {
 type RequestListItem = {
   request: RequestModel;
   user_email: string;
+  user_firstname?: string;
+  user_lastname?: string;
   application_name: string;
+  processing_context_uuid: string;
 };
 
 //se stringa required è vuota (null) la mappiamo a stringa vuota (per sicurezza)
@@ -122,7 +128,10 @@ const toRequestListItem = (dto: RequestResItemDto): RequestListItem => {
   return {
     request: toRequestModel(dto.request, dto.application_uuid),
     user_email: normalizeString(dto.user_email),
+    user_firstname: normalizeOptionalString(dto.user_firstname),
+    user_lastname: normalizeOptionalString(dto.user_lastname),
     application_name: normalizeString(dto.application_name),
+    processing_context_uuid: normalizeString(dto.processing_context_uuid),
   };
 };
 

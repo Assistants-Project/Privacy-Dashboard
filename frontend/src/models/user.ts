@@ -1,17 +1,25 @@
-class User {
+type RelatedApplicationModel = {
+    uuid: string;
+    name: string;
+    title: string;
+};
+
+class UserModel {
     uuid: string
     email: string
     firstname: string
     lastname: string
     role: Role
+    relatedApplications?: RelatedApplicationModel[]
 
 
-    constructor(uuid: string, email: string, firstname: string, lastname: string, role: Role) {
+    constructor(uuid: string, email: string, firstname: string, lastname: string, role: Role, relatedApplications?: RelatedApplicationModel[]) {
         this.email = email
         this.firstname = firstname
         this.lastname = lastname
         this.role = role
         this.uuid = uuid
+        this.relatedApplications = relatedApplications
         
     }
 }
@@ -26,4 +34,13 @@ enum Role {
     DPO = "DATA_PROTECTION_OFFICER"
 }
 
-export { User, Role }
+const ROLE_LABELS: Record<Role, string> = {
+    [Role.DataSubject]: "Data Subject",
+    [Role.DataController]: "Data Controller",
+    [Role.DPO]: "Data Protection Officer",
+};
+
+const getRoleLabel = (role: Role): string => ROLE_LABELS[role] ?? role;
+
+export { UserModel, Role, ROLE_LABELS, getRoleLabel }
+export type { RelatedApplicationModel }

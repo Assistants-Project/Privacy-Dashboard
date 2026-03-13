@@ -13,10 +13,8 @@ from ..extensions import db
 from ..models import User, UserRole
 from ..repositories import (
     ApplicationRepository,
-    ConsentRepository,
     UserRepository,
 )
-from .consent_service import normalize_available_consents_payload
 
 
 class MarketplaceService:
@@ -66,15 +64,6 @@ class MarketplaceService:
                 application.description = normalized_description
                 changed = True
 
-        if "available_consents" in patch:
-            normalized_available_consents = normalize_available_consents_payload(patch.get("available_consents"), deduplicate=True)
-            ConsentRepository.upsert_available_consents_for_application(
-                application.id,
-                normalized_available_consents,
-                prune_missing=True,
-            )
-            changed = True
-
         if changed:
             db.session.commit()
 
@@ -87,7 +76,6 @@ class MarketplaceService:
         owner_email: str,
         delegates_email: list[str] | None = None,
         description: str | None = None,
-        available_consents: list[str] | None = None,
     ) -> bool:
         normalized_application_id = application_id.strip()
         if not normalized_application_id:
@@ -146,8 +134,6 @@ class MarketplaceService:
                 raise WrongUserRoleException("User is not a Data Controller!")
             delegate_data_controllers.append(delegate_data_controller)
 
-        normalized_available_consents = normalize_available_consents_payload(available_consents, deduplicate=True)
-
         existing_application = ApplicationRepository.get_application_by_name(
             normalized_application_id
         )
@@ -172,9 +158,6 @@ class MarketplaceService:
                 ApplicationRepository.ensure_application_managed_by_user(
                     delegate_data_controller.id, application.id
                 )
-            ConsentRepository.upsert_available_consents_for_application(
-                application.id, normalized_available_consents
-            )
             db.session.commit()
             return True
         except IntegrityError:

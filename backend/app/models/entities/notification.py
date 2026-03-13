@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List
 
 from sqlalchemy import Enum, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...extensions import db
@@ -18,6 +19,7 @@ class NotificationType(enum.Enum):
     REQUEST_SUBMITTED = "REQUEST_SUBMITTED"
     REQUEST_ANSWERED = "REQUEST_ANSWERED"
     REQUEST_STATUS_UPDATED = "REQUEST_STATUS_UPDATED"
+    CONSENT_GRANTED = "CONSENT_GRANTED"
 
 
 class Notification(db.Model):
@@ -33,14 +35,19 @@ class Notification(db.Model):
         sent_at: A datetime object that represents the date and time the notification was sent.
             It is set to the current date and time by default.
         sender_id: A foreign key ID of the sender of the notification.
+        sender_email: A snapshot of the sender email kept for audit when the sender user is deleted.
         application_id: A foreign key ID of the application that generated the notification, if any.
         request_id: A foreign key ID of the request that generated the notification, if any.
+        processing_context_id: A foreign key ID of the opaque processing context associated to the notification, if any.
+        payload: Optional audit payload associated with the notification.
         sender: A user who performed the event that generated the notification.
             Represents a many-to-one relationship with the `User` class.
         application: An application which generated the notification, if any.
             Represents a many-to-one relationship with the `Application` class.
         request: A request which generated the notification, if any.
             Represents a many-to-one relationship with the `Request` class.
+        processing_context: The opaque processing context associated with the notification, if any.
+            Represents a many-to-one relationship with the `ProcessingContext` class.
         receivers: A list of `UserNotification` instances.
             Represents a one-to-many relationship with the `UserNotification` class.
     """
@@ -50,16 +57,22 @@ class Notification(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     type = mapped_column(Enum(NotificationType, validate_strings=True), nullable=False)
     sent_at: Mapped[datetime] = mapped_column(default=datetime.now())
-    sender_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    sender_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    sender_email: Mapped[str | None]
     # nullable many-to-one to each possible object that generates a notification
     application_id: Mapped[int | None] = mapped_column(
-        ForeignKey("applications.id", ondelete="CASCADE"), default=None
+        ForeignKey("applications.id", ondelete="SET NULL"), default=None
     )
     request_id: Mapped[int | None] = mapped_column(
-        ForeignKey("requests.id", ondelete="CASCADE"), default=None
+        ForeignKey("requests.id", ondelete="SET NULL"), default=None
     )
+    processing_context_id: Mapped[int | None] = mapped_column(
+        ForeignKey("processing_contexts.id", ondelete="SET NULL"),
+        default=None,
+    )
+    payload: Mapped[dict | None] = mapped_column(JSONB, default=None)
 
-    sender: Mapped["User"] = relationship(  # noqa: F821 # type: ignore
+    sender: Mapped["User | None"] = relationship(  # noqa: F821 # type: ignore
         back_populates="sent_notifications"
     )
     application: Mapped["Application | None"] = relationship(  # noqa: F821 # type: ignore
@@ -67,6 +80,9 @@ class Notification(db.Model):
     )
     request: Mapped["Request | None"] = relationship(  # noqa: F821 # type: ignore
         back_populates="generated_notifications"
+    )
+    processing_context: Mapped["ProcessingContext | None"] = relationship(  # noqa: F821 # type: ignore
+        back_populates="notifications"
     )
     receivers: Mapped[List["UserNotification"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="notification",

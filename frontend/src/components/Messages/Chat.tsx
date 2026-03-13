@@ -1,6 +1,6 @@
 import { Col, Row } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext";
-import { User } from "../../models/user";
+import { UserModel } from "../../models/user";
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -10,7 +10,7 @@ import {
   MessageResSchema,
 } from "../../services/MessageService";
 
-export function Chat({ selectedContact }: { selectedContact: User }) {
+export function Chat({ selectedContact }: { selectedContact: UserModel }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const { user } = useAuth();

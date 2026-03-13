@@ -1,7 +1,7 @@
 import {Accordion,Button,Card,CloseButton,Col,Form,Row,Stack} from "react-bootstrap";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "../../contexts/AppsContext";
-import { Question, Questionnaire } from "../../models/question";
+import { Question, QuestionnaireModel } from "../../models/question";
 import {fetchQuestionnaire,submitQuestionnaire} from "../../services/QuestionnaireService";
 import { PdfDownloadButton } from "../Utilities/PdfDownloadButton";
 
@@ -71,6 +71,10 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
     answersRef.current = {};
 
     if (!selectedAppUUID) return;
+    if (!selectedApp?.evaluation) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     loadQuestionnaire(selectedAppUUID, false)
@@ -157,6 +161,7 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
   const title = selectedApp?.name ?? "";
 
   const questionsToEdit = templateQuestions ?? [];
+  const showEmptyQuestionnaire = !loading && !editMode && !hasQuestionnaire;
 
   return (
     <>
@@ -215,6 +220,13 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
             </Card>
           ) : null}
 
+          {showEmptyQuestionnaire ? (
+            <Card className="p-0">
+              <Card.Body className="text-muted">
+                Press the Plus button to fill out the questionnaire.
+              </Card.Body>
+            </Card>
+          ) : (
           <Stack
             className="flex-grow-1 pe-2 overflow-hidden"
             style={{ minHeight: 0 }}
@@ -227,7 +239,7 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
               </Card>
             ) : editMode ? (
               <Card
-                className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+                className="p-0 border-2 rounded-4 flex-grow-1 overflow-hidden d-flex flex-column"
                 style={{ minHeight: 0 }}
               >
                 <Card.Body
@@ -312,7 +324,7 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
               </Card>
             ) : (
               <Card
-                className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
+                className="p-0 border-2 rounded-4 flex-grow-1 overflow-hidden d-flex flex-column"
                 style={{ minHeight: 0 }}
               >
                 <Card.Body
@@ -340,11 +352,7 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
                     className="flex-grow-1 overflow-auto"
                     style={{ minHeight: 0, height: 0 }}
                   >
-                    {viewQuestions === null ? (
-                      <div className="text-muted">
-                        Press the Plus button to fill out the questionnaire.
-                      </div>
-                    ) : viewQuestions?.length ? (
+                    {viewQuestions?.length ? (
                       viewQuestions.map((question, idx) => (
                         <Card
                           key={`${question.uuid}-${idx}`}
@@ -383,23 +391,20 @@ function QuestionnaireEditor({ closePanel }: QuestionnaireEditorProps) {
                           </Card.Body>
                         </Card>
                       ))
-                    ) : (
-                      <div className="text-muted">
-                        No questionnaire available.
-                      </div>
-                    )}
+                    ) : undefined}
                   </div>
                 </Card.Body>
               </Card>
               )}
             </Stack>
+          )}
           </>
     </>
   );
 }
 
 function questionnaireObjectToHtmlString(
-  obj: Questionnaire,
+  obj: QuestionnaireModel,
   applicationName: string,
 ): string {
   return `<p><strong>${applicationName}</strong> got the following evaluation: <span style="font-weight: bold; color: ${obj.application_evaluation?.toLowerCase()};">${obj.application_evaluation}</span></p><p>${obj.questionnaire_summary ?? ""}</p><hr/><div>${obj.questions

@@ -8,6 +8,7 @@ import { TopNavBar } from "../components/Routing/TopNavBar";
 import { RequireAuth } from "../components/Routing/RequireAuth";
 import { Apps } from "./Apps/Apps";
 import { Messages } from "./Messages/Messages";
+import { Notifications } from "./Notifications/Notifications";
 import { ManageRights } from "./RightsRequest/ManageRights";
 import { Home } from "./Home";
 import { PrivacyNotice } from "./PrivacyNotice/PrivacyNotice";
@@ -56,6 +57,7 @@ function PrivacyDashboard() {
           <Route path="/questionnaire" element={<Questionnaire />} />
           <Route path="/policy-translation" element={<PolicyTranslation />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/rights" element={<ManageRights />} />
         </Route>
       </Routes>

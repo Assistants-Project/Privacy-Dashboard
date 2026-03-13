@@ -28,6 +28,7 @@ from .entities.home_exception import (
     SmartHomeForbiddenException,
     SmartHomeNotFoundException,
 )
+from .entities.notification_exceptions import NotificationNotFoundException
 from .entities.privacy_notice_exceptions import (
     PrivacyNoticeAlreadyExists,
     PrivacyNoticeNotFoundException,
@@ -101,6 +102,7 @@ __all__ = [
     "SmartHomeNotFoundException",
     "SmartHomeForbiddenException",
     "DeviceSyncException",
+    "NotificationNotFoundException",
     "SmartotumSyncException",
     "QuestionnaireNotFoundException",
     "QuestionnaireSubmissionException",

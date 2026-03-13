@@ -19,6 +19,7 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
   const pia = selectedAppUUID ? PIAByAppUUID[selectedAppUUID] : undefined;
 
   const hasPia = !!pia?.content?.sections;
+  const showEmptyPia = !editMode && !hasPia;
 
   useEffect(() => {
     setEditMode(false);
@@ -246,6 +247,13 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
             </Col>
           </Row>
 
+          {showEmptyPia ? (
+            <Card className="p-0">
+              <Card.Body className="text-muted">
+                Press the Plus button to fill out the Privacy Impact Assessment.
+              </Card.Body>
+            </Card>
+          ) : (
           <Stack
             className="flex-grow-1 pe-2 overflow-hidden"
             style={{ minHeight: 0 }}
@@ -350,92 +358,78 @@ function PrivacyImpactAssessmentEditor({ closePanel }: Props) {
                 </Card.Body>
               </Card>
             ) : (
-              <Card
-                className="p-0 flex-grow-1 overflow-hidden d-flex flex-column"
-                style={{ minHeight: 0 }}
+              <div
+                className="border border-2 rounded-4 p-3 flex-grow-1 overflow-auto"
+                style={{ minHeight: 0, height: 0 }}
               >
-                <Card.Body
-                  className="d-flex flex-column flex-grow-1"
-                  style={{ minHeight: 0 }}
-                >
-                  <div
-                    className="flex-grow-1 overflow-auto"
-                    style={{ minHeight: 0, height: 0 }}
-                  >
-                    {pia?.content?.sections ? (
-                      pia.content.sections.map((section: any) => (
-                        <Card key={section.section_key} className="p-0 mb-3">
-                          <Card.Body>
-                            <h4 className="mb-2">{section.label}</h4>
-                            {section.subsections?.map((subsection: any) => (
-                              <Card
-                                key={subsection.subsection_key}
-                                className="p-0 mb-2"
+                {pia?.content?.sections ? (
+                  pia.content.sections.map((section: any) => (
+                    <Card key={section.section_key} className="p-0 mb-3">
+                      <Card.Body>
+                        <h4 className="mb-2">{section.label}</h4>
+                        {section.subsections?.map((subsection: any) => (
+                          <Card
+                            key={subsection.subsection_key}
+                            className="p-0 mb-2"
+                          >
+                            <Card.Body>
+                              <h5 className="mb-2">{subsection.label}</h5>
+                              <Accordion
+                                alwaysOpen
+                                activeKey={activeTableKeys}
+                                onSelect={(eventKey) =>
+                                  Array.isArray(eventKey)
+                                    ? setActiveTableKeys(eventKey)
+                                    : typeof eventKey === "string"
+                                      ? setActiveTableKeys((prev) =>
+                                          prev.includes(eventKey)
+                                            ? prev.filter(
+                                                (k) => k !== eventKey,
+                                              )
+                                            : [...prev, eventKey],
+                                        )
+                                      : setActiveTableKeys([])
+                                }
                               >
-                                <Card.Body>
-                                  <h5 className="mb-2">{subsection.label}</h5>
-                                  <Accordion
-                                    alwaysOpen
-                                    activeKey={activeTableKeys}
-                                    onSelect={(eventKey) =>
-                                      Array.isArray(eventKey)
-                                        ? setActiveTableKeys(eventKey)
-                                        : typeof eventKey === "string"
-                                          ? setActiveTableKeys((prev) =>
-                                              prev.includes(eventKey)
-                                                ? prev.filter(
-                                                    (k) => k !== eventKey,
-                                                  )
-                                                : [...prev, eventKey],
-                                            )
-                                          : setActiveTableKeys([])
-                                    }
+                                {subsection.tables?.map((table: any) => (
+                                  <Accordion.Item
+                                    eventKey={table.table_key}
+                                    key={table.table_key}
                                   >
-                                    {subsection.tables?.map((table: any) => (
-                                      <Accordion.Item
-                                        eventKey={table.table_key}
-                                        key={table.table_key}
-                                      >
-                                        <Accordion.Header>
-                                          {table.title}
-                                        </Accordion.Header>
-                                        <Accordion.Body>
-                                          {activeTableKeys.includes(
+                                    <Accordion.Header>
+                                      {table.title}
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                      {activeTableKeys.includes(
+                                        table.table_key,
+                                      ) ? (
+                                        <AgGridReact
+                                          rowData={table.initial_rows || []}
+                                          columnDefs={createColDefs(
+                                            table.columns,
                                             table.table_key,
-                                          ) ? (
-                                            <AgGridReact
-                                              rowData={table.initial_rows || []}
-                                              columnDefs={createColDefs(
-                                                table.columns,
-                                                table.table_key,
-                                                table.addOrDeleteRowsEnabled,
-                                                false,
-                                              )}
-                                              defaultColDef={{ flex: 1 }}
-                                              domLayout={"autoHeight"}
-                                            />
-                                          ) : null}
-                                        </Accordion.Body>
-                                      </Accordion.Item>
-                                    ))}
-                                  </Accordion>
-                                </Card.Body>
-                              </Card>
-                            ))}
-                          </Card.Body>
-                        </Card>
-                      ))
-                    ) : (
-                      <div className="text-muted">
-                        Press the Plus button to fill out the Privacy Impact
-                        Assessment.
-                      </div>
-                    )}
-                  </div>
-                </Card.Body>
-              </Card>
+                                            table.addOrDeleteRowsEnabled,
+                                            false,
+                                          )}
+                                          defaultColDef={{ flex: 1 }}
+                                          domLayout={"autoHeight"}
+                                        />
+                                      ) : null}
+                                    </Accordion.Body>
+                                  </Accordion.Item>
+                                ))}
+                              </Accordion>
+                            </Card.Body>
+                          </Card>
+                        ))}
+                      </Card.Body>
+                    </Card>
+                  ))
+                ) : undefined}
+              </div>
                 )}
               </Stack>
+            )}
             </>
     </>
   );

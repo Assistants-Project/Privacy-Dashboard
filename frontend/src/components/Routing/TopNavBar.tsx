@@ -1,8 +1,10 @@
 import { useAuth } from "../../contexts/AuthContext";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import {Container,Dropdown,Nav,Navbar} from "react-bootstrap";
+import { Badge, Container, Dropdown, Nav, Navbar } from "react-bootstrap";
+import { useEffect } from "react";
 import { UserMenu } from "../Authentication/UserMenu";
 import { useHome } from "../../contexts/HomeContext";
+import { useUnreadNotificationsCount } from "../../hooks/useUnreadNotificationsCount";
 import { SyncPanel } from "../Sync/SyncPanel";
 
 export function TopNavBar() {
@@ -10,8 +12,13 @@ export function TopNavBar() {
   const { user, isDataSubject } = useAuth();
   const location = useLocation();
   const { current_home_uuid } = useHome();
+  const { unreadNotificationsCount, loadUnreadNotificationsCount } = useUnreadNotificationsCount();
 
   const initials = [user?.firstname?.trim()?.[0], user?.lastname?.trim()?.[0]].filter(Boolean).join("").toUpperCase();
+
+  useEffect(() => {
+    void loadUnreadNotificationsCount({ force: true });
+  }, [location.pathname, loadUnreadNotificationsCount]);
 
   return (
     <div className="app-shell">
@@ -66,11 +73,18 @@ export function TopNavBar() {
               <Nav.Link as={NavLink} to="/messages" eventKey="/messages" className="d-flex align-items-center">
                 Messages
               </Nav.Link>
+              <Nav.Link as={NavLink} to="/notifications" eventKey="/notifications" className="d-flex align-items-center">
+                <span>Notifications</span>
+                {unreadNotificationsCount > 0 ? (
+                  <Badge bg="danger" pill className="ms-2">
+                    {unreadNotificationsCount > 99 ? "99+" : unreadNotificationsCount}
+                  </Badge>
+                ) : undefined}
+              </Nav.Link>
             </Nav>
 
             <Nav className="align-items-center gap-4 position-relative">
               <SyncPanel />
-
 
               <Dropdown align="end" autoClose="outside">
                 <Dropdown.Toggle

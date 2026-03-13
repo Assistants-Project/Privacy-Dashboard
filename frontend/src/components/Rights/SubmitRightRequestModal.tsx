@@ -28,7 +28,7 @@ function SubmitRightRequestModal({
   const navigate = useNavigate();
   
   const { user, isDataSubject } = useAuth();
-  const { selectedApp, ConsentStatesByAppUUID, loadApps, loadConsentsByApplication } = useApp();
+  const { selectedApp, setSelectedAppUUID, ConsentStatesByAppUUID, loadApps, loadConsents } = useApp();
   const { current_home_uuid } = useHome();
 
   const [rightType, setRightType] = useState<RightType>(RightType.ACCESS_DATA);
@@ -95,7 +95,7 @@ function SubmitRightRequestModal({
     setError(undefined);
 
     try {
-      await submitRightRequest({
+      const createdRequest = await submitRightRequest({
         right_type: rightType,
         additional_information: trimmedMessage,
         smart_home_uuid: current_home_uuid,
@@ -106,9 +106,16 @@ function SubmitRightRequestModal({
       });
 
       await loadApps(selectedApp.uuid, true);
-      await loadConsentsByApplication(selectedApp.uuid, true);
+      await loadConsents(selectedApp.uuid, true);
       onHide();
-      if (redirectToRightsOnSubmit) navigate("/rights");
+      if (redirectToRightsOnSubmit) {
+        setSelectedAppUUID(selectedApp.uuid);
+        const params = new URLSearchParams();
+        if (createdRequest?.uuid) {
+          params.set("request", createdRequest.uuid);
+        }
+        navigate(params.toString() ? `/rights?${params.toString()}` : "/rights");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected Error");
     } finally {

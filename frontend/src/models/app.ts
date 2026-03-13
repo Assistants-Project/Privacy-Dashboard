@@ -1,5 +1,5 @@
 import {Evaluation} from "./question"
-import {User} from "./user"
+import {UserModel} from "./user"
 
 
 export enum DocumentStatus {
@@ -42,15 +42,15 @@ export class AppModel {
     evaluation: Evaluation | undefined
     questionnaire_summary: string | undefined
     installed_at: string | undefined //se presente significa che l'oggetto Application è stato richiesto da un data subject per la sua casa
-    owner: User //Data Controller owner
-    data_controllers: User[] //array eventualmente vuoto se non ci sono data_controllers
-    dpo: User | undefined //solo 1 dpo per applicazione 
+    owner: UserModel //Data Controller owner
+    data_controllers: UserModel[] //array eventualmente vuoto se non ci sono data_controllers
+    dpo: UserModel | undefined //solo 1 dpo per applicazione 
     pn_status: DocumentStatus | undefined //può essere undefined in caso di managed
     pia_status: DocumentStatus | undefined  //può essere undefined in caso di managed
     pending_right_requests_count: number //numero di right requests ancora pending per quella app
 
     //constructor minimo
-    constructor(uuid: string, name: string, title: string, owner: User) {
+    constructor(uuid: string, name: string, title: string, owner: UserModel) {
         this.uuid = uuid
         this.name = name
         this.title = title
