@@ -13,6 +13,8 @@ from ...extensions import db
 class RightType(enum.Enum):
     ACCESS_DATA = "ACCESS_DATA"
     ASK_INFORMATION = "ASK_INFORMATION"
+    PORTABILITY = "PORTABILITY"
+    LIMITATION = "LIMITATION"
     COMPILE_COMPLAINT = "COMPILE_COMPLAINT"
     ERASE_DATA = "ERASE_DATA"
     REMOVE_EVERYTHING = "REMOVE_EVERYTHING"
@@ -52,8 +54,11 @@ class Request(db.Model):
         handled_at: A datetime object that represents the date and time the request was handled.
             It is set to `None` by default and updated when the request is handled.
         status: An enum that represents the status of the request, either `PENDING` or `HANDLED`.
+        processing_context_id: The opaque audit context that identifies the DS-app-home processing instance.
         user_smart_home_application_relation_id: A foreign key ID of the User-SmartHome-Application combination
             that submitted the request. This may become `None` if the relation is pruned.
+        processing_context: The audit context of the request.
+            Represents a many-to-one relationship with the `ProcessingContext` class.
         user_smart_home_application_relation: A combination of a `User`, a `SmartHome` and an `Application` that
             has submitted the request.
             Represents a many-to-one relationship with the `UserSmartHomeApplication` class.
@@ -79,6 +84,10 @@ class Request(db.Model):
     status = mapped_column(
         Enum(Status, validate_strings=True), default=Status.PENDING, nullable=False
     )
+    processing_context_id: Mapped[int] = mapped_column(
+        ForeignKey("processing_contexts.id"),
+        nullable=False,
+    )
     user_smart_home_application_relation_id: Mapped[int | None] = mapped_column(
         ForeignKey(
             "user_smart_home_application_relations.id",
@@ -87,11 +96,12 @@ class Request(db.Model):
         nullable=True,
     )
 
+    processing_context: Mapped["ProcessingContext"] = relationship(back_populates="requests")  # noqa: F821 # type: ignore
     user_smart_home_application_relation: Mapped["UserSmartHomeApplication | None"] = (  # noqa: F821 # type: ignore
         relationship(back_populates="submitted_requests")
     )
     generated_notifications: Mapped[List["Notification"]] = relationship(  # noqa: F821 # type: ignore
-        back_populates="request", cascade="all, delete-orphan", passive_deletes=True
+        back_populates="request", passive_deletes=True
     )
 
     def __repr__(self) -> str:

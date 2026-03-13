@@ -19,6 +19,7 @@ from .request.current_user_patch_req_schema import CurrentUserPatchReqSchema
 from .request.available_consent_content_req_schema import AvailableConsentContentReqSchema
 from .request.available_consents_req_schema import AvailableConsentsReqSchema
 from .request.message_req_schema import MessageReqSchema
+from .request.notification_query_req_schema import NotificationQueryReqSchema
 from .request.marketplace_application_register_req_schema import (
     MarketplaceApplicationRegisterReqSchema,
 )
@@ -47,9 +48,12 @@ from .response.available_consent_res_schema import (
     ConsentStateResSchema,
     AvailableConsentResSchema,
 )
+from .response.contact_res_schema import ContactApplicationResSchema, ContactResSchema
 from .response.device_res_schema import DeviceResSchema
 from .response.home_res_schema import HomeResSchema
 from .response.message_res_schema import MessageResSchema
+from .response.notification_res_schema import NotificationResSchema
+from .response.notification_unread_count_res_schema import NotificationUnreadCountResSchema
 from .response.privacy_impact_assessment_res_schema import PrivacyImpactAssessmentResSchema
 from .response.privacy_notice_res_schema import PrivacyNoticeResSchema
 from .response.question_res_schema import QuestionResSchema
@@ -74,6 +78,7 @@ __all__ = [
     "AvailableConsentContentReqSchema",
     "AvailableConsentsReqSchema",
     "MessageReqSchema",
+    "NotificationQueryReqSchema",
     "MarketplaceApplicationPatchReqSchema",
     "MarketplaceApplicationRegisterReqSchema",
     "PrivacyImpactAssessmentReqSchema",
@@ -91,9 +96,13 @@ __all__ = [
     "ConsentStateResSchema",
     "ManagedApplicationResSchema",
     "AvailableConsentResSchema",
+    "ContactApplicationResSchema",
+    "ContactResSchema",
     "DeviceResSchema",
     "HomeResSchema",
     "MessageResSchema",
+    "NotificationResSchema",
+    "NotificationUnreadCountResSchema",
     "PrivacyImpactAssessmentResSchema",
     "PrivacyNoticeResSchema",
     "QuestionResSchema",

@@ -3,11 +3,11 @@ import { useAuth } from "./AuthContext";
 import { AppModel, CreateApplicationRequest, DocumentStatus, SyncMessage } from "../models/app";
 import { fetchApplications, refreshInstalledApplications, createApplicationByDataController } from "../services/ApplicationService";
 import { useHome } from "./HomeContext";
-import { PrivacyNotice } from "../models/privacy_notice";
+import { PrivacyNoticeModel } from "../models/privacy_notice";
 import { handleFetchPrivacyNotice } from "../services/PrivacyNoticeService";
 import { handleGetPrivacyImpactAssessment } from "../services/PrivacyImpactAssessmentService";
-import { PIA } from "../models/PIA";
-import { Questionnaire } from "../models/question";
+import { PIAModel } from "../models/PIA";
+import { QuestionnaireModel } from "../models/question";
 import { handleGetQuestionnaireByApplication } from "../services/QuestionnaireService";
 import { ConsentModel } from "../models/available_consent";
 import { fetchAvailableConsentsByApplication, fetchConsentsStateBySmartHomeAndApplication } from "../services/AvailableConsentService";
@@ -22,9 +22,9 @@ type AppsContextValue = {
   errorApps: string | undefined; //indica se c'è stato un errore durante il fetch di qualcosa delle app dal backend
   updatingApps: boolean; //indica se è in corso un update delle apps nel backend (attraverso un refresh)
   appsSyncMessages: SyncMessage[];
-  PrivacyNoticeByAppUUID: Record<string, PrivacyNotice | null | undefined> //record cache dei PN
-  PIAByAppUUID: Record<string, PIA | null | undefined> //record cache dei PIA
-  QuestionnaireByAppUUID: Record<string, Questionnaire | null | undefined>; //
+  PrivacyNoticeByAppUUID: Record<string, PrivacyNoticeModel | null | undefined> //record cache dei PN
+  PIAByAppUUID: Record<string, PIAModel | null | undefined> //record cache dei PIA
+  QuestionnaireByAppUUID: Record<string, QuestionnaireModel | null | undefined>; //
   ConsentStatesByAppUUID: Record<string, ConsentModel[] | undefined>; //record cache consensi per app (DS e DC/DPO)
   isSelectedAppOwner: boolean;
 
@@ -33,14 +33,14 @@ type AppsContextValue = {
 
   //ritornano il PN/PIA/Questonario in cache o recupera la versione più recente se refresh è true
   //inoltre si occupa di aggiornare lo status di validità del PN/PIA/Questionario in Apps quando force è true
-  loadPrivacyNotice: (appUUID: string, force: boolean) => Promise<PrivacyNotice | null | undefined>
-  loadPIA: (appUUID: string, force: boolean) => Promise<PIA | null | undefined>
-  loadQuestionnaire: (appUUID: string, force: boolean) => Promise<Questionnaire | null | undefined>;
+  loadPrivacyNotice: (appUUID: string, force: boolean) => Promise<PrivacyNoticeModel | null | undefined>
+  loadPIA: (appUUID: string, force: boolean) => Promise<PIAModel | null | undefined>
+  loadQuestionnaire: (appUUID: string, force: boolean) => Promise<QuestionnaireModel | null | undefined>;
   loadApps: (applicationUUID?: string, force?: boolean) => Promise<AppModel[] | undefined>;
-  loadConsentsByApplication: (appUUID: string, force: boolean) => Promise<ConsentModel[] | undefined>;
+  loadConsents: (appUUID: string, force: boolean) => Promise<ConsentModel[] | undefined>;
 
 
-  createManagedApplication: (payload: CreateApplicationRequest) => Promise<AppModel | undefined>;
+  createManagedApp: (payload: CreateApplicationRequest) => Promise<AppModel | undefined>;
 
   //permette di forzare un aggiornamento apps per Data Subject
   syncApps: () => Promise<void>;
@@ -54,9 +54,9 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
   const { current_home_uuid, loadingHomes } = useHome();
 
   const [apps, setApps] = useState<AppModel[] | undefined>(undefined);
-  const [PrivacyNoticeByAppUUID, setPrivacyNoticeByAppUUID] = useState<Record<string, PrivacyNotice | null | undefined>>({});
-  const [PIAByAppUUID, setPIAByAppUUID] = useState<Record<string, PIA | null | undefined>>({});
-  const [QuestionnaireByAppUUID, setQuestionnaireByAppUUID] = useState<Record<string, Questionnaire | null | undefined>>({});
+  const [PrivacyNoticeByAppUUID, setPrivacyNoticeByAppUUID] = useState<Record<string, PrivacyNoticeModel | null | undefined>>({});
+  const [PIAByAppUUID, setPIAByAppUUID] = useState<Record<string, PIAModel | null | undefined>>({});
+  const [QuestionnaireByAppUUID, setQuestionnaireByAppUUID] = useState<Record<string, QuestionnaireModel | null | undefined>>({});
   const [ConsentStatesByAppUUID, setConsentStatesByAppUUID] = useState<Record<string, ConsentModel[] | undefined>>({});
   const [selectedAppUUID, setInnerSelectedAppUUID] = useState<string | undefined>(undefined);
 
@@ -201,13 +201,19 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user?.uuid, isDataSubject]);
 
-  const loadPrivacyNotice = useCallback(async (appUUID: string, force: boolean,): Promise<PrivacyNotice | null | undefined> => {
+  const loadPrivacyNotice = useCallback(async (appUUID: string, force: boolean,): Promise<PrivacyNoticeModel | null | undefined> => {
     if (!user) return undefined;
+
+    const app = (apps ?? []).find((candidate) => candidate.uuid === appUUID);
 
     if (force == false) {
       const cached = PrivacyNoticeByAppUUID[appUUID];
       if (cached !== undefined) {
         return cached;
+      }
+      if (app?.pn_status === DocumentStatus.Missing) {
+        setPrivacyNoticeByAppUUID(prev => ({ ...prev, [appUUID]: null }));
+        return null;
       }
       //se era undefined proviamo di nuovo a caricarlo
     }
@@ -227,16 +233,22 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       return undefined //rimesso a undefined perchè non è stato caricato correttamente
     }
   },
-    [user, PrivacyNoticeByAppUUID],
+    [user, apps, PrivacyNoticeByAppUUID],
   );
 
-  const loadPIA = useCallback(async (appUUID: string, force: boolean): Promise<PIA | null | undefined> => {
+  const loadPIA = useCallback(async (appUUID: string, force: boolean): Promise<PIAModel | null | undefined> => {
     if (!user) return undefined;
+
+    const app = (apps ?? []).find((candidate) => candidate.uuid === appUUID);
 
     if (force == false) {
       const cached = PIAByAppUUID[appUUID];
       if (cached !== undefined) {
         return cached;
+      }
+      if (app?.pia_status === DocumentStatus.Missing) {
+        setPIAByAppUUID(prev => ({ ...prev, [appUUID]: null }));
+        return null;
       }
       //se era undefined proviamo di nuovo a caricarlo
     }
@@ -253,16 +265,21 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       return undefined //rimesso a undefined perchè non è stato caricato correttamente
     }
   },
-    [user, PIAByAppUUID],
+    [user, apps, PIAByAppUUID],
   );
 
-  const loadQuestionnaire = useCallback(async (appUUID: string, force: boolean): Promise<Questionnaire | null | undefined> => {
+  const loadQuestionnaire = useCallback(async (appUUID: string, force: boolean): Promise<QuestionnaireModel | null | undefined> => {
     if (!user) return undefined;
+    const app = (apps ?? []).find((candidate) => candidate.uuid === appUUID);
 
     if (force == false) {
       const cached = QuestionnaireByAppUUID[appUUID];
       if (cached !== undefined) {
         return cached;
+      }
+      if (!app?.evaluation) {
+        setQuestionnaireByAppUUID((prev) => ({ ...prev, [appUUID]: null }));
+        return null;
       }
       //se era undefined proviamo di nuovo a caricarlo
     }
@@ -289,10 +306,10 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       return undefined; //rimesso a undefined perchè non è stato caricato correttamente
     }
   },
-    [user, QuestionnaireByAppUUID],
+    [user, apps, QuestionnaireByAppUUID],
   );
 
-  const loadConsentsByApplication = useCallback(async (appUUID: string, force: boolean): Promise<ConsentModel[] | undefined> => {
+  const loadConsents = useCallback(async (appUUID: string, force: boolean): Promise<ConsentModel[] | undefined> => {
     if (!user) return undefined;
 
     if (force == false) {
@@ -324,7 +341,7 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
     [user, current_home_uuid, ConsentStatesByAppUUID],
   );
 
-  const createManagedApplication = useCallback(async (payload: CreateApplicationRequest): Promise<AppModel | undefined> => {
+  const createManagedApp = useCallback(async (payload: CreateApplicationRequest): Promise<AppModel | undefined> => {
     if (!user) return undefined;
     if (!isDataController) return undefined;
 
@@ -354,12 +371,12 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       selectedAppUUID,
       selectedApp,
       syncApps,
-      createManagedApplication,
+      createManagedApp,
       loadPrivacyNotice,
       loadPIA,
       loadQuestionnaire,
       loadApps,
-      loadConsentsByApplication,
+      loadConsents,
       setSelectedAppUUID,
     }),
     [
@@ -376,12 +393,12 @@ export function AppsProvider({ children }: { children: React.ReactNode }) {
       selectedAppUUID,
       selectedApp,
       syncApps,
-      createManagedApplication,
+      createManagedApp,
       loadPrivacyNotice,
       loadPIA,
       loadQuestionnaire,
       loadApps,
-      loadConsentsByApplication,
+      loadConsents,
       setSelectedAppUUID,
     ],
   );

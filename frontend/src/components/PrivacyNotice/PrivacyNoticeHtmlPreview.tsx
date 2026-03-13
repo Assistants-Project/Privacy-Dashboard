@@ -18,7 +18,7 @@ function PrivacyNoticeHtmlPreview({ content, loading, emptyText, maxHeight, clas
 
   return (
     <div
-      className={["border rounded p-2 overflow-auto", className].filter(Boolean).join(" ")}
+      className={["border", "border-2", "rounded-4", "p-3", "overflow-auto", className].filter(Boolean).join(" ")}
       style={{ maxHeight: maxHeight ?? "60vh", ...style }}
     >
       {hasContent ? (

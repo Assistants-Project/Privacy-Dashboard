@@ -12,10 +12,12 @@ from ..exceptions import (
     SmartHomeNotFoundException,
     UserNotFoundException,
 )
-from ..models import Request, RightType, Status
+from ..models import NotificationType, Request, RightType, Status, UserRole
 from ..repositories import (
     ApplicationRepository,
     ConsentRepository,
+    NotificationRepository,
+    ProcessingContextRepository,
     RequestRepository,
     SmartHomeRepository,
     UserRepository,
@@ -29,8 +31,11 @@ from config import BaseConfig
 class RequestDict(TypedDict):
     request: Request
     user_email: str
+    user_firstname: str | None
+    user_lastname: str | None
     application_name: str
     application_uuid: UUID
+    processing_context_uuid: UUID
 
 class RequestSubmitPayload(TypedDict):
     right_type: RightType
@@ -46,6 +51,92 @@ class SelectedConsentSnapshot(TypedDict):
 
 
 class RequestService:
+    @staticmethod
+    def _build_request_notification_payload(request: Request) -> dict[str, str]:
+        return {
+            "right_type": request.right_type.value,
+        }
+
+    @staticmethod
+    def _get_request_submitted_receiver_ids(application_id: int) -> list[int]:
+        return list(
+            {
+                recipient.id
+                for recipient in UserRepository.get_users_by_application_id_and_user_role(
+                    application_id, UserRole.DATA_CONTROLLER
+                )
+            }
+            | {
+                recipient.id
+                for recipient in UserRepository.get_users_by_application_id_and_user_role(
+                    application_id, UserRole.DATA_PROTECTION_OFFICER
+                )
+            }
+        )
+
+    @staticmethod
+    def _create_request_submitted_notification(
+        request: Request,
+        sender_id: int,
+        sender_email: str,
+        receiver_ids: list[int],
+        application_id: int,
+        processing_context_id: int,
+    ) -> None:
+        if not receiver_ids:
+            return
+        NotificationRepository.create_notification(
+            NotificationType.REQUEST_SUBMITTED,
+            sender_id,
+            sender_email,
+            receiver_ids,
+            application_id=application_id,
+            request_id=request.id,
+            processing_context_id=processing_context_id,
+            payload=RequestService._build_request_notification_payload(request),
+            commit=False,
+        )
+
+    @staticmethod
+    def _get_request_handled_notification_type(
+        previous_status: Status,
+        previous_response: str | None,
+        next_status: Status,
+        next_response: str | None,
+    ) -> NotificationType | None:
+        previous_response_normalized = (previous_response or "").strip()
+        next_response_normalized = (next_response or "").strip()
+
+        if next_response_normalized and next_response_normalized != previous_response_normalized:
+            return NotificationType.REQUEST_ANSWERED
+        if previous_status != next_status:
+            return NotificationType.REQUEST_STATUS_UPDATED
+        return None
+
+    @staticmethod
+    def _create_request_handled_notification(
+        request: Request,
+        sender_id: int,
+        sender_email: str,
+        receiver_ids: list[int],
+        application_id: int,
+        processing_context_id: int,
+        notification_type: NotificationType | None,
+    ) -> None:
+        if not receiver_ids or notification_type is None:
+            return
+        NotificationRepository.create_notification(
+            notification_type,
+            sender_id,
+            sender_email,
+            receiver_ids,
+            application_id=application_id,
+            request_id=request.id,
+            processing_context_id=processing_context_id,
+            payload=RequestService._build_request_notification_payload(request),
+            commit=False,
+        )
+
     @staticmethod
     def get_requests_by_dc_or_dpo_id_and_application_uuid_and_user_uuid(
         current_user_id: int, application_uuid: UUID, other_user_uuid: UUID
@@ -89,10 +180,13 @@ class RequestService:
             {
                 "request": request,
                 "user_email": user_email,
+                "user_firstname": user_firstname,
+                "user_lastname": user_lastname,
                 "application_name": application_name,
                 "application_uuid": application_uuid,
+                "processing_context_uuid": processing_context_uuid,
             }
-            for request, user_email, application_name, application_uuid in iterator
+            for request, user_email, user_firstname, user_lastname, application_name, application_uuid, processing_context_uuid in iterator
         ]
 
     @staticmethod
@@ -116,10 +210,13 @@ class RequestService:
             {
                 "request": request,
                 "user_email": user_email,
+                "user_firstname": user_firstname,
+                "user_lastname": user_lastname,
                 "application_name": application_name,
                 "application_uuid": application_uuid,
+                "processing_context_uuid": processing_context_uuid,
             }
-            for request, user_email, application_name, application_uuid in iterator
+            for request, user_email, user_firstname, user_lastname, application_name, application_uuid, processing_context_uuid in iterator
         ]
 
     @staticmethod
@@ -155,10 +252,13 @@ class RequestService:
             {
                 "request": request,
                 "user_email": user_email,
+                "user_firstname": user_firstname,
+                "user_lastname": user_lastname,
                 "application_name": application_name,
                 "application_uuid": application_uuid,
+                "processing_context_uuid": processing_context_uuid,
             }
-            for request, user_email, application_name, application_uuid in iterator
+            for request, user_email, user_firstname, user_lastname, application_name, application_uuid, processing_context_uuid in iterator
         ]
 
     @staticmethod
@@ -191,6 +291,22 @@ class RequestService:
             raise ApplicationNotFoundException(
                 f"Application with uuid {request['application_uuid']} not found among the installed applications of smart home with uuid {request['smart_home_uuid']}!"
             )
+        user = UserRepository.get_user_by_id(current_user_id)
+        if not user:
+            raise UserNotFoundException("User not found")
+        application = user_smart_home_application.application
+        processing_context = ProcessingContextRepository.get_or_create_processing_context(
+            current_user_id,
+            user.email,
+            user_smart_home_application.application_id,
+            application.uuid,
+            application.name,
+            smart_home.uuid,
+            user_smart_home_application.id,
+        )
+        receiver_ids = RequestService._get_request_submitted_receiver_ids(
+            user_smart_home_application.application_id
+        )
 
         selected_consents = None
         if request["right_type"] == RightType.WITHDRAW_CONSENT:
@@ -202,27 +318,31 @@ class RequestService:
                     request.get("selected_consents"),
                 )
             )
-            # Create consent-related deny rules first. If this fails, do not revoke consents and do not submit the request.
-            from flask import request as flask_request
-            access_token = flask_request.cookies.get("st_access_token")
-            if not access_token:
-                raise MissingJWTException("Smartotum access token missing")
-
-            user = UserRepository.get_user_by_id(current_user_id)
-            if not user:
-                raise UserNotFoundException("User not found")
-
-            cps = ConsentPolicyRuleService()
-            dht = DHTService(BaseConfig.SMARTOTUM_DHT_URL, BaseConfig.SMARTOTUM_RULE_TOPIC)
+            consent_uuids_with_action = [
+                consent_uuid
+                for consent_uuid in selected_consent_uuids
+                if action_ids_by_uuid.get(consent_uuid)
+            ]
+            access_token: str | None = None
+            cps: ConsentPolicyRuleService | None = None
+            dht: DHTService | None = None
             published_dht_uuids: list[str] = []
 
             try:
-                for consent_uuid in selected_consent_uuids:
-                    action_id = action_ids_by_uuid.get(consent_uuid)
-                    if not action_id:
-                        raise AvailableConsentWrongListException(
-                            f"Selected consent {consent_uuid} has no SIFIS action mapping"
-                        )
+                # A withdraw request is valid even without Smartotum action mappings:
+                # only consents linked to a SIFIS action produce an automatic deny policy.
+                if consent_uuids_with_action:
+                    from flask import request as flask_request
+
+                    access_token = flask_request.cookies.get("st_access_token")
+                    if not access_token:
+                        raise MissingJWTException("Smartotum access token missing")
+
+                    cps = ConsentPolicyRuleService()
+                    dht = DHTService(BaseConfig.SMARTOTUM_DHT_URL, BaseConfig.SMARTOTUM_RULE_TOPIC)
+
+                for consent_uuid in consent_uuids_with_action:
+                    action_id = action_ids_by_uuid[consent_uuid]
                     _db_rule_id, published = cps.create_consent_deny_rule(
                         smart_home=smart_home,
                         subject_email=user.email,
@@ -244,8 +364,17 @@ class RequestService:
                     data_subject_user_id=current_user_id,
                     application_id=user_smart_home_application.application_id,
                     smart_home_uuid=smart_home.uuid,
+                    processing_context_id=processing_context.id,
                     selected_consents=selected_consents,
                     commit=False,
+                )
+                RequestService._create_request_submitted_notification(
+                    created,
+                    current_user_id,
+                    user.email,
+                    receiver_ids,
+                    user_smart_home_application.application_id,
+                    processing_context.id,
                 )
                 db.session.commit()
                 return created
@@ -254,7 +383,12 @@ class RequestService:
                 # Best-effort cleanup of published DHT entries
                 for dht_uuid in published_dht_uuids:
                     try:
-                        dht.delete_rule_strict(rule_uuid=str(dht_uuid), home_uuid=str(smart_home.uuid), access_token=access_token)
+                        if dht and access_token:
+                            dht.delete_rule_strict(
+                                rule_uuid=str(dht_uuid),
+                                home_uuid=str(smart_home.uuid),
+                                access_token=access_token,
+                            )
                     except Exception:
                         pass
                 raise
@@ -266,8 +400,17 @@ class RequestService:
             data_subject_user_id=current_user_id,
             application_id=user_smart_home_application.application_id,
             smart_home_uuid=smart_home.uuid,
+            processing_context_id=processing_context.id,
             selected_consents=selected_consents,
             commit=False,
+        )
+        RequestService._create_request_submitted_notification(
+            created,
+            current_user_id,
+            user.email,
+            receiver_ids,
+            user_smart_home_application.application_id,
+            processing_context.id,
         )
         db.session.commit()
         return created
@@ -362,5 +505,28 @@ class RequestService:
             raise RequestNotFoundException(
                 f"Request with uuid {request_uuid} not found among the requests of the managed applications!"
             )
-        #aggiorna la richiesta e ritorna quella aggiornata
-        return RequestRepository.update_request_status_and_response(request.id, response, status)
+        current_user = UserRepository.get_user_by_id(current_user_id)
+        if not current_user:
+            raise UserNotFoundException("User not found")
+
+        notification_type = RequestService._get_request_handled_notification_type(
+            request.status,
+            request.response,
+            status,
+            response,
+        )
+
+        updated_request = RequestRepository.update_request_status_and_response(
+            request.id, response, status, commit=False
+        )
+        RequestService._create_request_handled_notification(
+            updated_request,
+            current_user_id,
+            current_user.email,
+            [updated_request.data_subject_user_id],
+            updated_request.application_id,
+            updated_request.processing_context_id,
+            notification_type,
+        )
+        db.session.commit()
+        return updated_request

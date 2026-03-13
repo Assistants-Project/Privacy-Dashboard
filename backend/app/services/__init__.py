@@ -4,6 +4,7 @@ from .consent_service import ConsentService
 from .dht_service import DHTService
 from .message_service import MessageResDict, MessageService
 from .marketplace_service import MarketplaceService
+from .notification_service import NotificationResDict, NotificationService
 from .owl_service import OWLService
 from .petrinet_service import PetriNetService
 from .privacy_impact_assessment_service import PrivacyImpactAssessmentService
@@ -23,6 +24,8 @@ __all__ = [
     "MessageService",
     "MessageResDict",
     "MarketplaceService",
+    "NotificationService",
+    "NotificationResDict",
     "OWLService",
     "PrivacyImpactAssessmentService",
     "PrivacyNoticeService",

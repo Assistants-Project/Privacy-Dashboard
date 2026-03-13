@@ -11,8 +11,11 @@ import { formatIsoDateOrTime } from "../../services/MessageService";
 export function ManageRights() {
 
   const { loading, isManagerRole } = useAuth();
+  const getRequesterName = (firstname?: string, lastname?: string, fallback?: string) =>
+    [firstname, lastname].filter((value): value is string => !!value && value.trim() !== "").join(" ").trim() || fallback || "Unknown requester";
   const [searchParams] = useSearchParams();
   const statusFromURL = (searchParams.get("status") ?? "").trim().toUpperCase();
+  const requestUuidFromURL = (searchParams.get("request") ?? "").trim() || undefined;
   const statusFilterFromURL: RequestStatus | undefined =
     statusFromURL === RequestStatus.PENDING || statusFromURL === RequestStatus.HANDLED
       ? (statusFromURL as RequestStatus)
@@ -20,9 +23,10 @@ export function ManageRights() {
   const [statusFilter, setStatusFilter] = useState<RequestStatus | undefined>(statusFilterFromURL);
   const {requests,loadingRequests,errorRequests,loadRequests} = useRightsRequests(statusFilter); //carica l'hook
 
-  const [selectedRequestUuid, setSelectedRequestUuid] = useState<string | undefined>(undefined);
+  const [selectedRequestUuid, setSelectedRequestUuid] = useState<string | undefined>(requestUuidFromURL);
   const selectedItem = selectedRequestUuid? requests?.find((r) => r.request.uuid === selectedRequestUuid): undefined;
   const selectedRequest = selectedItem?.request;
+  const requesterName = selectedItem ? getRequesterName(selectedItem.user_firstname, selectedItem.user_lastname, selectedItem.user_email) : undefined;
 
   const closePanel = () => setSelectedRequestUuid(undefined);
 
@@ -35,11 +39,15 @@ export function ManageRights() {
     setStatusFilter(statusFilterFromURL);
   }, [statusFilterFromURL]);
 
+  useEffect(() => {
+    setSelectedRequestUuid(requestUuidFromURL);
+  }, [requestUuidFromURL]);
+
 
   return (
-    <Container fluid className="py-3">
+    <Container fluid className="py-2 d-flex flex-column overflow-hidden h-100" style={{ minHeight: 0 }}>
       {loadingRequests ? (
-        <Card className="mb-3 p-0">
+        <Card className="mb-3 p-0 flex-shrink-0">
           <Card.Body className="d-inline-flex align-items-center gap-2">
             <Spinner animation="border" size="sm" />
             Loading…
@@ -48,13 +56,13 @@ export function ManageRights() {
       ) : undefined}
 
       {errorRequests ? (
-        <Card bg="danger" text="white" className="mb-3 p-0">
+        <Card bg="danger" text="white" className="mb-3 p-0 flex-shrink-0">
           <Card.Body>{errorRequests}</Card.Body>
         </Card>
       ) : undefined}
 
       {!loading && !loadingRequests && !errorRequests ? (
-        <Row className="g-3 align-items-start">
+        <Row className="g-3 align-items-start align-items-lg-stretch flex-grow-1 overflow-hidden" style={{ minHeight: 0 }}>
           <RightsRequestsListPanel
             requests={requests}
             selectedRequestUuid={selectedRequestUuid}
@@ -63,9 +71,15 @@ export function ManageRights() {
             onStatusFilterChange={setStatusFilter}
           />
 
-          <Col xs={12} lg={7}>
-            <Card className="sticky-top z-1 p-0" style={{ top: "1rem" }}>
-              <Card.Body className="d-flex flex-column gap-3">
+          <Col xs={12} lg={7} className="d-flex flex-column overflow-hidden ps-lg-1" style={{ minHeight: 0 }}>
+            <Card
+              className={selectedItem ? "p-0 d-flex flex-column h-100 overflow-hidden" : "p-0"}
+              style={selectedItem ? { minHeight: 0 } : undefined}
+            >
+              <Card.Body
+                className={selectedItem ? "d-flex flex-column gap-3 flex-grow-1 overflow-auto" : "d-flex flex-column gap-3"}
+                style={selectedItem ? { minHeight: 0 } : undefined}
+              >
                 {!selectedItem ? (
                   <div className="text-muted">
                     Select a request to see details.
@@ -92,7 +106,22 @@ export function ManageRights() {
 
                     {isManagerRole ? (
                       <div className="text-muted">
-                        Requester: <strong>{selectedItem.user_email}</strong>
+                        Requester: <strong>{requesterName}</strong>
+                      </div>
+                    ) : undefined}
+
+                    {isManagerRole ? (
+                      <div className="text-muted">
+                        Requester email: <strong>{selectedItem.user_email}</strong>
+                      </div>
+                    ) : undefined}
+
+                    {isManagerRole ? (
+                      <div className="text-muted" title={selectedItem.processing_context_uuid}>
+                        Context ID:{" "}
+                        <strong className="font-monospace">
+                          {selectedItem.processing_context_uuid}
+                        </strong>
                       </div>
                     ) : undefined}
 

@@ -36,6 +36,8 @@ class RequestModel {
 enum RightType {
     ACCESS_DATA = "ACCESS_DATA",
     ASK_INFORMATION = "ASK_INFORMATION",
+    PORTABILITY = "PORTABILITY",
+    LIMITATION = "LIMITATION",
     COMPILE_COMPLAINT = "COMPILE_COMPLAINT",
     ERASE_DATA = "ERASE_DATA",
     REMOVE_EVERYTHING = "REMOVE_EVERYTHING",
@@ -46,6 +48,8 @@ enum RightType {
 const RIGHT_TYPE_LABELS: Record<RightType, string> = {
     [RightType.ACCESS_DATA]: "Access data",
     [RightType.ASK_INFORMATION]: "Ask information",
+    [RightType.PORTABILITY]: "Data portability",
+    [RightType.LIMITATION]: "Restriction of processing",
     [RightType.COMPILE_COMPLAINT]: "Compile complaint",
     [RightType.ERASE_DATA]: "Erase data",
     [RightType.REMOVE_EVERYTHING]: "Remove everything",
@@ -56,6 +60,8 @@ const RIGHT_TYPE_LABELS: Record<RightType, string> = {
 const RIGHT_TYPE_MESSAGE_PREFIX: Record<RightType, string> = {
     [RightType.ACCESS_DATA]: "I would like to exercise my right of access to my personal data processed by ",
     [RightType.ASK_INFORMATION]: "I would like to request additional information about the processing performed by ",
+    [RightType.PORTABILITY]: "I would like to exercise my right to data portability regarding the personal data processed by ",
+    [RightType.LIMITATION]: "I would like to request the restriction of processing performed by ",
     [RightType.COMPILE_COMPLAINT]: "I would like to file a complaint regarding the processing performed by ",
     [RightType.ERASE_DATA]: "I would like to request the erasure of my personal data processed by ",
     [RightType.REMOVE_EVERYTHING]: "I would like to request the removal of all my personal data and associated processing by ",

@@ -12,6 +12,17 @@ class UserMessageResDict(TypedDict):
     last_message: MessageResDict
 
 
+class ContactApplicationResDict(TypedDict):
+    uuid: UUID
+    name: str
+    title: str
+
+
+class ContactResDict(TypedDict):
+    user: User
+    related_applications: List[ContactApplicationResDict]
+
+
 class UserService:
     @staticmethod
     def get_user_by_uuid(uuid: UUID) -> User:
@@ -76,10 +87,40 @@ class UserService:
         Returns:
             The list of `User` instances that are contacts of the given user.
         """
-        iterator = UserRepository.get_contacts_by_user_id(user_id)
-        if role == UserRole.DATA_SUBJECT:
-            return [user for user in iterator if user.role != role]
-        return [user for user in iterator]
+        return [contact["user"] for contact in UserService.get_contact_items_by_user_id(user_id, role)]
+
+    @staticmethod
+    def get_contact_items_by_user_id(user_id: int, role: UserRole) -> List[ContactResDict]:
+        rows = UserRepository.get_contacts_with_related_applications_by_user_id(user_id)
+        contacts_by_id: dict[int, ContactResDict] = {}
+
+        for contact, application in rows:
+            if role == UserRole.DATA_SUBJECT and contact.role == role:
+                continue
+
+            if contact.id not in contacts_by_id:
+                contacts_by_id[contact.id] = ContactResDict(
+                    user=contact,
+                    related_applications=[],
+                )
+
+            contacts_by_id[contact.id]["related_applications"].append(
+                ContactApplicationResDict(
+                    uuid=application.uuid,
+                    name=application.name,
+                    title=application.title,
+                )
+            )
+
+        contacts = list(contacts_by_id.values())
+        contacts.sort(
+            key=lambda item: (
+                item["user"].firstname.lower(),
+                item["user"].lastname.lower(),
+                item["user"].email.lower(),
+            )
+        )
+        return contacts
 
     @staticmethod
     def get_messaged_contacts_by_user_id(

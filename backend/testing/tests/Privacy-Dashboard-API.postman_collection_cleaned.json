@@ -1214,10 +1214,11 @@
                   "  pm.expect(data.length).to.be.greaterThan(0);",
                   "});",
                   "var me = pm.collectionVariables.get('dc_uuid');",
-                  "var contact = data.find(function (u) { return u.uuid !== me; });",
+                  "var contact = data.find(function (item) { return item.user && item.user.uuid !== me; });",
                   "if (!contact) { contact = data[0]; }",
                   "pm.expect(contact).to.be.an('object');",
-                  "pm.collectionVariables.set('contact_uuid', contact.uuid);"
+                  "pm.expect(contact.user).to.be.an('object');",
+                  "pm.collectionVariables.set('contact_uuid', contact.user.uuid);"
                 ]
               }
             }
@@ -2334,7 +2335,7 @@
             "url": "{{baseURL}}/api/integrations/marketplace/apps",
             "body": {
               "mode": "raw",
-              "raw": "{\"id\": \"com.marketplace.apitest-placeholder\", \"name\": \"Marketplace Placeholder App\", \"owner_email\": \"controller.smartotum@example.com\", \"delegates_email\": [\"controller.general@example.com\"], \"available_consents\": [\"processing of personal information to provide the service\"]}",
+              "raw": "{\"id\": \"com.marketplace.apitest-placeholder\", \"name\": \"Marketplace Placeholder App\", \"owner_email\": \"controller.smartotum@example.com\", \"delegates_email\": [\"controller.general@example.com\"]}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2378,7 +2379,7 @@
             "url": "{{baseURL}}/api/integrations/marketplace/apps",
             "body": {
               "mode": "raw",
-              "raw": "{\"id\": \"{{marketplace_app_id}}\", \"name\": \"{{marketplace_app_title}}\", \"description\": \"Marketplace ingestion test app\", \"owner_email\": \"{{dc_email}}\", \"delegates_email\": [\"{{delegate_email}}\"], \"available_consents\": [\"processing of personal information to provide the service\", \"sharing data with analytics service\"]}",
+              "raw": "{\"id\": \"{{marketplace_app_id}}\", \"name\": \"{{marketplace_app_title}}\", \"description\": \"Marketplace ingestion test app\", \"owner_email\": \"{{dc_email}}\", \"delegates_email\": [\"{{delegate_email}}\"]}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2430,7 +2431,7 @@
             "url": "{{baseURL}}/api/integrations/marketplace/apps",
             "body": {
               "mode": "raw",
-              "raw": "{\"id\": \"{{marketplace_app_id}}\", \"name\": \"{{marketplace_app_title}}\", \"description\": \"Marketplace ingestion test app\", \"owner_email\": \"{{dc_email}}\", \"delegates_email\": [\"{{delegate_email}}\"], \"available_consents\": [\"processing of personal information to provide the service\", \"sharing data with analytics service\"]}",
+              "raw": "{\"id\": \"{{marketplace_app_id}}\", \"name\": \"{{marketplace_app_title}}\", \"description\": \"Marketplace ingestion test app\", \"owner_email\": \"{{dc_email}}\", \"delegates_email\": [\"{{delegate_email}}\"]}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2506,7 +2507,7 @@
             "url": "{{baseURL}}/api/integrations/marketplace/apps/{{marketplace_app_id}}",
             "body": {
               "mode": "raw",
-              "raw": "{\"title\": \"{{marketplace_app_patched_title}}\", \"description\": \"{{marketplace_app_patched_description}}\", \"available_consents\": [\"{{marketplace_app_patched_consent_1}}\", \"{{marketplace_app_patched_consent_2}}\"]}",
+              "raw": "{\"title\": \"{{marketplace_app_patched_title}}\", \"description\": \"{{marketplace_app_patched_description}}\"}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2523,9 +2524,7 @@
                 "exec": [
                   "var patchedTitle = pm.collectionVariables.get('marketplace_app_title') + ' (patched)';",
                   "pm.collectionVariables.set('marketplace_app_patched_title', patchedTitle);",
-                  "pm.collectionVariables.set('marketplace_app_patched_description', 'Marketplace patched description');",
-                  "pm.collectionVariables.set('marketplace_app_patched_consent_1', 'marketplace patched processing consent');",
-                  "pm.collectionVariables.set('marketplace_app_patched_consent_2', 'marketplace patched analytics consent');"
+                  "pm.collectionVariables.set('marketplace_app_patched_description', 'Marketplace patched description');"
                 ]
               }
             },
@@ -2541,7 +2540,7 @@
               }
             }
           ],
-          "description": "**Purpose**\nUpdates marketplace-managed metadata using `title` as the only accepted display-name field and replaces the marketplace consent catalog with a patched payload.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `PATCH {{baseURL}}/api/integrations/marketplace/apps/{{marketplace_app_id}}`\n- Uses collection variables: `baseURL`, `marketplace_app_id`, `marketplace_app_title`, `marketplace_integration_token`\n\n**Pre-request script**\nSets:\n- `marketplace_app_patched_title`\n- `marketplace_app_patched_description`\n- `marketplace_app_patched_consent_1`\n- `marketplace_app_patched_consent_2`\n\n**What the test checks**\n- Response status code is 204"
+          "description": "**Purpose**\nUpdates marketplace-managed metadata using `title` as the only accepted display-name field.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `PATCH {{baseURL}}/api/integrations/marketplace/apps/{{marketplace_app_id}}`\n- Uses collection variables: `baseURL`, `marketplace_app_id`, `marketplace_app_title`, `marketplace_integration_token`\n\n**Pre-request script**\nSets:\n- `marketplace_app_patched_title`\n- `marketplace_app_patched_description`\n\n**What the test checks**\n- Response status code is 204"
         },
         {
           "name": "Unprocessable Marketplace PATCH - Unsupported Name Field",
@@ -2630,11 +2629,29 @@
           "description": "**Purpose**\nVerifies that the PATCH request updated the application metadata and keeps the same owner.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/applications/managed`\n- Uses collection variables: `baseURL`, `dc_email`, `marketplace_app_id`, `marketplace_app_patched_title`, `marketplace_app_patched_description`\n\n**What the test checks**\n- Response status code is 200\n- Application title/description match the patched values\n- Owner is unchanged\n\n**Collection variables captured from the response**\n- `marketplace_app_uuid`"
         },
         {
-          "name": "Verify Marketplace Patched Consents Catalog",
+          "name": "Unprocessable Marketplace PATCH - Unsupported Available Consents Field",
           "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseURL}}/api/consents/application/{{marketplace_app_uuid}}"
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_integration_token}}"
+              }
+            ],
+            "url": "{{baseURL}}/api/integrations/marketplace/apps/{{marketplace_app_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"available_consents\": [\"processing of personal information to provide the service\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "response": [],
           "event": [
@@ -2643,24 +2660,18 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Response status code is 200', function () { pm.expect(pm.response.code).to.eql(200); });",
-                  "var consents = pm.response.json();",
-                  "pm.test('Consent list is an array', function () { pm.expect(consents).to.be.an('array'); });",
-                  "var contents = consents.map(function (item) { return item.content; }).sort();",
-                  "var expected = [",
-                  "  pm.collectionVariables.get('marketplace_app_patched_consent_1'),",
-                  "  pm.collectionVariables.get('marketplace_app_patched_consent_2')",
-                  "].sort();",
-                  "pm.test('Marketplace consent catalog matches the patched payload', function () { pm.expect(contents).to.eql(expected); });",
-                  "pm.test('Original marketplace consents were pruned', function () {",
-                  "  pm.expect(contents).to.not.include('processing of personal information to provide the service');",
-                  "  pm.expect(contents).to.not.include('sharing data with analytics service');",
+                  "pm.test('Response status code is 422', function () { pm.expect(pm.response.code).to.eql(422); });",
+                  "var body = pm.response.json();",
+                  "pm.test('Unsupported available_consents field is rejected', function () {",
+                  "  pm.expect(body).to.have.property('errors');",
+                  "  pm.expect(body.errors).to.have.property('json');",
+                  "  pm.expect(body.errors.json).to.have.property('available_consents');",
                   "});"
                 ]
               }
             }
           ],
-          "description": "**Purpose**\nVerifies that the marketplace PATCH request replaced the available-consent catalog for the application.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/consents/application/{{marketplace_app_uuid}}`\n- Uses collection variables: `baseURL`, `marketplace_app_patched_consent_1`, `marketplace_app_patched_consent_2`, `marketplace_app_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Consent list is an array\n- Patched consents are present\n- Original consents are pruned"
+          "description": "**Purpose**\nVerifies that the marketplace PATCH endpoint rejects the deprecated `available_consents` field.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `PATCH {{baseURL}}/api/integrations/marketplace/apps/{{marketplace_app_id}}`\n- Uses collection variables: `baseURL`, `marketplace_app_id`, `marketplace_integration_token`\n\n**What the test checks**\n- Response status code is 422\n- Validation errors report the unsupported `available_consents` field"
         },
         {
           "name": "Unauthorized Marketplace Ingest - Wrong Bearer",
@@ -2679,7 +2690,7 @@
             "url": "{{baseURL}}/api/integrations/marketplace/apps",
             "body": {
               "mode": "raw",
-              "raw": "{\"id\": \"com.marketplace.invalid-token-test\", \"name\": \"Invalid Token Test App\", \"owner_email\": \"{{dc_email}}\", \"delegates_email\": [], \"available_consents\": []}",
+              "raw": "{\"id\": \"com.marketplace.invalid-token-test\", \"name\": \"Invalid Token Test App\", \"owner_email\": \"{{dc_email}}\", \"delegates_email\": []}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2702,7 +2713,7 @@
           "description": "**Purpose**\nVerifies that the endpoint is protected and requires authentication.\n\n**Scope**\nMarketplace Integration API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/integrations/marketplace/apps`\n- Uses collection variables: `baseURL`, `dc_email`\n\n**What the test checks**\n- Response status code is 401\n\n**Body**\nThis request sends a JSON payload (see the Postman body tab for the exact content)."
         }
       ],
-      "description": "Marketplace integration tests for registering (ingesting) applications into the dashboard.\n\n- Verifies authentication via Bearer token.\n- Creates an application via the marketplace endpoint.\n- Verifies idempotent re-ingest does not overwrite local changes.\n- Confirms the ingested app appears in the managed list.\n- Updates application metadata via PATCH using `title` as the accepted display-name field.\n- Verifies the unsupported `name` field is rejected by marketplace PATCH validation.\n- Reconciles the marketplace consent catalog via PATCH and verifies the pruned result.\n\n**Requests in this folder (9)**\n- Unauthorized Marketplace Ingest - Missing Bearer\n- Successful Marketplace Ingest - Create Application\n- Successful Marketplace Ingest - Idempotent Re-Ingest\n- Verify Marketplace Ingested App In Managed List\n- Marketplace PATCH - Update Application Metadata\n- Unprocessable Marketplace PATCH - Unsupported Name Field\n- Verify Marketplace Patched Metadata In Managed List\n- Verify Marketplace Patched Consents Catalog\n- Unauthorized Marketplace Ingest - Wrong Bearer\n\n**Variables produced in this folder**\n- `marketplace_app_id`\n- `marketplace_app_title`\n- `marketplace_app_uuid`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
+      "description": "Marketplace integration tests for registering (ingesting) applications into the dashboard.\n\n- Verifies authentication via Bearer token.\n- Creates an application via the marketplace endpoint.\n- Verifies idempotent re-ingest does not overwrite local changes.\n- Confirms the ingested app appears in the managed list.\n- Updates application metadata via PATCH using `title` as the accepted display-name field.\n- Verifies the unsupported `name` field is rejected by marketplace PATCH validation.\n- Verifies the deprecated `available_consents` field is rejected by marketplace PATCH validation.\n\n**Requests in this folder (9)**\n- Unauthorized Marketplace Ingest - Missing Bearer\n- Successful Marketplace Ingest - Create Application\n- Successful Marketplace Ingest - Idempotent Re-Ingest\n- Verify Marketplace Ingested App In Managed List\n- Marketplace PATCH - Update Application Metadata\n- Unprocessable Marketplace PATCH - Unsupported Name Field\n- Verify Marketplace Patched Metadata In Managed List\n- Unprocessable Marketplace PATCH - Unsupported Available Consents Field\n- Unauthorized Marketplace Ingest - Wrong Bearer\n\n**Variables produced in this folder**\n- `marketplace_app_id`\n- `marketplace_app_title`\n- `marketplace_app_uuid`\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
     },
     {
       "name": "Smartotum Manager Seed Regression",
@@ -4945,16 +4956,6 @@
       "key": "marketplace_app_uuid",
       "value": "",
       "description": "Generated by the collection. Set by: Verify Marketplace Ingested App In Managed List / Verify Marketplace Patched Metadata In Managed List (test)"
-    },
-    {
-      "key": "marketplace_app_patched_consent_1",
-      "value": "",
-      "description": "Generated by the collection. Set by: Marketplace PATCH - Update Application Metadata (prerequest)"
-    },
-    {
-      "key": "marketplace_app_patched_consent_2",
-      "value": "",
-      "description": "Generated by the collection. Set by: Marketplace PATCH - Update Application Metadata (prerequest)"
     },
     {
       "key": "smartotum_seeded_app_id",

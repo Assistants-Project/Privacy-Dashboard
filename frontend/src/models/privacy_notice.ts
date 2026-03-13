@@ -1,4 +1,4 @@
-class PrivacyNotice {
+class PrivacyNoticeModel {
     uuid: string
     content: string
 
@@ -9,4 +9,4 @@ class PrivacyNotice {
     }
 }
 
-export { PrivacyNotice }
+export { PrivacyNoticeModel }

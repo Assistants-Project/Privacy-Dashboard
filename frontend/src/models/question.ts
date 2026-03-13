@@ -13,7 +13,7 @@ export enum Evaluation {
   RED = "RED",
 }
 
-export class Questionnaire {
+export class QuestionnaireModel {
   application_uuid: string;
   questions: Question[];
   application_evaluation?: Evaluation;

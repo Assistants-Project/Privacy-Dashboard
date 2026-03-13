@@ -4,7 +4,7 @@ import {
   submitPiaByManagedApplicationUuid,
   removePiaByManagedApplicationUuid,
 } from "../API/Applications/applicationAPI";
-import { PIA } from "../models/PIA";
+import { PIAModel } from "../models/PIA";
 
 type PIADto = {
   application_uuid: string;
@@ -14,8 +14,8 @@ type PIADto = {
 //cache del pia template in modo da non richiederla ogni volta (si assume che non cambia spesso)
 let piaTemplateCache: any | undefined = undefined;
 
-const toPIAModel = (pia: PIADto): PIA => {
-  const model = new PIA(pia.application_uuid, pia.content);
+const toPIAModel = (pia: PIADto): PIAModel => {
+  const model = new PIAModel(pia.application_uuid, pia.content);
 
   return model;
 };
@@ -30,7 +30,7 @@ export const fetchPiaTemplate = async (force: boolean = false) => {
 
 export const handleGetPrivacyImpactAssessment = async (
   applicationUuid: string,
-): Promise<PIA | null> => {
+): Promise<PIAModel | null> => {
   try {
     const result = (await getPiaByManagedApplicationUuid(
       applicationUuid,

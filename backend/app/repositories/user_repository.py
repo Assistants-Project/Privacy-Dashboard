@@ -2,7 +2,8 @@ from typing import Iterator
 from uuid import UUID
 
 from ..extensions import db
-from ..models import User, UserRole, UserSmartHomeApplication
+from ..models import Application, User, UserRole, UserSmartHomeApplication
+from sqlalchemy.orm import aliased
 
 
 class UserRepository:
@@ -78,6 +79,30 @@ class UserRepository:
             )
         )
         return db.session.scalars(statement)
+
+    @staticmethod
+    def get_contacts_with_related_applications_by_user_id(
+        user_id: int,
+    ) -> Iterator[tuple[User, Application]]:
+        current_user_relation = aliased(UserSmartHomeApplication)
+        contact_relation = aliased(UserSmartHomeApplication)
+
+        statement = (
+            db.select(User, Application)
+            .join(contact_relation, contact_relation.user_id == User.id)
+            .join(Application, Application.id == contact_relation.application_id)
+            .join(
+                current_user_relation,
+                current_user_relation.application_id == contact_relation.application_id,
+            )
+            .where(
+                current_user_relation.user_id == user_id,
+                User.id != user_id,
+            )
+            .distinct()
+            .order_by(User.firstname, User.lastname, User.email, Application.title)
+        )
+        return db.session.execute(statement)
 
     @staticmethod
     def get_contact_by_user_id_and_other_user_uuid(

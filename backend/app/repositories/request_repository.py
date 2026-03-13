@@ -4,7 +4,7 @@ from uuid import UUID
 
 from ..extensions import db
 from ..models import (
-    Application,
+    ProcessingContext,
     Request,
     RightType,
     Status,
@@ -19,16 +19,19 @@ class RequestRepository:
     def get_requests_by_application_id_and_user_id(
         application_id: int,
         user_id: int,
-    ) -> Iterator[Tuple[Request, str, str, UUID]]:
+    ) -> Iterator[Tuple[Request, str, str | None, str | None, str, UUID, UUID]]:
         statement = (
             db.select(
                 Request,
-                User.email,
-                Application.name,
-                Application.uuid, #aggiunto per visualizzare meglio i rights nel frontend e collegarli comodamente alle app
+                ProcessingContext.data_subject_email,
+                User.firstname,
+                User.lastname,
+                ProcessingContext.application_name,
+                ProcessingContext.application_uuid,
+                ProcessingContext.uuid,
             )
-            .join(User, User.id == Request.data_subject_user_id)
-            .join(Application, Application.id == Request.application_id)
+            .join(ProcessingContext, ProcessingContext.id == Request.processing_context_id)
+            .outerjoin(User, User.id == Request.data_subject_user_id)
             .where(
                 Request.application_id == application_id,
                 Request.data_subject_user_id == user_id,
@@ -41,7 +44,7 @@ class RequestRepository:
     @staticmethod
     def get_requests_by_dc_or_dpo_id_and_status(
         current_user_id: int, status: Status | None
-    ) -> Iterator[Tuple[Request, str, str, UUID]]:
+    ) -> Iterator[Tuple[Request, str, str | None, str | None, str, UUID, UUID]]:
         subquery = (
             db.select(UserSmartHomeApplication.application_id)
             .where(UserSmartHomeApplication.user_id == current_user_id)
@@ -49,12 +52,15 @@ class RequestRepository:
         statement = (
             db.select(
                 Request,
-                User.email,
-                Application.name,
-                Application.uuid, #....
+                ProcessingContext.data_subject_email,
+                User.firstname,
+                User.lastname,
+                ProcessingContext.application_name,
+                ProcessingContext.application_uuid,
+                ProcessingContext.uuid,
             )
-            .join(User, User.id == Request.data_subject_user_id)
-            .join(Application, Application.id == Request.application_id)
+            .join(ProcessingContext, ProcessingContext.id == Request.processing_context_id)
+            .outerjoin(User, User.id == Request.data_subject_user_id)
             .where(Request.application_id.in_(subquery))
              #per ottenere le richieste in ordine dalla più recente alla meno recente per comodità del client
             .order_by(Request.created_at.desc(), Request.id.desc())
@@ -82,16 +88,19 @@ class RequestRepository:
     @staticmethod
     def get_requests_by_ds_id_and_smart_home_uuid_and_status(
         current_user_id: int, smart_home_uuid: str, status: Status | None
-    ) -> Iterator[Tuple[Request, str, str, UUID]]:
+    ) -> Iterator[Tuple[Request, str, str | None, str | None, str, UUID, UUID]]:
         statement = (
             db.select(
                 Request,
-                User.email,
-                Application.name,
-                Application.uuid,
+                ProcessingContext.data_subject_email,
+                User.firstname,
+                User.lastname,
+                ProcessingContext.application_name,
+                ProcessingContext.application_uuid,
+                ProcessingContext.uuid,
             )
-            .join(User, User.id == Request.data_subject_user_id)
-            .join(Application, Application.id == Request.application_id)
+            .join(ProcessingContext, ProcessingContext.id == Request.processing_context_id)
+            .outerjoin(User, User.id == Request.data_subject_user_id)
             .where(
                 Request.data_subject_user_id == current_user_id,
                 Request.smart_home_uuid == smart_home_uuid,
@@ -110,6 +119,7 @@ class RequestRepository:
         data_subject_user_id: int,
         application_id: int,
         smart_home_uuid: str,
+        processing_context_id: int,
         selected_consents: list[dict[str, str | None]] | None = None,
         commit: bool = True,
     ) -> Request:
@@ -120,6 +130,7 @@ class RequestRepository:
             data_subject_user_id=data_subject_user_id,
             application_id=application_id,
             smart_home_uuid=smart_home_uuid,
+            processing_context_id=processing_context_id,
             user_smart_home_application_relation_id=user_smart_home_application_id,
             created_at=datetime.now(),
         )
@@ -133,12 +144,15 @@ class RequestRepository:
 
     @staticmethod
     def update_request_status_and_response(
-        request_id: int, response: str | None, status: Status
+        request_id: int, response: str | None, status: Status, commit: bool = True
     ) -> Request:
         request = db.session.get(Request, request_id)
         request.status = status
         request.response = response
         request.handled_at = datetime.now()
-        db.session.commit()
+        if commit:
+            db.session.commit()
+        else:
+            db.session.flush()
         db.session.refresh(request)
         return request

@@ -1,10 +1,10 @@
 import { getMessagesByUserUuid, sendMessage } from "../API/Message/messageAPI";
 import { getContacts, getMessagedContacts } from "../API/User/userAPI";
 import { Message } from "../models/message";
-import { Role, User } from "../models/user";
+import { RelatedApplicationModel, Role, UserModel } from "../models/user";
 
 export interface MessagedContact {
-  user: User;
+  user: UserModel;
   last_message: Message;
 }
 
@@ -13,6 +13,21 @@ export interface MessageResSchema {
   senderUuid: string;
   receiverUuid: string;
 }
+
+type ContactDto = {
+  user: {
+    uuid: string;
+    firstname: string;
+    lastname: string;
+    email: string;
+    role: Role;
+  };
+  related_applications?: Array<{
+    uuid: string;
+    name: string;
+    title: string;
+  }>;
+};
 
 export const fetchMessagedContacts = async (): Promise<
   MessagedContact[] | undefined
@@ -28,7 +43,7 @@ export const fetchMessagedContacts = async (): Promise<
             lastname: contact.user.lastname,
             email: contact.user.email,
             role: contact.user.role,
-          } as User,
+          } as UserModel,
           last_message: {
             uuid: contact.last_message.message.uuid,
             content: contact.last_message.message.content,
@@ -67,18 +82,27 @@ export const fetchMessagesByUserUuid = async (
   }
 };
 
-export const fetchContacts = async (): Promise<User[] | undefined> => {
+export const fetchContacts = async (): Promise<UserModel[] | undefined> => {
   try {
     const contacts = await getContacts();
     return contacts.map(
-      (contact: any) =>
+      (contact: ContactDto) =>
         ({
-          uuid: contact.uuid,
-          email: contact.email,
-          firstname: contact.firstname,
-          lastname: contact.lastname,
-          role: contact.role as Role,
-        }) as User,
+          uuid: contact.user.uuid,
+          email: contact.user.email,
+          firstname: contact.user.firstname,
+          lastname: contact.user.lastname,
+          role: contact.user.role as Role,
+          relatedApplications: Array.isArray(contact.related_applications)
+            ? contact.related_applications.map(
+                (application): RelatedApplicationModel => ({
+                  uuid: application.uuid,
+                  name: application.name,
+                  title: application.title,
+                }),
+              )
+            : [],
+        }) as UserModel,
     );
   } catch (err) {
     console.error("Error fetching contacts:", err);

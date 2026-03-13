@@ -86,7 +86,7 @@ class User(db.Model):
         passive_deletes=True,
     )
     sent_notifications: Mapped[List["Notification"]] = relationship(  # noqa: F821 # type: ignore
-        back_populates="sender", cascade="all, delete-orphan", passive_deletes=True
+        back_populates="sender", passive_deletes=True
     )
     received_notifications: Mapped[List["UserNotification"]] = relationship(  # noqa: F821 # type: ignore
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True

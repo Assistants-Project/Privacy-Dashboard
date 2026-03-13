@@ -13,7 +13,7 @@ type AppConsentsPanelProps = {
 function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
   const { current_home_uuid } = useHome();
   const { user, isDataSubject, isManagerRole } = useAuth();
-  const { selectedApp, selectedAppUUID, ConsentStatesByAppUUID, loadConsentsByApplication } = useApp();
+  const { selectedApp, selectedAppUUID, ConsentStatesByAppUUID, loadConsents } = useApp();
 
   const [showManageConsentsModal, setShowManageConsentsModal] = useState(false);
   const [consentInput, setConsentInput] = useState("");
@@ -61,7 +61,7 @@ function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
       setError(undefined);
 
       try {
-        await loadConsentsByApplication(selectedAppUUID, false);
+        await loadConsents(selectedAppUUID, false);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Unexpected Error");
@@ -78,7 +78,7 @@ function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
     return () => {
       cancelled = true;
     };
-  }, [selectedAppUUID, isDataSubject, current_home_uuid, loadConsentsByApplication]);
+  }, [selectedAppUUID, isDataSubject, current_home_uuid, loadConsents]);
 
   const onAcceptAllConsents = async () => {
     if (!current_home_uuid) {
@@ -99,7 +99,7 @@ function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
         (consentState) => consentState.uuid,
       );
       await giveConsentsInSmartHome(current_home_uuid, selectedAppUUID, consentUUIDsToGive);
-      await loadConsentsByApplication(selectedAppUUID, true);
+      await loadConsents(selectedAppUUID, true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected Error");
     } finally {
@@ -127,7 +127,7 @@ function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
 
     try {
       await giveConsentsInSmartHome(current_home_uuid, selectedAppUUID, [consentUuid]);
-      await loadConsentsByApplication(selectedAppUUID, true);
+      await loadConsents(selectedAppUUID, true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected Error");
     } finally {
@@ -182,7 +182,7 @@ function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
 
     try {
       await addAvailableConsentToManagedApplication(selectedAppUUID, normalizedConsent);
-      await loadConsentsByApplication(selectedAppUUID, true);
+      await loadConsents(selectedAppUUID, true);
       setConsentInput("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected Error");
@@ -199,7 +199,7 @@ function AppConsentsPanel({ onWithdrawConsents }: AppConsentsPanelProps) {
 
     try {
       await removeAvailableConsentFromManagedApplication(selectedAppUUID, consentUuid);
-      await loadConsentsByApplication(selectedAppUUID, true);
+      await loadConsents(selectedAppUUID, true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected Error");
     } finally {

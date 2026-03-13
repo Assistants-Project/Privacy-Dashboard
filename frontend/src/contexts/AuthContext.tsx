@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { User, Role } from "../models/user";
+import { UserModel, Role } from "../models/user";
 import authentication from "../API/User/authenticationAPI";
 
 //tutti i parametri del contesto che possono essere comodi e usati in tanti componenti diversi
 type AuthContextValue = {
-  user: User | undefined;
+  user: UserModel | undefined;
   loading: boolean;
   loginEventId: number;
   isDataSubject: boolean;
@@ -29,7 +29,7 @@ const AuthContext = React.createContext<AuthContextValue | undefined>(undefined)
 //dove mettere tutte le funzioni ed è quello da importare in react che wrappa tutto
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 
-  const [user, setUser] = useState<User | undefined>(undefined);
+  const [user, setUser] = useState<UserModel | undefined>(undefined);
   const [loginEventId, setLoginEventId] = useState(0);
 
   const [loading, setLoading] = useState(true);
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const u = await authentication.getUserInfo();
         setUser(
-          new User(u.uuid, u.email, u.firstname, u.lastname, u.role),
+          new UserModel(u.uuid, u.email, u.firstname, u.lastname, u.role),
         );
         console.log("User is authenticated, redirecting to home page.");
       } catch { 
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const u = await authentication.login(email, password);
-    setUser(new User(u.uuid,u.email, u.firstname, u.lastname, u.role));
+    setUser(new UserModel(u.uuid,u.email, u.firstname, u.lastname, u.role));
     //id incrementato solo durante login esplicito, non durante checkAuth su reload
     setLoginEventId((prev) => prev + 1);
   };
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (payload: { current_password: string; email?: string; new_password?: string; }) => {
     const u = await authentication.updateCurrentUserProfile(payload);
-    setUser(new User(u.uuid, u.email, u.firstname, u.lastname, u.role));
+    setUser(new UserModel(u.uuid, u.email, u.firstname, u.lastname, u.role));
   };
 
   const isDataSubject = user?.role === Role.DataSubject;

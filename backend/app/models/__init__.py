@@ -2,7 +2,8 @@ from .entities.application import Application, Evaluation
 from .entities.available_consent import AvailableConsent
 from .entities.device import Device
 from .entities.message import Message
-from .entities.notification import Notification
+from .entities.notification import Notification, NotificationType
+from .entities.processing_context import ProcessingContext
 from .entities.privacy_notice import PrivacyNotice
 from .entities.question import Question
 from .entities.request import Request, RightType, Status
@@ -22,6 +23,8 @@ __all__ = [
     "AvailableConsent",
     "Message",
     "Notification",
+    "NotificationType",
+    "ProcessingContext",
     "PrivacyNotice",
     "Question",
     "Request",

@@ -3,17 +3,17 @@ import {
   getQuestionnaireQuestions,
   submitQuestionnaireByManagedApplicationUuid,
 } from "../API/GDPR/questionAPI";
-import { Question, Questionnaire } from "../models/question";
+import { Question, QuestionnaireModel } from "../models/question";
 
 const handleGetQuestionnaireByApplication = async (
   applicationUuid: string,
-): Promise<Questionnaire | null> => {
+): Promise<QuestionnaireModel | null> => {
   try {
     const result =
       await getQuestionnaireByManagedApplicationUuid(applicationUuid);
     if (!result) return null;
     console.log("Questionnaire retrieved successfully");
-    return new Questionnaire(
+    return new QuestionnaireModel(
       applicationUuid,
       result.given_answers?.map(
         (q: any) =>

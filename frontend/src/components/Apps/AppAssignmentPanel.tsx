@@ -3,7 +3,7 @@ import { Button, Card, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
 import { XCircle } from "react-bootstrap-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppsContext";
-import { User } from "../../models/user";
+import { UserModel } from "../../models/user";
 import { addDataControllerManagerToApplication, assignDpoToApplication, removeDataControllerManagerFromApplication, removeDpoFromApplication } from "../../services/ApplicationService";
 
 function AppAssignmentPanel() {
@@ -27,7 +27,7 @@ function AppAssignmentPanel() {
 
   const managers = selectedApp.data_controllers.filter((user) => user.uuid !== selectedApp.owner.uuid);
 
-  const userLabel = (user: User): string => `${user.firstname} ${user.lastname}`.trim() || user.email;
+  const userLabel = (user: UserModel): string => `${user.firstname} ${user.lastname}`.trim() || user.email;
 
   const onAddManager = async () => {
     if (!selectedAppUUID) return;

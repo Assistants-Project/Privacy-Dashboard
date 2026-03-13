@@ -5,6 +5,7 @@ from .dht_controller import dht_bp
 from .home_controller import homes_bp
 from .marketplace_controller import marketplace_bp
 from .message_controller import message_bp
+from .notification_controller import notification_bp
 from .privacy_impact_assessment_controller import privacy_impact_assessment_bp
 from .privacy_notice_controller import privacy_notice_bp
 from .questionnaire_controller import questionnaire_bp
@@ -20,6 +21,7 @@ __all__ = [
     "homes_bp",
     "marketplace_bp",
     "message_bp",
+    "notification_bp",
     "privacy_impact_assessment_bp",
     "privacy_notice_bp",
     "questionnaire_bp",

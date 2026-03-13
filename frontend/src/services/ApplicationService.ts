@@ -1,7 +1,7 @@
 import { getManagedApplications, getInstalledApplications, createApplication, updateManagedApplication, assignDpoToManagedApplication, removeDpoFromManagedApplication, addDataControllerManagerToManagedApplication, removeDataControllerManagerFromManagedApplication, refreshApplications } from "../API/Applications/applicationAPI";
 import { AppModel, CreateApplicationRequest, DocumentStatus, RefreshApplicationsResult, UpdateApplicationRequest } from "../models/app"
 import { Evaluation } from "../models/question";
-import { Role, User } from "../models/user";
+import { Role, UserModel } from "../models/user";
 
 //l'idea principale è che recuperiamo la risposta ottenuta dal backend già come oggetto e la 
 //castiamo al DTO (InstalledApplicationDto) che lo realizziamo nel modo più generale possibile
@@ -71,9 +71,9 @@ const normalizeOptionalNonNegativeInteger = (value: unknown): number | undefined
     : undefined;
 
 
-const toUserModel = (dto: UserDto): User =>
+const toUserModel = (dto: UserDto): UserModel =>
   //sono tutte stringhe o parametri required che nel caso siano vuoti non ci importa
-  new User(
+  new UserModel(
     dto.uuid,
     dto.email,
     dto.firstname,

@@ -7,7 +7,7 @@ import {
   associatePrivacyNoticeByManagedApplicationUuid,
 } from "../API/GDPR/privacyNoticeAPI";
 
-import { PrivacyNotice } from "../models/privacy_notice";
+import { PrivacyNoticeModel } from "../models/privacy_notice";
 import { Role } from "../models/user";
 
 type PrivacyNoticeDto = {
@@ -17,15 +17,15 @@ type PrivacyNoticeDto = {
 
 const toPrivacyNoticeModel = (
   privacy_notice: PrivacyNoticeDto,
-): PrivacyNotice => {
-  const model = new PrivacyNotice(privacy_notice.uuid, privacy_notice.content);
+): PrivacyNoticeModel => {
+  const model = new PrivacyNoticeModel(privacy_notice.uuid, privacy_notice.content);
 
   return model;
 };
 
 export const fetchManagedPrivacyNotice = async (
   applicationUuid: string,
-): Promise<PrivacyNotice | null> => {
+): Promise<PrivacyNoticeModel | null> => {
   try {
     const privacy_notice = (await getPrivacyNoticeByManagedApplicationUuid(
       applicationUuid,
@@ -41,7 +41,7 @@ export const fetchManagedPrivacyNotice = async (
 
 export const fetchInstalledPrivacyNotice = async (
   applicationUuid: string,
-): Promise<PrivacyNotice | null> => {
+): Promise<PrivacyNoticeModel | null> => {
   try {
     const privacy_notice = (await getPrivacyNoticeByInstalledApplicationUuid(
       applicationUuid,
@@ -70,9 +70,9 @@ export const fetchPrivacyNoticeTemplate = async () => {
 export const handleFetchPrivacyNotice = async (
   applicationUuid: string,
   role: Role,
-): Promise<PrivacyNotice | null> => {
+): Promise<PrivacyNoticeModel | null> => {
   try {
-    let result: PrivacyNotice | null;
+    let result: PrivacyNoticeModel | null;
     if (role === Role.DataSubject) {
       result = await fetchInstalledPrivacyNotice(applicationUuid);
     } else {
@@ -88,7 +88,7 @@ export const handleFetchPrivacyNotice = async (
 export const handleSubmitPrivacyNotice = async (
   applicationUuid: string,
   privacyNoticeContent: string,
-): Promise<PrivacyNotice> => {
+): Promise<PrivacyNoticeModel> => {
   try {
     const result = await submitPrivacyNoticeByManagedApplicationUuid(
       applicationUuid,
@@ -114,7 +114,7 @@ export const handleRemovePrivacyNotice = async (applicationUuid: string) => {
 export const handleReplacePrivacyNoticeWithExisting = async (
   targetApplicationUuid: string,
   privacyNoticeUuid: string,
-): Promise<PrivacyNotice> => {
+): Promise<PrivacyNoticeModel> => {
   const result = await associatePrivacyNoticeByManagedApplicationUuid(
     targetApplicationUuid,
     privacyNoticeUuid,
