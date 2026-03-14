@@ -113,7 +113,7 @@ class PetriNetService:
 
     def check_rule(self, target_rule: Rule, existing_rules: List[Rule], home_uuid: str) -> Dict:
         """
-        Check a rule for loops using Petri Nets.
+        Check a rule for conflicts and loops using Petri Nets.
         
         Args:
             target_rule: The rule to check
@@ -121,7 +121,7 @@ class PetriNetService:
             home_uuid: Home UUID string
             
         Returns:
-            Dictionary containing rule problems (loops, etc.)
+            Dictionary containing rule problems (redundancy, inconsistency, loops)
         """
         # Initialize RuleProblems
         rule_problems = RuleProblems()
@@ -137,37 +137,40 @@ class PetriNetService:
         # Add the target rule to the set
         rules_after.append(target_rule)
 
-        for existing_rule in existing_rules:
-            # Skip comparing rule to itself (by ID)
-            if existing_rule.db_id == target_rule.db_id:
-                continue
-                
-            # Trigger Equality Check
-            triggers_match = (
-                target_rule.trigger.url == existing_rule.trigger.url
-                and target_rule.trigger.details == existing_rule.trigger.details
-            )
-            
-            if triggers_match:
-                # Actions Equality Check
-                actions_match = (
-                    target_rule.action.url == existing_rule.action.url
-                    and target_rule.action.details == existing_rule.action.details
-                )
-                
-                if actions_match:
-                    # Check Effect (Permit vs Deny)
-                    if target_rule.effect == existing_rule.effect:
-                        # Exact duplicate: Same T, Same A, Same E
-                        rule_problems.add_redundant_rules([target_rule, existing_rule])
-                    else:
-                        # Conflict: Same T, Same A, Different E (Permit vs Deny)
-                        rule_problems.add_inconsistent_rules([target_rule, existing_rule])
-
-
-
-        # Build Petri Net
+        # Build Petri Net spanning the entire rule context
         net = self.get_net(home_uuid, rules_after, refresh=True)
+
+        # 1. Structural Redundancy and Inconsistency Checks
+        target_action_place = net.get_action_place(target_rule.action)
+        target_trigger_place = net.get_trigger_place(target_rule.trigger)
+
+        if target_action_place and target_trigger_place:
+            # Structurally find all rules that converge on this exact ActionPlace
+            converging_rules = []
+            
+            # Trace backwards from the action place to find transitions that feed it
+            for arc in net.input_arcs:
+                if arc.place == target_action_place and isinstance(arc.transition, TriggerTransition):
+                    # trigger transitions mean another action triggers this trigger...
+                    pass
+            for arc in net.output_arcs:
+                if arc.place == target_action_place and isinstance(arc.transition, RuleTransition):
+                    converging_rules.append(arc.transition.get_rule())
+
+            for rule in converging_rules:
+                # Skip checking against itself
+                if rule.db_id == target_rule.db_id:
+                    continue
+
+                # For each converging rule, structurally verify if they stem from the SAME TriggerPlace
+                rule_trigger_place = net.get_trigger_place(rule.trigger)
+                
+                if rule_trigger_place == target_trigger_place:
+                    # Structural Conflict Detected: Shared Start Node -> Shared End Node
+                    if target_rule.effect == rule.effect:
+                        rule_problems.add_redundant_rules([target_rule, rule])
+                    else:
+                        rule_problems.add_inconsistent_rules([target_rule, rule])
 
         # Search for loops
         cycles = net.get_cycle(target_rule, rules_after)
