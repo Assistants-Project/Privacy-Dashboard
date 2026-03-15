@@ -153,6 +153,38 @@
     
 
 
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#SifisCooling -->
+
+    <owl:Class rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#SifisCooling">
+        <rdfs:subClassOf rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Channel"/>
+    </owl:Class>
+    
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#SifisSecurity -->
+
+    <owl:Class rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#SifisSecurity">
+        <rdfs:subClassOf rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Channel"/>
+    </owl:Class>
+    
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#SifisAppliance -->
+
+    <owl:Class rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#SifisAppliance">
+        <rdfs:subClassOf rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Channel"/>
+    </owl:Class>
+    
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#SifisDoors -->
+
+    <owl:Class rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#SifisDoors">
+        <rdfs:subClassOf rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Channel"/>
+    </owl:Class>
+    
+
+
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
@@ -528,6 +560,215 @@
         <eupont:description xml:lang="en">This trigger fires when the windows are opened</eupont:description>
         <name xml:lang="en">Windows are opened</name>
     </owl:NamedIndividual>
+
+
+
+    <!-- ================================================================ -->
+    <!-- Cooling Actions (domo_ac_unit)                                   -->
+    <!-- ================================================================ -->
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_cooling_actions -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_cooling_actions">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Action"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">Perform any action related to a cooling device</eupont:description>
+        <name xml:lang="en">Any cooling action</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_enable_cooling_action -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_enable_cooling_action">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#EnableCoolingSystemAction"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">This action enables the cooling system</eupont:description>
+        <name xml:lang="en">Enable cooling</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_disable_cooling_action -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_disable_cooling_action">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#DisableCoolingSystemAction"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">This action disables the cooling system</eupont:description>
+        <name xml:lang="en">Disable cooling</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_cooling -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_cooling">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#SifisCooling"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_cooling_actions"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_enable_cooling_action"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_disable_cooling_action"/>
+        <color rdf:datatype="http://www.w3.org/2001/XMLSchema#string">rgb(0, 150, 199)</color>
+        <id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">7</id>
+        <image rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cooling.png</image>
+        <name xml:lang="en">Cooling</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- ================================================================ -->
+    <!-- Security Actions (domo_siren)                                    -->
+    <!-- ================================================================ -->
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_security_actions -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_security_actions">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Action"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">Perform any action related to a security device</eupont:description>
+        <name xml:lang="en">Any security action</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_enable_security_action -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_enable_security_action">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#EnableSecuritySystemAction"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">This action enables the security system</eupont:description>
+        <name xml:lang="en">Enable security</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_disable_security_action -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_disable_security_action">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#DisableSecuritySystemAction"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">This action disables the security system</eupont:description>
+        <name xml:lang="en">Disable security</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_security -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_security">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#SifisSecurity"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_security_actions"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_enable_security_action"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_disable_security_action"/>
+        <color rdf:datatype="http://www.w3.org/2001/XMLSchema#string">rgb(220, 50, 50)</color>
+        <id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">8</id>
+        <image rdf:datatype="http://www.w3.org/2001/XMLSchema#string">security.png</image>
+        <name xml:lang="en">Security</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- ================================================================ -->
+    <!-- Appliance Actions (domo_switch, domo_generic_output)             -->
+    <!-- ================================================================ -->
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_appliance_actions -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_appliance_actions">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Action"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">Perform any action related to an appliance</eupont:description>
+        <name xml:lang="en">Any appliance action</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_appliance_action -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_appliance_action">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOnAction"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">This action turns on an appliance</eupont:description>
+        <name xml:lang="en">Turn appliance on</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_appliance_action -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_appliance_action">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#TurnOffAction"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">This action turns off an appliance</eupont:description>
+        <name xml:lang="en">Turn appliance off</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_appliance -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_appliance">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#SifisAppliance"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_appliance_actions"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_appliance_action"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_appliance_action"/>
+        <color rdf:datatype="http://www.w3.org/2001/XMLSchema#string">rgb(180, 120, 60)</color>
+        <id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">9</id>
+        <image rdf:datatype="http://www.w3.org/2001/XMLSchema#string">appliance.png</image>
+        <name xml:lang="en">Appliance</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- ================================================================ -->
+    <!-- Door Actions (domo_garage_gate)                                  -->
+    <!-- ================================================================ -->
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_doors_actions -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_doors_actions">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#Action"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">Perform any action related to a door or gate</eupont:description>
+        <name xml:lang="en">Any door action</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_doors_action -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_doors_action">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#OpenWindowFrameAction"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">This action opens a door or gate</eupont:description>
+        <name xml:lang="en">Open door</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_doors_action -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_doors_action">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/eupont.owl#CloseWindowFrameAction"/>
+        <eupont:offerDetail rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail"/>
+        <eupont:description xml:lang="en">This action closes a door or gate</eupont:description>
+        <name xml:lang="en">Close door</name>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://elite.polito.it/ontologies/sifis-home.owl#sifis_doors -->
+
+    <owl:NamedIndividual rdf:about="http://elite.polito.it/ontologies/sifis-home.owl#sifis_doors">
+        <rdf:type rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#SifisDoors"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_doors_actions"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_doors_action"/>
+        <eupont:offerAction rdf:resource="http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_doors_action"/>
+        <color rdf:datatype="http://www.w3.org/2001/XMLSchema#string">rgb(139, 90, 43)</color>
+        <id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">10</id>
+        <image rdf:datatype="http://www.w3.org/2001/XMLSchema#string">doors.png</image>
+        <name xml:lang="en">Doors</name>
+    </owl:NamedIndividual>
+
 </rdf:RDF>
 
 
