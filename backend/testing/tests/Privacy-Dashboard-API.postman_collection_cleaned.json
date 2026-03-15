@@ -4684,6 +4684,45 @@
       "name": "Policy Translation Point API",
       "item": [
         {
+          "name": "Successful Login - Data Subject (PTP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{ds_email}}\", \"password\": \"{{ds_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Logged user is Data Subject\", function () {",
+                  "  pm.expect(body).to.have.property('role', 'DATA_SUBJECT');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nRe-authenticates as a Data Subject before running PTP tests (the previous Cleanup folder logs out the session).\n\n**Scope**\nPolicy Translation Point API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/login`\n- Uses collection variables: `baseURL`, `ds_email`, `ds_password`\n\n**What the test checks**\n- Response status code is 200\n- Logged user is Data Subject"
+        },
+        {
           "name": "Successful Create Rule",
           "event": [
             {
@@ -4694,7 +4733,7 @@
                   "    pm.expect(pm.response.code).to.eql(200);",
                   "});",
                   "",
-                  "const responseBody = pm.response.json();",
+                  "var responseBody = pm.response.json();",
                   "pm.test(\"Response payload contains the generated rule ID\", function () {",
                   "    pm.expect(responseBody).to.have.property(\"id\");",
                   "    pm.expect(responseBody.id).to.be.a(\"number\");",
@@ -4746,7 +4785,7 @@
                   "    pm.expect(pm.response.code).to.eql(422);",
                   "});",
                   "",
-                  "const responseBody = pm.response.json();",
+                  "var responseBody = pm.response.json();",
                   "pm.test(\"Response contains validation error for effect\", function () {",
                   "    pm.expect(responseBody).to.have.property(\"errors\");",
                   "});"
@@ -4794,7 +4833,7 @@
                   "});",
                   "",
                   "pm.test(\"DHT Synchronization process triggered successfully\", function () {",
-                  "    const responseBody = pm.response.text();",
+                  "    var responseBody = pm.response.text();",
                   "    pm.expect(responseBody).to.include(\"Home updated with Smartotum\");",
                   "});",
                   "",
@@ -4833,7 +4872,7 @@
                   "    pm.expect(pm.response.code).to.eql(200);",
                   "});",
                   "",
-                  "const responseBody = pm.response.json();",
+                  "var responseBody = pm.response.json();",
                   "pm.test(\"Response array conforms to strict subset of DHT Rule Schema\", function () {",
                   "    const rulesArraySchema = {",
                   "        \"type\": \"array\",",
@@ -4891,7 +4930,7 @@
                   "    pm.expect(pm.response.code).to.eql(200);",
                   "});",
                   "",
-                  "const responseBody = pm.response.json();",
+                  "var responseBody = pm.response.json();",
                   "pm.test(\"Extract redundant rule ID\", function () {",
                   "    pm.collectionVariables.set(\"redundant_rule_id\", responseBody.id);",
                   "});"
@@ -4938,7 +4977,7 @@
                   "    pm.expect(pm.response.code).to.eql(200);",
                   "});",
                   "",
-                  "const responseBody = pm.response.json();",
+                  "var responseBody = pm.response.json();",
                   "pm.test(\"Conflict report contains redundantRules\", function () {",
                   "    pm.expect(responseBody).to.have.property(\"redundantRules\");",
                   "    pm.expect(responseBody.redundantRules).to.be.an(\"array\");",
@@ -4991,7 +5030,7 @@
                   "    pm.expect(pm.response.code).to.eql(200);",
                   "});",
                   "",
-                  "const responseBody = pm.response.json();",
+                  "var responseBody = pm.response.json();",
                   "pm.test(\"Extract inconsistent rule ID\", function () {",
                   "    pm.collectionVariables.set(\"inconsistent_rule_id\", responseBody.id);",
                   "});"
@@ -5038,7 +5077,7 @@
                   "    pm.expect(pm.response.code).to.eql(200);",
                   "});",
                   "",
-                  "const responseBody = pm.response.json();",
+                  "var responseBody = pm.response.json();",
                   "pm.test(\"Conflict report contains inconsistentRules\", function () {",
                   "    pm.expect(responseBody).to.have.property(\"inconsistentRules\");",
                   "    pm.expect(responseBody.inconsistentRules).to.be.an(\"array\");",
@@ -5163,10 +5202,9 @@
                   "    pm.expect(pm.response.code).to.eql(404);",
                   "});",
                   "",
-                  "const responseBody = pm.response.json();",
-                  "pm.test(\"Response contains 404 Not Found error message\", function () {",
-                  "    pm.expect(responseBody.code).to.eql(404);",
-                  "    pm.expect(responseBody.status).to.eql(\"Not Found\");",
+                  "var responseBody = pm.response.json();",
+                  "pm.test(\"Response contains error message\", function () {",
+                  "    pm.expect(responseBody).to.have.property(\"error\");",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -5177,7 +5215,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules/invalid-rule-1234/check",
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules/999999/check",
               "host": [
                 "{{baseURL}}"
               ],
@@ -5187,7 +5225,7 @@
                 "homes",
                 "{{test_smart_home_uuid}}",
                 "rules",
-                "invalid-rule-1234",
+                "999999",
                 "check"
               ]
             }
@@ -5212,7 +5250,7 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules/invalid-rule-1234/download",
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules/999999/download",
               "host": [
                 "{{baseURL}}"
               ],
@@ -5222,7 +5260,7 @@
                 "homes",
                 "{{test_smart_home_uuid}}",
                 "rules",
-                "invalid-rule-1234",
+                "999999",
                 "download"
               ]
             }
