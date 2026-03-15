@@ -1389,12 +1389,20 @@ class OWLService:
         Heater = OWLService._get_class(base_onto, "Heater")
         Speaker = OWLService._get_class(base_onto, "Speaker")
         SmartWindow = OWLService._get_class(base_onto, "SmartWindow")
+        SmartBlind = OWLService._get_class(base_onto, "SmartBlind")
+        SmartDoor = OWLService._get_class(base_onto, "SmartDoor")
+        AirConditioner = OWLService._get_class(base_onto, "AirConditioner")
+        AntiIntrusionSystem = OWLService._get_class(base_onto, "AntiIntrusionSystem")
+        Appliance = OWLService._get_class(base_onto, "Appliance")
         
         # Service Classes
         AudioRecordingService = OWLService._get_class(base_onto, "AudioRecordingService")
         VideoRecordingService = OWLService._get_class(base_onto, "VideoRecordingService")
         LightingService = OWLService._get_class(base_onto, "LightingService")
         HeatingService = OWLService._get_class(base_onto, "HeatingService")
+        CoolingService = OWLService._get_class(base_onto, "CoolingService")
+        SecurityService = OWLService._get_class(base_onto, "SecurityService")
+        ApplianceService = OWLService._get_class(base_onto, "ApplianceService")
         FrameService = OWLService._get_class(base_onto, "FrameService")
         TimerService = OWLService._get_class(base_onto, "TimerService")
         
@@ -1422,10 +1430,19 @@ class OWLService:
         "audio": "AudioRecordingService",
         "heat": "HeatingService",
         "hvac": "HeatingService",
-        "window": "SmartEnvironmentService",
-        "shutter": "SmartEnvironmentService",
-        "power": "PowerService",
-        "switch": "PowerService"
+        "fan_coil": "HeatingService",
+        "cooling": "CoolingService",
+        "ac": "CoolingService",
+        "window": "FrameService",
+        "shutter": "FrameService",
+        "blind": "FrameService",
+        "door": "FrameService",
+        "gate": "FrameService",
+        "siren": "SecurityService",
+        "security": "SecurityService",
+        "power": "ApplianceService",
+        "switch": "ApplianceService",
+        "appliance": "ApplianceService",
     }
 
     SIFIS_ACTIONS = {
@@ -1443,7 +1460,19 @@ class OWLService:
         "off_heat": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_heating_action",
         "all_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_windows_actions",
         "open_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_windows_action",
-        "close_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_windows_action"
+        "close_win": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_windows_action",
+        "all_cool": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_cooling_actions",
+        "on_cool": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_enable_cooling_action",
+        "off_cool": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_disable_cooling_action",
+        "all_sec": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_security_actions",
+        "on_sec": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_enable_security_action",
+        "off_sec": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_disable_security_action",
+        "all_app": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_appliance_actions",
+        "on_app": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_appliance_action",
+        "off_app": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_off_appliance_action",
+        "all_door": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_doors_actions",
+        "open_door": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_open_doors_action",
+        "close_door": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_close_doors_action",
     }
 
     SIFIS_TRIGGERS = {
@@ -1456,7 +1485,6 @@ class OWLService:
          "day": "http://elite.polito.it/ontologies/sifis-home.owl#sifis_every_day_trigger"
     }
 
-    # (TargetClass, ServiceClass, [CommandClass, ...], [ {ActionKey: ActionIRI}, ... ])
     DEVICE_TYPE_MAPPING = {
          # Lighting
          "domo_light": ("Lamp", "LightingService", ["TurnOnCommand", "TurnOffCommand"], 
@@ -1466,28 +1494,44 @@ class OWLService:
          "domo_rgbw_light": ("Lamp", "LightingService", ["TurnOnCommand", "TurnOffCommand"],
                              [("all_light", "on_light"), ("all_light", "off_light")]),
          
-         # Camera
+         # Camera 
          "domo_camera": ("Camera", "VideoRecordingService", ["StartCommand", "StopCommand"],
                          [("all_video", "rec_video"), ("all_video", "stop_video")]),
          
-         # HVAC
+         # Cooling (AC unit)
          "domo_ac_unit": ("AirConditioner", "CoolingService", ["TurnOnCommand", "TurnOffCommand"],
-                          [("all_heat", "on_heat"), ("all_heat", "off_heat")]),
+                          [("all_cool", "on_cool"), ("all_cool", "off_cool")]),
                           
-         # Windows / Shutters -> Mapped to SmartWindow
-         "domo_roller_shutter": ("SmartWindow", "SmartEnvironmentService", ["OpenCommand", "CloseCommand"],
+         # Heating
+         "domo_floor_valve": ("Heater", "HeatingService", ["TurnOnCommand", "TurnOffCommand"],
+                              [("all_heat", "on_heat"), ("all_heat", "off_heat")]),
+         "domo_fan_coil": ("Heater", "HeatingService", ["TurnOnCommand", "TurnOffCommand"],
+                           [("all_heat", "on_heat"), ("all_heat", "off_heat")]),
+         "domo_ble_valve": ("Heater", "HeatingService", ["TurnOnCommand", "TurnOffCommand"],
+                            [("all_heat", "on_heat"), ("all_heat", "off_heat")]),
+                          
+         # Windows / Shutters
+         "domo_roller_shutter": ("SmartBlind", "FrameService", ["OpenCommand", "CloseCommand"],
                                  [("all_win", "open_win"), ("all_win", "close_win")]),
+
+         # Doors / Gates
+         "domo_garage_gate": ("SmartDoor", "FrameService", ["OpenCommand", "CloseCommand"],
+                              [("all_door", "open_door"), ("all_door", "close_door")]),
                                  
-         # Switches / Plugs (Generic)
-         "domo_switch": ("Appliance", "PowerService", ["TurnOnCommand", "TurnOffCommand"],
-                         [("all_light", "on_light"), ("all_light", "off_light")]), 
+         # Switches / Plugs / Generic Appliances
+         "domo_switch": ("Appliance", "ApplianceService", ["TurnOnCommand", "TurnOffCommand"],
+                         [("all_app", "on_app"), ("all_app", "off_app")]),
+         "domo_generic_output": ("Appliance", "ApplianceService", ["TurnOnCommand", "TurnOffCommand"],
+                                 [("all_app", "on_app"), ("all_app", "off_app")]),
+
+         # Security
+         "domo_siren": ("AntiIntrusionSystem", "SecurityService", ["TurnOnCommand", "TurnOffCommand"],
+                        [("all_sec", "on_sec"), ("all_sec", "off_sec")]),
                          
-         # Sensors
+         # Sensors 
          "domo_window_sensor": ("Sensor", "SmartEnvironmentService", [], [], ["OpenNotification", "CloseNotification"], ["win_open", "win_close"]),
          "domo_ble_contact": ("Sensor", "SmartEnvironmentService", [], []),
-         "domo_ble_thermometer": ("Sensor", "SmartEnvironmentService", [], []), 
-         "domo_ble_valve": ("Appliance", "SmartEnvironmentService", ["OpenCommand", "CloseCommand"],
-                            [("all_win", "open_win"), ("all_win", "close_win")]), 
+         "domo_ble_thermometer": ("Sensor", "SmartEnvironmentService", [], []),
     }
 
     @staticmethod

@@ -79,10 +79,13 @@ const RuleList: React.FC<RuleListProps> = ({
             (typeof d.type === "string" &&
               (d.type.toLowerCase() === "device" ||
                 d.type.toLowerCase() === "entity")) ||
-            (typeof d.name === "string" && d.name.toLowerCase().includes("device"));
+            (typeof d.name === "string" &&
+              d.name.toLowerCase().includes("device"));
           if (isDeviceDetail) {
             const trimmed =
-              typeof displayValue === "string" ? displayValue.trim() : displayValue;
+              typeof displayValue === "string"
+                ? displayValue.trim()
+                : displayValue;
             if (
               displayValue === null ||
               displayValue === undefined ||
@@ -117,8 +120,9 @@ const RuleList: React.FC<RuleListProps> = ({
           <Card key={rule.db_id} className="shadow-sm">
             <Card.Header className="bg-white py-2">
               <div className="d-flex align-items-center w-100 gap-3">
-                <span className="text-muted small fw-bold">#{idx + 1}</span>
-                <span className="text-muted small">ID {rule.db_id}</span>
+                <span className="text-muted small fw-bold">
+                  ID {rule.db_id}
+                </span>
                 <Badge
                   bg={rule.effect === "permit" ? "success" : "danger"}
                   className="me-2"
@@ -141,7 +145,9 @@ const RuleList: React.FC<RuleListProps> = ({
                         ? `Consent rule (managed automatically)\nClick to open the related app\nConsent UUID: ${rule.consent_uuid}`
                         : `Consent rule (managed automatically)\nConsent UUID: ${rule.consent_uuid}`
                     }
-                    onClick={() => openConsentApp(rule.consent_application_uuid)}
+                    onClick={() =>
+                      openConsentApp(rule.consent_application_uuid)
+                    }
                     onKeyDown={(e) => {
                       if (!rule.consent_application_uuid) return;
                       if (e.key === "Enter" || e.key === " ") {
@@ -167,7 +173,10 @@ const RuleList: React.FC<RuleListProps> = ({
                   {rule.action?.service?.name || "Action"}
                 </span>
                 {!!rule.consent_uuid && (
-                  <small className="text-muted ms-2" title="This rule is created/removed automatically when a consent is withdrawn/accepted">
+                  <small
+                    className="text-muted ms-2"
+                    title="This rule is created/removed automatically when a consent is withdrawn/accepted"
+                  >
                     Managed automatically
                   </small>
                 )}
