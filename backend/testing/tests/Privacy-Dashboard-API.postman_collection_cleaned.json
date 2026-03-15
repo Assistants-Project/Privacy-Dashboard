@@ -4679,12 +4679,601 @@
         }
       ],
       "description": "Final cleanup: logs out and verifies endpoints are unauthorized.\n\n**Requests in this folder (2)**\n- Successful Logout\n- Unauthorized Current After Cleanup\n\n**Notes**\n- These requests are designed to be run in order. Some steps depend on variables set by previous requests."
+    },
+    {
+      "name": "Policy Translation Point API",
+      "item": [
+        {
+          "name": "Successful Login - Data Subject (PTP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseURL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{ds_email}}\", \"password\": \"{{ds_password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"Logged user is Data Subject\", function () {",
+                  "  pm.expect(body).to.have.property('role', 'DATA_SUBJECT');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nRe-authenticates as a Data Subject before running PTP tests (the previous Cleanup folder logs out the session).\n\n**Scope**\nPolicy Translation Point API\n\n**Request**\n- Endpoint: `POST {{baseURL}}/api/auth/login`\n- Uses collection variables: `baseURL`, `ds_email`, `ds_password`\n\n**What the test checks**\n- Response status code is 200\n- Logged user is Data Subject"
+        },
+        {
+          "name": "Successful Create Rule",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "var responseBody = pm.response.json();",
+                  "pm.test(\"Response payload contains the generated rule ID\", function () {",
+                  "    pm.expect(responseBody).to.have.property(\"id\");",
+                  "    pm.expect(responseBody.id).to.be.a(\"number\");",
+                  "});",
+                  "",
+                  "pm.test(\"Extract and save Rule ID for subsequent tests\", function() {",
+                  "    pm.collectionVariables.set(\"test_rule_id\", responseBody.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"effect\": \"deny\",\n    \"subject\": \"{{ds_email}}\",\n    \"expirationDate\": \"2026-03-30\",\n    \"trigger\": {\n        \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl#sifis_always_trigger\",\n        \"details\": []\n    },\n    \"action\": {\n        \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_video_actions\",\n        \"details\": [\n            {\n                \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail\",\n                \"name\": \"Location\",\n                \"type\": \"location\",\n                \"value\": {\n                    \"name\": \"Laboratorio\",\n                    \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl/fixissuesbpoyqq#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4\"\n                }\n            },\n            {\n                \"url\": \"entity_detail\",\n                \"name\": \"Device\",\n                \"type\": \"entity\",\n                \"value\": {\n                    \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl/fixissuesbpoyqq#d-d6422b30-f800-4be1-8fd4-ccc36a7efcb8\",\n                    \"name\": \"Camera Smartotum\"\n                }\n            }\n        ]\n    }\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "sifis",
+                "homes",
+                "{{test_smart_home_uuid}}",
+                "rules"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Validation Error - Create Rule Missing Effect",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 422\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(422);",
+                  "});",
+                  "",
+                  "var responseBody = pm.response.json();",
+                  "pm.test(\"Response contains validation error for effect\", function () {",
+                  "    pm.expect(responseBody).to.have.property(\"errors\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trigger\": { \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl#sifis_weekly_timer_trigger\", \"details\": [] },\n  \"action\": { \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl#sifis_turn_on_action\", \"details\": [] }\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "sifis",
+                "homes",
+                "{{test_smart_home_uuid}}",
+                "rules"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Successful DHT Synchronization (Global Refresh)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 202\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(202);",
+                  "});",
+                  "",
+                  "pm.test(\"DHT Synchronization process triggered successfully\", function () {",
+                  "    var responseBody = pm.response.text();",
+                  "    pm.expect(responseBody).to.include(\"Home updated with Smartotum\");",
+                  "});",
+                  "",
+                  "// We add a brief delay dynamically because the backend might be",
+                  "// actively fetching and writing the DHT JSONs to the DB.",
+                  "setTimeout(function(){}, 1000);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/homes/refresh",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "homes",
+                "refresh"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Successful Retrieve Local Rules",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "var responseBody = pm.response.json();",
+                  "pm.test(\"Response array conforms to strict subset of DHT Rule Schema\", function () {",
+                  "    const rulesArraySchema = {",
+                  "        \"type\": \"array\",",
+                  "        \"minItems\": 1,",
+                  "        \"items\": {",
+                  "            \"type\": \"object\",",
+                  "            \"required\": [\"db_id\", \"type\", \"trigger\", \"action\"],",
+                  "            \"properties\": {",
+                  "                \"db_id\": { \"type\": \"number\" },",
+                  "                \"type\": { \"type\": \"string\" },",
+                  "                \"trigger\": { \"type\": \"object\", \"required\": [\"url\"] },",
+                  "                \"action\": { \"type\": \"object\", \"required\": [\"url\"] }",
+                  "            }",
+                  "        }",
+                  "    };",
+                  "    pm.response.to.have.jsonSchema(rulesArraySchema);",
+                  "});",
+                  "",
+                  "pm.test(\"Newly created rule is functionally verified in retrieval\", function () {",
+                  "    const expectedRuleId = pm.collectionVariables.get(\"test_rule_id\");",
+                  "    const ruleFound = responseBody.find(r => r.db_id === expectedRuleId);",
+                  "    pm.expect(ruleFound, \"Expected test_rule_id to be present in the active ruleset\").to.not.be.undefined;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "sifis",
+                "homes",
+                "{{test_smart_home_uuid}}",
+                "rules"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Successful Seed Redundant Rule",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "var responseBody = pm.response.json();",
+                  "pm.test(\"Extract redundant rule ID\", function () {",
+                  "    pm.collectionVariables.set(\"redundant_rule_id\", responseBody.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"effect\": \"deny\",\n    \"subject\": \"{{ds_email}}\",\n    \"expirationDate\": \"2026-03-30\",\n    \"trigger\": {\n        \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl#sifis_always_trigger\",\n        \"details\": []\n    },\n    \"action\": {\n        \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_video_actions\",\n        \"details\": [\n            {\n                \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail\",\n                \"name\": \"Location\",\n                \"type\": \"location\",\n                \"value\": {\n                    \"name\": \"Laboratorio\",\n                    \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl/fixissuesbpoyqq#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4\"\n                }\n            },\n            {\n                \"url\": \"entity_detail\",\n                \"name\": \"Device\",\n                \"type\": \"entity\",\n                \"value\": {\n                    \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl/fixissuesbpoyqq#d-d6422b30-f800-4be1-8fd4-ccc36a7efcb8\",\n                    \"name\": \"Camera Smartotum\"\n                }\n            }\n        ]\n    }\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "sifis",
+                "homes",
+                "{{test_smart_home_uuid}}",
+                "rules"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Successful Conflict Detection - Redundancy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "var responseBody = pm.response.json();",
+                  "pm.test(\"Conflict report contains redundantRules\", function () {",
+                  "    pm.expect(responseBody).to.have.property(\"redundantRules\");",
+                  "    pm.expect(responseBody.redundantRules).to.be.an(\"array\");",
+                  "    pm.expect(responseBody.redundantRules.length).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Redundant rule pair contains both seeded rules with matching effects\", function () {",
+                  "    const pair = responseBody.redundantRules[0];",
+                  "    pm.expect(pair).to.be.an(\"array\").with.lengthOf(2);",
+                  "    const ids = pair.map(r => r.db_id);",
+                  "    const testRuleId = pm.collectionVariables.get(\"test_rule_id\");",
+                  "    const redundantRuleId = pm.collectionVariables.get(\"redundant_rule_id\");",
+                  "    pm.expect(ids).to.include(redundantRuleId);",
+                  "    // Both rules in the pair must have the same effect",
+                  "    pm.expect(pair[0].effect).to.eql(pair[1].effect);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules/{{redundant_rule_id}}/check",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "sifis",
+                "homes",
+                "{{test_smart_home_uuid}}",
+                "rules",
+                "{{redundant_rule_id}}",
+                "check"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Successful Seed Inconsistent Rule",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "var responseBody = pm.response.json();",
+                  "pm.test(\"Extract inconsistent rule ID\", function () {",
+                  "    pm.collectionVariables.set(\"inconsistent_rule_id\", responseBody.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"effect\": \"permit\",\n    \"subject\": \"{{ds_email}}\",\n    \"expirationDate\": \"2026-03-30\",\n    \"trigger\": {\n        \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl#sifis_always_trigger\",\n        \"details\": []\n    },\n    \"action\": {\n        \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl#sifis_all_video_actions\",\n        \"details\": [\n            {\n                \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl#sifis_location_detail\",\n                \"name\": \"Location\",\n                \"type\": \"location\",\n                \"value\": {\n                    \"name\": \"Laboratorio\",\n                    \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl/fixissuesbpoyqq#location-bf673d0c-13ff-4e7c-9169-9a2cf2d28bb4\"\n                }\n            },\n            {\n                \"url\": \"entity_detail\",\n                \"name\": \"Device\",\n                \"type\": \"entity\",\n                \"value\": {\n                    \"url\": \"http://elite.polito.it/ontologies/sifis-home.owl/fixissuesbpoyqq#d-d6422b30-f800-4be1-8fd4-ccc36a7efcb8\",\n                    \"name\": \"Camera Smartotum\"\n                }\n            }\n        ]\n    }\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "sifis",
+                "homes",
+                "{{test_smart_home_uuid}}",
+                "rules"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Successful Conflict Detection - Inconsistency",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "var responseBody = pm.response.json();",
+                  "pm.test(\"Conflict report contains inconsistentRules\", function () {",
+                  "    pm.expect(responseBody).to.have.property(\"inconsistentRules\");",
+                  "    pm.expect(responseBody.inconsistentRules).to.be.an(\"array\");",
+                  "    pm.expect(responseBody.inconsistentRules.length).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Inconsistent rule pair contains both seeded rules with opposing effects\", function () {",
+                  "    const pair = responseBody.inconsistentRules[0];",
+                  "    pm.expect(pair).to.be.an(\"array\").with.lengthOf(2);",
+                  "    const ids = pair.map(r => r.db_id);",
+                  "    const inconsistentRuleId = pm.collectionVariables.get(\"inconsistent_rule_id\");",
+                  "    pm.expect(ids).to.include(inconsistentRuleId);",
+                  "    // The two rules must have different effects (permit vs deny)",
+                  "    pm.expect(pair[0].effect).to.not.eql(pair[1].effect);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules/{{inconsistent_rule_id}}/check",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "sifis",
+                "homes",
+                "{{test_smart_home_uuid}}",
+                "rules",
+                "{{inconsistent_rule_id}}",
+                "check"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Successful XACML Generation (Download)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response Content-Type is application/zip\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/zip\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules/{{test_rule_id}}/download",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "sifis",
+                "homes",
+                "{{test_smart_home_uuid}}",
+                "rules",
+                "{{test_rule_id}}",
+                "download"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Validation Error - Missing Home UUID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 404\", function () {",
+                  "    // Postman routes completely missing UUIDs as a 404 against the Flask router",
+                  "    pm.expect(pm.response.code).to.eql(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/sifis/homes//rules",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "sifis",
+                "homes",
+                "",
+                "rules"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Not Found - Conflict Detection on Invalid Rule",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 404\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(404);",
+                  "});",
+                  "",
+                  "var responseBody = pm.response.json();",
+                  "pm.test(\"Response contains error message\", function () {",
+                  "    pm.expect(responseBody).to.have.property(\"error\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules/999999/check",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "sifis",
+                "homes",
+                "{{test_smart_home_uuid}}",
+                "rules",
+                "999999",
+                "check"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Not Found - XACML Download on Invalid Rule",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response status code is 404\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/sifis/homes/{{test_smart_home_uuid}}/rules/999999/download",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "sifis",
+                "homes",
+                "{{test_smart_home_uuid}}",
+                "rules",
+                "999999",
+                "download"
+              ]
+            }
+          }
+        }
+      ],
+      "description": "Endpoints to test PTP core functionalities: DHT Synchronization, Conflict checking, and translation into XACML files."
     }
   ],
   "variable": [
     {
       "key": "baseURL",
-      "value": "http://127.0.0.1:5050",
+      "value": "http://127.0.0.1:5000",
       "description": "Base URL of the backend API."
     },
     {
@@ -4986,6 +5575,26 @@
       "key": "dpo_updated_password",
       "value": "dpogeneral-updated",
       "description": "Input. Temporary Data Protection Officer password used during current-user profile tests."
+    },
+    {
+      "key": "test_smart_home_uuid",
+      "value": "fixissuesbpoyqq",
+      "description": "Input. Required for running the Policy Translation Point API tests."
+    },
+    {
+      "key": "test_rule_id",
+      "value": "",
+      "description": "Generated by collection tests. Used across the PTP API flow."
+    },
+    {
+      "key": "redundant_rule_id",
+      "value": "",
+      "description": "Generated by collection tests. Used for PTP redundancy conflict testing."
+    },
+    {
+      "key": "inconsistent_rule_id",
+      "value": "",
+      "description": "Generated by collection tests. Used for PTP inconsistency conflict testing."
     }
   ]
 }
