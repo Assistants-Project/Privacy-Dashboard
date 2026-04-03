@@ -69,8 +69,6 @@ class SmartotumRule:
     expiration_date: str | None = None
 
 class SmartotumClient:
-    _testing_rules_state: Dict[str, List[Dict[str, Any]]] = {}
-
     #initialize env variables
     def __init__(self, session: Optional[requests.Session] = None, session_retry: Optional[requests.Session] = None) -> None:
         cfg = current_app.config
@@ -713,19 +711,17 @@ class SmartotumClient:
 
             created_rules.append(rule)
 
+        self._write_testing_rules_state(system_uuid, rules_state)
         return created_rules
 
     def _get_testing_rules_state(self, system_uuid: str) -> List[Dict[str, Any]]:
-        system_uuid_str = str(system_uuid)
-        if system_uuid_str not in SmartotumClient._testing_rules_state:
-            rules_file = self._testing_data_root / "dht" / system_uuid_str / f"{self._rule_topic}.json"
-            SmartotumClient._testing_rules_state[system_uuid_str] = self._read_testing_list_file(rules_file)
-        return SmartotumClient._testing_rules_state[system_uuid_str]
+        rules_file = self._get_testing_rules_read_path(system_uuid)
+        return self._read_testing_list_file(rules_file)
 
     def _delete_rule_testing(self, system_uuid: str, rule_uuid: str) -> bool:
-        system_uuid_str = str(system_uuid)
-        rules_state = self._get_testing_rules_state(system_uuid_str)
-        SmartotumClient._testing_rules_state[system_uuid_str] = [item for item in rules_state if item.get("topic_uuid") != str(rule_uuid)]
+        rules_state = self._get_testing_rules_state(system_uuid)
+        next_rules_state = [item for item in rules_state if item.get("topic_uuid") != str(rule_uuid)]
+        self._write_testing_rules_state(system_uuid, next_rules_state)
         return True
 
     def _get_testing_topic_items(self, system_uuid: str, topic_name: str) -> List[Dict[str, Any]]:
@@ -740,6 +736,8 @@ class SmartotumClient:
         if home_dir.exists() and home_dir.is_dir():
             for p in sorted(home_dir.glob("*.json")):
                 topic_name = p.stem
+                if topic_name == f"{self._rule_topic}_output":
+                    continue
                 if topic_name == self._rule_topic:
                     items.extend(self._get_testing_rules_state(system_uuid))
                     included_rules = True
@@ -771,6 +769,40 @@ class SmartotumClient:
         except json.JSONDecodeError:
             return {"data": [], "offset": 0, "limit": 100}
         return payload if isinstance(payload, dict) else {"data": [], "offset": 0, "limit": 100}
+
+    def _get_testing_rules_fixture_path(self, system_uuid: str) -> Path:
+        return self._testing_data_root / "dht" / str(system_uuid) / f"{self._rule_topic}.json"
+
+    def _get_testing_rules_output_path(self, system_uuid: str) -> Path:
+        return self._testing_data_root / "dht" / str(system_uuid) / f"{self._rule_topic}_output.json"
+
+    def _get_testing_rules_read_path(self, system_uuid: str) -> Path:
+        fixture_path = self._get_testing_rules_fixture_path(system_uuid)
+        output_path = self._get_testing_rules_output_path(system_uuid)
+
+        if not output_path.exists():
+            return fixture_path
+        if not fixture_path.exists():
+            return output_path
+
+        try:
+            fixture_mtime = fixture_path.stat().st_mtime
+            output_mtime = output_path.stat().st_mtime
+        except OSError:
+            return output_path
+
+        # In testing usiamo il file modificato più di recente come source of truth:
+        # così per la demo si può aggiornare manualmente il fixture e farlo "vincere"
+        # senza dover cancellare ogni volta il file di output generato dal sistema.
+        return fixture_path if fixture_mtime > output_mtime else output_path
+
+    def _write_testing_rules_state(self, system_uuid: str, rules_state: List[Dict[str, Any]]) -> None:
+        output_path = self._get_testing_rules_output_path(system_uuid)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(
+            json.dumps(rules_state, indent=2, ensure_ascii=True) + "\n",
+            encoding="utf-8",
+        )
 
     def _read_testing_list_file(self, path: Path) -> List[Dict[str, Any]]:
         if not path.exists():

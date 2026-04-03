@@ -3,6 +3,7 @@ name: privacy-dashboard-demo
 services:
   postgres:
     image: "postgres:17.4"
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -17,6 +18,7 @@ services:
 
   app:
     image: ${APP_IMAGE:-privacydashboard-demo:latest}
+    restart: unless-stopped
     environment:
       FLASK_ENV: ${FLASK_ENV:-demo}
       LOGGING_LEVEL: ${LOGGING_LEVEL:-INFO}

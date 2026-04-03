@@ -212,6 +212,19 @@ The current regression suite also covers:
 - Withdraw-consent request snapshots, so selected consent `uuid` and `content` remain available even if the catalog changes later.
 - Smartotum application refresh behavior, verifying that seeded delegates are not re-added after local removal.
 
+### Performance Benchmarks
+
+The detailed benchmark guide has been moved to `scripts/benchmarks/README.md`.
+
+It covers:
+
+- recommended setup for `testing`, `development`, and `demo`
+- usage of `run_all_benchmarks.py`
+- the four individual benchmark scripts and all supported parameters
+- generated artifacts (`json`, `csv`, `txt`, and the aggregated `summary.txt`)
+
+Run benchmark commands from the repository root.
+
 ### RUN IN DEMO
 
 - In demo mode only 1 container is created that contains all the components of the application

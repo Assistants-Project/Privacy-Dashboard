@@ -2990,9 +2990,30 @@
             }
           ],
           "description": "**Purpose**\nVerifies that a subsequent Smartotum application refresh does not re-seed delegates after local removal.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `GET {{baseURL}}/api/users/managed-application/{{smartotum_seeded_app_uuid}}?role=DATA_CONTROLLER`\n- Uses collection variables: `baseURL`, `delegate_email`, `smartotum_seeded_app_uuid`\n\n**What the test checks**\n- Response status code is 200\n- Seeded delegate is not re-added by Smartotum refresh"
+        },
+        {
+          "name": "Restore Seeded Delegate On Smartotum App",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseURL}}/api/applications/managed/{{smartotum_seeded_app_uuid}}/managers/{{delegate_email}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response status code is 201 or 204', function () { pm.expect([201, 204]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ],
+          "description": "**Purpose**\nRestores the seeded delegate after the regression check so subsequent collection runs start from the same baseline.\n\n**Scope**\nSmartotum Manager Seed Regression\n\n**Request**\n- Endpoint: `PUT {{baseURL}}/api/applications/managed/{{smartotum_seeded_app_uuid}}/managers/{{delegate_email}}`\n- Uses collection variables: `baseURL`, `delegate_email`, `smartotum_seeded_app_uuid`\n\n**What the test checks**\n- Response status code is 201 or 204"
         }
       ],
-      "description": "Regression coverage for Smartotum manager seeding.\n\n- Finds a Smartotum-managed application with a seeded delegate from the mock catalog.\n- Removes the delegate locally as the owner Data Controller.\n- Refreshes applications again as the Data Subject.\n- Verifies that the removed delegate is not re-added by subsequent Smartotum syncs.\n- Verifies that the refresh still returns a clean structured sync result (`message` + empty `warnings`).\n\n**Requests in this folder (10)**\n- Find Smartotum App In Managed List (Seed Check)\n- Verify Seeded Delegate Present On Smartotum App\n- Remove Seeded Delegate From Smartotum App\n- Verify Seeded Delegate Removed From Smartotum App\n- Successful Logout - Data Controller (Seed Check)\n- Successful Login - Data Subject (Seed Check)\n- Refresh Applications - Data Subject (Seed Check)\n- Successful Logout - Data Subject (Seed Check)\n- Successful Login - Data Controller (Seed Check After Refresh)\n- Verify Seeded Delegate Not Re-added After Smartotum Refresh\n\n**Variables produced in this folder**\n- `smartotum_seeded_app_uuid`\n\n**Notes**\n- This folder assumes the mock Smartotum application catalog seeds `{{delegate_email}}` as an initial delegate for `{{smartotum_seeded_app_id}}`."
+      "description": "Regression coverage for Smartotum manager seeding.\n\n- Finds a Smartotum-managed application with a seeded delegate from the mock catalog.\n- Removes the delegate locally as the owner Data Controller.\n- Refreshes applications again as the Data Subject.\n- Verifies that the removed delegate is not re-added by subsequent Smartotum syncs.\n- Verifies that the refresh still returns a clean structured sync result (`message` + empty `warnings`).\n- Restores the seeded delegate so repeated collection runs remain reproducible.\n\n**Requests in this folder (11)**\n- Find Smartotum App In Managed List (Seed Check)\n- Verify Seeded Delegate Present On Smartotum App\n- Remove Seeded Delegate From Smartotum App\n- Verify Seeded Delegate Removed From Smartotum App\n- Successful Logout - Data Controller (Seed Check)\n- Successful Login - Data Subject (Seed Check)\n- Refresh Applications - Data Subject (Seed Check)\n- Successful Logout - Data Subject (Seed Check)\n- Successful Login - Data Controller (Seed Check After Refresh)\n- Verify Seeded Delegate Not Re-added After Smartotum Refresh\n- Restore Seeded Delegate On Smartotum App\n\n**Variables produced in this folder**\n- `smartotum_seeded_app_uuid`\n\n**Notes**\n- This folder assumes the mock Smartotum application catalog seeds `{{delegate_email}}` as an initial delegate for `{{smartotum_seeded_app_id}}`.\n- The final restore step makes the folder repeatable across multiple Newman iterations."
     },
     {
       "name": "Applications Assignment Cleanup",
@@ -3763,7 +3784,7 @@
                   "pm.test(\"Response status code is 200\", function () { pm.expect(pm.response.code).to.eql(200); });",
                   "var data = pm.response.json();",
                   "pm.test(\"Consent list is an array\", function () { pm.expect(data).to.be.an('array'); });",
-                  "var target = data.find(function(c){ return c && c.content === 'processing of personal information to provide the service'; });",
+                  "var target = data.find(function(c){ return c && c.content === 'Consent to Record Video Footage from Smart Home Cameras'; });",
                   "pm.test(\"Target consent found\", function () { pm.expect(target).to.not.eql(undefined); });",
                   "pm.collectionVariables.set('ds_camera_consent_uuid', target.uuid);",
                   "pm.test(\"Consent is not given by default\", function () { pm.expect(target.given).to.eql(false); });"

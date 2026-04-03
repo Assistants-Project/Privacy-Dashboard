@@ -1,0 +1,38 @@
+API Collection Response Times
+Base URL                 : http://host.docker.internal:5050
+Collection               : /Users/alberto/Documents/Tesi/privacy-dashboard/backend/testing/tests/Privacy-Dashboard-API.postman_collection_cleaned.json
+Measured Newman runs     : 3
+Success-only aggregation : yes
+Data Subject             : s312192@studenti.polito.it
+Data Controller          : controller.smartotum@example.com
+Delegate                 : controller.general@example.com
+DPO                      : dpo.general@example.com
+Declared controller routes: 74
+Observed endpoint groups : 59
+
+Aggregated execution latency
+  count     : 384
+  min_ms    : 6.000
+  max_ms    : 1828.000
+  mean_ms   : 177.018
+  median_ms : 14.000
+  p95_ms    : 908.350
+  stdev_ms  : 310.692
+
+Slowest endpoints by mean latency
+POST /api/sifis/homes/fixissuesbpoyqq/rules/<id>/download | mean 1088.667 ms | median 1121.000 ms | p95 1138.100 ms | samples 3
+DELETE /api/sifis/homes/fixissuesbpoyqq/rules/<id> | mean 914.000 ms | median 899.000 ms | p95 939.500 ms | samples 3
+GET /api/consents/application/<uuid> | mean 797.000 ms | median 691.500 ms | p95 1320.750 ms | samples 6
+GET /api/messages/history/<uuid> | mean 756.333 ms | median 883.000 ms | p95 914.500 ms | samples 3
+GET /api/sifis/homes/fixissuesbpoyqq/rules/<id>/check | mean 716.500 ms | median 721.000 ms | p95 1056.750 ms | samples 6
+GET /api/users/contacts | mean 649.667 ms | median 438.000 ms | p95 1023.000 ms | samples 3
+PATCH /api/auth/current | mean 634.167 ms | median 578.500 ms | p95 992.800 ms | samples 12
+GET /api/users/contacts/messaged | mean 629.667 ms | median 472.000 ms | p95 947.200 ms | samples 3
+GET /api/auth/current | mean 611.000 ms | median 608.000 ms | p95 791.600 ms | samples 3
+POST /api/auth/logout | mean 500.958 ms | median 399.500 ms | p95 1026.450 ms | samples 24
+
+Notes
+This benchmark reuses the maintained Postman collection instead of reimplementing 74 HTTP calls by hand.
+Use --success-only to approximate nominal-path latency and omit 401/403/422 regression checks from the summary.
+Paths are normalized by replacing UUID-like segments, numeric ids, and emails to reduce fragmentation across iterations.
+If Newman exits non-zero because collection assertions fail, the benchmark still aggregates the executions present in the JSON report.

@@ -1,19 +1,5 @@
 [
-  {
-    "topic_name": "privacy_rule",
-    "topic_uuid": "9a424990-8485-4361-acb7-b7e92de63f9",
-    "value": {
-      "target_topic": "domo_camera",
-      "target_uuid": "d6422b30-f800-4be1-8fd4-ccc36a7efcb8",
-      "time_start": "10:00",
-      "time_end": "14:00",
-      "days": [
-        "Friday"
-      ],
-      "expiration_date": "2026/02/29"
-    }
-  },
-  {
+    {
     "topic_name": "privacy_rule",
     "topic_uuid": "9197b971-608b-4738-8c93-4c029503221b",
     "value": {
@@ -26,7 +12,7 @@
         "Thursday",
         "Friday"
       ],
-      "expiration_date": "2026/02/13"
+      "expiration_date": "2028/02/13"
     }
   },
   {
@@ -38,19 +24,7 @@
       "time_start": "",
       "time_end": "",
       "days": [],
-      "expiration_date": "2026/02/14"
-    }
-  },
-  {
-    "topic_name": "privacy_rule",
-    "topic_uuid": "f274f264-7635-4588-8441-c6f8076ad8e3",
-    "value": {
-      "target_topic": "domo_camera",
-      "target_uuid": "06f58d18-8b71-49da-98d2-c2b5d4692b2a",
-      "time_start": "",
-      "time_end": "",
-      "days": [],
-      "expiration_date": "2026/02/14"
+      "expiration_date": "2028/02/14"
     }
   },
   {
@@ -62,7 +36,7 @@
       "time_start": "",
       "time_end": "",
       "days": [],
-      "expiration_date": "2026/02/19"
+      "expiration_date": "2028/02/19"
     }
   },
   {

@@ -1,0 +1,630 @@
+{
+  "benchmark": "ptp_translation_time",
+  "base_url": "http://127.0.0.1:5050",
+  "api_base": "http://127.0.0.1:5050/api",
+  "ds_email": "s312192@studenti.polito.it",
+  "home_uuid": "fixissuesbpoyqq",
+  "iterations": 30,
+  "warmup": 5,
+  "multi_subject_count": 3,
+  "skip_refresh": false,
+  "scenarios": [
+    {
+      "scenario": "simple_deny",
+      "rule_id": 33,
+      "stats": {
+        "count": 30,
+        "min_ms": 951.181375,
+        "max_ms": 1408.103875,
+        "mean_ms": 1037.6095249666666,
+        "median_ms": 1000.297125,
+        "p95_ms": 1383.60294565,
+        "stdev_ms": 122.61831005848305
+      },
+      "runs": [
+        {
+          "run_index": 6,
+          "download_ms": 951.181375,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 7,
+          "download_ms": 1004.112125,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 8,
+          "download_ms": 976.55925,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 9,
+          "download_ms": 992.767916,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 10,
+          "download_ms": 1389.792958,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 11,
+          "download_ms": 1023.119083,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 12,
+          "download_ms": 955.533458,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 13,
+          "download_ms": 991.71075,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 14,
+          "download_ms": 978.430542,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 15,
+          "download_ms": 960.228416,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 16,
+          "download_ms": 996.482125,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 17,
+          "download_ms": 983.316083,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 18,
+          "download_ms": 1018.554417,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 19,
+          "download_ms": 1376.037375,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 20,
+          "download_ms": 1017.205959,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 21,
+          "download_ms": 987.588791,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 22,
+          "download_ms": 1004.57125,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 23,
+          "download_ms": 1044.287416,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 24,
+          "download_ms": 980.862042,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 25,
+          "download_ms": 1036.470417,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 26,
+          "download_ms": 964.513125,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 27,
+          "download_ms": 982.509,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 28,
+          "download_ms": 1408.103875,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 29,
+          "download_ms": 1035.719542,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 30,
+          "download_ms": 1005.006834,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 31,
+          "download_ms": 1026.186,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 32,
+          "download_ms": 1043.263458,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 33,
+          "download_ms": 995.225042,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 34,
+          "download_ms": 980.434458,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 35,
+          "download_ms": 1018.512667,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        }
+      ],
+      "payload_bytes_min": 2904,
+      "payload_bytes_max": 2904,
+      "content_types": [
+        "application/xml; charset=utf-8"
+      ]
+    },
+    {
+      "scenario": "temporal_deny",
+      "rule_id": 34,
+      "stats": {
+        "count": 30,
+        "min_ms": 954.575542,
+        "max_ms": 1462.158083,
+        "mean_ms": 1045.9533041333334,
+        "median_ms": 1002.2544585,
+        "p95_ms": 1422.5621833,
+        "stdev_ms": 135.96256264245287
+      },
+      "runs": [
+        {
+          "run_index": 6,
+          "download_ms": 1014.682167,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 7,
+          "download_ms": 983.567541,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 8,
+          "download_ms": 1039.096541,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 9,
+          "download_ms": 969.034292,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 10,
+          "download_ms": 1414.112167,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 11,
+          "download_ms": 995.527042,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 12,
+          "download_ms": 978.627292,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 13,
+          "download_ms": 1011.732959,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 14,
+          "download_ms": 983.073542,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 15,
+          "download_ms": 1027.123792,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 16,
+          "download_ms": 975.588541,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 17,
+          "download_ms": 977.338625,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 18,
+          "download_ms": 1002.350958,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 19,
+          "download_ms": 1429.475833,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 20,
+          "download_ms": 980.380125,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 21,
+          "download_ms": 959.49775,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 22,
+          "download_ms": 1002.157959,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 23,
+          "download_ms": 976.754083,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 24,
+          "download_ms": 978.517458,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 25,
+          "download_ms": 1073.243917,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 26,
+          "download_ms": 981.018333,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 27,
+          "download_ms": 954.575542,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 28,
+          "download_ms": 1462.158083,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 29,
+          "download_ms": 1094.754166,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 30,
+          "download_ms": 982.648583,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 31,
+          "download_ms": 1025.063416,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 32,
+          "download_ms": 1047.389959,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 33,
+          "download_ms": 1019.087875,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 34,
+          "download_ms": 1024.907,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        },
+        {
+          "run_index": 35,
+          "download_ms": 1015.113583,
+          "payload_bytes": 2904,
+          "content_type": "application/xml; charset=utf-8"
+        }
+      ],
+      "payload_bytes_min": 2904,
+      "payload_bytes_max": 2904,
+      "content_types": [
+        "application/xml; charset=utf-8"
+      ]
+    },
+    {
+      "scenario": "multi_subject_surrogate",
+      "subject_count": 3,
+      "rule_ids": [
+        35,
+        36,
+        37
+      ],
+      "batch_stats": {
+        "count": 30,
+        "min_ms": 2979.024834,
+        "max_ms": 3608.872125,
+        "mean_ms": 3187.5908484666666,
+        "median_ms": 3039.7705834999997,
+        "p95_ms": 3557.7720747,
+        "stdev_ms": 244.89776807556223
+      },
+      "per_rule_stats": {
+        "count": 90,
+        "min_ms": 951.418,
+        "max_ms": 1536.757834,
+        "mean_ms": 1062.5201268666667,
+        "median_ms": 1013.7868955,
+        "p95_ms": 1475.71925215,
+        "stdev_ms": 151.57308993762314
+      },
+      "runs": [
+        {
+          "run_index": 6,
+          "batch_ms": 3465.226208,
+          "per_rule_mean_ms": 1155.0649583333334,
+          "subjects": 3
+        },
+        {
+          "run_index": 7,
+          "batch_ms": 3058.118,
+          "per_rule_mean_ms": 1019.3632779999999,
+          "subjects": 3
+        },
+        {
+          "run_index": 8,
+          "batch_ms": 3103.404791,
+          "per_rule_mean_ms": 1034.4542913333335,
+          "subjects": 3
+        },
+        {
+          "run_index": 9,
+          "batch_ms": 3489.715375,
+          "per_rule_mean_ms": 1163.2278193333334,
+          "subjects": 3
+        },
+        {
+          "run_index": 10,
+          "batch_ms": 2985.634458,
+          "per_rule_mean_ms": 995.201611,
+          "subjects": 3
+        },
+        {
+          "run_index": 11,
+          "batch_ms": 3023.045,
+          "per_rule_mean_ms": 1007.672375,
+          "subjects": 3
+        },
+        {
+          "run_index": 12,
+          "batch_ms": 3527.874708,
+          "per_rule_mean_ms": 1175.9486806666666,
+          "subjects": 3
+        },
+        {
+          "run_index": 13,
+          "batch_ms": 2979.024834,
+          "per_rule_mean_ms": 992.9984443333333,
+          "subjects": 3
+        },
+        {
+          "run_index": 14,
+          "batch_ms": 2982.239833,
+          "per_rule_mean_ms": 994.0705833333333,
+          "subjects": 3
+        },
+        {
+          "run_index": 15,
+          "batch_ms": 3511.388208,
+          "per_rule_mean_ms": 1170.4529166666666,
+          "subjects": 3
+        },
+        {
+          "run_index": 16,
+          "batch_ms": 3024.890084,
+          "per_rule_mean_ms": 1008.2875276666667,
+          "subjects": 3
+        },
+        {
+          "run_index": 17,
+          "batch_ms": 2996.459625,
+          "per_rule_mean_ms": 998.8058473333334,
+          "subjects": 3
+        },
+        {
+          "run_index": 18,
+          "batch_ms": 3507.338791,
+          "per_rule_mean_ms": 1169.103292,
+          "subjects": 3
+        },
+        {
+          "run_index": 19,
+          "batch_ms": 3014.014416,
+          "per_rule_mean_ms": 1004.662167,
+          "subjects": 3
+        },
+        {
+          "run_index": 20,
+          "batch_ms": 2990.670708,
+          "per_rule_mean_ms": 996.8812636666667,
+          "subjects": 3
+        },
+        {
+          "run_index": 21,
+          "batch_ms": 3515.883125,
+          "per_rule_mean_ms": 1171.9516526666666,
+          "subjects": 3
+        },
+        {
+          "run_index": 22,
+          "batch_ms": 3041.949292,
+          "per_rule_mean_ms": 1013.9709166666667,
+          "subjects": 3
+        },
+        {
+          "run_index": 23,
+          "batch_ms": 2984.141083,
+          "per_rule_mean_ms": 994.7040139999999,
+          "subjects": 3
+        },
+        {
+          "run_index": 24,
+          "batch_ms": 3608.872125,
+          "per_rule_mean_ms": 1202.9475,
+          "subjects": 3
+        },
+        {
+          "run_index": 25,
+          "batch_ms": 3020.231375,
+          "per_rule_mean_ms": 1006.73225,
+          "subjects": 3
+        },
+        {
+          "run_index": 26,
+          "batch_ms": 3037.591875,
+          "per_rule_mean_ms": 1012.5212913333334,
+          "subjects": 3
+        },
+        {
+          "run_index": 27,
+          "batch_ms": 3506.8115,
+          "per_rule_mean_ms": 1168.9279166666668,
+          "subjects": 3
+        },
+        {
+          "run_index": 28,
+          "batch_ms": 3010.512166,
+          "per_rule_mean_ms": 1003.494944,
+          "subjects": 3
+        },
+        {
+          "run_index": 29,
+          "batch_ms": 3004.479875,
+          "per_rule_mean_ms": 1001.4833056666666,
+          "subjects": 3
+        },
+        {
+          "run_index": 30,
+          "batch_ms": 3574.852875,
+          "per_rule_mean_ms": 1191.6066116666668,
+          "subjects": 3
+        },
+        {
+          "run_index": 31,
+          "batch_ms": 3056.385375,
+          "per_rule_mean_ms": 1018.7855693333335,
+          "subjects": 3
+        },
+        {
+          "run_index": 32,
+          "batch_ms": 2989.842584,
+          "per_rule_mean_ms": 996.6049863333334,
+          "subjects": 3
+        },
+        {
+          "run_index": 33,
+          "batch_ms": 3536.895541,
+          "per_rule_mean_ms": 1178.955,
+          "subjects": 3
+        },
+        {
+          "run_index": 34,
+          "batch_ms": 3010.212166,
+          "per_rule_mean_ms": 1003.3923473333334,
+          "subjects": 3
+        },
+        {
+          "run_index": 35,
+          "batch_ms": 3070.019458,
+          "per_rule_mean_ms": 1023.3304446666666,
+          "subjects": 3
+        }
+      ],
+      "notes": [
+        "The current rule model accepts a single string subject, not a true subject list.",
+        "This scenario emulates a multi-subject policy by translating the same logical rule for multiple distinct subjects and measuring both batch and per-rule timings."
+      ]
+    }
+  ],
+  "notes": [
+    "The metric is measured at the Flask endpoint /api/sifis/homes/<home_uuid>/rules/<rule_id>/download.",
+    "Rule creation and deletion are excluded from the timed section."
+  ]
+}
