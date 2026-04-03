@@ -35,11 +35,11 @@ export function Apps() {
       {!loading && !loadingApps && !errorApps ? (
         <Row
           className="g-3 align-items-start align-items-lg-stretch apps-page-body">
-          <Col xs={12} lg={7} className="apps-list-col" >
+          <Col xs={12} lg={6} className="apps-list-col" >
             <AppsList closePanel={closePanel} getVote={(app) => app.evaluation ? app.evaluation : "no vote"} dataToRender={apps ?? []} />
           </Col>
 
-          <Col xs={12} lg={5} className="apps-detail-col">
+          <Col xs={12} lg={6} className="apps-detail-col">
 
             {isDataController ? (
               <div className="d-flex justify-content-end mb-2">

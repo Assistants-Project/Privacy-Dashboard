@@ -1,0 +1,20 @@
+OWL Ontology Loading Time
+Ontology directory       : backend/app/ontologies/
+Ontology file            : sifis-home.owl
+Measured runs            : 10
+Warmup runs              : 2
+Suppress reasoner output : True
+
+Aggregate stats
+  count     : 10
+  min_ms    : 627.563
+  max_ms    : 686.273
+  mean_ms   : 669.258
+  median_ms : 673.930
+  p95_ms    : 684.620
+  stdev_ms  : 17.505
+
+Notes
+This microbenchmark measures OWLService initialization directly in Python.
+It includes base ontology loading and HermiT reasoner startup used by the PTP stack.
+It does not include Flask app startup, Docker container startup, or home ontology regeneration.

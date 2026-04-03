@@ -1,0 +1,195 @@
+{
+  "benchmark": "policy_propagation_latency",
+  "base_url": "http://127.0.0.1:5050",
+  "api_base": "http://127.0.0.1:5050/api",
+  "ds_email": "s312192@studenti.polito.it",
+  "home_uuid": "fixissuesbpoyqq",
+  "application_id": "com.smartotum.smartotum-camera-manager",
+  "application_name": "com.smartotum.smartotum-camera-manager",
+  "application_title": "Smartotum-camera-manager",
+  "application_uuid": "95282b53-58dd-4b3f-a0a4-b7e249d4807a",
+  "consent_uuid": "73544021-4288-5605-9520-158ea9da3e13",
+  "consent_content": "Consent to Record Video Footage from Smart Home Cameras",
+  "iterations": 10,
+  "warmup": 2,
+  "settle_timeout_s": 10.0,
+  "poll_interval_s": 0.2,
+  "skip_refresh": false,
+  "keep_withdrawn_state": false,
+  "submit_http_stats": {
+    "count": 10,
+    "min_ms": 842.563666,
+    "max_ms": 1205.617792,
+    "mean_ms": 899.1298623999999,
+    "median_ms": 867.4178125,
+    "p95_ms": 1065.4109729499996,
+    "stdev_ms": 108.69911106225125
+  },
+  "first_seen_stats": {
+    "count": 10,
+    "min_ms": 849.446375,
+    "max_ms": 1211.761667,
+    "mean_ms": 907.9717625,
+    "median_ms": 879.343167,
+    "p95_ms": 1071.9301479499995,
+    "stdev_ms": 107.90243006380047
+  },
+  "runs": [
+    {
+      "run_index": 3,
+      "phase": "measured",
+      "request_uuid": "44241b9d-565c-4428-b93f-fc09c4d984f6",
+      "submit_http_ms": 873.366542,
+      "first_seen_ms": 878.500875,
+      "new_rule_count": 4,
+      "new_rule_uuids": [
+        "10b4a725-a660-50d8-8759-0666eb5209dc",
+        "4e43b737-85d7-5925-9368-a73537dc3af8",
+        "8469dcea-0287-503e-ba18-514b3f201098",
+        "8ec95e2f-4070-5135-9ed1-e72c5b77d741"
+      ],
+      "dht_rule_count_after_submit": 14
+    },
+    {
+      "run_index": 4,
+      "phase": "measured",
+      "request_uuid": "e34fb0de-8987-4eb5-bf33-8fb99800d38a",
+      "submit_http_ms": 1205.617792,
+      "first_seen_ms": 1211.761667,
+      "new_rule_count": 4,
+      "new_rule_uuids": [
+        "10b4a725-a660-50d8-8759-0666eb5209dc",
+        "4e43b737-85d7-5925-9368-a73537dc3af8",
+        "8469dcea-0287-503e-ba18-514b3f201098",
+        "8ec95e2f-4070-5135-9ed1-e72c5b77d741"
+      ],
+      "dht_rule_count_after_submit": 14
+    },
+    {
+      "run_index": 5,
+      "phase": "measured",
+      "request_uuid": "51d84c53-f761-4aa9-b981-2d4994ee428c",
+      "submit_http_ms": 861.480041,
+      "first_seen_ms": 869.466875,
+      "new_rule_count": 4,
+      "new_rule_uuids": [
+        "10b4a725-a660-50d8-8759-0666eb5209dc",
+        "4e43b737-85d7-5925-9368-a73537dc3af8",
+        "8469dcea-0287-503e-ba18-514b3f201098",
+        "8ec95e2f-4070-5135-9ed1-e72c5b77d741"
+      ],
+      "dht_rule_count_after_submit": 14
+    },
+    {
+      "run_index": 6,
+      "phase": "measured",
+      "request_uuid": "7c0f046c-91e6-4738-b8b4-e34c2d39a9fa",
+      "submit_http_ms": 872.517167,
+      "first_seen_ms": 880.185459,
+      "new_rule_count": 4,
+      "new_rule_uuids": [
+        "10b4a725-a660-50d8-8759-0666eb5209dc",
+        "4e43b737-85d7-5925-9368-a73537dc3af8",
+        "8469dcea-0287-503e-ba18-514b3f201098",
+        "8ec95e2f-4070-5135-9ed1-e72c5b77d741"
+      ],
+      "dht_rule_count_after_submit": 14
+    },
+    {
+      "run_index": 7,
+      "phase": "measured",
+      "request_uuid": "a213d285-314d-4296-833d-0b4838fc537c",
+      "submit_http_ms": 862.318458,
+      "first_seen_ms": 882.564333,
+      "new_rule_count": 4,
+      "new_rule_uuids": [
+        "10b4a725-a660-50d8-8759-0666eb5209dc",
+        "4e43b737-85d7-5925-9368-a73537dc3af8",
+        "8469dcea-0287-503e-ba18-514b3f201098",
+        "8ec95e2f-4070-5135-9ed1-e72c5b77d741"
+      ],
+      "dht_rule_count_after_submit": 14
+    },
+    {
+      "run_index": 8,
+      "phase": "measured",
+      "request_uuid": "3c48a5da-56e6-424c-ad2f-2076b8a52afe",
+      "submit_http_ms": 845.885334,
+      "first_seen_ms": 853.100125,
+      "new_rule_count": 4,
+      "new_rule_uuids": [
+        "10b4a725-a660-50d8-8759-0666eb5209dc",
+        "4e43b737-85d7-5925-9368-a73537dc3af8",
+        "8469dcea-0287-503e-ba18-514b3f201098",
+        "8ec95e2f-4070-5135-9ed1-e72c5b77d741"
+      ],
+      "dht_rule_count_after_submit": 14
+    },
+    {
+      "run_index": 9,
+      "phase": "measured",
+      "request_uuid": "35031aec-7210-42dd-88e1-5fa1c3f9b378",
+      "submit_http_ms": 873.918958,
+      "first_seen_ms": 889.198083,
+      "new_rule_count": 4,
+      "new_rule_uuids": [
+        "10b4a725-a660-50d8-8759-0666eb5209dc",
+        "4e43b737-85d7-5925-9368-a73537dc3af8",
+        "8469dcea-0287-503e-ba18-514b3f201098",
+        "8ec95e2f-4070-5135-9ed1-e72c5b77d741"
+      ],
+      "dht_rule_count_after_submit": 14
+    },
+    {
+      "run_index": 10,
+      "phase": "measured",
+      "request_uuid": "b878caed-cbbe-436a-ae75-d42b598bf928",
+      "submit_http_ms": 842.563666,
+      "first_seen_ms": 849.446375,
+      "new_rule_count": 4,
+      "new_rule_uuids": [
+        "10b4a725-a660-50d8-8759-0666eb5209dc",
+        "4e43b737-85d7-5925-9368-a73537dc3af8",
+        "8469dcea-0287-503e-ba18-514b3f201098",
+        "8ec95e2f-4070-5135-9ed1-e72c5b77d741"
+      ],
+      "dht_rule_count_after_submit": 14
+    },
+    {
+      "run_index": 11,
+      "phase": "measured",
+      "request_uuid": "884feabd-1b3d-4d21-b29a-811c4fb93cd4",
+      "submit_http_ms": 859.583583,
+      "first_seen_ms": 864.468875,
+      "new_rule_count": 4,
+      "new_rule_uuids": [
+        "10b4a725-a660-50d8-8759-0666eb5209dc",
+        "4e43b737-85d7-5925-9368-a73537dc3af8",
+        "8469dcea-0287-503e-ba18-514b3f201098",
+        "8ec95e2f-4070-5135-9ed1-e72c5b77d741"
+      ],
+      "dht_rule_count_after_submit": 14
+    },
+    {
+      "run_index": 12,
+      "phase": "measured",
+      "request_uuid": "a7ada7d9-0a40-43fb-90f0-54683cf78e62",
+      "submit_http_ms": 894.047083,
+      "first_seen_ms": 901.024958,
+      "new_rule_count": 4,
+      "new_rule_uuids": [
+        "10b4a725-a660-50d8-8759-0666eb5209dc",
+        "4e43b737-85d7-5925-9368-a73537dc3af8",
+        "8469dcea-0287-503e-ba18-514b3f201098",
+        "8ec95e2f-4070-5135-9ed1-e72c5b77d741"
+      ],
+      "dht_rule_count_after_submit": 14
+    }
+  ],
+  "notes": [
+    "submit_http_ms measures POST /api/requests/submit from client send to HTTP response completion.",
+    "first_seen_ms measures from client send to first observation of new privacy_rule UUIDs through the DHT proxy endpoint.",
+    "Target selection uses application 'com.smartotum.smartotum-camera-manager' and consent content 'Consent to Record Video Footage from Smart Home Cameras'.",
+    "In testing mode the DHT is mocked/in-memory, so values are useful for harness validation but not representative of Smartotum network latency."
+  ]
+}

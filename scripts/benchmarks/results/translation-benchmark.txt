@@ -1,0 +1,61 @@
+PTP Translation Time
+Base URL           : http://127.0.0.1:5050
+API Base           : http://127.0.0.1:5050/api
+Data Subject       : s312192@studenti.polito.it
+Home UUID          : fixissuesbpoyqq
+Measured runs      : 30
+Warmup runs        : 5
+Multi-subject size : 3
+Skip refresh       : no
+Timed endpoint     : POST /api/sifis/homes/<home_uuid>/rules/<rule_id>/download
+
+simple_deny
+  count     : 30
+  min_ms    : 951.181
+  max_ms    : 1408.104
+  mean_ms   : 1037.610
+  median_ms : 1000.297
+  p95_ms    : 1383.603
+  stdev_ms  : 122.618
+payload_bytes_min : 2904
+payload_bytes_max : 2904
+content_types     : application/xml; charset=utf-8
+
+temporal_deny
+  count     : 30
+  min_ms    : 954.576
+  max_ms    : 1462.158
+  mean_ms   : 1045.953
+  median_ms : 1002.254
+  p95_ms    : 1422.562
+  stdev_ms  : 135.963
+payload_bytes_min : 2904
+payload_bytes_max : 2904
+content_types     : application/xml; charset=utf-8
+
+multi_subject_surrogate
+Subject count : 3
+Batch latency
+  count     : 30
+  min_ms    : 2979.025
+  max_ms    : 3608.872
+  mean_ms   : 3187.591
+  median_ms : 3039.771
+  p95_ms    : 3557.772
+  stdev_ms  : 244.898
+
+Per-download latency
+  count     : 90
+  min_ms    : 951.418
+  max_ms    : 1536.758
+  mean_ms   : 1062.520
+  median_ms : 1013.787
+  p95_ms    : 1475.719
+  stdev_ms  : 151.573
+
+The current rule model accepts a single string subject, not a true subject list.
+This scenario emulates a multi-subject policy by translating the same logical rule for multiple distinct subjects and measuring both batch and per-rule timings.
+
+Notes
+The metric is measured at the Flask endpoint /api/sifis/homes/<home_uuid>/rules/<rule_id>/download.
+Rule creation and deletion are excluded from the timed section.

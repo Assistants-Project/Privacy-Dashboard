@@ -1,0 +1,16 @@
+[
+  {
+    "topic_name": "privacy_rule",
+    "topic_uuid": "9a424990-8485-4361-acb7-b7e92de63f9",
+    "value": {
+      "target_topic": "domo_camera",
+      "target_uuid": "d6422b30-f800-4be1-8fd4-ccc36a7efcb8",
+      "time_start": "10:00",
+      "time_end": "14:00",
+      "days": [
+        "Friday"
+      ],
+      "expiration_date": "2026/02/29"
+    }
+  }
+]

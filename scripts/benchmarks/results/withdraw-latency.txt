@@ -1,0 +1,41 @@
+Policy Propagation Latency
+Base URL         : http://127.0.0.1:5050
+API Base         : http://127.0.0.1:5050/api
+Data Subject     : s312192@studenti.polito.it
+Home UUID        : fixissuesbpoyqq
+Application ID   : com.smartotum.smartotum-camera-manager
+Application Name : com.smartotum.smartotum-camera-manager
+Application Title: Smartotum-camera-manager
+Application UUID : 95282b53-58dd-4b3f-a0a4-b7e249d4807a
+Consent UUID     : 73544021-4288-5605-9520-158ea9da3e13
+Consent Content  : Consent to Record Video Footage from Smart Home Cameras
+Measured runs    : 10
+Warmup runs      : 2
+Settle timeout s : 10.0
+Poll interval s  : 0.2
+Skip refresh     : no
+Keep withdrawn   : no
+
+Submit HTTP latency
+  count     : 10
+  min_ms    : 842.564
+  max_ms    : 1205.618
+  mean_ms   : 899.130
+  median_ms : 867.418
+  p95_ms    : 1065.411
+  stdev_ms  : 108.699
+
+End-to-end first-seen latency
+  count     : 10
+  min_ms    : 849.446
+  max_ms    : 1211.762
+  mean_ms   : 907.972
+  median_ms : 879.343
+  p95_ms    : 1071.930
+  stdev_ms  : 107.902
+
+Notes
+submit_http_ms measures POST /api/requests/submit from client send to HTTP response completion.
+first_seen_ms measures from client send to first observation of new privacy_rule UUIDs through the DHT proxy endpoint.
+Target selection uses application 'com.smartotum.smartotum-camera-manager' and consent content 'Consent to Record Video Footage from Smart Home Cameras'.
+In testing mode the DHT is mocked/in-memory, so values are useful for harness validation but not representative of Smartotum network latency.

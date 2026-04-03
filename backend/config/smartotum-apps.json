@@ -90,7 +90,7 @@
     ],
     "available_consents": [
       {
-	        "content": "processing of personal information to provide the service",
+	        "content": "Consent to Record Video Footage from Smart Home Cameras",
 	        "sifis_action_id": "sifis_record_video_action"
 	      }
     ]

@@ -1,0 +1,1124 @@
+{
+  "benchmark": "scpn_conflict_detection_time",
+  "rule_counts": [
+    10,
+    25,
+    50
+  ],
+  "iterations": 50,
+  "warmup": 10,
+  "conflict_type": "inconsistency",
+  "curve": [
+    {
+      "rule_count": 10,
+      "stats": {
+        "count": 50,
+        "min_ms": 0.246875,
+        "max_ms": 0.472833,
+        "mean_ms": 0.2791842,
+        "median_ms": 0.258792,
+        "p95_ms": 0.40738719999999995,
+        "stdev_ms": 0.053132564348475575
+      },
+      "runs": [
+        {
+          "run_index": 11,
+          "check_ms": 0.259583,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 12,
+          "check_ms": 0.412375,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 13,
+          "check_ms": 0.260083,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 14,
+          "check_ms": 0.265583,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 15,
+          "check_ms": 0.264292,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 16,
+          "check_ms": 0.257167,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 17,
+          "check_ms": 0.262125,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 18,
+          "check_ms": 0.256375,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 19,
+          "check_ms": 0.247958,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 20,
+          "check_ms": 0.258584,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 21,
+          "check_ms": 0.261542,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 22,
+          "check_ms": 0.248792,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 23,
+          "check_ms": 0.258084,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 24,
+          "check_ms": 0.255625,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 25,
+          "check_ms": 0.26375,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 26,
+          "check_ms": 0.380834,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 27,
+          "check_ms": 0.258875,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 28,
+          "check_ms": 0.249667,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 29,
+          "check_ms": 0.256542,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 30,
+          "check_ms": 0.246916,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 31,
+          "check_ms": 0.247792,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 32,
+          "check_ms": 0.246875,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 33,
+          "check_ms": 0.258709,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 34,
+          "check_ms": 0.254,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 35,
+          "check_ms": 0.248875,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 36,
+          "check_ms": 0.321833,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 37,
+          "check_ms": 0.441417,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 38,
+          "check_ms": 0.322167,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 39,
+          "check_ms": 0.333542,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 40,
+          "check_ms": 0.472833,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 41,
+          "check_ms": 0.254458,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 42,
+          "check_ms": 0.249084,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 43,
+          "check_ms": 0.248167,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 44,
+          "check_ms": 0.2565,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 45,
+          "check_ms": 0.252667,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 46,
+          "check_ms": 0.261333,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 47,
+          "check_ms": 0.26375,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 48,
+          "check_ms": 0.26425,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 49,
+          "check_ms": 0.331166,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 50,
+          "check_ms": 0.281416,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 51,
+          "check_ms": 0.272625,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 52,
+          "check_ms": 0.264958,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 53,
+          "check_ms": 0.261666,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 54,
+          "check_ms": 0.401291,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 55,
+          "check_ms": 0.26425,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 56,
+          "check_ms": 0.252666,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 57,
+          "check_ms": 0.251584,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 58,
+          "check_ms": 0.255459,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 59,
+          "check_ms": 0.250333,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 60,
+          "check_ms": 0.248792,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        }
+      ],
+      "conflict_type": "inconsistency",
+      "dataset_notes": [
+        "One existing rule shares the same trigger/action pair as the target rule.",
+        "Remaining rules are unique trigger/action pairs to scale net size without introducing extra conflicts."
+      ]
+    },
+    {
+      "rule_count": 25,
+      "stats": {
+        "count": 50,
+        "min_ms": 0.581458,
+        "max_ms": 2.072791,
+        "mean_ms": 0.70234998,
+        "median_ms": 0.60175,
+        "p95_ms": 0.90681235,
+        "stdev_ms": 0.27612020118822184
+      },
+      "runs": [
+        {
+          "run_index": 11,
+          "check_ms": 0.598125,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 12,
+          "check_ms": 0.599166,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 13,
+          "check_ms": 0.581458,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 14,
+          "check_ms": 0.590375,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 15,
+          "check_ms": 0.715417,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 16,
+          "check_ms": 0.598459,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 17,
+          "check_ms": 0.58575,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 18,
+          "check_ms": 0.588916,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 19,
+          "check_ms": 0.595625,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 20,
+          "check_ms": 0.601708,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 21,
+          "check_ms": 2.072791,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 22,
+          "check_ms": 0.654792,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 23,
+          "check_ms": 0.602125,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 24,
+          "check_ms": 0.620375,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 25,
+          "check_ms": 0.906583,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 26,
+          "check_ms": 0.616709,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 27,
+          "check_ms": 0.71575,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 28,
+          "check_ms": 0.596875,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 29,
+          "check_ms": 1.858791,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 30,
+          "check_ms": 0.838958,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 31,
+          "check_ms": 0.601792,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 32,
+          "check_ms": 0.598542,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 33,
+          "check_ms": 0.907,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 34,
+          "check_ms": 0.726083,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 35,
+          "check_ms": 0.611209,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 36,
+          "check_ms": 0.597583,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 37,
+          "check_ms": 0.598958,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 38,
+          "check_ms": 0.594583,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 39,
+          "check_ms": 0.716375,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 40,
+          "check_ms": 0.598125,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 41,
+          "check_ms": 0.588875,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 42,
+          "check_ms": 0.587625,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 43,
+          "check_ms": 0.585959,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 44,
+          "check_ms": 0.58375,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 45,
+          "check_ms": 0.707667,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 46,
+          "check_ms": 0.602041,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 47,
+          "check_ms": 0.602375,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 48,
+          "check_ms": 0.593417,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 49,
+          "check_ms": 0.835875,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 50,
+          "check_ms": 0.787208,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 51,
+          "check_ms": 0.838,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 52,
+          "check_ms": 0.647458,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 53,
+          "check_ms": 0.741209,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 54,
+          "check_ms": 0.658375,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 55,
+          "check_ms": 0.590625,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 56,
+          "check_ms": 0.5915,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 57,
+          "check_ms": 0.718167,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 58,
+          "check_ms": 0.593417,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 59,
+          "check_ms": 0.584542,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 60,
+          "check_ms": 0.590416,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        }
+      ],
+      "conflict_type": "inconsistency",
+      "dataset_notes": [
+        "One existing rule shares the same trigger/action pair as the target rule.",
+        "Remaining rules are unique trigger/action pairs to scale net size without introducing extra conflicts."
+      ]
+    },
+    {
+      "rule_count": 50,
+      "stats": {
+        "count": 50,
+        "min_ms": 1.440875,
+        "max_ms": 37.058334,
+        "mean_ms": 2.41032834,
+        "median_ms": 1.5835835,
+        "p95_ms": 2.25467105,
+        "stdev_ms": 5.017874800317368
+      },
+      "runs": [
+        {
+          "run_index": 11,
+          "check_ms": 1.459667,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 12,
+          "check_ms": 1.462292,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 13,
+          "check_ms": 1.5615,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 14,
+          "check_ms": 1.475792,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 15,
+          "check_ms": 1.603125,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 16,
+          "check_ms": 1.958542,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 17,
+          "check_ms": 1.462834,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 18,
+          "check_ms": 1.440875,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 19,
+          "check_ms": 37.058334,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 20,
+          "check_ms": 4.198833,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 21,
+          "check_ms": 1.993583,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 22,
+          "check_ms": 2.159333,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 23,
+          "check_ms": 1.9755,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 24,
+          "check_ms": 2.298209,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 25,
+          "check_ms": 1.916542,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 26,
+          "check_ms": 1.482583,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 27,
+          "check_ms": 1.469167,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 28,
+          "check_ms": 1.576125,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 29,
+          "check_ms": 1.455291,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 30,
+          "check_ms": 1.4885,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 31,
+          "check_ms": 2.111917,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 32,
+          "check_ms": 1.6175,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 33,
+          "check_ms": 1.482625,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 34,
+          "check_ms": 1.565958,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 35,
+          "check_ms": 1.536333,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 36,
+          "check_ms": 1.861917,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 37,
+          "check_ms": 1.848375,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 38,
+          "check_ms": 1.673333,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 39,
+          "check_ms": 1.503833,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 40,
+          "check_ms": 1.615125,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 41,
+          "check_ms": 1.465333,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 42,
+          "check_ms": 1.466,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 43,
+          "check_ms": 1.687958,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 44,
+          "check_ms": 1.653667,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 45,
+          "check_ms": 1.489083,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 46,
+          "check_ms": 1.748458,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 47,
+          "check_ms": 1.488166,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 48,
+          "check_ms": 1.496167,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 49,
+          "check_ms": 1.591042,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 50,
+          "check_ms": 1.935667,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 51,
+          "check_ms": 1.633875,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 52,
+          "check_ms": 1.605541,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 53,
+          "check_ms": 1.4835,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 54,
+          "check_ms": 1.483709,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 55,
+          "check_ms": 2.201458,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 56,
+          "check_ms": 1.6695,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 57,
+          "check_ms": 1.508959,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 58,
+          "check_ms": 1.60475,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 59,
+          "check_ms": 1.503958,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        },
+        {
+          "run_index": 60,
+          "check_ms": 1.486083,
+          "inconsistent_rules": 1,
+          "redundant_rules": 0,
+          "loops": 0
+        }
+      ],
+      "conflict_type": "inconsistency",
+      "dataset_notes": [
+        "One existing rule shares the same trigger/action pair as the target rule.",
+        "Remaining rules are unique trigger/action pairs to scale net size without introducing extra conflicts."
+      ]
+    }
+  ],
+  "notes": [
+    "This microbenchmark measures the Python service directly, without HTTP or database overhead.",
+    "It exercises structural conflict detection and Petri-net construction. Trigger implication/loop reasoning is intentionally excluded from the synthetic dataset."
+  ]
+}

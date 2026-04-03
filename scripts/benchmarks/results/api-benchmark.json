@@ -1,0 +1,1114 @@
+{
+  "benchmark": "api_response_times_collection",
+  "base_url": "http://host.docker.internal:5050",
+  "collection_path": "/Users/alberto/Documents/Tesi/privacy-dashboard/backend/testing/tests/Privacy-Dashboard-API.postman_collection_cleaned.json",
+  "iterations": 3,
+  "success_only": true,
+  "dc_email": "controller.smartotum@example.com",
+  "ds_email": "s312192@studenti.polito.it",
+  "delegate_email": "controller.general@example.com",
+  "dpo_email": "dpo.general@example.com",
+  "newman_exit_codes": [
+    0,
+    0,
+    0
+  ],
+  "collection_failure_count": 0,
+  "collection_failure_samples": [],
+  "declared_controller_routes": 74,
+  "observed_endpoint_groups": 59,
+  "overall_stats": {
+    "count": 384,
+    "min_ms": 6.0,
+    "max_ms": 1828.0,
+    "mean_ms": 177.01822916666666,
+    "median_ms": 14.0,
+    "p95_ms": 908.3499999999997,
+    "stdev_ms": 310.6919291881466
+  },
+  "endpoints": [
+    {
+      "endpoint": "DELETE /api/applications/managed/<uuid>/dpo",
+      "samples": 3,
+      "mean_ms": 11.0,
+      "median_ms": 11.0,
+      "p95_ms": 12.8,
+      "min_ms": 9.0,
+      "max_ms": 13.0,
+      "status_codes": "204",
+      "raw_paths": [
+        "/api/applications/managed/30d93f39-9f18-4294-89c4-1e7a33376858/dpo",
+        "/api/applications/managed/4801fd79-f6a3-42ed-a77d-4d3767e32250/dpo",
+        "/api/applications/managed/f8130a16-55fd-4690-a1e2-74ece2e1d311/dpo"
+      ],
+      "request_names": [
+        "Remove DPO"
+      ]
+    },
+    {
+      "endpoint": "DELETE /api/applications/managed/<uuid>/managers/<email>",
+      "samples": 6,
+      "mean_ms": 11.5,
+      "median_ms": 11.5,
+      "p95_ms": 12.0,
+      "min_ms": 11.0,
+      "max_ms": 12.0,
+      "status_codes": "204",
+      "raw_paths": [
+        "/api/applications/managed/30d93f39-9f18-4294-89c4-1e7a33376858/managers/controller.general@example.com",
+        "/api/applications/managed/4801fd79-f6a3-42ed-a77d-4d3767e32250/managers/controller.general@example.com",
+        "/api/applications/managed/95282b53-58dd-4b3f-a0a4-b7e249d4807a/managers/controller.general@example.com",
+        "/api/applications/managed/f8130a16-55fd-4690-a1e2-74ece2e1d311/managers/controller.general@example.com"
+      ],
+      "request_names": [
+        "Remove Delegate Data Controller",
+        "Remove Seeded Delegate From Smartotum App"
+      ]
+    },
+    {
+      "endpoint": "DELETE /api/consents/application/<uuid>/<uuid>",
+      "samples": 3,
+      "mean_ms": 12.0,
+      "median_ms": 12.0,
+      "p95_ms": 12.9,
+      "min_ms": 11.0,
+      "max_ms": 13.0,
+      "status_codes": "204",
+      "raw_paths": [
+        "/api/consents/application/30d93f39-9f18-4294-89c4-1e7a33376858/fedc8288-dc3a-476b-b929-28b25a853bdd",
+        "/api/consents/application/4801fd79-f6a3-42ed-a77d-4d3767e32250/3274aa23-96c7-4e5a-8ba5-676da5598800",
+        "/api/consents/application/f8130a16-55fd-4690-a1e2-74ece2e1d311/7a15cf41-82bb-4471-bf96-e1ac2a6cb1ac"
+      ],
+      "request_names": [
+        "Remove Available Consent From Created Application"
+      ]
+    },
+    {
+      "endpoint": "DELETE /api/privacy-impact-assessments/managed/<uuid>",
+      "samples": 3,
+      "mean_ms": 12.666666666666666,
+      "median_ms": 13.0,
+      "p95_ms": 13.0,
+      "min_ms": 12.0,
+      "max_ms": 13.0,
+      "status_codes": "204",
+      "raw_paths": [
+        "/api/privacy-impact-assessments/managed/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/privacy-impact-assessments/managed/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/privacy-impact-assessments/managed/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Delete PIA By Managed Application"
+      ]
+    },
+    {
+      "endpoint": "DELETE /api/privacy-notices/managed-application/<uuid>",
+      "samples": 6,
+      "mean_ms": 10.833333333333334,
+      "median_ms": 11.0,
+      "p95_ms": 11.75,
+      "min_ms": 10.0,
+      "max_ms": 12.0,
+      "status_codes": "204",
+      "raw_paths": [
+        "/api/privacy-notices/managed-application/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/privacy-notices/managed-application/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/privacy-notices/managed-application/8d8c6de5-1749-402b-af4c-cf77cf9e36cb",
+        "/api/privacy-notices/managed-application/a1c4b0bb-c278-4ef0-bc2c-2e732f4c3bee",
+        "/api/privacy-notices/managed-application/c80d65d0-c607-4c2a-969e-d394686c84b2",
+        "/api/privacy-notices/managed-application/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Delete Privacy Notice By Managed Application",
+        "Delete Privacy Notice By Managed Application (Target Temporary)"
+      ]
+    },
+    {
+      "endpoint": "DELETE /api/sifis/homes/fixissuesbpoyqq/rules/<id>",
+      "samples": 3,
+      "mean_ms": 914.0,
+      "median_ms": 899.0,
+      "p95_ms": 939.5,
+      "min_ms": 899.0,
+      "max_ms": 944.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/sifis/homes/fixissuesbpoyqq/rules/11",
+        "/api/sifis/homes/fixissuesbpoyqq/rules/16",
+        "/api/sifis/homes/fixissuesbpoyqq/rules/6"
+      ],
+      "request_names": [
+        "Delete Rule - Entire Home"
+      ]
+    },
+    {
+      "endpoint": "GET /api/applications/home/fixissuesbpoyqq",
+      "samples": 6,
+      "mean_ms": 15.0,
+      "median_ms": 14.0,
+      "p95_ms": 18.5,
+      "min_ms": 13.0,
+      "max_ms": 19.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/applications/home/fixissuesbpoyqq"
+      ],
+      "request_names": [
+        "Find Camera Manager App (has mapping)",
+        "List Installed Applications - Data Subject (Setup)"
+      ]
+    },
+    {
+      "endpoint": "GET /api/applications/managed",
+      "samples": 18,
+      "mean_ms": 17.88888888888889,
+      "median_ms": 11.5,
+      "p95_ms": 30.199999999999847,
+      "min_ms": 11.0,
+      "max_ms": 122.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/applications/managed"
+      ],
+      "request_names": [
+        "Find Smartotum App In Managed List (Seed Check)",
+        "Get Single Managed Application By UUID (Query)",
+        "List Managed Applications",
+        "Verify Marketplace Ingested App In Managed List",
+        "Verify Marketplace Patched Metadata In Managed List",
+        "Verify Patched Manual Application By UUID (Query)"
+      ]
+    },
+    {
+      "endpoint": "GET /api/auth/current",
+      "samples": 3,
+      "mean_ms": 611.0,
+      "median_ms": 608.0,
+      "p95_ms": 791.6,
+      "min_ms": 413.0,
+      "max_ms": 812.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/auth/current"
+      ],
+      "request_names": [
+        "Current User - Data Controller"
+      ]
+    },
+    {
+      "endpoint": "GET /api/consents/application/<uuid>",
+      "samples": 6,
+      "mean_ms": 797.0,
+      "median_ms": 691.5,
+      "p95_ms": 1320.75,
+      "min_ms": 506.0,
+      "max_ms": 1455.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/consents/application/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/consents/application/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/consents/application/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Get Available Consents By Created Application",
+        "Verify Removed Consent Not Present"
+      ]
+    },
+    {
+      "endpoint": "GET /api/consents/home/fixissuesbpoyqq/application/<uuid>",
+      "samples": 15,
+      "mean_ms": 11.466666666666667,
+      "median_ms": 11.0,
+      "p95_ms": 14.299999999999999,
+      "min_ms": 9.0,
+      "max_ms": 15.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/consents/home/fixissuesbpoyqq/application/109277f3-e63b-496e-89be-9e8ca1d6bc8a",
+        "/api/consents/home/fixissuesbpoyqq/application/95282b53-58dd-4b3f-a0a4-b7e249d4807a"
+      ],
+      "request_names": [
+        "Find Consent UUID For Camera Manager",
+        "Get Consent State By Home And Application",
+        "Verify Consent Given After Accept",
+        "Verify Consent Given After Update",
+        "Verify Consent Revoked After Withdraw"
+      ]
+    },
+    {
+      "endpoint": "GET /api/dht/homes/fixissuesbpoyqq/topic_name/domo_camera",
+      "samples": 6,
+      "mean_ms": 11.166666666666666,
+      "median_ms": 10.5,
+      "p95_ms": 15.5,
+      "min_ms": 9.0,
+      "max_ms": 17.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/dht/homes/fixissuesbpoyqq/topic_name/domo_camera"
+      ],
+      "request_names": [
+        "DHT - List Camera Devices (count)",
+        "DHT - List Camera Devices (for consent rule checks)"
+      ]
+    },
+    {
+      "endpoint": "GET /api/dht/homes/fixissuesbpoyqq/topic_name/privacy_rule",
+      "samples": 15,
+      "mean_ms": 10.266666666666667,
+      "median_ms": 10.0,
+      "p95_ms": 12.299999999999999,
+      "min_ms": 9.0,
+      "max_ms": 13.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/dht/homes/fixissuesbpoyqq/topic_name/privacy_rule"
+      ],
+      "request_names": [
+        "DHT - List Rules After Create (match expiration)",
+        "DHT - List Rules After Delete (should be gone)",
+        "DHT - Verify Consent Rule Entries Exist After Withdraw",
+        "DHT - Verify Consent Rule Entries Gone After Accept",
+        "DHT - Verify Initial Consent Rule Entries Exist"
+      ]
+    },
+    {
+      "endpoint": "GET /api/homes",
+      "samples": 3,
+      "mean_ms": 10.0,
+      "median_ms": 10.0,
+      "p95_ms": 10.899999999999999,
+      "min_ms": 9.0,
+      "max_ms": 11.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/homes"
+      ],
+      "request_names": [
+        "List Homes - Data Subject (Setup)"
+      ]
+    },
+    {
+      "endpoint": "GET /api/homes/fixissuesbpoyqq/devices",
+      "samples": 3,
+      "mean_ms": 11.333333333333334,
+      "median_ms": 11.0,
+      "p95_ms": 12.8,
+      "min_ms": 10.0,
+      "max_ms": 13.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/homes/fixissuesbpoyqq/devices"
+      ],
+      "request_names": [
+        "List Home Devices - Data Subject (Setup)"
+      ]
+    },
+    {
+      "endpoint": "GET /api/homes/fixissuesbpoyqq/rooms",
+      "samples": 3,
+      "mean_ms": 23.0,
+      "median_ms": 12.0,
+      "p95_ms": 43.5,
+      "min_ms": 10.0,
+      "max_ms": 47.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/homes/fixissuesbpoyqq/rooms"
+      ],
+      "request_names": [
+        "List Home Rooms - Data Subject (Setup)"
+      ]
+    },
+    {
+      "endpoint": "GET /api/homes/fixissuesbpoyqq/rooms/<uuid>/devices",
+      "samples": 3,
+      "mean_ms": 12.666666666666666,
+      "median_ms": 12.0,
+      "p95_ms": 14.7,
+      "min_ms": 11.0,
+      "max_ms": 15.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/homes/fixissuesbpoyqq/rooms/00000000-0000-0000-0000-000000000000/devices"
+      ],
+      "request_names": [
+        "List Room Devices - Data Subject (Setup)"
+      ]
+    },
+    {
+      "endpoint": "GET /api/messages/history/<uuid>",
+      "samples": 3,
+      "mean_ms": 756.3333333333334,
+      "median_ms": 883.0,
+      "p95_ms": 914.5,
+      "min_ms": 468.0,
+      "max_ms": 918.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/messages/history/4bdc36e6-46c0-472b-8965-beecd1fe3231"
+      ],
+      "request_names": [
+        "Get Message History With Contact"
+      ]
+    },
+    {
+      "endpoint": "GET /api/privacy-impact-assessments/managed/<uuid>",
+      "samples": 3,
+      "mean_ms": 9.666666666666666,
+      "median_ms": 10.0,
+      "p95_ms": 10.0,
+      "min_ms": 9.0,
+      "max_ms": 10.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/privacy-impact-assessments/managed/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/privacy-impact-assessments/managed/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/privacy-impact-assessments/managed/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Get PIA By Managed Application"
+      ]
+    },
+    {
+      "endpoint": "GET /api/privacy-impact-assessments/template",
+      "samples": 3,
+      "mean_ms": 8.666666666666666,
+      "median_ms": 9.0,
+      "p95_ms": 9.0,
+      "min_ms": 8.0,
+      "max_ms": 9.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/privacy-impact-assessments/template"
+      ],
+      "request_names": [
+        "Get PIA Template"
+      ]
+    },
+    {
+      "endpoint": "GET /api/privacy-notices/managed-application/<uuid>",
+      "samples": 12,
+      "mean_ms": 9.666666666666666,
+      "median_ms": 10.0,
+      "p95_ms": 11.0,
+      "min_ms": 8.0,
+      "max_ms": 11.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/privacy-notices/managed-application/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/privacy-notices/managed-application/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/privacy-notices/managed-application/8d8c6de5-1749-402b-af4c-cf77cf9e36cb",
+        "/api/privacy-notices/managed-application/a1c4b0bb-c278-4ef0-bc2c-2e732f4c3bee",
+        "/api/privacy-notices/managed-application/c80d65d0-c607-4c2a-969e-d394686c84b2",
+        "/api/privacy-notices/managed-application/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Get Privacy Notice By Managed Application",
+        "Verify Privacy Notice By Managed Application (Target After Overwrite)",
+        "Verify Privacy Notice By Managed Application (Target After Replace)",
+        "Verify Privacy Notice By Managed Application (Target)"
+      ]
+    },
+    {
+      "endpoint": "GET /api/privacy-notices/template",
+      "samples": 3,
+      "mean_ms": 8.333333333333334,
+      "median_ms": 8.0,
+      "p95_ms": 9.8,
+      "min_ms": 7.0,
+      "max_ms": 10.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/privacy-notices/template"
+      ],
+      "request_names": [
+        "Get Privacy Notice Template"
+      ]
+    },
+    {
+      "endpoint": "GET /api/questionnaires/managed-application/<uuid>",
+      "samples": 3,
+      "mean_ms": 14.0,
+      "median_ms": 11.0,
+      "p95_ms": 20.0,
+      "min_ms": 10.0,
+      "max_ms": 21.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/questionnaires/managed-application/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/questionnaires/managed-application/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/questionnaires/managed-application/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Get Questionnaire By Managed Application"
+      ]
+    },
+    {
+      "endpoint": "GET /api/questionnaires/template",
+      "samples": 3,
+      "mean_ms": 9.0,
+      "median_ms": 9.0,
+      "p95_ms": 9.9,
+      "min_ms": 8.0,
+      "max_ms": 10.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/questionnaires/template"
+      ],
+      "request_names": [
+        "Get Questionnaire Template"
+      ]
+    },
+    {
+      "endpoint": "GET /api/requests",
+      "samples": 12,
+      "mean_ms": 11.416666666666666,
+      "median_ms": 10.0,
+      "p95_ms": 17.699999999999996,
+      "min_ms": 9.0,
+      "max_ms": 21.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/requests/"
+      ],
+      "request_names": [
+        "List Pending Requests Inbox",
+        "List Requests Inbox",
+        "Verify DS Request In Handled Inbox",
+        "Verify DS Request In Pending Inbox"
+      ]
+    },
+    {
+      "endpoint": "GET /api/requests/home/fixissuesbpoyqq",
+      "samples": 3,
+      "mean_ms": 10.333333333333334,
+      "median_ms": 11.0,
+      "p95_ms": 11.0,
+      "min_ms": 9.0,
+      "max_ms": 11.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/requests/home/fixissuesbpoyqq"
+      ],
+      "request_names": [
+        "List Handled Requests - Data Subject"
+      ]
+    },
+    {
+      "endpoint": "GET /api/sifis/health",
+      "samples": 3,
+      "mean_ms": 6.333333333333333,
+      "median_ms": 6.0,
+      "p95_ms": 6.8999999999999995,
+      "min_ms": 6.0,
+      "max_ms": 7.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/sifis/health"
+      ],
+      "request_names": [
+        "Health Check"
+      ]
+    },
+    {
+      "endpoint": "GET /api/sifis/homes/fixissuesbpoyqq/action-services/sifis_video/actions",
+      "samples": 3,
+      "mean_ms": 14.0,
+      "median_ms": 14.0,
+      "p95_ms": 14.899999999999999,
+      "min_ms": 13.0,
+      "max_ms": 15.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/sifis/homes/fixissuesbpoyqq/action-services/sifis_video/actions"
+      ],
+      "request_names": [
+        "SIFIS Get Actions - sifis_video"
+      ]
+    },
+    {
+      "endpoint": "GET /api/sifis/homes/fixissuesbpoyqq/action-services/sifis_video/actions/sifis_all_video_actions/details",
+      "samples": 3,
+      "mean_ms": 316.0,
+      "median_ms": 38.0,
+      "p95_ms": 793.9999999999999,
+      "min_ms": 32.0,
+      "max_ms": 878.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/sifis/homes/fixissuesbpoyqq/action-services/sifis_video/actions/sifis_all_video_actions/details"
+      ],
+      "request_names": [
+        "SIFIS Get Video Action Details (location url)"
+      ]
+    },
+    {
+      "endpoint": "GET /api/sifis/homes/fixissuesbpoyqq/rules",
+      "samples": 12,
+      "mean_ms": 483.5833333333333,
+      "median_ms": 469.0,
+      "p95_ms": 720.6499999999999,
+      "min_ms": 214.0,
+      "max_ms": 763.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/sifis/homes/fixissuesbpoyqq/rules"
+      ],
+      "request_names": [
+        "Successful Retrieve Local Rules",
+        "Verify Consent Rule Created In SIFIS Rules List",
+        "Verify Consent Rule Removed From SIFIS Rules List After Accept",
+        "Verify Default Consent Deny Rule Exists In SIFIS Rules List"
+      ]
+    },
+    {
+      "endpoint": "GET /api/sifis/homes/fixissuesbpoyqq/rules/<id>/check",
+      "samples": 6,
+      "mean_ms": 716.5,
+      "median_ms": 721.0,
+      "p95_ms": 1056.75,
+      "min_ms": 427.0,
+      "max_ms": 1130.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/sifis/homes/fixissuesbpoyqq/rules/10/check",
+        "/api/sifis/homes/fixissuesbpoyqq/rules/14/check",
+        "/api/sifis/homes/fixissuesbpoyqq/rules/15/check",
+        "/api/sifis/homes/fixissuesbpoyqq/rules/19/check",
+        "/api/sifis/homes/fixissuesbpoyqq/rules/20/check",
+        "/api/sifis/homes/fixissuesbpoyqq/rules/9/check"
+      ],
+      "request_names": [
+        "Successful Conflict Detection - Inconsistency",
+        "Successful Conflict Detection - Redundancy"
+      ]
+    },
+    {
+      "endpoint": "GET /api/sifis/homes/fixissuesbpoyqq/trigger-services/sifis_time/triggers",
+      "samples": 3,
+      "mean_ms": 15.333333333333334,
+      "median_ms": 13.0,
+      "p95_ms": 20.2,
+      "min_ms": 12.0,
+      "max_ms": 21.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/sifis/homes/fixissuesbpoyqq/trigger-services/sifis_time/triggers"
+      ],
+      "request_names": [
+        "SIFIS Get Triggers - sifis_time"
+      ]
+    },
+    {
+      "endpoint": "GET /api/users/contacts",
+      "samples": 3,
+      "mean_ms": 649.6666666666666,
+      "median_ms": 438.0,
+      "p95_ms": 1023.0,
+      "min_ms": 423.0,
+      "max_ms": 1088.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/users/contacts"
+      ],
+      "request_names": [
+        "Get Contacts"
+      ]
+    },
+    {
+      "endpoint": "GET /api/users/contacts/messaged",
+      "samples": 3,
+      "mean_ms": 629.6666666666666,
+      "median_ms": 472.0,
+      "p95_ms": 947.1999999999999,
+      "min_ms": 417.0,
+      "max_ms": 1000.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/users/contacts/messaged"
+      ],
+      "request_names": [
+        "Get Messaged Contacts"
+      ]
+    },
+    {
+      "endpoint": "GET /api/users/managed-application/<uuid>",
+      "samples": 24,
+      "mean_ms": 11.583333333333334,
+      "median_ms": 10.0,
+      "p95_ms": 16.0,
+      "min_ms": 9.0,
+      "max_ms": 33.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/users/managed-application/109277f3-e63b-496e-89be-9e8ca1d6bc8a",
+        "/api/users/managed-application/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/users/managed-application/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/users/managed-application/95282b53-58dd-4b3f-a0a4-b7e249d4807a",
+        "/api/users/managed-application/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Get DPO By Created Application",
+        "Get Data Controllers By Created Application",
+        "Get Data Subjects By Managed Application",
+        "Verify DPO Removed",
+        "Verify Delegate Removed From Managers",
+        "Verify Seeded Delegate Not Re-added After Smartotum Refresh",
+        "Verify Seeded Delegate Present On Smartotum App",
+        "Verify Seeded Delegate Removed From Smartotum App"
+      ]
+    },
+    {
+      "endpoint": "PATCH /api/applications/managed/<uuid>",
+      "samples": 3,
+      "mean_ms": 16.333333333333332,
+      "median_ms": 17.0,
+      "p95_ms": 17.0,
+      "min_ms": 15.0,
+      "max_ms": 17.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/applications/managed/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/applications/managed/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/applications/managed/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Patch Manual Application Metadata"
+      ]
+    },
+    {
+      "endpoint": "PATCH /api/auth/current",
+      "samples": 12,
+      "mean_ms": 634.1666666666666,
+      "median_ms": 578.5,
+      "p95_ms": 992.8,
+      "min_ms": 491.0,
+      "max_ms": 1072.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/auth/current"
+      ],
+      "request_names": [
+        "Restore Current User Email And Password - DPO",
+        "Restore Current User Password - Data Controller",
+        "Update Current User Email And Password - DPO",
+        "Update Current User Password - Data Controller"
+      ]
+    },
+    {
+      "endpoint": "PATCH /api/integrations/marketplace/apps/com.marketplace.apitest-1775249020154-595",
+      "samples": 1,
+      "mean_ms": 9.0,
+      "median_ms": 9.0,
+      "p95_ms": 9.0,
+      "min_ms": 9.0,
+      "max_ms": 9.0,
+      "status_codes": "204",
+      "raw_paths": [
+        "/api/integrations/marketplace/apps/com.marketplace.apitest-1775249020154-595"
+      ],
+      "request_names": [
+        "Marketplace PATCH - Update Application Metadata"
+      ]
+    },
+    {
+      "endpoint": "PATCH /api/integrations/marketplace/apps/com.marketplace.apitest-1775249048545-2496",
+      "samples": 1,
+      "mean_ms": 11.0,
+      "median_ms": 11.0,
+      "p95_ms": 11.0,
+      "min_ms": 11.0,
+      "max_ms": 11.0,
+      "status_codes": "204",
+      "raw_paths": [
+        "/api/integrations/marketplace/apps/com.marketplace.apitest-1775249048545-2496"
+      ],
+      "request_names": [
+        "Marketplace PATCH - Update Application Metadata"
+      ]
+    },
+    {
+      "endpoint": "PATCH /api/integrations/marketplace/apps/com.marketplace.apitest-1775249077840-1812",
+      "samples": 1,
+      "mean_ms": 17.0,
+      "median_ms": 17.0,
+      "p95_ms": 17.0,
+      "min_ms": 17.0,
+      "max_ms": 17.0,
+      "status_codes": "204",
+      "raw_paths": [
+        "/api/integrations/marketplace/apps/com.marketplace.apitest-1775249077840-1812"
+      ],
+      "request_names": [
+        "Marketplace PATCH - Update Application Metadata"
+      ]
+    },
+    {
+      "endpoint": "POST /api/applications",
+      "samples": 9,
+      "mean_ms": 15.666666666666666,
+      "median_ms": 15.0,
+      "p95_ms": 20.199999999999996,
+      "min_ms": 13.0,
+      "max_ms": 23.0,
+      "status_codes": "201",
+      "raw_paths": [
+        "/api/applications"
+      ],
+      "request_names": [
+        "Create Application (Manual)",
+        "Create Application (No PN)",
+        "Create Application (PN Target)"
+      ]
+    },
+    {
+      "endpoint": "POST /api/applications/refresh",
+      "samples": 6,
+      "mean_ms": 374.5,
+      "median_ms": 83.0,
+      "p95_ms": 1393.75,
+      "min_ms": 80.0,
+      "max_ms": 1828.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/applications/refresh"
+      ],
+      "request_names": [
+        "Refresh Applications - Data Subject (Seed Check)",
+        "Refresh Applications - Data Subject (Setup)"
+      ]
+    },
+    {
+      "endpoint": "POST /api/auth/login",
+      "samples": 33,
+      "mean_ms": 55.42424242424242,
+      "median_ms": 77.0,
+      "p95_ms": 88.8,
+      "min_ms": 8.0,
+      "max_ms": 105.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/auth/login"
+      ],
+      "request_names": [
+        "Successful Login - DPO (Profile)",
+        "Successful Login - DPO (Restored Profile)",
+        "Successful Login - DPO (Updated Credentials)",
+        "Successful Login - Data Controller",
+        "Successful Login - Data Controller (Profile)",
+        "Successful Login - Data Controller (Seed Check After Refresh)",
+        "Successful Login - Data Controller (Updated Password)",
+        "Successful Login - Data Subject (Consents)",
+        "Successful Login - Data Subject (PTP)",
+        "Successful Login - Data Subject (Seed Check)",
+        "Successful Login - Data Subject (Setup)"
+      ]
+    },
+    {
+      "endpoint": "POST /api/auth/logout",
+      "samples": 24,
+      "mean_ms": 500.9583333333333,
+      "median_ms": 399.5,
+      "p95_ms": 1026.4499999999996,
+      "min_ms": 340.0,
+      "max_ms": 1098.0,
+      "status_codes": "204",
+      "raw_paths": [
+        "/api/auth/logout"
+      ],
+      "request_names": [
+        "Successful Logout",
+        "Successful Logout - DPO (Restored Profile)",
+        "Successful Logout - DPO (Updated Credentials)",
+        "Successful Logout - Data Controller (Restored Profile)",
+        "Successful Logout - Data Controller (Seed Check)",
+        "Successful Logout - Data Controller (Updated Password)",
+        "Successful Logout - Data Subject (Seed Check)",
+        "Successful Logout - Data Subject (Setup)"
+      ]
+    },
+    {
+      "endpoint": "POST /api/consents/application/<uuid>",
+      "samples": 3,
+      "mean_ms": 11.333333333333334,
+      "median_ms": 11.0,
+      "p95_ms": 11.9,
+      "min_ms": 11.0,
+      "max_ms": 12.0,
+      "status_codes": "201",
+      "raw_paths": [
+        "/api/consents/application/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/consents/application/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/consents/application/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Add Available Consent To Created Application"
+      ]
+    },
+    {
+      "endpoint": "POST /api/homes/refresh",
+      "samples": 6,
+      "mean_ms": 220.66666666666666,
+      "median_ms": 75.0,
+      "p95_ms": 720.5,
+      "min_ms": 68.0,
+      "max_ms": 923.0,
+      "status_codes": "202",
+      "raw_paths": [
+        "/api/homes/refresh"
+      ],
+      "request_names": [
+        "Refresh Homes - Data Subject (Setup)",
+        "Successful DHT Synchronization (Global Refresh)"
+      ]
+    },
+    {
+      "endpoint": "POST /api/integrations/marketplace/apps",
+      "samples": 6,
+      "mean_ms": 13.5,
+      "median_ms": 13.5,
+      "p95_ms": 18.75,
+      "min_ms": 9.0,
+      "max_ms": 20.0,
+      "status_codes": "201,204",
+      "raw_paths": [
+        "/api/integrations/marketplace/apps"
+      ],
+      "request_names": [
+        "Successful Marketplace Ingest - Create Application",
+        "Successful Marketplace Ingest - Idempotent Re-Ingest"
+      ]
+    },
+    {
+      "endpoint": "POST /api/messages/send",
+      "samples": 3,
+      "mean_ms": 460.0,
+      "median_ms": 469.0,
+      "p95_ms": 481.59999999999997,
+      "min_ms": 428.0,
+      "max_ms": 483.0,
+      "status_codes": "201",
+      "raw_paths": [
+        "/api/messages/send"
+      ],
+      "request_names": [
+        "Send Message To Contact"
+      ]
+    },
+    {
+      "endpoint": "POST /api/requests/submit",
+      "samples": 6,
+      "mean_ms": 445.1666666666667,
+      "median_ms": 432.0,
+      "p95_ms": 897.25,
+      "min_ms": 17.0,
+      "max_ms": 910.0,
+      "status_codes": "201",
+      "raw_paths": [
+        "/api/requests/submit"
+      ],
+      "request_names": [
+        "Submit Request - Data Subject (Setup)",
+        "Withdraw Consent Request (creates deny rules automatically)"
+      ]
+    },
+    {
+      "endpoint": "POST /api/sifis/homes/fixissuesbpoyqq/rules",
+      "samples": 12,
+      "mean_ms": 292.0833333333333,
+      "median_ms": 46.0,
+      "p95_ms": 1071.5,
+      "min_ms": 40.0,
+      "max_ms": 1077.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/sifis/homes/fixissuesbpoyqq/rules"
+      ],
+      "request_names": [
+        "Create Rule - Video Deny Entire Home",
+        "Successful Create Rule",
+        "Successful Seed Inconsistent Rule",
+        "Successful Seed Redundant Rule"
+      ]
+    },
+    {
+      "endpoint": "POST /api/sifis/homes/fixissuesbpoyqq/rules/<id>/download",
+      "samples": 3,
+      "mean_ms": 1088.6666666666667,
+      "median_ms": 1121.0,
+      "p95_ms": 1138.1000000000001,
+      "min_ms": 1005.0,
+      "max_ms": 1140.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/sifis/homes/fixissuesbpoyqq/rules/13/download",
+        "/api/sifis/homes/fixissuesbpoyqq/rules/18/download",
+        "/api/sifis/homes/fixissuesbpoyqq/rules/8/download"
+      ],
+      "request_names": [
+        "Successful XACML Generation (Download)"
+      ]
+    },
+    {
+      "endpoint": "PUT /api/applications/managed/<uuid>/dpo/<email>",
+      "samples": 6,
+      "mean_ms": 13.0,
+      "median_ms": 12.5,
+      "p95_ms": 16.25,
+      "min_ms": 10.0,
+      "max_ms": 17.0,
+      "status_codes": "201,204",
+      "raw_paths": [
+        "/api/applications/managed/30d93f39-9f18-4294-89c4-1e7a33376858/dpo/dpo.general@example.com",
+        "/api/applications/managed/4801fd79-f6a3-42ed-a77d-4d3767e32250/dpo/dpo.general@example.com",
+        "/api/applications/managed/f8130a16-55fd-4690-a1e2-74ece2e1d311/dpo/dpo.general@example.com"
+      ],
+      "request_names": [
+        "Assign DPO",
+        "Assign DPO (Idempotent)"
+      ]
+    },
+    {
+      "endpoint": "PUT /api/applications/managed/<uuid>/managers/<email>",
+      "samples": 9,
+      "mean_ms": 12.333333333333334,
+      "median_ms": 12.0,
+      "p95_ms": 16.599999999999998,
+      "min_ms": 10.0,
+      "max_ms": 19.0,
+      "status_codes": "201,204",
+      "raw_paths": [
+        "/api/applications/managed/30d93f39-9f18-4294-89c4-1e7a33376858/managers/controller.general@example.com",
+        "/api/applications/managed/4801fd79-f6a3-42ed-a77d-4d3767e32250/managers/controller.general@example.com",
+        "/api/applications/managed/95282b53-58dd-4b3f-a0a4-b7e249d4807a/managers/controller.general@example.com",
+        "/api/applications/managed/f8130a16-55fd-4690-a1e2-74ece2e1d311/managers/controller.general@example.com"
+      ],
+      "request_names": [
+        "Assign Delegate Data Controller",
+        "Assign Delegate Data Controller (Idempotent)",
+        "Restore Seeded Delegate On Smartotum App"
+      ]
+    },
+    {
+      "endpoint": "PUT /api/consents/home/fixissuesbpoyqq/application/<uuid>",
+      "samples": 6,
+      "mean_ms": 434.5,
+      "median_ms": 434.5,
+      "p95_ms": 853.75,
+      "min_ms": 15.0,
+      "max_ms": 854.0,
+      "status_codes": "204",
+      "raw_paths": [
+        "/api/consents/home/fixissuesbpoyqq/application/109277f3-e63b-496e-89be-9e8ca1d6bc8a",
+        "/api/consents/home/fixissuesbpoyqq/application/95282b53-58dd-4b3f-a0a4-b7e249d4807a"
+      ],
+      "request_names": [
+        "Give Consent (Camera Manager)",
+        "Set Given Consent By Home And Application"
+      ]
+    },
+    {
+      "endpoint": "PUT /api/privacy-impact-assessments/managed/<uuid>",
+      "samples": 3,
+      "mean_ms": 28.333333333333332,
+      "median_ms": 21.0,
+      "p95_ms": 42.599999999999994,
+      "min_ms": 19.0,
+      "max_ms": 45.0,
+      "status_codes": "204",
+      "raw_paths": [
+        "/api/privacy-impact-assessments/managed/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/privacy-impact-assessments/managed/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/privacy-impact-assessments/managed/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Submit PIA By Managed Application"
+      ]
+    },
+    {
+      "endpoint": "PUT /api/privacy-notices/managed-application/<uuid>",
+      "samples": 6,
+      "mean_ms": 17.5,
+      "median_ms": 14.0,
+      "p95_ms": 31.75,
+      "min_ms": 12.0,
+      "max_ms": 37.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/privacy-notices/managed-application/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/privacy-notices/managed-application/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/privacy-notices/managed-application/8d8c6de5-1749-402b-af4c-cf77cf9e36cb",
+        "/api/privacy-notices/managed-application/a1c4b0bb-c278-4ef0-bc2c-2e732f4c3bee",
+        "/api/privacy-notices/managed-application/c80d65d0-c607-4c2a-969e-d394686c84b2",
+        "/api/privacy-notices/managed-application/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Update Privacy Notice By Managed Application",
+        "Update Privacy Notice By Managed Application (Target Temporary)"
+      ]
+    },
+    {
+      "endpoint": "PUT /api/privacy-notices/managed-application/<uuid>/privacy-notice/<uuid>",
+      "samples": 9,
+      "mean_ms": 16.11111111111111,
+      "median_ms": 13.0,
+      "p95_ms": 30.79999999999999,
+      "min_ms": 12.0,
+      "max_ms": 42.0,
+      "status_codes": "201",
+      "raw_paths": [
+        "/api/privacy-notices/managed-application/8d8c6de5-1749-402b-af4c-cf77cf9e36cb/privacy-notice/7b3e66c3-1bab-4ed6-92bb-4d2953ac60aa",
+        "/api/privacy-notices/managed-application/a1c4b0bb-c278-4ef0-bc2c-2e732f4c3bee/privacy-notice/7981d6e2-a84e-40ee-91a1-a83f9eeaabaf",
+        "/api/privacy-notices/managed-application/c80d65d0-c607-4c2a-969e-d394686c84b2/privacy-notice/91cc4a88-2d69-4212-8832-3678d1ab23b6"
+      ],
+      "request_names": [
+        "Associate Existing Privacy Notice To Target Application",
+        "Associate Existing Privacy Notice To Target Application (After Delete)",
+        "Associate Existing Privacy Notice To Target Application (Overwrite Existing)"
+      ]
+    },
+    {
+      "endpoint": "PUT /api/questionnaires/managed-application/<uuid>",
+      "samples": 3,
+      "mean_ms": 17.333333333333332,
+      "median_ms": 18.0,
+      "p95_ms": 19.8,
+      "min_ms": 14.0,
+      "max_ms": 20.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/questionnaires/managed-application/30d93f39-9f18-4294-89c4-1e7a33376858",
+        "/api/questionnaires/managed-application/4801fd79-f6a3-42ed-a77d-4d3767e32250",
+        "/api/questionnaires/managed-application/f8130a16-55fd-4690-a1e2-74ece2e1d311"
+      ],
+      "request_names": [
+        "Submit Questionnaire (Minimal)"
+      ]
+    },
+    {
+      "endpoint": "PUT /api/requests/handle/<uuid>",
+      "samples": 3,
+      "mean_ms": 15.333333333333334,
+      "median_ms": 15.0,
+      "p95_ms": 16.8,
+      "min_ms": 14.0,
+      "max_ms": 17.0,
+      "status_codes": "200",
+      "raw_paths": [
+        "/api/requests/handle/8bbeefb4-8cbe-4ab2-9914-d978b039feec",
+        "/api/requests/handle/9684365d-1968-4ae0-80b1-e7f630ff4908",
+        "/api/requests/handle/b1371192-19e1-4cad-950b-d83804c0ecdd"
+      ],
+      "request_names": [
+        "Handle DS Request"
+      ]
+    }
+  ],
+  "notes": [
+    "This benchmark reuses the maintained Postman collection instead of reimplementing 74 HTTP calls by hand.",
+    "Use --success-only to approximate nominal-path latency and omit 401/403/422 regression checks from the summary.",
+    "Paths are normalized by replacing UUID-like segments, numeric ids, and emails to reduce fragmentation across iterations.",
+    "If Newman exits non-zero because collection assertions fail, the benchmark still aggregates the executions present in the JSON report."
+  ]
+}

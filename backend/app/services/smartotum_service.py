@@ -262,6 +262,16 @@ class SmartotumService:
                     return url.split("#")[-1]
                 return url
 
+            smartotum_rules_by_home_uuid: dict[str, list[SmartotumRule]] = {}
+
+            def get_home_rules(home_uuid: str) -> list[SmartotumRule]:
+                cached_rules = smartotum_rules_by_home_uuid.get(home_uuid)
+                if cached_rules is not None:
+                    return cached_rules
+                cached_rules = client.get_rules(access_token, home_uuid)
+                smartotum_rules_by_home_uuid[home_uuid] = cached_rules
+                return cached_rules
+
             def sync_consent_policy_rule(available_consent: Any, given_at: Any, smart_home: SmartHome, subject_email: str) -> None:
                 desired_action_id = getattr(available_consent, "sifis_action_id", None)
                 base_rule_uuid = cps.consent_rule_uuid(
@@ -310,6 +320,22 @@ class SmartotumService:
                             sifis_action_id=desired_action_id,
                             access_token=access_token,
                         )
+                    return
+
+                try:
+                    restored = cps.restore_local_consent_deny_rule_without_publish(
+                        smart_home=smart_home,
+                        subject_email=subject_email,
+                        consent_uuid=available_consent.uuid,
+                        sifis_action_id=desired_action_id,
+                        smartotum_rules=get_home_rules(str(smart_home.uuid)),
+                    )
+                except Exception as exc:
+                    raise SmartotumSyncException(
+                        f"Cannot restore consent rule for consent {available_consent.uuid}: {exc}"
+                    ) from exc
+
+                if restored:
                     return
 
                 cps.create_consent_deny_rule(

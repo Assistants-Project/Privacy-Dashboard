@@ -1,0 +1,51 @@
+SCPN Conflict Detection Time
+Execution mode : direct Python service call
+Conflict type : inconsistency
+Measured runs : 50
+Warmup runs   : 10
+Rule counts   : 10, 25, 50
+
+Curve summary
+10 -> median 0.259 ms, mean 0.279 ms, p95 0.407 ms
+25 -> median 0.602 ms, mean 0.702 ms, p95 0.907 ms
+50 -> median 1.584 ms, mean 2.410 ms, p95 2.255 ms
+
+rules=10
+conflict_type      : inconsistency
+  count     : 50
+  min_ms    : 0.247
+  max_ms    : 0.473
+  mean_ms   : 0.279
+  median_ms : 0.259
+  p95_ms    : 0.407
+  stdev_ms  : 0.053
+One existing rule shares the same trigger/action pair as the target rule.
+Remaining rules are unique trigger/action pairs to scale net size without introducing extra conflicts.
+
+rules=25
+conflict_type      : inconsistency
+  count     : 50
+  min_ms    : 0.581
+  max_ms    : 2.073
+  mean_ms   : 0.702
+  median_ms : 0.602
+  p95_ms    : 0.907
+  stdev_ms  : 0.276
+One existing rule shares the same trigger/action pair as the target rule.
+Remaining rules are unique trigger/action pairs to scale net size without introducing extra conflicts.
+
+rules=50
+conflict_type      : inconsistency
+  count     : 50
+  min_ms    : 1.441
+  max_ms    : 37.058
+  mean_ms   : 2.410
+  median_ms : 1.584
+  p95_ms    : 2.255
+  stdev_ms  : 5.018
+One existing rule shares the same trigger/action pair as the target rule.
+Remaining rules are unique trigger/action pairs to scale net size without introducing extra conflicts.
+
+Notes
+This microbenchmark measures the Python service directly, without HTTP or database overhead.
+It exercises structural conflict detection and Petri-net construction. Trigger implication/loop reasoning is intentionally excluded from the synthetic dataset.

@@ -522,7 +522,12 @@ class RuleService:
         
         # 2. Index Smartotum rules
         smartotum_rules_map = {str(r.rule_uuid): r for r in smartotum_rules}
-        
+        consent_derived_rule_uuids = self._restore_missing_consent_master_rules(
+            home=home,
+            smartotum_rules=smartotum_rules,
+            local_rules_map=local_rules_map,
+        )
+
         # 3. Identify Deletions (Local but not in Smartotum)
 
         for rule_uuid, db_rule in local_rules_map.items():
@@ -554,6 +559,12 @@ class RuleService:
 
         # 4. Identify Creations and Updates
         for rule_uuid, s_rule in smartotum_rules_map.items():
+            if rule_uuid in consent_derived_rule_uuids:
+                self.logger.info(
+                    "Sync: Skipping consent-derived DHT rule %s after local master reconstruction",
+                    rule_uuid,
+                )
+                continue
             if rule_uuid in local_rules_map:
                 try:
                     self.update_rule_from_smartotum(s_rule)
@@ -568,6 +579,140 @@ class RuleService:
                      self.create_rule_from_smartotum(home, s_rule)
                 except Exception as e:
                     self.logger.error(f"Sync: Failed to create rule {rule_uuid}: {e}")
+
+    def _restore_missing_consent_master_rules(
+        self,
+        *,
+        home: SmartHome,
+        smartotum_rules: List["SmartotumRule"],
+        local_rules_map: Dict[str, DbRule],
+    ) -> Set[str]:
+        """Recreate missing local master rules for consent-driven fan-out rules.
+
+        Consent deny rules are stored locally as a single "Entire Home" master rule, while
+        on the DHT they may appear as one derived rule per target device. If the DB master
+        disappears but the DHT fan-out rules remain, normal sync would otherwise recreate one
+        local rule per device. Instead, detect these derived consent rules and rebuild only the
+        local master rule without publishing anything back to the DHT.
+        """
+        if not smartotum_rules:
+            return set()
+
+        smartotum_rule_by_uuid = {
+            str(r.rule_uuid): r for r in smartotum_rules if getattr(r, "rule_uuid", None)
+        }
+        if not smartotum_rule_by_uuid:
+            return set()
+
+        from ..services.consent_policy_rule_service import ConsentPolicyRuleService
+
+        cps = ConsentPolicyRuleService(rule_service=self)
+        skipped_dht_rule_uuids: Set[str] = set()
+
+        # Group given consents by (user_id, consent_id) for quick lookup.
+        given_consent_ids_by_user: Dict[int, Set[int]] = {}
+        for given_consent in getattr(home, "given_consents", []) or []:
+            given_consent_ids_by_user.setdefault(given_consent.user_id, set()).add(
+                given_consent.available_consent_id
+            )
+
+        for installed_app in getattr(home, "installed_applications", []) or []:
+            user = getattr(installed_app, "user", None)
+            application = getattr(installed_app, "application", None)
+            if not user or not application:
+                continue
+
+            given_consent_ids = given_consent_ids_by_user.get(user.id, set())
+            available_consents = getattr(application, "available_consents", []) or []
+
+            for available_consent in available_consents:
+                action_id = getattr(available_consent, "sifis_action_id", None)
+                if not action_id:
+                    continue
+                if available_consent.id in given_consent_ids:
+                    continue
+
+                base_rule_uuid = cps.consent_rule_uuid(
+                    home_uuid=str(home.uuid),
+                    consent_uuid=available_consent.uuid,
+                )
+                if base_rule_uuid in local_rules_map:
+                    continue
+
+                expected_rule_data = self._build_entire_home_rule_data(
+                    smart_home=home,
+                    subject_email=user.email,
+                    action_url=self.SIFIS_BASE_IRI + str(action_id).strip(),
+                    expiration_date=ConsentPolicyRuleService._DEFAULT_EXPIRATION_DATE,
+                )
+                try:
+                    location_url, location_name = self._extract_action_location(expected_rule_data)
+                    targets = self._targets_from_ontology(
+                        expected_rule_data,
+                        home,
+                        base_rule_uuid,
+                        location_url,
+                        location_name,
+                    )
+                except Exception as exc:
+                    self.logger.warning(
+                        "Sync: Failed to resolve expected targets for consent %s in home %s: %s",
+                        str(available_consent.uuid),
+                        str(home.uuid),
+                        exc,
+                    )
+                    continue
+
+                expected_dht_rule_uuids = self._expected_dht_rule_uuids_for_targets(
+                    base_rule_uuid=base_rule_uuid,
+                    targets=targets,
+                )
+                matching_dht_rule_uuids = expected_dht_rule_uuids.intersection(
+                    smartotum_rule_by_uuid.keys()
+                )
+
+                if not matching_dht_rule_uuids:
+                    continue
+
+                # If one or more derived rules are still on the DHT, rebuild only the local master.
+                matching_rule = smartotum_rule_by_uuid[next(iter(matching_dht_rule_uuids))]
+                expiration_date = getattr(matching_rule, "expiration_date", None) or ConsentPolicyRuleService._DEFAULT_EXPIRATION_DATE
+
+                try:
+                    cps.create_local_consent_deny_rule_without_publish(
+                        smart_home=home,
+                        subject_email=user.email,
+                        consent_uuid=available_consent.uuid,
+                        sifis_action_id=action_id,
+                        expiration_date=expiration_date,
+                    )
+                    duplicate_local_rule_ids: List[int] = []
+                    for child_rule_uuid in matching_dht_rule_uuids:
+                        if child_rule_uuid == base_rule_uuid:
+                            continue
+                        duplicate_local_rule = local_rules_map.pop(child_rule_uuid, None)
+                        if duplicate_local_rule is None:
+                            continue
+                        duplicate_local_rule_ids.append(duplicate_local_rule.id)
+                        db.session.delete(duplicate_local_rule)
+                    if duplicate_local_rule_ids:
+                        db.session.flush()
+                    skipped_dht_rule_uuids.update(matching_dht_rule_uuids)
+                    local_rules_map[base_rule_uuid] = self.rule_repo.get_rule_by_uuid(base_rule_uuid)  # keep sync state aligned in-memory
+                    self.logger.info(
+                        "Sync: Recreated missing local consent master rule %s from existing DHT derived rules %s; removed local duplicates %s",
+                        base_rule_uuid,
+                        ", ".join(sorted(matching_dht_rule_uuids)),
+                        ", ".join(str(rule_id) for rule_id in duplicate_local_rule_ids) if duplicate_local_rule_ids else "none",
+                    )
+                except Exception as exc:
+                    self.logger.error(
+                        "Sync: Failed to recreate local consent master rule %s: %s",
+                        base_rule_uuid,
+                        exc,
+                    )
+
+        return skipped_dht_rule_uuids
 
     def _determine_trigger_type_from_smartotum(self, s_rule: "SmartotumRule") -> Tuple[str, str]:
         """Determine SIFIS trigger URL and type based on Smartotum rule content"""
@@ -971,6 +1116,34 @@ class RuleService:
             pass
         return None, None
 
+    def _build_entire_home_rule_data(
+        self,
+        *,
+        smart_home: SmartHome,
+        subject_email: str,
+        action_url: str,
+        expiration_date: str,
+    ) -> Dict[str, Any]:
+        home_uuid = str(smart_home.uuid)
+        location_url = f"http://elite.polito.it/ontologies/sifis-home.owl/{home_uuid}#location-home"
+        return {
+            "effect": "deny",
+            "subject": subject_email,
+            "timestamp": int(time.time() * 1000),
+            "expirationDate": str(expiration_date).replace("-", "/"),
+            "trigger": {"url": self.SIFIS_ALWAYS_TRIGGER_URL, "details": []},
+            "action": {
+                "url": action_url,
+                "details": [
+                    {
+                        "url": self.SIFIS_LOCATION_DETAIL_URL,
+                        "type": "location",
+                        "value": {"name": "Entire Home", "url": location_url},
+                    }
+                ],
+            },
+        }
+
     def _smartotum_has_any_derived_rule(self, base_rule_uuid: str, smartotum_rules: List["SmartotumRule"]) -> bool:
         """Return True if DHT contains at least one derived UUID5 child for this base rule UUID.
 
@@ -995,6 +1168,24 @@ class RuleService:
                 return True
 
         return False
+
+    def _expected_dht_rule_uuids_for_targets(
+        self,
+        *,
+        base_rule_uuid: str,
+        targets: List[Tuple[str, str]],
+    ) -> Set[str]:
+        if not targets:
+            return set()
+
+        if len(targets) == 1:
+            return {str(base_rule_uuid)}
+
+        expected_rule_uuids: Set[str] = set()
+        base_uuid = UUID(str(base_rule_uuid))
+        for _topic_name, target_uuid in targets:
+            expected_rule_uuids.add(str(uuid.uuid5(base_uuid, str(target_uuid))))
+        return expected_rule_uuids
 
     def _is_smartotum_rule_derived_from_any_local_base(self, s_rule: "SmartotumRule", local_base_uuids: List[str]) -> bool:
         """Return True if this DHT rule UUID matches uuid5(base_uuid, target_uuid) for any local base."""

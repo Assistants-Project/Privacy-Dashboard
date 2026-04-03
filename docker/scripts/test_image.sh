@@ -28,6 +28,9 @@ if [[ ! -f "${COLLECTION_FILE}" ]]; then
   exit 1
 fi
 
+echo "Removing testing DHT output fixtures"
+find "${PROJECT_ROOT}/backend/testing/data/dht" -name 'privacy_rule_output.json' -delete
+
 cleanup() {
   echo "Cleaning up temporary test stack ${TEST_PROJECT_NAME}"
   docker compose -f "${COMPOSE_FILE}" --env-file "${DEPLOY_ENV_FILE}" down --remove-orphans -v || true

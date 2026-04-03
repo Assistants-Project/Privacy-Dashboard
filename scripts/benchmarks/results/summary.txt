@@ -1,0 +1,96 @@
+All Benchmarks Summary
+Output directory      : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results
+Selected benchmarks   : api, withdraw, translation, petrinet, owl
+Completed benchmarks  : 5
+Failed benchmarks     : 0
+Python interpreter    : /Users/alberto/Documents/Tesi/privacy-dashboard/.venv/bin/python
+
+api
+status      : ok
+elapsed_s   : 90.691
+json        : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/api-benchmark.json
+csv         : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/api-benchmark.csv
+txt         : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/api-benchmark.txt
+mode              : Dockerized Newman collection replay
+base_url          : http://host.docker.internal:5050
+collection        : /Users/alberto/Documents/Tesi/privacy-dashboard/backend/testing/tests/Privacy-Dashboard-API.postman_collection_cleaned.json
+iterations        : 3
+success_only      : yes
+ds_email          : s312192@studenti.polito.it
+dc_email          : controller.smartotum@example.com
+overall latency   : mean 177.018 ms, median 14.000 ms, p95 908.350 ms, min 6.000 ms, max 1828.000 ms
+endpoint groups   : 59
+controller routes : 74
+collection failures: 0
+
+withdraw
+status      : ok
+elapsed_s   : 22.719
+json        : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/withdraw-latency.json
+csv         : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/withdraw-latency.csv
+txt         : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/withdraw-latency.txt
+mode             : HTTP withdraw request + DHT visibility polling
+base_url         : http://127.0.0.1:5050
+ds_email         : s312192@studenti.polito.it
+home_uuid        : fixissuesbpoyqq
+application_id   : com.smartotum.smartotum-camera-manager
+application_name : com.smartotum.smartotum-camera-manager
+consent_content  : Consent to Record Video Footage from Smart Home Cameras
+iterations       : 10
+warmup           : 2
+settle_timeout_s : 10.0
+poll_interval_s  : 0.2
+skip_refresh     : no
+keep_withdrawn   : no
+submit_http      : mean 899.130 ms, median 867.418 ms, p95 1065.411 ms, min 842.564 ms, max 1205.618 ms
+first_seen       : mean 907.972 ms, median 879.343 ms, p95 1071.930 ms, min 849.446 ms, max 1211.762 ms
+
+translation
+status      : ok
+elapsed_s   : 195.737
+json        : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/translation-benchmark.json
+csv         : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/translation-benchmark.csv
+txt         : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/translation-benchmark.txt
+mode                 : Flask endpoint end-to-end
+timed_endpoint       : POST /api/sifis/homes/<home_uuid>/rules/<rule_id>/download
+base_url             : http://127.0.0.1:5050
+ds_email             : s312192@studenti.polito.it
+home_uuid            : fixissuesbpoyqq
+iterations           : 30
+warmup               : 5
+multi_subject_count  : 3
+skip_refresh         : no
+simple_deny             : mean 1037.610 ms, median 1000.297 ms, p95 1383.603 ms, min 951.181 ms, max 1408.104 ms
+temporal_deny           : mean 1045.953 ms, median 1002.254 ms, p95 1422.562 ms, min 954.576 ms, max 1462.158 ms
+multi_subject_surrogate batch      : mean 3187.591 ms, median 3039.771 ms, p95 3557.772 ms, min 2979.025 ms, max 3608.872 ms
+multi_subject_surrogate per-rule   : mean 1062.520 ms, median 1013.787 ms, p95 1475.719 ms, min 951.418 ms, max 1536.758 ms
+
+petrinet
+status      : ok
+elapsed_s   : 1.156
+json        : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/petrinet-benchmark.json
+csv         : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/petrinet-benchmark.csv
+txt         : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/petrinet-benchmark.txt
+mode           : direct Python service call
+rule_counts    : 10, 25, 50
+iterations     : 50
+warmup         : 10
+conflict_type  : inconsistency
+curve          :
+  rules=10 -> mean 0.279 ms, median 0.259 ms, p95 0.407 ms, min 0.247 ms, max 0.473 ms
+  rules=25 -> mean 0.702 ms, median 0.602 ms, p95 0.907 ms, min 0.581 ms, max 2.073 ms
+  rules=50 -> mean 2.410 ms, median 1.584 ms, p95 2.255 ms, min 1.441 ms, max 37.058 ms
+
+owl
+status      : ok
+elapsed_s   : 8.756
+json        : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/owl-loading-benchmark.json
+csv         : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/owl-loading-benchmark.csv
+txt         : /Users/alberto/Documents/Tesi/privacy-dashboard/scripts/benchmarks/results/owl-loading-benchmark.txt
+mode              : direct Python OWLService initialization
+ontology dir      : backend/app/ontologies/
+ontology file     : sifis-home.owl
+iterations        : 10
+warmup            : 2
+suppress output   : yes
+owl init latency  : mean 669.258 ms, median 673.930 ms, p95 684.620 ms, min 627.563 ms, max 686.273 ms

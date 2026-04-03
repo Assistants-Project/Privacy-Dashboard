@@ -1,16 +1,30 @@
 from datetime import datetime
-from uuid import UUID
+from uuid import UUID, uuid5
 
 from sqlalchemy import Row, and_
 
 from ..extensions import db
-from ..models import AvailableConsent, UserSmartHomeAvailableConsent
+from ..models import Application, AvailableConsent, UserSmartHomeAvailableConsent
 
 
 class ConsentRepository:
-    #si occupa di aggiungere consensi mancanti, se un consenso è già presente non fa nulla
-    #utilizzata sia nel contesto di sync smartotum sia nel caso di creazione di una nuova app
-    #non cancella i consensi non più presenti -> bisogna decidere come gestire la cancellazione -> avere is active = false sarebbe la soluzione migliore
+    _SMARTOTUM_AVAILABLE_CONSENT_NAMESPACE = UUID("2396361f-c825-4d7d-bac6-eaa643b4f126")
+
+    @classmethod
+    def stable_smartotum_available_consent_uuid(
+        cls, application_name: str, content: str
+    ) -> UUID:
+        normalized_application_name = (application_name or "").strip().lower()
+        normalized_content = " ".join((content or "").strip().split())
+        return uuid5(
+            cls._SMARTOTUM_AVAILABLE_CONSENT_NAMESPACE,
+            f"smartotum-consent:{normalized_application_name}:{normalized_content}",
+        )
+
+    # Adds missing consents for an application and avoids duplicates for already existing ones.
+    # Used both during Smartotum sync and when a new application is created manually.
+    # When a content -> sifis_action_id mapping is provided, existing rows are updated accordingly.
+    # If prune_missing=True, consents no longer present in the desired list are deleted.
     @staticmethod
     def upsert_available_consents_for_application(
         application_id: int,
@@ -21,6 +35,11 @@ class ConsentRepository:
         statement = db.select(AvailableConsent).where(AvailableConsent.application_id == application_id)
         existing = {c.content: c for c in db.session.scalars(statement).all()}
         desired_contents = set(available_consent_contents)
+        application = db.session.get(Application, application_id)
+        application_name = getattr(application, "name", "") if application is not None else ""
+        use_stable_smartotum_uuid = (
+            sifis_action_id_by_content is not None and bool(application_name)
+        )
 
         for content in available_consent_contents:
             existing_row = existing.get(content)
@@ -31,10 +50,19 @@ class ConsentRepository:
                     existing_row.sifis_action_id = sifis_action_id_by_content.get(content)
                 continue
 
+            new_consent_kwargs = {
+                "content": content,
+                "application_id": application_id,
+                "sifis_action_id": sifis_action_id_by_content.get(content) if sifis_action_id_by_content is not None else None,
+            }
+            if use_stable_smartotum_uuid:
+                new_consent_kwargs["uuid"] = ConsentRepository.stable_smartotum_available_consent_uuid(
+                    application_name,
+                    content,
+                )
+
             new_consent = AvailableConsent(
-                content=content,
-                application_id=application_id,
-                sifis_action_id=sifis_action_id_by_content.get(content) if sifis_action_id_by_content is not None else None,
+                **new_consent_kwargs,
             )
             db.session.add(new_consent)
             existing[content] = new_consent
